@@ -5,6 +5,7 @@
 ### Implementation located at https://github.com/orubel/beapi_backend
 
 
+
 Fully reactive api framework providing automation and simplification of api's for scale. Some features include:
 
 - **Automated Batching:** all endpoints are batchable by default with AUTH ROLES assignable to restrict access. Batching can also be TOGGLED to turn this feature ON/OFF per endpoint.
