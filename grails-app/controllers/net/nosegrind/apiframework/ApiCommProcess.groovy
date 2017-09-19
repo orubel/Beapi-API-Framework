@@ -497,7 +497,7 @@ abstract class ApiCommProcess{
 
             d.persistentProperties.each() { it ->
                 if (it?.name) {
-                    if ((DomainClassArtefactHandler.isDomainClass(data[it.name].getClass()))) {
+                    if (DomainClassArtefactHandler.isDomainClass(data[it.name].getClass())) {
                         newMap["${it.name}Id"] = data[it.name].id
                     } else {
                         newMap[it.name] = data[it.name]
@@ -515,7 +515,7 @@ abstract class ApiCommProcess{
         LinkedHashMap newMap = [:]
         map.each(){ key,val ->
             if(val){
-                if(DomainClassArtefactHandler.isDomainClass(val.getClass())){
+                if(DomainClassArtefactHandler.isDomainClass(val.getClass()) || DomainClassArtefactHandler.isArtefactClass(val)){
                     newMap[key]=formatDomainObject(val)
                 }else{
                     newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map)?val:val.toString()
@@ -531,13 +531,13 @@ abstract class ApiCommProcess{
         list.eachWithIndex(){ val, key ->
             if(val){
                 if(val[0]){
-                    if(DomainClassArtefactHandler.isDomainClass(val[0].getClass())){
+                    if(DomainClassArtefactHandler.isDomainClass(val[0].getClass()) || DomainClassArtefactHandler.isArtefactClass(val[0])){
                         newMap[key]=formatDomainObject(val[0])
                     }else{
                         newMap[key] = ((val[0] in java.util.ArrayList || val[0] in java.util.List) || val[0] in java.util.Map)?val[0]:val[0].toString()
                     }
                 }else {
-                    if (DomainClassArtefactHandler.isDomainClass(val.getClass())) {
+                    if (DomainClassArtefactHandler.isDomainClass(val.getClass()) || DomainClassArtefactHandler.isArtefactClass(val)) {
                         newMap[key] = formatDomainObject(val)
                     } else {
                         newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? list[key] : val.toString()
