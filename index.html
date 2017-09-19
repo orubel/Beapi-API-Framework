@@ -40,7 +40,7 @@
         <h3><a id="what_is" class="anchor" href="#what_is" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What is BeAPI&#8482; API Framework?</h3>
 
 <p>The <b>BeAPI&#8482; API Framework</b> is a Plugin for <a href="https://grails.org/">Grails</a> on the <a href="http://projects.spring.io/spring-boot/">Spring Boot Microservice</a>.</p>
-<p>It installs a fully Reactive API Framework allowing improved automation, code reduction, simplified/fast development, and improved performance/scalability for distributed architectures.</p>
+<p>It installs a full microservice API Framework allowing improved automation, code reduction, simplified/fast development, and improved performance/scalability for distributed architectures.</p>
 <p>It was built by <a href="https://www.linkedin.com/in/orubel">a leader in the API industry</a> who has spent years solving issues with API installations in distributed architectures and who has advised/consulted/worked with enterprise leaders such as Apple, Netflix, VMWare, Cisco, Mashery, Amazon and others.</p>
 
 <h3>
@@ -53,10 +53,13 @@
 <li><b>Faster & More scalable</b></li>
 <li>On-the-fly reloading of endpoint data (no shutting down server to make changes)</li>
 <li>Ability to sychronize endpoint data across all services</li>
+<li>CORS</li>
+<li>Rate Limiting</li>
+<li>Token Validation</li>
+<li>Webhooks</li>
 <li>Automated apidocs</li>
-<li>Automated checks</li>
-<li>Automated batching</li>
-<li>Automated Webhooks / Architectural Webhooks</li>
+<li>Automated Role check</li>
+<li>Automated Batching</li>
 <li>API Chaining</li>
 <li>Reduction in dropped threads</li>
 <li>100% stateless</li>
@@ -65,7 +68,7 @@
 <h3>
 <a id="apidev" class="anchor" href="#apidev" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Easy API Development</h3>
 
-<p>All communication logic and data are abstracted away from the controllers and services leaving the controllers to only deal with retrieving and returning a resource. This makes API development INCREDIBLY simple. You simply have to:</p>
+<p>All communication logic and data are abstracted away from the controllers and services leaving the controllers to only deal with retrieving and returning a resource. This makes API development INCREDIBLY simple and FAST. You simply have to:</p>
 <ul>
 <li>Install the plugin</li>
 <li>Build a JSON IO State file for each controller</li>
