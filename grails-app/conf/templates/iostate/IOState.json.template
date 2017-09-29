@@ -16,43 +16,53 @@ net.nosegrind.IOState
 
 	
 {
+
     "NAME":"iostate",
     "VALUES": {
         "name": {
             "type": "String",
-            "description":"IO State name"
+            "description":"IO State name",
+            "mockData": "Mock IO State"
         },
         "version": {
             "type": "Long",
-            "description":"Version for Updating IO State"
+            "description":"Version for Updating IO State",
+            "mockData": "0"
         },
         "cacheversion": {
             "type": "Long",
-            "description":"Version in cache"
+            "description":"Version in cache",
+            "mockData": "1"
         },
-		"method":{
+	"method":{
             "type": "String",
-            "description":"Request Method"
+            "description": "Request Method",
+            "mockData": "GET"
         },
-		"description":{
+	"description":{
             "type": "String",
-            "description":"API Description"
+            "description": "API Description",
+            "mockData": "Mock Description"
         },
-		"roles":{
+	"roles":{
             "type": "List",
-            "description":"Authorization"
+            "description":"Authorization",
+            "mockData": ["ROLE_ADMIN"]
         },
-		"batchRoles":{
+	"batchRoles":{
             "type": "List",
-            "description":"Batch Authorization"
+            "description":"Batch Authorization",
+            "mockData": [ "ROLE_ADMIN" ]
         },
-		"receives":{
+	"receives":{
             "type": "List",
-            "description":"List of variable sent on request"
+            "description":"List of variable sent on request",
+            "mockData": []
         },
-		"returns":{
+	"returns":{
             "type": "List",
-            "description":"list of variables sent on response"
+            "description":"list of variables sent on response",
+            "mockData": []
         }
     },
 	"CURRENTSTABLE": "1",
@@ -64,10 +74,10 @@ net.nosegrind.IOState
 	             	"METHOD":"GET",
 	            	"DESCRIPTION":"Show IOState",
 	            	"ROLES":{
-                        "DEFAULT":["ROLE_ADMIN"],
-                        "BATCH":["ROLE_ADMIN"],
-                        "HOOK":["ROLE_ADMIN"]
-                    },
+			    "DEFAULT":["ROLE_ADMIN"],
+			    "BATCH":["ROLE_ADMIN"],
+			    "HOOK":["ROLE_ADMIN"]
+			},
 	                "REQUEST": {
 	                    "permitAll":[]
 	                },
@@ -79,10 +89,10 @@ net.nosegrind.IOState
 	            	"METHOD":"POST",
 	            	"DESCRIPTION":"Update IOState",
 	            	"ROLES":{
-                        "DEFAULT":["ROLE_ADMIN"],
-                        "BATCH":["ROLE_ADMIN"],
-                        "HOOK":["ROLE_ADMIN"]
-                    },
+			    "DEFAULT":["ROLE_ADMIN"],
+			    "BATCH":["ROLE_ADMIN"],
+			    "HOOK":["ROLE_ADMIN"]
+			},
 	                "REQUEST": {
 	                    "permitAll":["name"]
 	                },

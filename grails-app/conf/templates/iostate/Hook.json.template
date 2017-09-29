@@ -20,31 +20,33 @@ net.nosegrind.Hook
     "VALUES": {
         "id": {
             "type": "PKEY",
-            "description":"ID for Hook"
+            "description":"ID for Hook",
+            "mockData": "1"
         },
         "version": {
             "type": "Long",
-            "description":"Version for Updating Hook"
+            "description":"Version for Updating Hook",
+            "mockData": "1"
         },
         "user": {
             "type": "FKEY",
-            "description":"User relationship"
-        },
-        "name": {
-            "type": "String",
-            "description":"Name of Hook"
+            "description":"User relationship",
+            "mockData": "1"
         },
         "url": {
             "type": "String",
-            "description":"Subscribers Receiving URL for Hook"
+            "description":"Subscribers Receiving URL for Hook",
+            "mockData": "http://localhost/endpoint"
         },
         "format": {
             "type": "String",
-            "description":"JSON/XML"
+            "description":"JSON/XML",
+            "mockData": "JSON"
         },
         "service": {
             "type": "String",
-            "description":"Api Service being Subscribed to"
+            "description":"Api Service being Subscribed to",
+            "mockData": "http://localhost/person/show"
         }
     },
 	"CURRENTSTABLE": "1",
@@ -56,42 +58,42 @@ net.nosegrind.Hook
 	             	"METHOD":"GET",
 	            	"DESCRIPTION":"List Hook",
 	            	"ROLES":{
-                        "DEFAULT":["ROLE_ADMIN"],
-                        "BATCH":["ROLE_ADMIN"],
-                        "HOOK":["ROLE_ADMIN"]
-			        },
+			    "DEFAULT":["ROLE_ADMIN"],
+			    "BATCH":["ROLE_ADMIN"],
+			    "HOOK":["ROLE_ADMIN"]
+			},
 	                "REQUEST": {
 	                    "permitAll":[]
 	                },
 	                "RESPONSE": {
-	                	"permitAll":["id","version","user","name","url","format","service"]
+	                	"permitAll":["id","version","user","url","format","service"]
 	                }
 	        	},
 	            "show": {
 	             	"METHOD":"GET",
 	            	"DESCRIPTION":"Show Hooks",
 	            	"ROLES":{
-                        "DEFAULT":["ROLE_ADMIN"],
-                        "BATCH":["ROLE_ADMIN"],
-                        "HOOK":["ROLE_ADMIN"]
-                    },
+			    "DEFAULT":["ROLE_ADMIN"],
+			    "BATCH":["ROLE_ADMIN"],
+			    "HOOK":["ROLE_ADMIN"]
+			},
 	                "REQUEST": {
 	                    "permitAll":["id"]
 	                },
 	                "RESPONSE": {
-	                	"permitAll":["id","version","user","name","url","format","service"]
+	                	"permitAll":["id","version","user","url","format","service"]
 	                }
 	            },
 	            "create":{
 	             	"METHOD":"PUT",
 	            	"DESCRIPTION":"Create Hook",
 	            	"ROLES":{
-                        "DEFAULT":["ROLE_ADMIN"],
-                        "BATCH":["ROLE_ADMIN"],
-                        "HOOK":["ROLE_ADMIN"]
-                    },
+			    "DEFAULT":["ROLE_ADMIN"],
+			    "BATCH":["ROLE_ADMIN"],
+			    "HOOK":["ROLE_ADMIN"]
+			},
 	                "REQUEST": {
-	                    "permitAll":["name","url","format","service"]
+	                    "permitAll":["url","format","service"]
 	                },
 	                "RESPONSE": {
 	                	"permitAll":["id","version"]
@@ -101,12 +103,12 @@ net.nosegrind.Hook
 	            	"METHOD":"POST",
 	            	"DESCRIPTION":"Update Hook",
 	            	"ROLES":{
-                        "DEFAULT":["ROLE_ADMIN"],
-                        "BATCH":["ROLE_ADMIN"],
-                        "HOOK":["ROLE_ADMIN"]
-                    },
+			    "DEFAULT":["ROLE_ADMIN"],
+			    "BATCH":["ROLE_ADMIN"],
+			    "HOOK":["ROLE_ADMIN"]
+			},
 	                "REQUEST": {
-	                    "permitAll":["id","version","name","url","format","service"]
+	                    "permitAll":["id","version","url","format","service"]
 	                },
 	                "RESPONSE": {
 	                    "permitAll":["id","version"]
@@ -116,10 +118,10 @@ net.nosegrind.Hook
 	            	"METHOD":"DELETE",
 	            	"DESCRIPTION":"Delete Hook",
 	            	"ROLES":{
-                        "DEFAULT":["ROLE_ADMIN"],
-                        "BATCH":["ROLE_ADMIN"],
-                        "HOOK":["ROLE_ADMIN"]
-                    },
+			    "DEFAULT":["ROLE_ADMIN"],
+			    "BATCH":["ROLE_ADMIN"],
+			    "HOOK":["ROLE_ADMIN"]
+			},
 	                "REQUEST": {
 	                    "permitAll":["id"]
 	                },
@@ -131,10 +133,10 @@ net.nosegrind.Hook
 	            	"METHOD":"GET",
 	            	"DESCRIPTION":"Reset Hook attempts",
 	            	"ROLES":{
-                        "DEFAULT":["ROLE_ADMIN"],
-                        "BATCH":["ROLE_ADMIN"],
-                        "HOOK":["ROLE_ADMIN"]
-                    },
+			    "DEFAULT":["ROLE_ADMIN"],
+			    "BATCH":["ROLE_ADMIN"],
+			    "HOOK":["ROLE_ADMIN"]
+			},
 	                "REQUEST": {
 	                    "permitAll":["id"]
 	                },

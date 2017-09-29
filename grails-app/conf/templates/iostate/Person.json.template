@@ -21,12 +21,12 @@ net.nosegrind.IOState
         "id": {
             "key": "PRIMARY",
             "type": "Long",
-            "description":"ID for Event",
+            "description":"ID for Person",
 	    "mockData":"1"
         },
         "version": {
             "type": "Long",
-            "description":"Version for Event",
+            "description":"Version for Person",
 	    "mockData":"0"
         },
 	"username":{
@@ -51,7 +51,7 @@ net.nosegrind.IOState
 	},
 	"avatarUrl":{
             "type": "String",
-            "description":"Event Type Name",
+            "description":"Avatar URL",
 	    "mockData":"https://en.gravatar.com/userimage/38053926/62165e36e1f429564a78e82db5b72591.jpg?size=200"
 	},
 	"enabled":{
@@ -95,7 +95,7 @@ net.nosegrind.IOState
 			        	"permitAll":["id","version"]
 			        }
 			    },
-			    "get": {
+			    "show": {
 			     	"METHOD":"GET",
 			    	"DESCRIPTION":"Get Person by ID",
 			    	"ROLES":{

@@ -1,0 +1,119 @@
+/* JSON API Object */
+/* ****************************************************************************
+ * Copyright 2014 Owen Rubel
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed is distributed on an "AS IS" BASIS,WITHOUT WARRANTIES 
+ * OR CONDITIONS OF ANY KIND, either express or implied.
+ *****************************************************************************/
+// NOTES
+
+/* 'permitAll' needs to always come first so other roles can make use of it
+* as they come afterward
+
+net.nosegrind.Hook
+*/
+// Dynamic Values :
+// MOCK_USER_AUTH
+// MOCK_USER_ID
+// STATIC
+	
+{
+    "NAME":"acctPerson",
+    "VALUES": {
+        "id": {
+            "key": "PRIMARY",
+            "type": "Long",
+            "description":"ID for Account",
+            "mockData":"2"
+        },
+        "version": {
+            "type": "Long",
+            "description":"Version for Account",
+	    "mockData":"0"
+        },
+        "acctId": {
+            "type": "String",
+            "description":"Account",
+	    "mockData":"23"
+        },
+        "personId": {
+            "type": "String",
+            "description":"Person",
+	    "mockData":"13"
+        },
+        "owner": {
+            "type": "Boolean",
+            "description":"Is Account Enabled?",
+	    "mockData":"false"
+        }
+    },
+	"CURRENTSTABLE": "1",
+	"VERSION": {
+		"1": {
+			"DEFAULTACTION":"list",
+	        "URI": {
+	            "list":{
+			     	"METHOD":"GET",
+			    	"DESCRIPTION":"List Person Accts",
+			    	"ROLES":{
+				    "DEFAULT":["ROLE_ADMIN"],
+				    "BATCH":["ROLE_ADMIN"],
+				    "HOOK":["ROLE_ADMIN"]
+				},
+			        "REQUEST": {
+			            "permitAll":["id"]
+			        },
+			        "RESPONSE": {
+			        	"permitAll":["id","version","acctId","personId","owner"]
+			        }
+	        	},
+	            "show": {
+	             	"METHOD":"GET",
+	            	"DESCRIPTION":"Show Person Account",
+	            	"ROLES":{
+			    "DEFAULT":["ROLE_ADMIN"],
+			    "BATCH":["ROLE_ADMIN"],
+			    "HOOK":["ROLE_ADMIN"]
+			},
+	                "REQUEST": {
+	                    "permitAll":["id"]
+	                },
+	                "RESPONSE": {
+	                	"permitAll":["id","version","acctId","personId","owner"]
+	                }
+	            },
+	            "create":{
+	             	"METHOD":"POST",
+	            	"DESCRIPTION":"Create Account",
+	            	"ROLES":{
+			    "DEFAULT":["ROLE_ADMIN"],
+			    "BATCH":["ROLE_ADMIN"],
+			    "HOOK":["ROLE_ADMIN"]
+			},
+	                "REQUEST": {
+	                    "permitAll":["acctId","personId"]
+	                },
+	                "RESPONSE": {
+	                	"permitAll":["id","version"]
+	                }
+	            },
+	            "delete":{
+	            	"METHOD":"DELETE",
+	            	"DESCRIPTION":"Delete Account",
+	            	"ROLES":{
+			    "DEFAULT":["ROLE_ADMIN"],
+			    "BATCH":["ROLE_ADMIN"],
+			    "HOOK":["ROLE_ADMIN"]
+			},
+	                "REQUEST": {
+	                    "permitAll":["id"]
+	                },
+	                "RESPONSE": {
+	                    "permitAll":["id"]
+	                }
+	            }
+	        }
+		}
+	}
+}

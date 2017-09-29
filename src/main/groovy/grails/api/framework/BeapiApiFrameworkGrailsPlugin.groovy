@@ -1,13 +1,3 @@
-/*
- * Academic Free License ("AFL") v. 3.0
- * Copyright 2014-2017 Owen Rubel
- *
- * IO State (tm) Owen Rubel 2014
- * API Chaining (tm) Owen Rubel 2013
- *
- *   https://opensource.org/licenses/AFL-3.0
- */
-
 package grails.api.framework
 
 import grails.plugin.springsecurity.SpringSecurityUtils
@@ -39,10 +29,10 @@ import java.util.jar.JarFile
 import java.util.jar.JarException
 import java.util.jar.JarEntry
 
-class BoomstickApiFrameworkGrailsPlugin extends Plugin{
+class BeapiApiFrameworkGrailsPlugin extends Plugin{
 	def version = "0.2.1.2"
     def grailsVersion = "3.1.1 > *"
-    def title = "Boomstick Api Framework" // Headline display name of the plugin
+    def title = "BeAPI Api Framework" // Headline display name of the plugin
 	def author = "Owen Rubel"
 	def authorEmail = "orubel@gmail.com"
 	def description = 'BeAPI Framework is a fully reactive plug-n-play API Framework for Distributed Architectures providing api abstraction, cached IO state, automated batching and more. It is meant to autmoate alot of the issues behind setting up and maintaining API\'s in distributed architectures as well as handling and simplifying automation.'

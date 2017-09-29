@@ -20,11 +20,13 @@ net.nosegrind.Apidoc
     "VALUES": {
         "authority": {
             "type": "String",
-            "description":"Authorities able to access data"
+            "description":"Authorities able to access data",
+            "mockData":"ROLE_USER"
         },
         "apiList": {
             "type": "String",
-            "description":"JSON/XML"
+            "description":"JSON/XML",
+            "mockData":{}
         },
     },
 	"CURRENTSTABLE": "1",
