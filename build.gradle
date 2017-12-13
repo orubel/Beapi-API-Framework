@@ -155,11 +155,11 @@ dependencies {
 
     //runtime "org.apache.tomcat:tomcat-jdbc"
 
-    testCompile "org.grails:grails-gorm-testing-support"
+    //testCompile "org.grails:grails-gorm-testing-support"
     //testCompile "org.grails:grails-plugin-testing"
     //testCompile "org.grails.plugins:geb"
     //testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
-    testCompile "org.grails:grails-web-testing-support"
+    //testCompile "org.grails:grails-web-testing-support"
 }
 
 task wrapper(type: Wrapper) {

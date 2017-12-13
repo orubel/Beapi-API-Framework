@@ -451,12 +451,12 @@ abstract class ApiCommProcess{
 
     // interceptor::after (response)
     LinkedHashMap convertModel(Map map){
-        try{
+        //try{
             LinkedHashMap newMap = [:]
             String k = map.entrySet().toList().first().key
 
             if(map && (!map?.response && !map?.metaClass && !map?.params)){
-                if (DomainClassArtefactHandler.isDomainClass(map[k].getClass())) {
+                if (DomainClassArtefactHandler?.isDomainClass(map[k].getClass())) {
                     newMap = formatDomainObject(map[k])
                     return newMap
                 } else if(['class java.util.LinkedList', 'class java.util.ArrayList'].contains(map[k].getClass().toString())) {
@@ -468,9 +468,9 @@ abstract class ApiCommProcess{
                 }
             }
             return newMap
-        }catch(Exception e){
-            throw new Exception("[ApiCommProcess :: convertModel] : Exception - full stack trace follows:",e)
-        }
+        //}catch(Exception e){
+        //    throw new Exception("[ApiCommProcess :: convertModel] : Exception - full stack trace follows:",e)
+        //}
     }
 
     // used by convertModel > interceptor::after (response)
@@ -505,7 +505,9 @@ abstract class ApiCommProcess{
         LinkedHashMap newMap = [:]
         map.each(){ key,val ->
             if(val){
-                if(DomainClassArtefactHandler.isDomainClass(val.getClass()) || DomainClassArtefactHandler.isArtefactClass(val)){
+                if (java.lang.Class.isInstance(val.class)) {
+                    newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map)?val:val.toString()
+                }else if(DomainClassArtefactHandler?.isDomainClass(val.getClass()) || DomainClassArtefactHandler?.isArtefactClass(val.class)){
                     newMap[key]=formatDomainObject(val)
                 }else{
                     newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map)?val:val.toString()
@@ -520,16 +522,20 @@ abstract class ApiCommProcess{
         LinkedHashMap newMap = [:]
         list.eachWithIndex(){ val, key ->
             if(val){
-                if(val[0]){
-                    if(DomainClassArtefactHandler.isDomainClass(val[0].getClass()) || DomainClassArtefactHandler.isArtefactClass(val[0])){
+                if(val[0]) {
+                    if (java.lang.Class.isInstance(val[0].class)) {
+                        newMap[key] = ((val[0] in java.util.ArrayList || val[0] in java.util.List) || val[0] in java.util.Map)?val[0]:val[0].toString()
+                    }else if(DomainClassArtefactHandler?.isDomainClass(val[0].getClass()) || DomainClassArtefactHandler?.isArtefactClass(val[0].getClass())){
                         newMap[key]=formatDomainObject(val[0])
                     }else{
                         newMap[key] = ((val[0] in java.util.ArrayList || val[0] in java.util.List) || val[0] in java.util.Map)?val[0]:val[0].toString()
                     }
                 }else {
-                    if (DomainClassArtefactHandler.isDomainClass(val.getClass()) || DomainClassArtefactHandler.isArtefactClass(val)) {
+                    if (java.lang.Class.isInstance(val.class)) {
+                        newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? list[key] : val.toString()
+                    }else if (DomainClassArtefactHandler?.isDomainClass(val.getClass()) || DomainClassArtefactHandler?.isArtefactClass(val.class)) {
                         newMap[key] = formatDomainObject(val)
-                    } else {
+                    }else{
                         newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? list[key] : val.toString()
                     }
                 }

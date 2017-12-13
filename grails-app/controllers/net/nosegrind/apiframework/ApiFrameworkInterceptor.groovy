@@ -221,7 +221,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		List unsafeMethods = ['PUT','POST','DELETE']
 		def vals = model.values()
 
-		try {
+		//try {
 			LinkedHashMap newModel = [:]
 			if (params.controller != 'apidoc') {
 				if (!model || vals[0]==null) {
@@ -229,6 +229,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					response.flushBuffer()
 					return false
 				} else {
+					println("attempting to convert model:"+model)
 					newModel = convertModel(model)
 				}
 			} else {
@@ -290,10 +291,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 			}
 
 			return false
-		}catch(Exception e){
-			throw new Exception("[ApiToolkitFilters :: apitoolkit.after] : Exception - full stack trace follows:", e)
-			return false
-		}
+		//}catch(Exception e){
+		//	throw new Exception("[ApiToolkitFilters :: apitoolkit.after] : Exception - full stack trace follows:", e)
+		//	return false
+		//}
 	}
 
 }
