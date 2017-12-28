@@ -38,7 +38,7 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
                 //println("ContentType ["+request.getContentType()+"] does not match Requested Format ["+request.format.toUpperCase()+"]")
                 response.status = 401
                 response.setHeader('ERROR', 'ContentType does not match Requested Format')
-                response.writer.flush()
+                //response.writer.flush()
                 return
         }
 
@@ -74,7 +74,7 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             response.status = 401
             response.setHeader('ERROR', 'Failed')
-            response.writer.flush()
+            //response.writer.flush()
             return
         }
 

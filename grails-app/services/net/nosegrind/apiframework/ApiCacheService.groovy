@@ -202,13 +202,13 @@ class ApiCacheService{
 							String dataName = (['PKEY', 'FKEY', 'INDEX'].contains(paramDesc?.paramType?.toString())) ? 'ID' : paramDesc.paramType
 							j = (paramDesc?.mockData?.trim()) ? ["$paramDesc.name": "$paramDesc.mockData"] : ["$paramDesc.name": "$dataName"]
 						}
-						GParsPool.withPool(8,{
+						GParsPool.withPool(20,{
 							j.eachParallel { key, val ->
 								if (val instanceof List) {
 									def child = [:]
-									withPool(8) {
+									withPool(20) {
 										val.eachParallel { it2 ->
-											withPool(8) {
+											withPool(20) {
 												it2.eachParallel { key2, val2 ->
 													child[key2] = val2
 												}

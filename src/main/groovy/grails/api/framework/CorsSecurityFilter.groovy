@@ -61,9 +61,10 @@ class CorsSecurityFilter extends OncePerRequestFilter {
             response.setHeader("Allow", "GET, HEAD, POST, PUT, DELETE, TRACE, PATCH, OPTIONS")
             if (origin != null) {
                 //response.setHeader("Access-Control-Allow-Headers", "Cache-Control, Pragma, WWW-Authenticate, Origin, authorization, Content-Type, Access-Control-Request-Headers")
-                response.setHeader("Access-Control-Allow-Headers", "Cache-Control, Pragma, WWW-Authenticate, Origin, authorization, Content-Type,Access-Control-Request-Headers,Access-Control-Request-Method")
-                response.setHeader("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, DELETE, TRACE, PATCH, OPTIONS")
-                response.setHeader("Access-Control-Max-Age", "3600")
+                //response.setHeader("Access-Control-Allow-Headers", "Cache-Control, Pragma, WWW-Authenticate, Origin, authorization, Content-Type,Access-Control-Request-Headers,Access-Control-Request-Method")
+                //response.setHeader("Access-Control-Allow-Methods", "GET, HEAD, POST, PUT, DELETE, TRACE, PATCH, OPTIONS")
+                //response.setHeader("Access-Control-Max-Age", "3600")
+
                 //request.getHeader("Access-Control-Request-Headers")
             }
             //response.status = HttpStatus.OK.value()
@@ -74,13 +75,13 @@ class CorsSecurityFilter extends OncePerRequestFilter {
             response.setHeader("Access-Control-Allow-Origin", origin)
             response.setHeader("Access-Control-Allow-Credentials", "true")
             response.status = HttpStatus.OK.value()
-            //return false
+            return false
         } else if( !allowedOrigins ) { // no origin; white list
             // add CORS access control headers for all origins
             response.setHeader("Access-Control-Allow-Origin", origin ?: "*")
             response.setHeader("Access-Control-Allow-Credentials", "true")
             response.status = HttpStatus.OK.value()
-            //return false
+            return false
         }
 
         return options

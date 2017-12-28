@@ -57,7 +57,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
-		//println(filterChain)
+		//println("FILTERCHAIN : "+filterChain)
 
 		format = (request?.format)?request.format.toUpperCase():'JSON'
 		mthdKey = request.method.toUpperCase()
@@ -229,7 +229,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					response.flushBuffer()
 					return false
 				} else {
-					println("attempting to convert model:"+model)
 					newModel = convertModel(model)
 				}
 			} else {

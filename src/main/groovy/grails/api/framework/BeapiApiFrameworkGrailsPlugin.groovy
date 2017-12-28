@@ -145,7 +145,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
         println "### Loading IO State Files ..."
 
-        //try {
+        try {
             new File(path).eachFile() { file ->
                 String fileName = file.name.toString()
 
@@ -163,9 +163,9 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                     //}
                 }
             }
-        //}catch(Exception e){
-        //    throw new Exception("[BeAPIFramework] : No IO State Files found for initialization :",e)
-        //}
+        }catch(Exception e){
+            throw new Exception("[BeAPIFramework] : No IO State Files found for initialization :",e)
+        }
     }
 
 	void doInitApiFrameworkInstall(applicationContext) {
