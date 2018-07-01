@@ -46,8 +46,7 @@
 
         <p><b>Quick Definition</b> : API Chaining(tm) is a functional I/O Monad allowing one api call to return data into another api call which returns data into another api call , etc etc, all within ONE REQUEST/RESPONSE. This is allowed through the abstraction of communication logic from business logic through the New API Pattern. This is limited in the fact that you can only use GET as the connectors in the chain and one other 'non-safe' method (ie PUT/POST/DELETE) at either the beginning or the end of the chain (as determined by the REQUEST method).</p>
         
-
-<p>API Chaining trademark can only be used by those properly implementing the process. As a process, it is only considered successfully implemented if:
+<p><b>API Chaining trademark can only be used by those properly implementing the process</b>. As a process, it is only considered successfully implemented if:
   <li>it uses one REQUEST/RESPONSE</li>
   <li>the client can dynamically create chains based on endpoints accessible by their ROLE/PRIVILEGE; no hardcoded chains</li>
   <li>no more than ONE non-safe REQUEST method is used in a chain; chains CAN chain off each other however</li>
