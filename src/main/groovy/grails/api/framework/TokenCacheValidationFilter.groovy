@@ -99,6 +99,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 //log.debug "Token not found"
                 return
             }
+
         } catch (AuthenticationException ae) {
             // NOTE: This will happen if token not found in database
             httpResponse.status = 401

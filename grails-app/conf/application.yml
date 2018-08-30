@@ -57,20 +57,20 @@ config:
         name: 'ApiCache'
         eternal: false
         overflowToDisk: true
-        maxElementsInMemory: 10000
+        maxElementsInMemory: 100000
         maxElementsOnDisk: 10000000
     cache:
         name: 'Trace'
         eternal: false
         overflowToDisk: true
-        maxElementsInMemory: 1000
-        maxElementsOnDisk: 10000
+        maxElementsInMemory: 100000
+        maxElementsOnDisk: 10000000
     cache:
         name: 'Throttle'
         eternal: false
         overflowToDisk: true
-        maxElementsInMemory: 1000
-        maxElementsOnDisk: 10000
+        maxElementsInMemory: 100000
+        maxElementsOnDisk: 10000000
 
 ---
 apitoolkit:

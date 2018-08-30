@@ -17,7 +17,10 @@ import javax.servlet.http.HttpServletResponse
 // import groovy.json.JsonSlurper
 import groovy.json.JsonSlurperClassic
 
-
+/**
+ * Used to check proper format was sent for endpoint and to format
+ * params using common naming
+ */
 @Slf4j
 //@CompileStatic
 class ContentTypeMarshallerFilter extends OncePerRequestFilter {
@@ -84,6 +87,7 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
     boolean doesContentTypeMatch(HttpServletRequest request){
         String format = (request?.format)?request.format.toUpperCase():'JSON'
         String contentType = request.getContentType()
+
         try{
             switch(contentType){
                 case 'text/xml':

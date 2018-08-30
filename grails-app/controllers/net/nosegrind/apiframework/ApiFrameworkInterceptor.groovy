@@ -34,7 +34,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 	@Resource
 	GrailsApplication grailsApplication
-	ApiCacheService apiCacheService
+	ApiCacheService apiCacheService = new ApiCacheService()
 	SpringSecurityService springSecurityService
 	HookService hookService
 	boolean apiThrottle
@@ -46,6 +46,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	String mthdKey
 	RequestMethod mthd
 	LinkedHashMap cache = [:]
+	grails.config.Config conf = Holders.grailsApplication.config
 
 
 	ApiFrameworkInterceptor(){
@@ -63,7 +64,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		mthdKey = request.method.toUpperCase()
 		mthd = (RequestMethod) RequestMethod[mthdKey]
 
-		apiThrottle = Holders.grailsApplication.config.apiThrottle as boolean
+		apiThrottle = this.conf.apiThrottle as boolean
 
 		//Map methods = ['GET':'show','PUT':'update','POST':'create','DELETE':'delete']
 		boolean restAlt = RequestMethod.isRestAlt(mthd.getKey())
@@ -71,6 +72,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
 
 		// Init params
+		// This was moved into ContentTypeMarshallerFilter
+		/*
 		if (formats.contains(format)) {
 			LinkedHashMap attribs = [:]
 			switch (format) {
@@ -88,6 +91,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				}
 			}
 		}
+		*/
 
 		// INITIALIZE CACHE
 		def session = request.getSession()
@@ -159,16 +163,17 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						String authority = getUserRole() as String
 						String domain = ((String) params.controller).capitalize()
 
-						JSONObject json = (JSONObject) cache[params.apiObject][params.action.toString()]['cachedResult'][authority][request.format.toUpperCase()]
+						JSONObject json = (JSONObject) cache[params.apiObject][params.action.toString()]['cachedResult'][authority][format]
 						if(!json){
 							return false
 						}else{
 							if (isCachedResult((Integer) json.get('version'), domain)) {
-								String result = cache[params.apiObject][params.action.toString()]['cachedResult'][authority][request.format.toUpperCase()] as String
-								byte[] contentLength = result.getBytes( "ISO-8859-1" )
+								LinkedHashMap result = cache[params.apiObject][params.action.toString()]['cachedResult'][authority][format] as LinkedHashMap
+								String content = new groovy.json.JsonBuilder(result).toString()
+								byte[] contentLength = content.getBytes( "ISO-8859-1" )
 								if(apiThrottle) {
 									if (checkLimit(contentLength.length)) {
-										render(text: result, contentType: request.getContentType())
+										render(text: result as JSON, contentType: request.getContentType())
 										return false
 									} else {
 										render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
@@ -176,7 +181,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 										return false
 									}
 								}else{
-									render(text: result, contentType: request.getContentType())
+									render(text: result as JSON, contentType: request.getContentType())
 									return false
 								}
 							}
@@ -215,16 +220,18 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		}
 	}
 
-	boolean after(){
+	boolean after() {
 		//println('##### FILTER (AFTER)')
 
-		List unsafeMethods = ['PUT','POST','DELETE']
-		def vals = model.values()
+		if(model) {
 
-		//try {
+			List unsafeMethods = ['PUT', 'POST', 'DELETE']
+			def vals = model.values()
+
+			//try {
 			LinkedHashMap newModel = [:]
 			if (params.controller != 'apidoc') {
-				if (!model || vals[0]==null) {
+				if (!model || vals[0] == null) {
 					render(status: HttpServletResponse.SC_NOT_FOUND, text: 'No resource returned / domain is empty')
 					response.flushBuffer()
 					return false
@@ -236,12 +243,12 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 			}
 
 			// store webhook
-			if(unsafeMethods.contains(request.method.toUpperCase())) {
+			if (unsafeMethods.contains(request.method.toUpperCase())) {
 				// if controller/action HOOK has roles, is HOOKABLE
 				//LinkedHashMap cache = apiCacheService.getApiCache(params.controller.toString())
 				if (cache) {
 					List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
-					if(hookRoles.size()>0) {
+					if (hookRoles.size() > 0) {
 						hookService.postData(params.controller.toString(), newModel, params.action.toString())
 					}
 				}
@@ -261,17 +268,18 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 				String content = handleApiResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, response, newModel, params)
 
-				byte[] contentLength = content.getBytes( "ISO-8859-1" )
+				byte[] contentLength = content.getBytes("ISO-8859-1")
 				if (content) {
+
 					// STORE CACHED RESULT
 					String format = request.format.toUpperCase()
 					String authority = getUserRole() as String
 
-					if (!newModel) {
-						apiCacheService.setApiCachedResult((String) params.controller, (String) params.apiObject, (String) params.action, authority, format, content)
-					}
 
-					if(apiThrottle) {
+					apiCacheService.setApiCachedResult((String) params.controller, (String) params.apiObject, (String) params.action, authority, format, content)
+
+
+					if (apiThrottle) {
 						if (checkLimit(contentLength.length)) {
 							render(text: content, contentType: request.getContentType())
 							return false
@@ -279,21 +287,22 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 							return false
 						}
-					}else{
+					} else {
 						render(text: content, contentType: request.getContentType())
 						return false
 					}
 				}
-			}else{
+			} else {
 				String content = parseResponseMethod(mthd, format, params, newModel)
 				render(text: content, contentType: request.getContentType())
 			}
 
 			return false
+		}
+		return false
 		//}catch(Exception e){
 		//	throw new Exception("[ApiToolkitFilters :: apitoolkit.after] : Exception - full stack trace follows:", e)
 		//	return false
 		//}
 	}
-
 }

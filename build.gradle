@@ -102,12 +102,11 @@ dependencies {
 
 
     compile "org.grails:grails-logging"
-
-    compile "org.grails:grails-plugin-databinding"
     compile "org.grails:grails-plugin-i18n"
     compile "org.grails:grails-plugin-services"
-    compile "org.grails:grails-plugin-url-mappings"
     compile "org.grails:grails-plugin-interceptors"
+    compile 'org.grails.plugins:converters:3.3.1'
+    compile "org.grails.plugins:events"
 
     compile('org.grails.plugins:spring-security-core:3.2.0.M1') {
         exclude(module: 'org.springframework.security:spring-security-web')
@@ -123,7 +122,7 @@ dependencies {
         exclude(module: 'org.grails:grails-web-jsp')
         exclude(module: 'org.grails:grails-web-sitemesh')
         exclude(module: 'org.grails:grails-web-gsp')
-        exclude(module: 'org.grails:grails-web-databinding:5.0.1')
+        //exclude(module: 'org.grails:grails-web-databinding:5.0.1')
     }
 
     //compile('org.grails:grails-dependencies'){
@@ -135,17 +134,14 @@ dependencies {
     // UNCOMMENT NOSQL DB AS NEEDED FOR LIBRARIES
     //compile 'org.grails.plugins:mongodb:5.0.2'
 
-    compile 'org.grails.plugins:converters:3.3.1'
-    compile "org.grails.plugins:events"
+
     compile 'org.codehaus.gpars:gpars:1.2.1', {
         exclude group:'org.multiverse', module:'multiverse-core'
         exclude group:'org.codehaus.groovy', module: 'groovy-all'
     }
 
-    compile('org.grails:grails-logging:3.1.1')
+    //compile('org.grails:grails-logging:3.1.1')
     compile("org.codehaus.groovy:groovy-ant:$groovyVersion")
-
-    //compile "org.grails.plugins:hibernate"
 
     compile "org.grails.plugins:hibernate5"
     compile "org.hibernate:hibernate-core:5.1.5.Final"

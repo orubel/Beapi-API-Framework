@@ -24,7 +24,7 @@ class ProfilerInterceptor extends ProfilerCommLayer{
 
 	//ApiRequestService apiRequestService
 	//ApiResponseService apiResponseService
-	ApiCacheService apiCacheService
+	ApiCacheService apiCacheService = new ApiCacheService()
 	TraceService traceService
 	SpringSecurityService springSecurityService
 	LinkedHashMap cache = [:]

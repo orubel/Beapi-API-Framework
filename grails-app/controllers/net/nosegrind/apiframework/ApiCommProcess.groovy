@@ -50,9 +50,11 @@ abstract class ApiCommProcess{
     ThrottleCacheService throttleCacheService
 
     @Autowired
-    ApiCacheService apiCacheService
+    ApiCacheService apiCacheService = new ApiCacheService()
     List formats = ['text/json','application/json','text/xml','application/xml']
     List optionalParams = ['method','format','contentType','encoding','action','controller','v','apiCombine', 'apiObject','entryPoint','uri']
+
+    Integer cores = Holders.grailsApplication.config.apitoolkit.procCores as Integer
 
     boolean batchEnabled = Holders.grailsApplication.config.apitoolkit.batching.enabled
     boolean chainEnabled = Holders.grailsApplication.config.apitoolkit.chaining.enabled
@@ -66,6 +68,10 @@ abstract class ApiCommProcess{
                 params."${k}" = v
             }
         }
+    }
+
+    String getModelResponseFormat(){
+
     }
 
     void setChainParams(GrailsParameterMap params){
@@ -226,17 +232,12 @@ abstract class ApiCommProcess{
             return model
         }else{
             try {
-                String msg = 'Error. Invalid variables being returned. Please see your administrator'
-
-                //List paramsList
-                //Integer msize = model.size()
-                //List paramsList = (model.size()==0)?[:]:model.keySet() as List
                 ArrayList paramsList = (model.size()==0)?[:]:model.keySet() as ArrayList
                 paramsList?.removeAll(optionalParams)
                 if (!responseList.containsAll(paramsList)) {
                     paramsList.removeAll(responseList)
                     paramsList.each() { it2 ->
-                        model.remove("${it2}".toString())
+                        model.remove(it2.toString())
                     }
 
                     if (!paramsList) {
@@ -416,7 +417,7 @@ abstract class ApiCommProcess{
                             String dataName = (['PKEY', 'FKEY', 'INDEX'].contains(paramDesc?.paramType?.toString())) ? 'ID' : paramDesc.paramType
                             j = (paramDesc?.mockData?.trim()) ? ["$paramDesc.name": "$paramDesc.mockData"] : ["$paramDesc.name": "$dataName"]
                         }
-                        withPool(20) { pool ->
+                        withPool(this.cores) { pool ->
                             j.eachParallel { key, val ->
                                 if (val instanceof List) {
                                     def child = [:]
@@ -456,7 +457,7 @@ abstract class ApiCommProcess{
             String k = map.entrySet().toList().first().key
 
             if(map && (!map?.response && !map?.metaClass && !map?.params)){
-                if (DomainClassArtefactHandler?.isDomainClass(map[k].getClass())) {
+                if (DomainClassArtefactHandler?.isDomainClass(map[k].getClass()) && map[k]!=null) {
                     newMap = formatDomainObject(map[k])
                     return newMap
                 } else if(['class java.util.LinkedList', 'class java.util.ArrayList'].contains(map[k].getClass().toString())) {
@@ -475,22 +476,26 @@ abstract class ApiCommProcess{
 
     // used by convertModel > interceptor::after (response)
     LinkedHashMap formatDomainObject(Object data){
-        try{
+        try {
             LinkedHashMap newMap = [:]
 
-            newMap.put('id',data?.id)
-            newMap.put('version',data?.version)
+            newMap.put('id', data?.id)
+            newMap.put('version', data?.version)
 
             //DefaultGrailsDomainClass d = new DefaultGrailsDomainClass(data.class)
 
             def d = grailsApplication?.getArtefact(DomainClassArtefactHandler.TYPE, data.class.getName())
 
-            d.persistentProperties.each() { it ->
-                if (it?.name) {
-                    if (DomainClassArtefactHandler.isDomainClass(data[it.name].getClass())) {
-                        newMap["${it.name}Id"] = data[it.name].id
-                    } else {
-                        newMap[it.name] = data[it.name]
+            if (d!=null) {
+                //println(d.persistentProperties.getClass())
+                //println(d.persistentProperties)
+                d.persistentProperties?.each{ it ->
+                    if (it?.name) {
+                        if (DomainClassArtefactHandler.isDomainClass(data[it.name].getClass())) {
+                            newMap["${it.name}Id"] = data[it.name].id
+                        } else {
+                            newMap[it.name] = data[it.name]
+                        }
                     }
                 }
             }
@@ -522,7 +527,9 @@ abstract class ApiCommProcess{
         LinkedHashMap newMap = [:]
         list.eachWithIndex(){ val, key ->
             if(val){
-                if(val[0]) {
+                println(val)
+                println(val.getClass())
+                if(val instanceof java.util.ArrayList) {
                     if (java.lang.Class.isInstance(val[0].class)) {
                         newMap[key] = ((val[0] in java.util.ArrayList || val[0] in java.util.List) || val[0] in java.util.Map)?val[0]:val[0].toString()
                     }else if(DomainClassArtefactHandler?.isDomainClass(val[0].getClass()) || DomainClassArtefactHandler?.isArtefactClass(val[0].getClass())){

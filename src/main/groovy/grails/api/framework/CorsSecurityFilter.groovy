@@ -1,31 +1,20 @@
 package grails.api.framework
 
-import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.web.filter.GenericFilterBean
+
 import org.springframework.web.filter.OncePerRequestFilter
 
 //import net.nosegrind.apiframework.CorsService
 import javax.servlet.FilterChain
 import javax.servlet.ServletException
-import javax.servlet.ServletRequest
-import javax.servlet.ServletResponse
 
 import javax.servlet.http.HttpServletRequest
-//import javax.servlet.http.HttpServletResponse
 import javax.servlet.http.HttpServletResponse
 import org.springframework.http.HttpStatus
 import grails.util.Environment
 import grails.util.Holders
 
-import com.google.common.io.CharStreams
-
 
 class CorsSecurityFilter extends OncePerRequestFilter {
-
-    //@Autowired
-    //CorsService crsService
-
-
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {

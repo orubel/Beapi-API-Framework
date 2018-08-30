@@ -103,8 +103,8 @@ abstract class ApiCommLayer extends ApiCommProcess{
             response.setHeader('Authorization', roles.join(', '))
             ArrayList responseList = []
             ArrayList<LinkedHashMap> temp = new ArrayList()
-            if(requestDefinitions["${authority}".toString()]) {
-                ArrayList<LinkedHashMap> temp1 = requestDefinitions["${authority}".toString()] as ArrayList<LinkedHashMap>
+            if(requestDefinitions[authority.toString()]) {
+                ArrayList<LinkedHashMap> temp1 = requestDefinitions[authority.toString()] as ArrayList<LinkedHashMap>
                 temp.addAll(temp1)
             }else{
                 ArrayList<LinkedHashMap> temp2 = requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
@@ -135,7 +135,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
             String authority = getUserRole() as String
             response.setHeader('Authorization', roles.join(', '))
 
-            ArrayList<LinkedHashMap> temp = (requestDefinitions["${authority}"])?requestDefinitions["${authority}"] as ArrayList<LinkedHashMap>:requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
+            ArrayList<LinkedHashMap> temp = (requestDefinitions[authority.toString()])?requestDefinitions[authority.toString()] as ArrayList<LinkedHashMap>:requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
             ArrayList responseList = (ArrayList)temp.collect(){ it.name }
 
             LinkedHashMap result = parseURIDefinitions(model,responseList)
@@ -162,7 +162,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
             String authority = getUserRole() as String
             response.setHeader('Authorization', roles.join(', '))
 
-            ArrayList<LinkedHashMap> temp = (requestDefinitions["${authority}"])?requestDefinitions["${authority}"] as ArrayList<LinkedHashMap>:requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
+            ArrayList<LinkedHashMap> temp = (requestDefinitions[authority.toString()])?requestDefinitions[authority.toString()] as ArrayList<LinkedHashMap>:requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
 
             ArrayList responseList = (ArrayList)temp.collect(){ it.name }
 
@@ -173,7 +173,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
                 if (!params.apiCombine) {
                     params.apiCombine = [:]
                 }
-                String currentPath = "${params.controller}/${params.action}"
+                String currentPath = params.controller.toString()+"/"+params.action.toString()
                 params.apiCombine[currentPath] = result
             }
 

@@ -11,6 +11,7 @@ import org.grails.plugin.cache.GrailsCacheManager
 //import grails.plugin.cache.GrailsConcurrentMapCacheManager
 import org.grails.groovy.grails.commons.*
 import grails.core.GrailsApplication
+import grails.util.Holders
 
 import javax.annotation.Resource
 
@@ -19,11 +20,13 @@ import static groovyx.gpars.GParsPool.withPool
 
 class ApiCacheService{
 
-	static transactional = false
-
 	GrailsApplication grailsApplication
 	GrailsCacheManager grailsCacheManager
 
+
+	public ApiCacheService() {
+		this.grailsApplication = Holders.grailsApplication
+	}
 	/*
 	 * Only flush on RESTART.
 	 * DO NOT flush while LIVE!!!
@@ -188,6 +191,7 @@ class ApiCacheService{
  * TODO: Need to compare multiple authorities
  */
 	private String processJson(LinkedHashMap returns){
+		Integer cores = grailsApplication.config.apitoolkit.procCores as Integer
 		try{
 			LinkedHashMap json = [:]
 			returns.each{ p ->
@@ -202,13 +206,13 @@ class ApiCacheService{
 							String dataName = (['PKEY', 'FKEY', 'INDEX'].contains(paramDesc?.paramType?.toString())) ? 'ID' : paramDesc.paramType
 							j = (paramDesc?.mockData?.trim()) ? ["$paramDesc.name": "$paramDesc.mockData"] : ["$paramDesc.name": "$dataName"]
 						}
-						GParsPool.withPool(20,{
+						GParsPool.withPool(cores,{
 							j.eachParallel { key, val ->
 								if (val instanceof List) {
 									def child = [:]
-									withPool(20) {
+									withPool(cores) {
 										val.eachParallel { it2 ->
-											withPool(20) {
+											withPool(cores) {
 												it2.eachParallel { key2, val2 ->
 													child[key2] = val2
 												}

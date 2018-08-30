@@ -123,16 +123,16 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             applicationContext.dispatcherServlet.setDispatchOptionsRequest(true)
 
             String basedir = BuildSettings.BASE_DIR
+            String apiObjectSrc = "${System.properties.'user.home'}/${grails.util.Holders.grailsApplication.config.iostate.preloadDir}"
+
             def ant = new AntBuilder()
 
             ant.mkdir(dir: "${basedir}/src/iostate")
-            ant.mkdir(dir: "${System.properties.'user.home'}/.iostate")
-
+            ant.mkdir(dir: "${apiObjectSrc}")
             //def ctx = applicationContext.getServletContext()
             //ctx.setInitParameter("dispatchOptionsRequest", "true");
 
             doInitApiFrameworkInstall(applicationContext)
-            String apiObjectSrc = grails.util.Holders.grailsApplication.config.iostate.preloadDir
 
             parseFiles(apiObjectSrc.toString(), applicationContext)
         //}catch(Exception e){
@@ -148,19 +148,19 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         try {
             new File(path).eachFile() { file ->
                 String fileName = file.name.toString()
-
                 def tmp = fileName.split('\\.')
-                String fileChar = fileName.charAt(fileName.length() - 1)
+                String fileChar1 = fileName.charAt(fileName.length() - 1)
 
-                if (tmp[1] == 'json' && fileChar == "n") {
-
-                    //try{
+                if (tmp[1] == 'json' && fileChar1== "n") {
+                    try{
                         JSONObject json = JSON.parse(file.text)
                         methods[json.NAME.toString()] = parseJson(json.NAME.toString(), json, applicationContext)
 
-                    //}catch(Exception e){
-                    //    throw new Exception("[ApiObjectService :: initialize] : Unacceptable file '${file.name}' - full stack trace follows:",e)
-                    //}
+                    }catch(Exception e){
+                        throw new Exception("[ApiObjectService :: initialize] : Unacceptable file '${file.name}' - full stack trace follows:",e)
+                    }
+                }else{
+                    println(" # Bad File Type ["+tmp[1]+"]; Ignoring file : "+fileName)
                 }
             }
         }catch(Exception e){

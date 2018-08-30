@@ -12,7 +12,7 @@ import org.grails.groovy.grails.commons.*
 class ApiObjectService{
 
 	GrailsApplication grailsApplication
-	ApiCacheService apiCacheService
+	ApiCacheService apiCacheService = new ApiCacheService()
 
 	static transactional = false
 	

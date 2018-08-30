@@ -24,7 +24,7 @@ class BatchInterceptor extends ApiCommLayer{
 	@Resource
 	GrailsApplication grailsApplication
 
-	ApiCacheService apiCacheService
+	ApiCacheService apiCacheService = new ApiCacheService()
 	SpringSecurityService springSecurityService
 
 	// TODO: detect and assign apiObjectVersion from uri

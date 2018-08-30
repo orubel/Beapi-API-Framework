@@ -31,12 +31,14 @@ abstract class ProfilerCommProcess {
     @Resource
     GrailsApplication grailsApplication
     @Resource
-    ApiCacheService apiCacheService
+    ApiCacheService apiCacheService = new ApiCacheService()
     @Resource
     TraceService traceService
 
     List formats = ['text/html','text/json','application/json','text/xml','application/xml']
     List optionalParams = ['max','offset','method','format','contentType','encoding','action','controller','v','apiCombine', 'apiObject','entryPoint','uri']
+
+    Integer cores = Holders.grailsApplication.config.apitoolkit.procCores as Integer
 
     boolean batchEnabled = Holders.grailsApplication.config.apitoolkit.batching.enabled
     boolean chainEnabled = Holders.grailsApplication.config.apitoolkit.chaining.enabled
@@ -394,7 +396,7 @@ abstract class ProfilerCommProcess {
                             String dataName = (['PKEY', 'FKEY', 'INDEX'].contains(paramDesc?.paramType?.toString())) ? 'ID' : paramDesc.paramType
                             j = (paramDesc?.mockData?.trim()) ? ["$paramDesc.name": "$paramDesc.mockData"] : ["$paramDesc.name": "$dataName"]
                         }
-                        withPool(20) { pool ->
+                        withPool(this.cores) { pool ->
                             j.eachParallel { key, val ->
                                 if (val instanceof List) {
                                     def child = [:]

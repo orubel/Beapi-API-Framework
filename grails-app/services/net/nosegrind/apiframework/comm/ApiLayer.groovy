@@ -22,7 +22,7 @@ abstract class ApiLayer{
 	static transactional = false
 
 	def springSecurityService
-	ApiCacheService apiCacheService
+	ApiCacheService apiCacheService = new ApiCacheService()
 
 	List optionalParams = ['action','controller','v','apiCombine', 'apiObject']
 

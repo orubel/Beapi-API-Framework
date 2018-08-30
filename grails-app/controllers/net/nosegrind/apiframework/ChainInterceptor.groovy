@@ -22,7 +22,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 	@Resource
 	GrailsApplication grailsApplication
 
-	ApiCacheService apiCacheService
+	ApiCacheService apiCacheService = new ApiCacheService()
 	SpringSecurityService springSecurityService
 
 	// TODO: detect and assign apiObjectVersion from uri
