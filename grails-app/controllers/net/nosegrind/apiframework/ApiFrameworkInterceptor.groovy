@@ -73,7 +73,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 		// Init params
 		// This was moved into ContentTypeMarshallerFilter
-		/*
 		if (formats.contains(format)) {
 			LinkedHashMap attribs = [:]
 			switch (format) {
@@ -91,7 +90,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				}
 			}
 		}
-		*/
 
 		// INITIALIZE CACHE
 		def session = request.getSession()
