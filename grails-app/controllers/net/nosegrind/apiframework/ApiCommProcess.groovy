@@ -36,8 +36,16 @@ import net.nosegrind.apiframework.ThrottleCacheService
 //import grails.plugin.cache.GrailsCacheManager
 import org.grails.plugin.cache.GrailsCacheManager
 
-// extended by ApiCommLayer
-
+// extended by net.nosegrind.apiframework.ApiCommLayer
+/**
+ * Extended By net.nosegrind.apiframework.ApiCommLayer
+ *
+ *
+ * This abstract provides Common API Methods used by APICommLayer and those that extend it
+ * This is simply organizational in keeping repetitively called methods from communication processes
+ * for readability
+ *
+ */
 abstract class ApiCommProcess{
 
     @Resource
@@ -59,7 +67,11 @@ abstract class ApiCommProcess{
     boolean batchEnabled = Holders.grailsApplication.config.apitoolkit.batching.enabled
     boolean chainEnabled = Holders.grailsApplication.config.apitoolkit.chaining.enabled
 
-    // set params for this 'loop'; these will NOT forward
+    /**
+     * Given the request params, resets parameters for a batch based upon each iteration
+     * @see BatchInterceptor#before()
+     * @param params
+     */
     void setBatchParams(GrailsParameterMap params){
         if (batchEnabled) {
             def batchVars = request.getAttribute(request.format.toUpperCase())
@@ -70,10 +82,13 @@ abstract class ApiCommProcess{
         }
     }
 
-    String getModelResponseFormat(){
+    String getModelResponseFormat(){}
 
-    }
-
+    /**
+     * Given the request params, resets parameters for an api chain based upon for each iteration
+     * @see ChainInterceptor#before()
+     * @param params
+     */
     void setChainParams(GrailsParameterMap params){
         if (chainEnabled) {
             if(!params.apiChain){ params.apiChain = [:] }
@@ -85,6 +100,14 @@ abstract class ApiCommProcess{
         }
     }
 
+    /**
+     * Returns authorities associated with loggedIn user; creates default authority which will be checked
+     * against endpoint 'roles' if no 'loggedIn' user is found
+     * @see #checkURIDefinitions(GrailsParameterMap,LinkedHashMap)
+     * @see #checkLimit(int)
+     * @see ApiCommLayer#handleApiResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, LinkedHashMap, GrailsParameterMap)
+     * @return
+     */
     String getUserRole() {
         String authority = 'permitAll'
         if (springSecurityService.loggedIn){
@@ -93,6 +116,13 @@ abstract class ApiCommProcess{
         return authority
     }
 
+    /**
+     *
+     * springSecurity functionality for returning userId
+     * @see #checkLimit(int)
+     * @deprecated
+     * @return
+     */
     String getUserId() {
         if (springSecurityService.loggedIn){
             return springSecurityService.principal.id
@@ -100,6 +130,13 @@ abstract class ApiCommProcess{
         return null
     }
 
+    /**
+     * Given request and List of roles(authorities), tests whether user is logged in and user authorities match authorities sent; returns boolean
+     * Used mainly to check endpoint authorities against user authorities
+     * @param request
+     * @param roles
+     * @return
+     */
     boolean checkAuth(HttpServletRequest request, List roles){
         try {
             boolean hasAuth = false
@@ -120,6 +157,15 @@ abstract class ApiCommProcess{
         }
     }
 
+    /**
+     * Given a deprecationDate, checks the deprecation date against todays date; returns boolean
+     * Used mainly to check whether API Version is deprecated
+     * @see ApiCommLayer#handleApiRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
+     * @see ApiCommLayer#handleBatchRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
+     * @see ApiCommLayer#handleChainRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
+     * @param deprecationDate
+     * @return
+     */
     boolean checkDeprecationDate(String deprecationDate){
         try{
             def ddate = new SimpleDateFormat("MM/dd/yyyy").parse(deprecationDate)
@@ -134,6 +180,14 @@ abstract class ApiCommProcess{
         }
     }
 
+    /**
+     * Given the RequestMethod Object for the request, the endpoint request method and a boolean declaration of whether it is a restAlt(ernative),
+     * test To check whether RequestMethod value matches expected request method for endpoint; returns boolean
+     * @param mthd
+     * @param method
+     * @param restAlt
+     * @return
+     */
     boolean checkRequestMethod(RequestMethod mthd,String method, boolean restAlt){
         if(!restAlt) {
             return (mthd.getKey() == method) ? true : false
@@ -142,6 +196,13 @@ abstract class ApiCommProcess{
     }
 
     // TODO: put in OPTIONAL toggle in application.yml to allow for this check
+    /**
+     * Given the request params and endpoint request definitions, test to check whether the request params match the expected endpoint params; returns boolean
+     * Called by the PreHandler
+     * @param params
+     * @param requestDefinitions
+     * @return
+     */
     boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions){
         ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','_','max','offset']
         try{
@@ -172,6 +233,15 @@ abstract class ApiCommProcess{
         return false
     }
 
+    /**
+     * Formats response based upon request method; returns a parsed string based on format
+     * Called by the PostHandler
+     * @param mthd
+     * @param format
+     * @param params
+     * @param result
+     * @return
+     */
     String parseResponseMethod(RequestMethod mthd, String format, GrailsParameterMap params, LinkedHashMap result){
         String content
         switch(mthd.getKey()) {
@@ -204,6 +274,12 @@ abstract class ApiCommProcess{
         return content
     }
 
+    /**
+     * format response for preHandler based upon request method
+     * @param mthd
+     * @param params
+     * @return
+     */
     String parseRequestMethod(RequestMethod mthd, GrailsParameterMap params){
         String content
         switch(mthd.getKey()) {
@@ -224,6 +300,12 @@ abstract class ApiCommProcess{
         return content
     }
 
+    /**
+     * creates and returns a LinkedHashMap from request params sent that match endpoint params
+     * @param model
+     * @param responseList
+     * @return
+     */
     LinkedHashMap parseURIDefinitions(LinkedHashMap model,ArrayList responseList){
         if(model[0].getClass().getName()=='java.util.LinkedHashMap') {
             model.each() { key, val ->
@@ -257,6 +339,13 @@ abstract class ApiCommProcess{
 
 
     // used in ApiCommLayer
+    /**
+     * test for endpoint method matching request method. Will also return true if
+     * request method is Rest Alternative; returns boolean
+     * @param protocol
+     * @param mthd
+     * @return
+     */
     boolean isRequestMatch(String protocol,RequestMethod mthd){
         if(RequestMethod.isRestAlt(mthd.getKey())){
             return true
@@ -279,6 +368,11 @@ abstract class ApiCommProcess{
     */
 
     // used locally
+    /**
+     * Given the request params, returns a parsed LinkedHashMap of all request params NOT found in optionalParams List
+     * @param params
+     * @return
+     */
     LinkedHashMap getMethodParams(GrailsParameterMap params){
         try{
             LinkedHashMap paramsRequest = [:]
@@ -290,7 +384,12 @@ abstract class ApiCommProcess{
         return [:]
     }
 
-    // used locally
+    /**
+     * Given an ArrayList of authorities associated with endpoint, determines if User authorities match; returns boolean
+     * Called by getApiDoc
+     * @param set
+     * @return
+     */
     Boolean hasRoles(ArrayList set) {
         if(springSecurityService.principal.authorities*.authority.any { set.contains(it) }){
             return true
@@ -298,6 +397,11 @@ abstract class ApiCommProcess{
         return false
     }
 
+    /**
+     * Given the controllername, returns cached LinkedHashMap for endpoint if it exists
+     * @param controllername
+     * @return
+     */
     LinkedHashMap getApiCache(String controllername){
         try{
             def temp = grailsCacheManager?.getCache('ApiCache')
@@ -313,6 +417,12 @@ abstract class ApiCommProcess{
         }
     }
 
+    /**
+     * Given the request params, returns api docs as JSON string
+     * Convenience method.
+     * @param params
+     * @return
+     */
     String getApiDoc(GrailsParameterMap params){
         // TODO: Need to compare multiple authorities
         // TODO: check for ['doc'][role] in cache; if none, continue
@@ -400,7 +510,13 @@ abstract class ApiCommProcess{
         }
     }
 
-    // Used by getApiDoc
+
+    /**
+     * given a LinkedHashMap, parses and return a JSON String;
+     * Used by getApiDoc
+     * @param returns
+     * @return
+     */
     private String processJson(LinkedHashMap returns){
         // TODO: Need to compare multiple authorities
         try{
@@ -450,7 +566,13 @@ abstract class ApiCommProcess{
         }
     }
 
-    // interceptor::after (response)
+
+    /**
+     * given a Map, will process cased on type of object and return a LinkedHashMap;
+     * Called by the PostHandler
+     * @param map
+     * @return
+     */
     LinkedHashMap convertModel(Map map){
         //try{
             LinkedHashMap newMap = [:]
@@ -474,7 +596,13 @@ abstract class ApiCommProcess{
         //}
     }
 
-    // used by convertModel > interceptor::after (response)
+
+    /**
+     * Given an Object detected as a DomainObject, processes in a standardized format and returns a LinkedHashMap;
+     * Used by convertModel and called by the PostHandler
+     * @param data
+     * @return
+     */
     LinkedHashMap formatDomainObject(Object data){
         try {
             LinkedHashMap newMap = [:]
@@ -505,7 +633,13 @@ abstract class ApiCommProcess{
         }
     }
 
-    // used by convertModel > interceptor::after (response)
+
+    /**
+     * Given a LinkedHashMap detected as a Map, processes in a standardized format and returns a LinkedHashMap;
+     * Used by convertModel and called by the PostHandler
+     * @param map
+     * @return
+     */
     LinkedHashMap formatMap(LinkedHashMap map){
         LinkedHashMap newMap = [:]
         map.each(){ key,val ->
@@ -522,7 +656,13 @@ abstract class ApiCommProcess{
         return newMap
     }
 
-    // used by convertModel > interceptor::after (response)
+
+    /**
+     * Given a List detected as a List, processes in a standardized format and returns a LinkedHashMap;
+     * Used by convertModel and called by the PostHandler
+     * @param list
+     * @return
+     */
     LinkedHashMap formatList(List list){
         LinkedHashMap newMap = [:]
         list.eachWithIndex(){ val, key ->
@@ -552,6 +692,12 @@ abstract class ApiCommProcess{
     }
 
     // interceptor::after (response)
+    /**
+     *
+     * @param version
+     * @param className
+     * @return
+     */
     boolean isCachedResult(Integer version, String className){
         Class clazz = grailsApplication.domainClasses.find { it.clazz.simpleName == className }.clazz
 
@@ -606,7 +752,8 @@ abstract class ApiCommProcess{
         String auth = getUserRole()
 
         if(roles.contains(auth)){
-            String userId = getUserId()
+            //String userId = getUserId()
+            String userId = springSecurityService.loggedIn?springSecurityService.principal.id : null
             def lcache = throttleCacheService.getThrottleCache(userId)
 
             if(lcache['timestamp']==null) {

@@ -53,6 +53,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		match(uri:"/${entryPoint}/**")
 	}
 
+	/**
+	 * PreHandler
+	 * @return
+	 */
 	boolean before(){
 		//println('##### FILTER (BEFORE)')
 
@@ -66,13 +70,11 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 		apiThrottle = this.conf.apiThrottle as boolean
 
-		//Map methods = ['GET':'show','PUT':'update','POST':'create','DELETE':'delete']
+
 		boolean restAlt = RequestMethod.isRestAlt(mthd.getKey())
 
 		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
 
-		// Init params
-		// This was moved into ContentTypeMarshallerFilter
 		if (formats.contains(format)) {
 			LinkedHashMap attribs = [:]
 			switch (format) {
@@ -100,114 +102,108 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 			params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
 		}
 
-		// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
-		//String path = "${params.controller}/${params.action}".toString()
-		//println(path)
-
-
 		try{
-			// IS APIDOC??
-			if(params.controller=='apidoc'){
-				if(cache){
+			if(cache) {
+
+				//Test For APIDoc
+				if(params.controller=='apidoc') {
 					return true
 				}
-				return false
-			}else{
-				if(cache) {
-					// CHECK REQUEST METHOD FOR ENDPOINT
-					// NOTE: expectedMethod must be capitolized in IO State file
-					String expectedMethod = cache[params.apiObject][params.action.toString()]['method'] as String
-					if (!checkRequestMethod(mthd,expectedMethod, restAlt)) {
-						render(status: 400, text: "Expected request method '${expectedMethod}' does not match sent method '${mthd.getKey()}'")
-						return false
+
+				//CHECK REQUEST METHOD FOR ENDPOINT
+				// NOTE: expectedMethod must be capitolized in IO State file
+				String expectedMethod = cache[params.apiObject][params.action.toString()]['method'] as String
+				if (!checkRequestMethod(mthd,expectedMethod, restAlt)) {
+					render(status: 400, text: "Expected request method '${expectedMethod}' does not match sent method '${mthd.getKey()}'")
+					return false
+				}
+
+				params.max = (params.max!=null)?params.max:0
+				params.offset = (params.offset!=null)?params.offset:0
+
+				// CHECK FOR REST ALTERNATIVES
+				if (restAlt) {
+					// PARSE REST ALTS (TRACE, OPTIONS, ETC)
+					String result = parseRequestMethod(mthd, params)
+					if (result) {
+						byte[] contentLength = result.getBytes("ISO-8859-1")
+
+						if (apiThrottle) {
+							if (checkLimit(contentLength.length)) {
+								render(text: result, contentType: request.getContentType())
+								return false
+							} else {
+								render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
+								return false
+							}
+						}else{
+							render(text: result, contentType: request.getContentType())
+							return false
+						}
 					}
+				}
 
-					params.max = (params.max!=null)?params.max:0
-					params.offset = (params.offset!=null)?params.offset:0
+				LinkedHashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as LinkedHashMap
+				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
 
-					// CHECK FOR REST ALTERNATIVES
-					if (restAlt) {
-						// PARSE REST ALTS (TRACE, OPTIONS, ETC)
-						String result = parseRequestMethod(mthd, params)
-						if (result) {
-							byte[] contentLength = result.getBytes("ISO-8859-1")
+				if (!checkURIDefinitions(params, receives)) {
+					render(status: HttpStatus.BAD_REQUEST.value(), text: 'Expected request variables for endpoint do not match sent variables')
+					response.flushBuffer()
+					return false
+				}
 
-							if (apiThrottle) {
+				// RETRIEVE CACHED RESULT; DON'T CACHE LISTS
+				if (cache[params.apiObject][params.action.toString()]['cachedResult']) {
+					String authority = getUserRole() as String
+					String domain = ((String) params.controller).capitalize()
+
+					JSONObject json = (JSONObject) cache[params.apiObject][params.action.toString()]['cachedResult'][authority][format]
+					if(!json){
+						return false
+					}else{
+						if (isCachedResult((Integer) json.get('version'), domain)) {
+							LinkedHashMap result = cache[params.apiObject][params.action.toString()]['cachedResult'][authority][format] as LinkedHashMap
+							String content = new groovy.json.JsonBuilder(result).toString()
+							byte[] contentLength = content.getBytes( "ISO-8859-1" )
+							if(apiThrottle) {
 								if (checkLimit(contentLength.length)) {
-									render(text: result, contentType: request.getContentType())
+									render(text: result as JSON, contentType: request.getContentType())
 									return false
 								} else {
 									render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
+									response.flushBuffer()
 									return false
 								}
 							}else{
-								render(text: result, contentType: request.getContentType())
+								render(text: result as JSON, contentType: request.getContentType())
+								return false
+							}
+						}
+					}
+				} else {
+					if (params.action == null || !params.action) {
+						String methodAction = mthd.toString()
+						if (!cache[(String) params.apiObject][methodAction]) {
+							params.action = cache[(String) params.apiObject]['defaultAction']
+						} else {
+							params.action = mthd.toString()
+
+							// FORWARD FOR REST DEFAULTS WITH NO ACTION
+							String[] tempUri = request.getRequestURI().split("/")
+							if (tempUri[2].contains('dispatch') && "${params.controller}.dispatch" == tempUri[2] && !cache[params.apiObject]['domainPackage']) {
+								forward(controller: params.controller, action: params.action)
 								return false
 							}
 						}
 					}
 
-					LinkedHashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as LinkedHashMap
-					//boolean requestKeysMatch = checkURIDefinitions(params, receives)
-
-					if (!checkURIDefinitions(params, receives)) {
-						render(status: HttpStatus.BAD_REQUEST.value(), text: 'Expected request variables for endpoint do not match sent variables')
-						response.flushBuffer()
-						return false
-					}
-
-					// RETRIEVE CACHED RESULT; DON'T CACHE LISTS
-					if (cache[params.apiObject][params.action.toString()]['cachedResult']) {
-						String authority = getUserRole() as String
-						String domain = ((String) params.controller).capitalize()
-
-						JSONObject json = (JSONObject) cache[params.apiObject][params.action.toString()]['cachedResult'][authority][format]
-						if(!json){
-							return false
-						}else{
-							if (isCachedResult((Integer) json.get('version'), domain)) {
-								LinkedHashMap result = cache[params.apiObject][params.action.toString()]['cachedResult'][authority][format] as LinkedHashMap
-								String content = new groovy.json.JsonBuilder(result).toString()
-								byte[] contentLength = content.getBytes( "ISO-8859-1" )
-								if(apiThrottle) {
-									if (checkLimit(contentLength.length)) {
-										render(text: result as JSON, contentType: request.getContentType())
-										return false
-									} else {
-										render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-										response.flushBuffer()
-										return false
-									}
-								}else{
-									render(text: result as JSON, contentType: request.getContentType())
-									return false
-								}
-							}
-						}
-					} else {
-						if (params.action == null || !params.action) {
-							String methodAction = mthd.toString()
-							if (!cache[(String) params.apiObject][methodAction]) {
-								params.action = cache[(String) params.apiObject]['defaultAction']
-							} else {
-								params.action = mthd.toString()
-
-								// FORWARD FOR REST DEFAULTS WITH NO ACTION
-								String[] tempUri = request.getRequestURI().split("/")
-								if (tempUri[2].contains('dispatch') && "${params.controller}.dispatch" == tempUri[2] && !cache[params.apiObject]['domainPackage']) {
-									forward(controller: params.controller, action: params.action)
-									return false
-								}
-							}
-						}
-
-						// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
-						ApiDescriptor cachedEndpoint = cache[(String) params.apiObject][(String) params.action] as ApiDescriptor
-						boolean result = handleApiRequest(cachedEndpoint['deprecated'] as List, (cachedEndpoint['method'])?.toString(), mthd, response, params)
-						return result
-					}
+					// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
+					ApiDescriptor cachedEndpoint = cache[(String) params.apiObject][(String) params.action] as ApiDescriptor
+					boolean result = handleApiRequest(cachedEndpoint['deprecated'] as List, (cachedEndpoint['method'])?.toString(), mthd, response, params)
+					return result
 				}
 			}
+
 			// no cache found
 
 			return false
@@ -218,6 +214,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		}
 	}
 
+	/**
+	 * PostHandler
+	 * @return
+	 */
 	boolean after() {
 		//println('##### FILTER (AFTER)')
 
