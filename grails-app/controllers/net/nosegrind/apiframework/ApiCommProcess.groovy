@@ -198,7 +198,9 @@ abstract class ApiCommProcess{
     // TODO: put in OPTIONAL toggle in application.yml to allow for this check
     /**
      * Given the request params and endpoint request definitions, test to check whether the request params match the expected endpoint params; returns boolean
-     * Called by the PreHandler
+     * @see ApiFrameworkInterceptor#before()
+     * @see BatchInterceptor#before()
+     * @see ChainInterceptor#before()
      * @param params
      * @param requestDefinitions
      * @return
@@ -234,8 +236,10 @@ abstract class ApiCommProcess{
     }
 
     /**
-     * Formats response based upon request method; returns a parsed string based on format
-     * Called by the PostHandler
+     * Given a request method, format, params and response result, Formats response; returns a parsed string based on format
+     * @see ApiFrameworkInterceptor#after()
+     * @see BatchInterceptor#after()
+     * @see ChainInterceptor#after()
      * @param mthd
      * @param format
      * @param params
@@ -275,7 +279,10 @@ abstract class ApiCommProcess{
     }
 
     /**
-     * format response for preHandler based upon request method
+     * Given the request method and request params, format response for preHandler based upon request method
+     * @see ApiFrameworkInterceptor#before()
+     * @see BatchInterceptor#before()
+     * @see ChainInterceptor#before()
      * @param mthd
      * @param params
      * @return
@@ -301,7 +308,10 @@ abstract class ApiCommProcess{
     }
 
     /**
-     * creates and returns a LinkedHashMap from request params sent that match endpoint params
+     * Given the returning resource and a list of response variables, creates and returns a LinkedHashMap from request params sent that match endpoint params
+     * @see ApiCommLayer#handleApiResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, LinkedHashMap, GrailsParameterMap)
+     * @see ApiCommLayer#handleBatchResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, LinkedHashMap, GrailsParameterMap)
+     * @see ApiCommLayer#handleChainResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, LinkedHashMap, GrailsParameterMap)
      * @param model
      * @param responseList
      * @return
@@ -340,8 +350,11 @@ abstract class ApiCommProcess{
 
     // used in ApiCommLayer
     /**
-     * test for endpoint method matching request method. Will also return true if
+     * Given request method and endpoint method/protocol,tests for endpoint method matching request method. Will also return true if
      * request method is Rest Alternative; returns boolean
+     * @see ApiCommLayer#handleApiRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
+     * @see ApiCommLayer#handleBatchRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
+     * @see ApiCommLayer#handleChainRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
      * @param protocol
      * @param mthd
      * @return
@@ -367,9 +380,10 @@ abstract class ApiCommProcess{
     }
     */
 
-    // used locally
+
     /**
      * Given the request params, returns a parsed LinkedHashMap of all request params NOT found in optionalParams List
+     * @see checkURIDefinitions(GrailsParameterMap,LinkedHashMap)
      * @param params
      * @return
      */
@@ -386,7 +400,7 @@ abstract class ApiCommProcess{
 
     /**
      * Given an ArrayList of authorities associated with endpoint, determines if User authorities match; returns boolean
-     * Called by getApiDoc
+     * @see #getApiDoc(GrailsParameterMap)
      * @param set
      * @return
      */
@@ -399,6 +413,7 @@ abstract class ApiCommProcess{
 
     /**
      * Given the controllername, returns cached LinkedHashMap for endpoint if it exists
+     * @see #getApiDoc(GrailsParameterMap)
      * @param controllername
      * @return
      */
@@ -420,6 +435,8 @@ abstract class ApiCommProcess{
     /**
      * Given the request params, returns api docs as JSON string
      * Convenience method.
+     * @see #parseResponseMethod(RequestMethod, String, GrailsParameterMap, LinkedHashMap)
+     * @see #parseRequestMethod(RequestMethod, GrailsParameterMap)
      * @param params
      * @return
      */
@@ -510,10 +527,9 @@ abstract class ApiCommProcess{
         }
     }
 
-
     /**
-     * given a LinkedHashMap, parses and return a JSON String;
-     * Used by getApiDoc
+     * Given a LinkedHashMap, parses and return a JSON String;
+     * @see #getApiDoc
      * @param returns
      * @return
      */
@@ -568,8 +584,11 @@ abstract class ApiCommProcess{
 
 
     /**
-     * given a Map, will process cased on type of object and return a LinkedHashMap;
+     * Given a Map, will process cased on type of object and return a LinkedHashMap;
      * Called by the PostHandler
+     * @see ApiFrameworkInterceptor#after()
+     * @see BatchInterceptor#after()
+     * @see ChainInterceptor#after()
      * @param map
      * @return
      */
@@ -600,6 +619,7 @@ abstract class ApiCommProcess{
     /**
      * Given an Object detected as a DomainObject, processes in a standardized format and returns a LinkedHashMap;
      * Used by convertModel and called by the PostHandler
+     * @see #convertModel(Map)
      * @param data
      * @return
      */
@@ -637,6 +657,7 @@ abstract class ApiCommProcess{
     /**
      * Given a LinkedHashMap detected as a Map, processes in a standardized format and returns a LinkedHashMap;
      * Used by convertModel and called by the PostHandler
+     * @see #convertModel(Map)
      * @param map
      * @return
      */
@@ -660,6 +681,7 @@ abstract class ApiCommProcess{
     /**
      * Given a List detected as a List, processes in a standardized format and returns a LinkedHashMap;
      * Used by convertModel and called by the PostHandler
+     * @see #convertModel(Map)
      * @param list
      * @return
      */
@@ -691,9 +713,11 @@ abstract class ApiCommProcess{
         return newMap
     }
 
-    // interceptor::after (response)
+    // TODO : add to ChainInterceptor
     /**
-     *
+     * Given api version and a controllerName/className, tests whether cache exists; returns boolean
+     * @see ApiFrameworkInterceptor#before()
+     * @see BatchInterceptor#before()
      * @param version
      * @param className
      * @return
@@ -714,6 +738,12 @@ abstract class ApiCommProcess{
     }
 
     // interceptor::after (response)
+    /**
+     * Given request, test whether current request sent is an api chain; returns boolean
+     * @see ChainInterceptor#before()
+     * @param request
+     * @return
+     */
     boolean isChain(HttpServletRequest request){
         String contentType = request.getContentType()
         try{
@@ -739,11 +769,25 @@ abstract class ApiCommProcess{
     }
 
     // interceptor::before
+    /**
+     * Returns config variable representing number of seconds for throttle
+     * @see ApiFrameworkInterceptor#before()
+     * @see BatchInterceptor#before()
+     * @see ChainInterceptor#before()
+     * @return
+     */
     String getThrottleExpiration(){
         return Holders.grailsApplication.config.apitoolkit.throttle.expires as String
     }
 
     // interceptor::before
+    /**
+     * Given the contentLength of the response, tests to see if rateLimit or dataLimit have been reached or supassed; returns boolean
+     * @see ApiFrameworkInterceptor#before()
+     * @see ApiFrameworkInterceptor#after()
+     * @param contentLength
+     * @return
+     */
     boolean checkLimit(int contentLength){
         LinkedHashMap throttle = Holders.grailsApplication.config.apitoolkit.throttle as LinkedHashMap
         LinkedHashMap rateLimit = throttle.rateLimit as LinkedHashMap
