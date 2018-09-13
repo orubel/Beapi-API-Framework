@@ -1,22 +1,35 @@
 package net.nosegrind.apiframework
 
 
-import javax.servlet.http.HttpServletRequest
 import grails.web.servlet.mvc.GrailsParameterMap
 import javax.servlet.forward.*
 import org.grails.groovy.grails.commons.*
 import javax.servlet.http.HttpServletResponse
-import groovy.transform.CompileStatic
-import net.nosegrind.apiframework.RequestMethod
 import grails.compiler.GrailsCompileStatic
 
-// extended by Intercepters
+/**
+ *
+ * This abstract provides basic communication logic for prehandling/posthandling and to simplify/standardize processing of
+ * the request/response.
+ *
+ * @see ApiFrameworkInterceptor
+ * @see BatchkInterceptor
+ * @see ChainInterceptor
+ *
+ */
 @GrailsCompileStatic
 abstract class ApiCommLayer extends ApiCommProcess{
 
-    /***************************
-     * REQUESTS
-     ***************************/
+    /**
+     * Given params, handles basic tests for the API request and returns boolean based upon result
+     * @see ApiFrameworkInterceptor#before()
+     * @param deprecated
+     * @param method
+     * @param mthd
+     * @param response
+     * @param params
+     * @return
+     */
     boolean handleApiRequest(List deprecated, String method, RequestMethod mthd, HttpServletResponse response, GrailsParameterMap params){
         try{
             // CHECK VERSION DEPRECATION DATE
@@ -41,6 +54,16 @@ abstract class ApiCommLayer extends ApiCommProcess{
         }
     }
 
+    /**
+     * Given params, handles basic tests for the BATCH request and returns boolean based upon result
+     * @see BatchInterceptor#before()
+     * @param deprecated
+     * @param method
+     * @param mthd
+     * @param response
+     * @param params
+     * @return
+     */
     boolean handleBatchRequest(List deprecated, String method, RequestMethod mthd, HttpServletResponse response, GrailsParameterMap params){
         int status = 400
         try{
@@ -67,7 +90,16 @@ abstract class ApiCommLayer extends ApiCommProcess{
         }
     }
 
-
+    /**
+     * Given params, handles basic tests for the CHAIN request and returns boolean based upon result
+     * @see ChainInterceptor#before()
+     * @param deprecated
+     * @param method
+     * @param mthd
+     * @param response
+     * @param params
+     * @return
+     */
     boolean handleChainRequest(List deprecated, String method, RequestMethod mthd,HttpServletResponse response, GrailsParameterMap params){
         try{
             // CHECK VERSION DEPRECATION DATE
@@ -93,9 +125,18 @@ abstract class ApiCommLayer extends ApiCommProcess{
         }
     }
 
-    /***************************
-    * RESPONSES
-     ***************************/
+    /**
+     * Givens params, parses API data to return a format resource ready to return to client
+     * @see ApiFrameworkInterceptor#after()
+     * @param requestDefinitions
+     * @param roles
+     * @param mthd
+     * @param format
+     * @param response
+     * @param model
+     * @param params
+     * @return
+     */
     def handleApiResponse(LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model, GrailsParameterMap params){
 
         try{
@@ -130,6 +171,18 @@ abstract class ApiCommLayer extends ApiCommProcess{
         }
     }
 
+    /**
+     * Givens params, parses BATCH data to return a format resource ready to return to client
+     * @see BatchInterceptor#after()
+     * @param requestDefinitions
+     * @param roles
+     * @param mthd
+     * @param format
+     * @param response
+     * @param model
+     * @param params
+     * @return
+     */
     def handleBatchResponse(LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model, GrailsParameterMap params){
         try{
             String authority = getUserRole() as String
@@ -156,7 +209,18 @@ abstract class ApiCommLayer extends ApiCommProcess{
         }
     }
 
-
+    /**
+     * Givens params, parses CHAIN data to return a format resource ready to return to client
+     * @see ChainInterceptor#after()
+     * @param requestDefinitions
+     * @param roles
+     * @param mthd
+     * @param format
+     * @param response
+     * @param model
+     * @param params
+     * @return
+     */
     def handleChainResponse(LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model, GrailsParameterMap params){
         try{
             String authority = getUserRole() as String

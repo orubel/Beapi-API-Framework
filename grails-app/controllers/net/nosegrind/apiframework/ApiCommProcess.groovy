@@ -6,44 +6,29 @@ import javax.servlet.http.HttpServletRequest
 import org.springframework.web.context.request.ServletRequestAttributes
 import javax.servlet.http.HttpSession
 
-import org.springframework.security.core.context.SecurityContextHolder as SCH
+
 import java.text.SimpleDateFormat
-
-import net.nosegrind.apiframework.RequestMethod
-//import groovyx.gpars.*
 import static groovyx.gpars.GParsPool.withPool
-
 import grails.converters.JSON
 import grails.converters.XML
 import grails.web.servlet.mvc.GrailsParameterMap
-
-import java.util.LinkedList
-
 import javax.servlet.forward.*
 import org.grails.groovy.grails.commons.*
 import grails.core.GrailsApplication
 import grails.util.Holders
-import org.springframework.web.context.request.RequestContextHolder as RCH
 import org.grails.core.artefact.DomainClassArtefactHandler
 
 import org.springframework.beans.factory.annotation.Autowired
-
-// import org.codehaus.groovy.grails.commons.DomainClassArtefactHandler
-
-
-import net.nosegrind.apiframework.ApiCacheService
-import net.nosegrind.apiframework.ThrottleCacheService
-//import grails.plugin.cache.GrailsCacheManager
 import org.grails.plugin.cache.GrailsCacheManager
 
-// extended by net.nosegrind.apiframework.ApiCommLayer
+
 /**
- * Extended By net.nosegrind.apiframework.ApiCommLayer
- *
  *
  * This abstract provides Common API Methods used by APICommLayer and those that extend it
  * This is simply organizational in keeping repetitively called methods from communication processes
  * for readability
+ *
+ * @see ApiCommLayer
  *
  */
 abstract class ApiCommProcess{
