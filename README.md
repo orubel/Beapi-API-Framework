@@ -5,7 +5,6 @@
 ### Implementation located at https://github.com/orubel/beapi_backend
 
 
-
 Fully reactive api framework providing automation and simplification of api's for scale. Some features include:
 
 - **Automated Batching:** all endpoints are batchable by default with AUTH ROLES assignable to restrict access. Batching can also be TOGGLED to turn this feature ON/OFF per endpoint.
@@ -27,6 +26,11 @@ Fully reactive api framework providing automation and simplification of api's fo
 - **Localized API Cache:** returned resources are cached,stored and updated with requesting ROLE/AUTH. Domains extend a base class that auto update this cache upon create/update/delete. This speeds up your api REQUEST/RESPONSE x10
 
 - **Built-In Profiler:** Profile your API's and have them deliver a metrics report of time it takes for every class/method to deliver so you can optimize queries, methods services
+
+
+### Build
+./gradlew clean;grails install
+
 
 **FAQ**
 
