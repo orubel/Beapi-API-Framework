@@ -4,6 +4,11 @@
 ### Documentation located at http://orubel.github.io/Beapi-API-Framework/
 ### Implementation located at https://github.com/orubel/beapi_backend
 
+### How To Build
+```
+./gradlew clean;grails install
+```
+
 
 Fully reactive api framework providing automation and simplification of api's for scale. Some features include:
 
@@ -28,10 +33,7 @@ Fully reactive api framework providing automation and simplification of api's fo
 - **Built-In Profiler:** Profile your API's and have them deliver a metrics report of time it takes for every class/method to deliver so you can optimize queries, methods services
 
 
-### How To Build
-```
-./gradlew clean;grails install
-```
+
 
 
 ### FAQ
