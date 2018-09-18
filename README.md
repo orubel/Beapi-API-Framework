@@ -43,4 +43,4 @@ The BeAPI Framework is a full featured reactive api framework providing automati
 
 **Q: How do I implement the listener for IO state webhook on my proxy/Message queue?**
 **A:** It merely requires an endpoint to send the data to. As a side project, I may actually supply a simple daemon in the future with ehCache to do this for people.
-# Beapi-Gateway-Framework
+
