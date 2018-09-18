@@ -28,11 +28,11 @@ Fully reactive api framework providing automation and simplification of api's fo
 - **Built-In Profiler:** Profile your API's and have them deliver a metrics report of time it takes for every class/method to deliver so you can optimize queries, methods services
 
 
-### Build
+### How To Build
 ./gradlew clean;grails install
 
 
-**FAQ**
+### FAQ
 
 **Q: How hard is this to implement?**
 **A:** BeApi is 'Plug-N-Play'. Merely install the plugin and it takes care of the 'REST'. The only thing you have to do is build an IO state file for each controller. This enables us to separate all IO data from functionality so it can be shared with other services in the architecture.
