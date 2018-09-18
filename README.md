@@ -29,7 +29,9 @@ Fully reactive api framework providing automation and simplification of api's fo
 
 
 ### How To Build
+```
 ./gradlew clean;grails install
+```
 
 
 ### FAQ
