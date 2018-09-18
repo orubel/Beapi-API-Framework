@@ -5,6 +5,7 @@
 ### Implementation located at https://github.com/orubel/beapi_backend
 
 ### How To Build
+Merely clone the application locally and then build:
 ```
 ./gradlew clean;grails install
 ```
