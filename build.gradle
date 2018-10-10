@@ -4,10 +4,16 @@ buildscript {
         grailsVersion = project.grailsVersion
     }
     repositories {
-        mavenCentral()
+        flatDir {
+            dirs 'lib'
+        }
         mavenLocal()
+        mavenCentral()
         maven { url "https://repo.grails.org/grails/core" }
-        jcenter()
+        maven { url "${System.getProperty('user.home')}/.m2/repository" }
+        jcenter {
+            url "http://jcenter.bintray.com/"
+        }
     }
     dependencies {
         classpath group: 'org.codehaus.gpars', name: 'gpars', version: '1.2.1'
@@ -83,7 +89,10 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven { url "https://repo.grails.org/grails/core" }
-    jcenter()
+    maven { url "${System.getProperty('user.home')}/.m2/repository" }
+    jcenter {
+        url "http://jcenter.bintray.com/"
+    }
 }
 
 //dependencyManagement {
@@ -156,6 +165,7 @@ dependencies {
     //testCompile "org.grails.plugins:geb"
     //testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
     //testCompile "org.grails:grails-web-testing-support"
+    //testCompile "org.grails:grails-test-mixins:3.3.0"
 }
 
 task wrapper(type: Wrapper) {

@@ -18,19 +18,31 @@ import javax.annotation.Resource
 import groovyx.gpars.*
 import static groovyx.gpars.GParsPool.withPool
 
+/**
+ * A class for caching processed api calls and returning them
+ */
 class ApiCacheService{
 
 	GrailsApplication grailsApplication
 	GrailsCacheManager grailsCacheManager
 
-
+	/**
+	 * Constructor
+	 */
 	public ApiCacheService() {
 		this.grailsApplication = Holders.grailsApplication
 	}
+
 	/*
 	 * Only flush on RESTART.
 	 * DO NOT flush while LIVE!!!
 	 * Need to lock this down to avoid process calling this.
+	 */
+
+	/**
+	 * Flushes all data from the API Cache; generally only called on startup to create a 'clean' cache
+	 * @see BeapiApiFrameworkGrailsPlugin
+	 * @return
 	 */
 	void flushAllApiCache(){
 		try {
@@ -45,16 +57,23 @@ class ApiCacheService{
 		}
 	}
 
-	/*
-	 * Only flush on RESTART.
-	 * DO NOT flush while LIVE!!!
+
+	/**
+	 * Private method to flush the cache
+	 * @see #flushAllApiCache
+	 * @param controllername
 	 */
-	//@org.springframework.cache.annotation.CacheEvict(value="ApiCache",key="#controllername")
 	@CacheEvict(value="ApiCache",key={controllername})
-	void flushApiCache(String controllername){}
+	private void flushApiCache(String controllername){}
 
 
 	//@org.springframework.cache.annotation.CachePut(value="ApiCache",key="#controllername")
+	/**
+	 *
+	 * @param controllername
+	 * @param apidesc
+	 * @return
+	 */
 	@CachePut(value="ApiCache",key={controllername})
 	LinkedHashMap setApiCache(String controllername,LinkedHashMap apidesc){
 		return apidesc

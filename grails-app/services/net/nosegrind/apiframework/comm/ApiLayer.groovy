@@ -16,7 +16,9 @@ import grails.web.servlet.mvc.GrailsParameterMap
 
 import net.nosegrind.apiframework.*
 
-
+/**
+ * @deprecated
+ */
 abstract class ApiLayer{
 
 	static transactional = false

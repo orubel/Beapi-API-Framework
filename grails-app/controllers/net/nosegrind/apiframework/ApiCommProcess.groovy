@@ -52,6 +52,7 @@ abstract class ApiCommProcess{
     boolean batchEnabled = Holders.grailsApplication.config.apitoolkit.batching.enabled
     boolean chainEnabled = Holders.grailsApplication.config.apitoolkit.chaining.enabled
 
+
     /**
      * Given the request params, resets parameters for a batch based upon each iteration
      * @see BatchInterceptor#before()
@@ -620,9 +621,9 @@ abstract class ApiCommProcess{
             def d = grailsApplication?.getArtefact(DomainClassArtefactHandler.TYPE, data.class.getName())
 
             if (d!=null) {
-                //println(d.persistentProperties.getClass())
-                //println(d.persistentProperties)
-                d.persistentProperties?.each{ it ->
+                // println(d.persistentProperties.getClass())
+                println("PP:"+d.persistentProperties)
+                d.persistentProperties?.each(){ it ->
                     if (it?.name) {
                         if (DomainClassArtefactHandler.isDomainClass(data[it.name].getClass())) {
                             newMap["${it.name}Id"] = data[it.name].id
