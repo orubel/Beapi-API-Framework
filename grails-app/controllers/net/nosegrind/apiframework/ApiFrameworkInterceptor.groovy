@@ -47,6 +47,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	RequestMethod mthd
 	LinkedHashMap cache = [:]
 	grails.config.Config conf = Holders.grailsApplication.config
+	boolean notApiDoc=true
 
 
 	ApiFrameworkInterceptor(){
@@ -103,13 +104,13 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		}
 
 		try{
+			//Test For APIDoc
+			if(params.controller=='apidoc') {
+				notApiDoc=false
+				return true
+			}
+
 			if(cache) {
-
-				//Test For APIDoc
-				if(params.controller=='apidoc') {
-					return true
-				}
-
 				//CHECK REQUEST METHOD FOR ENDPOINT
 				// NOTE: expectedMethod must be capitolized in IO State file
 				String expectedMethod = cache[params.apiObject][params.action.toString()]['method'] as String
@@ -226,81 +227,94 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 			List unsafeMethods = ['PUT', 'POST', 'DELETE']
 			def vals = model.values()
 
-			//try {
-			LinkedHashMap newModel = [:]
-			if (params.controller != 'apidoc') {
-				if (!model || vals[0] == null) {
-					render(status: HttpServletResponse.SC_NOT_FOUND, text: 'No resource returned / domain is empty')
-					response.flushBuffer()
-					return false
+			try {
+				LinkedHashMap newModel = [:]
+				if (params.controller != 'apidoc') {
+					if (!model || vals[0] == null) {
+						render(status: HttpServletResponse.SC_NOT_FOUND, text: 'No resource returned / domain is empty')
+						response.flushBuffer()
+						return false
+					} else {
+						newModel = convertModel(model)
+					}
 				} else {
-					newModel = convertModel(model)
+					newModel = model as LinkedHashMap
 				}
-			} else {
-				newModel = model as LinkedHashMap
-			}
 
-			// store webhook
-			if (unsafeMethods.contains(request.method.toUpperCase())) {
-				// if controller/action HOOK has roles, is HOOKABLE
-				//LinkedHashMap cache = apiCacheService.getApiCache(params.controller.toString())
-				if (cache) {
-					List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
-					if (hookRoles.size() > 0) {
-						hookService.postData(params.controller.toString(), newModel, params.action.toString())
+				// store webhook
+				if (unsafeMethods.contains(request.method.toUpperCase())) {
+					// if controller/action HOOK has roles, is HOOKABLE
+					//LinkedHashMap cache = apiCacheService.getApiCache(params.controller.toString())
+					if (cache) {
+						List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
+						if (hookRoles.size() > 0) {
+							hookService.postData(params.controller.toString(), newModel, params.action.toString())
+						}
 					}
 				}
-			}
 
 
-			ApiDescriptor cachedEndpoint = cache[params.apiObject][(String) params.action] as ApiDescriptor
+				ApiDescriptor cachedEndpoint
+				if(cache) {
+					cachedEndpoint = cache[params.apiObject][(String) params.action] as ApiDescriptor
+				}
 
-			// TEST FOR NESTED MAP; WE DON'T CACHE NESTED MAPS
-			//boolean isNested = false
-			if (newModel != [:]) {
+				// TEST FOR NESTED MAP; WE DON'T CACHE NESTED MAPS
+				//boolean isNested = false
+				if (newModel != [:]) {
 
-				//Object key = newModel?.keySet()?.iterator()?.next()
-				//if (newModel[key].getClass().getName() == 'java.util.LinkedHashMap') {
-				//	isNested = true
-				//}
+					//Object key = newModel?.keySet()?.iterator()?.next()
+					//if (newModel[key].getClass().getName() == 'java.util.LinkedHashMap') {
+					//	isNested = true
+					//}
 
-				String content = handleApiResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, response, newModel, params)
+					String content = ''
+					//if(params.controller=='apidoc'){
+					//	content = handleApiResponse(null, ['permitAll'], mthd, format, response, newModel, params)
+					//}else {
+						content = handleApiResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, response, newModel, params)
+					//}
 
-				byte[] contentLength = content.getBytes("ISO-8859-1")
-				if (content) {
+					byte[] contentLength = content.getBytes("ISO-8859-1")
+					if (content) {
 
-					// STORE CACHED RESULT
-					String format = request.format.toUpperCase()
-					String authority = getUserRole() as String
+						// STORE CACHED RESULT
+						String format = request.format.toUpperCase()
+						String authority = getUserRole() as String
+
+						if(params.controller=='apidoc'){
+							apiCacheService.setApiCachedResult((String) params.controller, (String) params.apiObject, (String) params.action, 'permitAll', format, content)
+						}else{
+							apiCacheService.setApiCachedResult((String) params.controller, (String) params.apiObject, (String) params.action, authority, format, content)
+						}
 
 
-					apiCacheService.setApiCachedResult((String) params.controller, (String) params.apiObject, (String) params.action, authority, format, content)
-
-
-					if (apiThrottle) {
-						if (checkLimit(contentLength.length)) {
+						if (apiThrottle) {
+							if (checkLimit(contentLength.length)) {
+								render(text: content, contentType: request.getContentType())
+								return false
+							} else {
+								render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
+								return false
+							}
+						} else {
 							render(text: content, contentType: request.getContentType())
 							return false
-						} else {
-							render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-							return false
 						}
-					} else {
-						render(text: content, contentType: request.getContentType())
-						return false
 					}
+				} else {
+					String content = parseResponseMethod(mthd, format, params, newModel)
+					render(text: content, contentType: request.getContentType())
 				}
-			} else {
-				String content = parseResponseMethod(mthd, format, params, newModel)
-				render(text: content, contentType: request.getContentType())
+
+				return false
+
+			} catch (Exception e) {
+				throw new Exception("[ApiToolkitFilters :: apitoolkit.after] : Exception - full stack trace follows:", e)
+				return false
 			}
 
-			return false
 		}
 		return false
-		//}catch(Exception e){
-		//	throw new Exception("[ApiToolkitFilters :: apitoolkit.after] : Exception - full stack trace follows:", e)
-		//	return false
-		//}
 	}
 }

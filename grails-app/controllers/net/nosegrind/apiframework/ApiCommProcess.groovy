@@ -621,8 +621,7 @@ abstract class ApiCommProcess{
             def d = grailsApplication?.getArtefact(DomainClassArtefactHandler.TYPE, data.class.getName())
 
             if (d!=null) {
-                // println(d.persistentProperties.getClass())
-                println("PP:"+d.persistentProperties)
+                // println("PP:"+d.persistentProperties)
                 d.persistentProperties?.each(){ it ->
                     if (it?.name) {
                         if (DomainClassArtefactHandler.isDomainClass(data[it.name].getClass())) {
@@ -675,8 +674,6 @@ abstract class ApiCommProcess{
         LinkedHashMap newMap = [:]
         list.eachWithIndex(){ val, key ->
             if(val){
-                println(val)
-                println(val.getClass())
                 if(val instanceof java.util.ArrayList) {
                     if (java.lang.Class.isInstance(val[0].class)) {
                         newMap[key] = ((val[0] in java.util.ArrayList || val[0] in java.util.List) || val[0] in java.util.Map)?val[0]:val[0].toString()

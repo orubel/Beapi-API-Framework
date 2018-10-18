@@ -140,29 +140,27 @@ abstract class ApiCommLayer extends ApiCommProcess{
     def handleApiResponse(LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model, GrailsParameterMap params){
 
         try{
-            String authority = getUserRole() as String
-            response.setHeader('Authorization', roles.join(', '))
-            ArrayList responseList = []
-            ArrayList<LinkedHashMap> temp = new ArrayList()
-            if(requestDefinitions[authority.toString()]) {
-                ArrayList<LinkedHashMap> temp1 = requestDefinitions[authority.toString()] as ArrayList<LinkedHashMap>
-                temp.addAll(temp1)
-            }else{
-                ArrayList<LinkedHashMap> temp2 = requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
-                temp.addAll(temp2)
-            }
-
-
-            responseList = (ArrayList)temp?.collect(){ if(it!=null){it.name} }
-
             String content
-            if(params.controller!='apidoc') {
+            if(params.controller=='apidoc') {
+                content = parseResponseMethod(mthd, format, params, model)
+            }else{
+                String authority = getUserRole() as String
+                response.setHeader('Authorization', roles.join(', '))
+                ArrayList responseList = []
+                ArrayList<LinkedHashMap> temp = new ArrayList()
+                if(requestDefinitions[authority.toString()]) {
+                    ArrayList<LinkedHashMap> temp1 = requestDefinitions[authority.toString()] as ArrayList<LinkedHashMap>
+                    temp.addAll(temp1)
+                }else{
+                    ArrayList<LinkedHashMap> temp2 = requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
+                    temp.addAll(temp2)
+                }
+
+                responseList = (ArrayList)temp?.collect(){ if(it!=null){it.name} }
+
                 LinkedHashMap result = parseURIDefinitions(model, responseList)
                 // will parse empty map the same as map with content
                 content = parseResponseMethod(mthd, format, params, result)
-
-            }else{
-                content = parseResponseMethod(mthd, format, params, model)
             }
             return content
 

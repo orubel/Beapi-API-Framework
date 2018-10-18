@@ -156,8 +156,9 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
                     def tempCache
 
-                    for(it in cacheNames){
-                        if (it.simpleKey.toString() == controller) {
+                    for (it in cacheNames) {
+                        String cKey = it.simpleKey.toString()
+                        if (cKey == controller) {
                             tempCache = temp.get(it)
                             break
                         }
@@ -166,7 +167,8 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
                     def cache2
                     String version
-                    if (tempCache?.get()) {
+                    //if (tempCache && controller!='apidoc') {
+                    if (tempCache) {
                         cache2 = tempCache.get() as LinkedHashMap
                         version = cache2['cacheversion']
                         if (!cache2?."${version}"?."${action}") {
@@ -180,19 +182,21 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                             //HttpSession session = httpRequest.getSession()
                             //session['cache'] = cache2
                         }
-                    }else{
-                        println("no cache found")
+                    } else {
+                        //println("no cache found")
                     }
 
                     HashSet roles = cache2?."${version}"?."${action}"?.roles as HashSet
 
-                    if (!checkAuth(roles, authenticationResult)) {
-                        httpResponse.status = 401
-                        httpResponse.setHeader('ERROR', 'Unauthorized Access attempted')
-                        //httpResponse.writer.flush()
-                        return
-                    } else {
-                        //log.debug "Continuing the filter chain"
+                    if (controller!='apidoc') {
+                        if (!checkAuth(roles, authenticationResult)) {
+                            httpResponse.status = 401
+                            httpResponse.setHeader('ERROR', 'Unauthorized Access attempted')
+                            //httpResponse.writer.flush()
+                            return
+                        } else {
+                            //log.debug "Continuing the filter chain"
+                        }
                     }
                 }else{
                     println("no ctx found")
@@ -210,12 +214,14 @@ class TokenCacheValidationFilter extends GenericFilterBean {
         HashSet tokenRoles = []
         accessToken.getAuthorities()*.authority.each() { tokenRoles.add(it) }
         try {
-            if (roles.size()==1 && roles[0] == 'permitAll') {
-                return true
-            } else if(roles.intersect(tokenRoles).size()>0) {
-                return true
+            if (roles!=null){
+                if(roles.size()==1 && roles[0] == 'permitAll') {
+                    return true
+                } else if(roles.intersect(tokenRoles).size()>0) {
+                    return true
+                }
+                return false
             }
-            return false
         }catch(Exception e) {
             //println("[TokenCacheValidationFilter :: checkAuth] : Exception - full stack trace follows:"+e)
             throw new Exception("[TokenCacheValidationFilter :: checkAuth] : Exception - full stack trace follows:",e)

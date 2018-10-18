@@ -128,9 +128,9 @@ dependencies {
     }
 
     runtime('org.grails:grails-web') {
-        exclude(module: 'org.grails:grails-web-jsp')
-        exclude(module: 'org.grails:grails-web-sitemesh')
-        exclude(module: 'org.grails:grails-web-gsp')
+        //exclude(module: 'org.grails:grails-web-jsp')
+        //exclude(module: 'org.grails:grails-web-sitemesh')
+        //exclude(module: 'org.grails:grails-web-gsp')
         //exclude(module: 'org.grails:grails-web-databinding:5.0.1')
     }
 
