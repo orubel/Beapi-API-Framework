@@ -407,7 +407,14 @@ abstract class ApiCommProcess{
         try{
             def temp = grailsCacheManager?.getCache('ApiCache')
 
-            def cache = temp?.get(controllername)
+            List cacheNames=temp.getAllKeys() as List
+            def cache
+            cacheNames.each(){
+                if(it.simpleKey==controllername) {
+                    cache = temp.get(it)
+                }
+            }
+
             if(cache?.get()){
                 return cache.get() as LinkedHashMap
             }else{
@@ -439,7 +446,6 @@ abstract class ApiCommProcess{
                 //LinkedHashMap cache = session['cache'] as LinkedHashMap
                 if(cache){
                     if(cache[params.apiObject][params.action]){
-
                         def doc = cache[params.apiObject][params.action].doc
                         def path = doc?.path
                         def method = doc?.method

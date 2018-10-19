@@ -126,6 +126,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				if (restAlt) {
 					// PARSE REST ALTS (TRACE, OPTIONS, ETC)
 					String result = parseRequestMethod(mthd, params)
+
 					if (result) {
 						byte[] contentLength = result.getBytes("ISO-8859-1")
 
