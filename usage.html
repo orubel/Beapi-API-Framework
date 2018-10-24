@@ -51,6 +51,21 @@
 
 <p>All automation and checks are automated based on your IO state files and you no longer have to do this in your controllers or services. Please read about <a href="iostate.html#rules>">'Defining URI Rule'</a> under <b><a href="iostate.html">IO State</a></b></p>
 
+        
+        <h3><a id="versioning" class="anchor" href="#versioning" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Versioning Explained</h3>
+        <p>Primarily, versioning is for the 'application' more so than the IO State(request/response data) but since <b>BeAPI&#8482;</b> can handle and serve multiple versions of the IO State, we havce to know what version of the IO State we are serving. Thus versioning is broken into TWO pieces: the version of application concatenated with version of IO State.</p>
+
+        <pre><code>v0.1-1</code></pre>
+        
+        <p> The above version tells us:
+        <ul>
+          <li><b>v</b>: That this is a regular api call (vs a batch or chain call)</li>
+              <li><b>0.1</b>: The version of the application to use; this helps us with routing at the load balancer if you are handling multiple versions of the production software.</li>
+              <li><b>1</b>: THIS is the version of the IO State to use. If left blank (v0.1 for example), it defaults to 'currentStable' in the IO State file.</li>
+              <li><a href="usage.html#data_js">Sending Data to API via Javascript</a></li>
+        </ul>        
+        </p>
+        
         <h3><a id="data_shell" class="anchor" href="#data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Sending Data to API via Shell</h3>
 
         <h2>Authorizing from Shell</h2>
