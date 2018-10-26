@@ -13,7 +13,6 @@ class ApiFrameworkUrlMappings {
         String chainEntryPoint = "c${apiVersion}"
         String profilerEntryPoint = "p${apiVersion}"
 
-
         // REGULAR API ENDPOINTS
         "/$api/$controller/$action/$id?**"{
             entryPoint = api

@@ -68,7 +68,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
     @Override
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        //println("#### TokenCacheValidationFilter ####")
+        // println("#### TokenCacheValidationFilter ####")
         HttpServletRequest httpRequest = request as HttpServletRequest
         HttpServletResponse httpResponse = response as HttpServletResponse
         AccessToken accessToken
@@ -81,7 +81,6 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 accessToken = restAuthenticationProvider.authenticate(accessToken) as AccessToken
 
                 if (accessToken.authenticated) {
-
                     //log.debug "Token authenticated. Storing the authentication result in the security context"
                     //log.debug "Authentication result: ${accessToken}"
                     SecurityContextHolder.context.setAuthentication(accessToken)
@@ -96,7 +95,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                     //return
                 }
             } else {
-                //log.debug "Token not found"
+                log.debug "Token not found"
                 return
             }
 
@@ -105,6 +104,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
             httpResponse.status = 401
             httpResponse.setHeader('ERROR', 'Authorization Attempt Failed')
             httpResponse.writer.flush()
+
             //authenticationEventPublisher.publishAuthenticationFailure(ae, accessToken)
             //authenticationFailureHandler.onAuthenticationFailure(httpRequest, httpResponse, ae)
         }
@@ -203,7 +203,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 }
             }
         } else {
-            //println("Request does not contain any token. Letting it continue through the filter chain")
+            println("Request does not contain any token. Letting it continue through the filter chain")
         }
 
         chain.doFilter(request, response)
@@ -223,7 +223,6 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 return false
             }
         }catch(Exception e) {
-            //println("[TokenCacheValidationFilter :: checkAuth] : Exception - full stack trace follows:"+e)
             throw new Exception("[TokenCacheValidationFilter :: checkAuth] : Exception - full stack trace follows:",e)
         }
     }
