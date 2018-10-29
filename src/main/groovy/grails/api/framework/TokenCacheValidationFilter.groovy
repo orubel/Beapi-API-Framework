@@ -68,7 +68,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
     @Override
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        // println("#### TokenCacheValidationFilter ####")
+        println("#### TokenCacheValidationFilter ####")
         HttpServletRequest httpRequest = request as HttpServletRequest
         HttpServletResponse httpResponse = response as HttpServletResponse
         AccessToken accessToken
@@ -76,7 +76,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
         try {
             accessToken = tokenReader.findToken(httpRequest)
             if (accessToken) {
-                //log.debug "Token found: ${accessToken.accessToken}"
+                log.debug "Token found: ${accessToken.accessToken}"
 
                 accessToken = restAuthenticationProvider.authenticate(accessToken) as AccessToken
 
@@ -96,11 +96,13 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 }
             } else {
                 log.debug "Token not found"
+                println('token not found')
                 return
             }
 
         } catch (AuthenticationException ae) {
             // NOTE: This will happen if token not found in database
+            println('auth attempt failed')
             httpResponse.status = 401
             httpResponse.setHeader('ERROR', 'Authorization Attempt Failed')
             httpResponse.writer.flush()
@@ -126,7 +128,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
         if (authenticationResult?.accessToken) {
             if (actualUri == validationEndpointUrl) {
-                //log.debug "Validation endpoint called. Generating response."
+                log.debug "Validation endpoint called. Generating response."
                 authenticationSuccessHandler.onAuthenticationSuccess(httpRequest, httpResponse, authenticationResult)
             } else {
                 String entryPoint = Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)
@@ -145,6 +147,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 }
 
                 ApplicationContext ctx = Holders.grailsApplication.mainContext
+                println('checking for context...')
                 if(ctx) {
                     GrailsCacheManager grailsCacheManager = ctx.getBean("grailsCacheManager");
                     //def temp = grailsCacheManager?.getCache('ApiCache')
@@ -172,6 +175,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                         cache2 = tempCache.get() as LinkedHashMap
                         version = cache2['cacheversion']
                         if (!cache2?."${version}"?."${action}") {
+                            log.debug "no cache"
                             httpResponse.status = 401
                             httpResponse.setHeader('ERROR', 'IO State Not properly Formatted for this URI. Please contact the Administrator.')
                             //httpResponse.writer.flush()
@@ -190,12 +194,15 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
                     if (controller!='apidoc') {
                         if (!checkAuth(roles, authenticationResult)) {
+                            println('no auth')
+                            log.debug "no auth"
                             httpResponse.status = 401
                             httpResponse.setHeader('ERROR', 'Unauthorized Access attempted')
                             //httpResponse.writer.flush()
                             return
                         } else {
-                            //log.debug "Continuing the filter chain"
+                            log.debug "Continuing the filter chain"
+
                         }
                     }
                 }else{
@@ -206,11 +213,13 @@ class TokenCacheValidationFilter extends GenericFilterBean {
             println("Request does not contain any token. Letting it continue through the filter chain")
         }
 
+println('chaining...')
         chain.doFilter(request, response)
     }
 
 
     boolean checkAuth(HashSet roles, AccessToken accessToken){
+
         HashSet tokenRoles = []
         accessToken.getAuthorities()*.authority.each() { tokenRoles.add(it) }
         try {
@@ -223,6 +232,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 return false
             }
         }catch(Exception e) {
+            println("[TokenCacheValidationFilter :: checkAuth] : Exception - full stack trace follows:"+e)
             throw new Exception("[TokenCacheValidationFilter :: checkAuth] : Exception - full stack trace follows:",e)
         }
     }
