@@ -160,7 +160,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
 
                 LinkedHashMap result = parseURIDefinitions(model, responseList)
                 // will parse empty map the same as map with content
-                println("### [ApiCommLayer] HandleApiResponse:parseResponseMethod called")
+
                 content = parseResponseMethod(mthd, format, params, result)
             }
             return content
