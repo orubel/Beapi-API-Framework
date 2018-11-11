@@ -29,7 +29,7 @@ class CorsSecurityFilter extends OncePerRequestFilter {
         //println("FILTERCHAIN : "+filterChain)
 
         if( !processPreflight(request, response) ) {
-            println('chaining...')
+
             chain.doFilter(request, response)
         }
     }

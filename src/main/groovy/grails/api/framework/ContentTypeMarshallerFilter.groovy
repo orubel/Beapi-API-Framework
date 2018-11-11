@@ -95,9 +95,17 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
                     break
                 case 'text/json':
                 case 'application/json':
-                default:
                     return 'JSON'==format
                     break
+                default:
+                    println(contentType.split(';')[0])
+                    if(contentType.split(';')[0]=='multipart/form-data') {
+                        return 'MULTIPARTFORM' == format
+                    }else{
+                        return 'JSON'==format
+                    }
+                    break
+
             }
             return false
         }catch(Exception e){
