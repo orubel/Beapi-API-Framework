@@ -103,7 +103,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 			params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
 		}
 
-		try{
+		//try{
 			//Test For APIDoc
 			if(params.controller=='apidoc') {
 				notApiDoc=false
@@ -156,29 +156,59 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 				// RETRIEVE CACHED RESULT; DON'T CACHE LISTS
 				if (cache[params.apiObject][params.action.toString()]['cachedResult']) {
+
 					String authority = getUserRole() as String
 					String domain = ((String) params.controller).capitalize()
 
 					JSONObject json = (JSONObject) cache[params.apiObject][params.action.toString()]['cachedResult'][authority][format]
 					if(!json){
 						return false
-					}else{
-						if (isCachedResult((Integer) json.get('version'), domain)) {
-							LinkedHashMap result = cache[params.apiObject][params.action.toString()]['cachedResult'][authority][format] as LinkedHashMap
-							String content = new groovy.json.JsonBuilder(result).toString()
-							byte[] contentLength = content.getBytes( "ISO-8859-1" )
-							if(apiThrottle) {
-								if (checkLimit(contentLength.length)) {
+					}else {
+						JSONObject first = (JSONObject) json.get('0')
+
+						// is a List of objects
+						if(first.size()>0 && !first.isEmpty()){
+							JSONObject jsonObj = ((JSONObject)json.get('0'))
+							Integer version =  jsonObj.get('version') as Integer
+
+							if (isCachedResult((Integer) version, domain)) {
+								LinkedHashMap result = cache[params.apiObject][params.action.toString()]['cachedResult'][authority][format] as LinkedHashMap
+								String content = new groovy.json.JsonBuilder(result).toString()
+								byte[] contentLength = content.getBytes("ISO-8859-1")
+								if (apiThrottle) {
+									if (checkLimit(contentLength.length)) {
+										render(text: result as JSON, contentType: request.getContentType())
+										return false
+									} else {
+										render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
+										response.flushBuffer()
+										return false
+									}
+								} else {
 									render(text: result as JSON, contentType: request.getContentType())
 									return false
-								} else {
-									render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-									response.flushBuffer()
-									return false
 								}
-							}else{
-								render(text: result as JSON, contentType: request.getContentType())
-								return false
+							}
+						}else {
+							if (json.get('version')) {
+								if (isCachedResult((Integer) json.get('version'), domain)) {
+									LinkedHashMap result = cache[params.apiObject][params.action.toString()]['cachedResult'][authority][format] as LinkedHashMap
+									String content = new groovy.json.JsonBuilder(result).toString()
+									byte[] contentLength = content.getBytes("ISO-8859-1")
+									if (apiThrottle) {
+										if (checkLimit(contentLength.length)) {
+											render(text: result as JSON, contentType: request.getContentType())
+											return false
+										} else {
+											render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
+											response.flushBuffer()
+											return false
+										}
+									} else {
+										render(text: result as JSON, contentType: request.getContentType())
+										return false
+									}
+								}
 							}
 						}
 					}
@@ -210,10 +240,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 			return false
 
-		}catch(Exception e){
-			throw new Exception("[ApiToolkitFilters :: preHandler] : Exception - full stack trace follows:", e)
-			return false
-		}
+		//}catch(Exception e){
+		//	throw new Exception("[ApiToolkitFilters :: preHandler] : Exception - full stack trace follows:", e)
+		//	return false
+		//}
 	}
 
 	/**
@@ -246,11 +276,13 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				if (unsafeMethods.contains(request.method.toUpperCase())) {
 					// if controller/action HOOK has roles, is HOOKABLE
 					//LinkedHashMap cache = apiCacheService.getApiCache(params.controller.toString())
-					if (cache) {
+					if (cache[params.apiObject]["${params.action}"]['hookRoles']) {
 						List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
 						if (hookRoles.size() > 0) {
 							hookService.postData(params.controller.toString(), newModel, params.action.toString())
 						}
+					}else{
+						render(status: HttpServletResponse.SC_BAD_REQUEST, text: "The hookRoles in your IO State for "+params.controller+"is undefined.")
 					}
 				}
 

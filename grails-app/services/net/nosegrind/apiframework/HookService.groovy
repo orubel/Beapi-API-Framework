@@ -108,6 +108,7 @@ class HookService {
 			if (urlValidator.isValid(url)) {
 				return true
 			} else {
+				println('returning false')
 				return false
 			}
 		}catch(Exception e){

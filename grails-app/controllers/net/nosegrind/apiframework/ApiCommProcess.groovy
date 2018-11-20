@@ -591,12 +591,15 @@ abstract class ApiCommProcess{
 
             if(map && (!map?.response && !map?.metaClass && !map?.params)){
                 if (DomainClassArtefactHandler?.isDomainClass(map[k].getClass()) && map[k]!=null) {
+                    println('domain:'+k)
                     newMap = formatDomainObject(map[k])
                     return newMap
                 } else if(['class java.util.LinkedList', 'class java.util.ArrayList'].contains(map[k].getClass().toString())) {
+                    println('list:'+k)
                     newMap = formatList(map[k])
                     return newMap
                 } else if(['class java.util.Map', 'class java.util.LinkedHashMap'].contains(map[k].getClass().toString())) {
+                    println('map:'+k)
                     newMap = formatMap(map[k])
                     return newMap
                 }
@@ -616,6 +619,7 @@ abstract class ApiCommProcess{
      * @return
      */
     LinkedHashMap formatDomainObject(Object data){
+        println('formatDomainObject...')
         try {
             LinkedHashMap newMap = [:]
 
@@ -677,21 +681,17 @@ abstract class ApiCommProcess{
      * @return
      */
     LinkedHashMap formatList(List list){
+        println('FormatList...')
         LinkedHashMap newMap = [:]
         list.eachWithIndex(){ val, key ->
             if(val){
-                if(val instanceof java.util.ArrayList) {
-                    if (java.lang.Class.isInstance(val[0].class)) {
-                        newMap[key] = ((val[0] in java.util.ArrayList || val[0] in java.util.List) || val[0] in java.util.Map)?val[0]:val[0].toString()
-                    }else if(DomainClassArtefactHandler?.isDomainClass(val[0].getClass()) || DomainClassArtefactHandler?.isArtefactClass(val[0].getClass())){
-                        newMap[key]=formatDomainObject(val[0])
-                    }else{
-                        newMap[key] = ((val[0] in java.util.ArrayList || val[0] in java.util.List) || val[0] in java.util.Map)?val[0]:val[0].toString()
-                    }
-                }else {
-                    if (java.lang.Class.isInstance(val.class)) {
-                        newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? list[key] : val.toString()
-                    }else if (DomainClassArtefactHandler?.isDomainClass(val.getClass()) || DomainClassArtefactHandler?.isArtefactClass(val.class)) {
+                if(val instanceof java.util.ArrayList || val instanceof java.util.List) {
+                    println('[arrayList]')
+                    newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map)?val:val.toString()
+                }else{
+                    println('[NOT arrayList]')
+                    if (DomainClassArtefactHandler?.isDomainClass(val.getClass())) {
+                        println('domain object:'+val)
                         newMap[key] = formatDomainObject(val)
                     }else{
                         newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? list[key] : val.toString()
