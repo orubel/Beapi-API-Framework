@@ -61,7 +61,9 @@ abstract class ApiCommProcess{
     void setBatchParams(GrailsParameterMap params){
         if (batchEnabled) {
             def batchVars = request.getAttribute(request.format.toUpperCase())
-            if(!request.getAttribute('batchLength')){ request.setAttribute('batchLength',batchVars['batch'].size()) }
+            if(!request.getAttribute('batchLength')){
+                request.setAttribute('batchLength',batchVars['batch'].size())
+            }
             batchVars['batch'][request.getAttribute('batchInc').toInteger()].each() { k,v ->
                 params."${k}" = v
             }
@@ -192,7 +194,7 @@ abstract class ApiCommProcess{
      * @return
      */
     boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions){
-        ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','_','max','offset']
+        ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','_','batch','max','offset']
         try{
             String authority = getUserRole() as String
             ArrayList temp = []
@@ -591,15 +593,12 @@ abstract class ApiCommProcess{
 
             if(map && (!map?.response && !map?.metaClass && !map?.params)){
                 if (DomainClassArtefactHandler?.isDomainClass(map[k].getClass()) && map[k]!=null) {
-                    println('domain:'+k)
                     newMap = formatDomainObject(map[k])
                     return newMap
                 } else if(['class java.util.LinkedList', 'class java.util.ArrayList'].contains(map[k].getClass().toString())) {
-                    println('list:'+k)
                     newMap = formatList(map[k])
                     return newMap
                 } else if(['class java.util.Map', 'class java.util.LinkedHashMap'].contains(map[k].getClass().toString())) {
-                    println('map:'+k)
                     newMap = formatMap(map[k])
                     return newMap
                 }
@@ -619,7 +618,6 @@ abstract class ApiCommProcess{
      * @return
      */
     LinkedHashMap formatDomainObject(Object data){
-        println('formatDomainObject...')
         try {
             LinkedHashMap newMap = [:]
 
@@ -681,17 +679,13 @@ abstract class ApiCommProcess{
      * @return
      */
     LinkedHashMap formatList(List list){
-        println('FormatList...')
         LinkedHashMap newMap = [:]
         list.eachWithIndex(){ val, key ->
             if(val){
                 if(val instanceof java.util.ArrayList || val instanceof java.util.List) {
-                    println('[arrayList]')
                     newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map)?val:val.toString()
                 }else{
-                    println('[NOT arrayList]')
                     if (DomainClassArtefactHandler?.isDomainClass(val.getClass())) {
-                        println('domain object:'+val)
                         newMap[key] = formatDomainObject(val)
                     }else{
                         newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? list[key] : val.toString()

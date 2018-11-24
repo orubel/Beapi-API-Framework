@@ -14,7 +14,7 @@ import org.grails.web.util.WebUtils
 import grails.util.Holders
 import javax.servlet.http.HttpServletResponse
 import groovy.transform.CompileStatic
-
+import org.springframework.http.HttpStatus
 
 @CompileStatic
 class BatchInterceptor extends ApiCommLayer{
@@ -23,7 +23,6 @@ class BatchInterceptor extends ApiCommLayer{
 
 	@Resource
 	GrailsApplication grailsApplication
-
 	ApiCacheService apiCacheService = new ApiCacheService()
 	SpringSecurityService springSecurityService
 
@@ -35,6 +34,8 @@ class BatchInterceptor extends ApiCommLayer{
 	RequestMethod mthd
 	LinkedHashMap cache = [:]
 	boolean apiThrottle
+	grails.config.Config conf = Holders.grailsApplication.config
+	boolean notApiDoc=true
 
 	BatchInterceptor(){
 		match(uri:"/${entryPoint}/**")
@@ -43,18 +44,13 @@ class BatchInterceptor extends ApiCommLayer{
 	boolean before(){
 		//println('##### BATCHINTERCEPTOR (BEFORE)')
 
-		// TESTING: SHOW ALL FILTERS IN CHAIN
-		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
-		//println(filterChain)
-
-		format = (request?.format)?request.format:'JSON';
+		format = (request?.format)?request.format.toUpperCase():'JSON'
 		mthdKey = request.method.toUpperCase()
 		mthd = (RequestMethod) RequestMethod[mthdKey]
 
-		apiThrottle = Holders.grailsApplication.config.apiThrottle as boolean
-
-		//Map methods = ['GET':'show','PUT':'update','POST':'create','DELETE':'delete']
+		apiThrottle = this.conf.apiThrottle as boolean
 		boolean restAlt = RequestMethod.isRestAlt(mthd.getKey())
+
 
 		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
 
@@ -79,22 +75,28 @@ class BatchInterceptor extends ApiCommLayer{
 		}
 
 
-		try{
-			// INITIALIZE CACHE
-			def session = request.getSession()
-			cache = session['cache'] as LinkedHashMap
+		// INITIALIZE CACHE
+		def session = request.getSession()
+		cache = session['cache'] as LinkedHashMap
 
+		if(cache) {
+			params.apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
+			params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
+		}
+
+		try{
+			//Test For APIDoc
+			if(params.controller=='apidoc') {
+				notApiDoc=false
+				return true
+			}
 
 			if(cache) {
-
-				params.apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
-				params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
-
-				// CHECK REQUEST METHOD FOR ENDPOINT
+				//CHECK REQUEST METHOD FOR ENDPOINT
 				// NOTE: expectedMethod must be capitolized in IO State file
 				String expectedMethod = cache[params.apiObject][params.action.toString()]['method'] as String
 				if (!checkRequestMethod(mthd,expectedMethod, restAlt)) {
-					render(status: HttpServletResponse.SC_BAD_REQUEST, text: "Expected request method '${expectedMethod}' does not match sent method '${mthd.getKey()}'")
+					render(status: 400, text: "Expected request method '${expectedMethod}' does not match sent method '${mthd.getKey()}'")
 					return false
 				}
 
@@ -105,8 +107,10 @@ class BatchInterceptor extends ApiCommLayer{
 				if (restAlt) {
 					// PARSE REST ALTS (TRACE, OPTIONS, ETC)
 					String result = parseRequestMethod(mthd, params)
+
 					if (result) {
 						byte[] contentLength = result.getBytes("ISO-8859-1")
+
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
 								render(text: result, contentType: request.getContentType())
@@ -122,42 +126,43 @@ class BatchInterceptor extends ApiCommLayer{
 					}
 				}
 
+				// START HANDLE BATCH PARAMS
 				if (request?.getAttribute('batchInc')==null) {
 					request.setAttribute('batchInc',0)
 				}else{
 					Integer newBI = (Integer) request?.getAttribute('batchInc')
 					request.setAttribute('batchInc',newBI+1)
 				}
+				Integer batchInc = (Integer) request.getAttribute('batchInc')
 
 
-				int batchInc = (int) request.getAttribute('batchInc')
 				if(params.max!=null) {
-					List max = params.max as List
-					params.max = max[batchInc]
+					if(params.max instanceof ArrayList || params.max instanceof List) {
+						ArrayList max = params.max as ArrayList
+						params.max = max[batchInc]
+					}
 				}else{
 					params.max = 0
 				}
+
 				if(params.offset!=null) {
-					List offset = params.offset as List
-					params.offset = offset[batchInc]
+					if(params.max instanceof ArrayList || params.max instanceof List) {
+						ArrayList offset = params.offset as ArrayList
+						params.offset = offset[batchInc]
+					}
 				}else{
 					params.offset = 0
 				}
 
 				setBatchParams(params)
+				// END HANDLE BATCH PARAMS
 
 				// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
 				LinkedHashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as LinkedHashMap
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
 				if (!checkURIDefinitions(params, receives)) {
-					render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Expected request variables for endpoint do not match sent variables')
-					return false
-				}
-
-				boolean requestKeysMatch = checkURIDefinitions(params,receives)
-
-				if(!requestKeysMatch){
-					render(status:HttpServletResponse.SC_BAD_REQUEST, text: 'Expected request variables for endpoint do not match sent variables')
+					render(status: HttpStatus.BAD_REQUEST.value(), text: 'Expected request variables for endpoint do not match sent variables')
+					response.flushBuffer()
 					return false
 				}
 
@@ -247,7 +252,7 @@ class BatchInterceptor extends ApiCommLayer{
 			}
 
 			ApiDescriptor cachedEndpoint = cache[params.apiObject][(String)params.action] as ApiDescriptor
-			String content = handleBatchResponse(cachedEndpoint['returns'] as LinkedHashMap,cachedEndpoint['roles'] as List,mthd,format,response,newModel,params) as LinkedHashMap
+			String content = handleBatchResponse(cachedEndpoint['returns'] as LinkedHashMap,cachedEndpoint['roles'] as List,mthd,format,response,newModel,params)
 
 			//content = handleBatchResponse(cache[params.apiObject][params.action.toString()],request,response,newModel,params) as LinkedHashMap
 
