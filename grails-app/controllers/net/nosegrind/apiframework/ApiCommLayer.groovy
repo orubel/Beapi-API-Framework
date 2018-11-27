@@ -200,8 +200,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
             if(!result){
                 response.status = 400
             }else{
-                //LinkedHashMap content = parseResponseMethod(request, params, result)
-                return parseResponseMethod(mthd, format, params, result)
+                return parseBatchResponseMethod(mthd, format, params, result)
             }
         }catch(Exception e){
             throw new Exception("[ApiCommLayer : handleBatchResponse] : Exception - full stack trace follows:",e)

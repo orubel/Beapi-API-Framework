@@ -194,7 +194,7 @@ abstract class ApiCommProcess{
      * @return
      */
     boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions){
-        ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','_','batch','max','offset']
+        ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','apiResult','combine','_','batch','max','offset']
         try{
             String authority = getUserRole() as String
             ArrayList temp = []
@@ -261,6 +261,20 @@ abstract class ApiCommProcess{
                         content = result as JSON
                 }
                 break;
+        }
+
+        return content
+    }
+
+    LinkedHashMap parseBatchResponseMethod(RequestMethod mthd, String format, GrailsParameterMap params, LinkedHashMap result){
+        LinkedHashMap content
+        switch(mthd.getKey()) {
+            case 'GET':
+            case 'PUT':
+            case 'POST':
+            case 'DELETE':
+                content = result
+                break
         }
 
         return content
@@ -587,7 +601,7 @@ abstract class ApiCommProcess{
      * @return
      */
     LinkedHashMap convertModel(Map map){
-        //try{
+        try{
             LinkedHashMap newMap = [:]
             String k = map.entrySet().toList().first().key
 
@@ -604,9 +618,9 @@ abstract class ApiCommProcess{
                 }
             }
             return newMap
-        //}catch(Exception e){
-        //    throw new Exception("[ApiCommProcess :: convertModel] : Exception - full stack trace follows:",e)
-        //}
+        }catch(Exception e){
+            throw new Exception("[ApiCommProcess :: convertModel] : Exception - full stack trace follows:",e)
+        }
     }
 
 

@@ -10,7 +10,8 @@ import groovy.json.JsonSlurper
 import net.nosegrind.apiframework.RequestMethod
 
 import org.grails.web.util.WebUtils
-
+import grails.converters.JSON
+import grails.converters.XML
 import grails.util.Holders
 import javax.servlet.http.HttpServletResponse
 import groovy.transform.CompileStatic
@@ -229,7 +230,9 @@ class BatchInterceptor extends ApiCommLayer{
 
 	boolean after(){
 		//println('##### BATCHFILTER (AFTER)')
+
 		try{
+			String format = request.format.toUpperCase()
 			LinkedHashMap newModel = [:]
 
 			if (!model) {
@@ -239,43 +242,50 @@ class BatchInterceptor extends ApiCommLayer{
 				newModel = convertModel(model)
 			}
 
-			//LinkedHashMap cache = apiCacheService.getApiCache(params.controller.toString())
-			//LinkedHashMap content
+			ApiDescriptor cachedEndpoint = cache[params.apiObject][(String)params.action] as ApiDescriptor
+			LinkedHashMap content = handleBatchResponse(cachedEndpoint['returns'] as LinkedHashMap,cachedEndpoint['roles'] as List,mthd,format,response,newModel,params) as LinkedHashMap
+
 			int batchLength = (int) request.getAttribute('batchLength')
 			int batchInc = (int) request.getAttribute('batchInc')
 			if(batchEnabled && (batchLength > batchInc+1)){
 				WebUtils.exposeRequestAttributes(request, params);
 				// this will work fine when we upgrade to newer version that has fix in it
-				params.uri = request.forwardURI.toString()
-				forward(params)
-				return false
-			}
 
-			ApiDescriptor cachedEndpoint = cache[params.apiObject][(String)params.action] as ApiDescriptor
-			String content = handleBatchResponse(cachedEndpoint['returns'] as LinkedHashMap,cachedEndpoint['roles'] as List,mthd,format,response,newModel,params)
-
-			//content = handleBatchResponse(cache[params.apiObject][params.action.toString()],request,response,newModel,params) as LinkedHashMap
-
-			byte[] contentLength = content.getBytes( "ISO-8859-1" )
-			if(content){
-				// STORE CACHED RESULT
-				String format = request.format.toUpperCase()
-				String authority = getUserRole() as String
-
-				if (!newModel) {
-					apiCacheService.setApiCachedResult((String) params.controller, (String) params.apiObject, (String) params.action, authority, format, content)
+				List temp = []
+				if(!session['apiResult']){
+					session['apiResult'] = ''
+				}else {
+					temp = session['apiResult'] as List
 				}
 
+				String data = ((format=='XML')? (content as XML) as String:(content as JSON) as String)
+				temp.add(data)
+				session['apiResult'] = temp
+
+				forward('uri':request.forwardURI.toString(),'params':params)
+				return false
+			}else{
+				List temp = session['apiResult'] as List
+				String data = ((format=='XML')? (content as XML) as String:(content as JSON) as String)
+				temp.add(data)
+				session['apiResult'] = temp
+			}
+
+			String output = (params?.combine==true)? session['apiResult'] as String:((format=='XML')? (content as XML) as String:(content as JSON) as String)
+			session['apiResult'] = null
+
+			byte[] contentLength = output.getBytes( "ISO-8859-1" )
+			if(output){
 				if(apiThrottle) {
 					if (checkLimit(contentLength.length)) {
-						render(text: content, contentType: request.getContentType())
+						render(text: output, contentType: request.getContentType())
 						return false
 					} else {
 						render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 						return false
 					}
 				}else{
-					render(text: content, contentType: request.getContentType())
+					render(text: output, contentType: request.getContentType())
 					return false
 				}
 			}
