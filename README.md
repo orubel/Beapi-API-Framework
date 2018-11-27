@@ -4,8 +4,21 @@
 ### Documentation located at http://orubel.github.io/Beapi-API-Framework/
 ### Implementation located at https://github.com/orubel/beapi_backend
 
+### How To Install in your project
+Merely add the repository and then add the dependency to your project...
+```
+repositories {
+  ...
+  maven { url "http://dl.bintray.com/nosegrind/plugins" }
+}
+dependencies {
+  ...
+  compile "org.grails.plugins:api-framework:0.9.3"
+}
+```
+
 ### How To Build
-Merely clone the application locally and then run the following command from the root directory:
+If you want to build it yourself, download the project and then from the root of the project run the following:
 ```
 ./gradlew clean;grails install
 ```
