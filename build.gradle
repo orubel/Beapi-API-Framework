@@ -37,39 +37,19 @@ group "org.grails.plugins"
 apply plugin: "maven-publish"
 apply plugin: "org.springframework.boot"
 apply plugin: "com.jfrog.bintray"
-//apply plugin: "org.grails.grails-plugin"
+
 // Used for publishing to central repository, remove if not needed
 apply plugin: "org.grails.grails-plugin-publish"
 apply plugin: "org.grails.grails-plugin"
 
 
-
-bintray {
+grailsPublish {
     user = System.getenv('BINTRAY_USER')
     key = System.getenv('BINTRAY_KEY')
-    pkg {
-        repo = 'plugins'
-        name = 'api-framework'
-        userOrg = 'beapi'
-        licenses = ['GPL-3.0']
-        vcsUrl = 'https://github.com/orubel/Beapi-API-Framework.git'
-        version {
-            name = '3.1'
-            desc = '3.1 STABLE'
-            released = new Date()
-        }
-        filesSpec {
-            from 'build/libs'
-            into 'standalone_files/level1'
-        }
-    }
-}
-
-grailsPublish {
     userOrg = 'nosegrind' // Optional
     githubSlug = 'orubel/api-framework'
     license {
-        name = 'AFL-3.0'
+        name = 'MIT'
     }
     title = "BeAPI API Framework"
     desc = "BeAPI API Framework is a fully reactive plug-n-play API Framework for Distributed Architectures providing api abstraction, cached IO state, automated batching and more. It is meant to autmoate alot of the issues behind setting up and maintaining API's in distributed architectures as well as handling and simplifying automation."

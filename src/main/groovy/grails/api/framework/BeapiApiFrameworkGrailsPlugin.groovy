@@ -38,6 +38,8 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 	def description = 'BeAPI Framework is a fully reactive plug-n-play API Framework for Distributed Architectures providing api abstraction, cached IO state, automated batching and more. It is meant to autmoate alot of the issues behind setting up and maintaining API\'s in distributed architectures as well as handling and simplifying automation.'
 	def documentation = "https://github.com/orubel/grails-api-toolkit-docs"
 	def license = "MIT"
+    def organization = [ name: "BeAPI", url: "http://www.beapi.io" ]
+    def developers = [[ name: "Owen Rubel", email: "orubel@gmail.com" ]]
 	def issueManagement = [system: 'GitHub', url: 'https://github.com/orubel/grails-api-toolkit-docs/issues']
 	def scm = [url: 'https://github.com/orubel/api-framework']
 	
@@ -49,9 +51,6 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         "grails-app/views/error.gsp"
     ]
     def profiles = ['web']
-    def organization = [ name: "Nosegrind", url: "http://www.nosegrind.net/" ]
-
-    def developers = [ [ name: "Owen Rubel", email: "orubel@gmail.com" ]]
 
     Closure doWithSpring() { { ->
 
