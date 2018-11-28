@@ -257,14 +257,11 @@ class BatchInterceptor extends ApiCommLayer{
 
 			String output
 			if(params?.combine==true){
-				output = session['apiResult'] as String
+				output = (format=='XML')?(session['apiResult'] as XML) as String:(session['apiResult'] as JSON) as String
 			}else{
-				if(format=='XML'){
-					output = (session['apiResult'] as XML) as String
-				}else{
-					output = (session['apiResult'] as JSON) as String
-				}
+				output = (format=='XML')?(content as XML) as String:(content as JSON) as String
 			}
+
 
 			session['apiResult'] = null
 
