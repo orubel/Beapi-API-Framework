@@ -16,6 +16,7 @@ import grails.util.Holders
 import javax.servlet.http.HttpServletResponse
 import groovy.transform.CompileStatic
 import org.springframework.http.HttpStatus
+import groovy.json.JsonSlurper
 
 @CompileStatic
 class BatchInterceptor extends ApiCommLayer{
@@ -137,24 +138,6 @@ class BatchInterceptor extends ApiCommLayer{
 				Integer batchInc = (Integer) request.getAttribute('batchInc')
 
 
-				if(params.max!=null) {
-					if(params.max instanceof ArrayList || params.max instanceof List) {
-						ArrayList max = params.max as ArrayList
-						params.max = max[batchInc]
-					}
-				}else{
-					params.max = 0
-				}
-
-				if(params.offset!=null) {
-					if(params.max instanceof ArrayList || params.max instanceof List) {
-						ArrayList offset = params.offset as ArrayList
-						params.offset = offset[batchInc]
-					}
-				}else{
-					params.offset = 0
-				}
-
 				setBatchParams(params)
 				// END HANDLE BATCH PARAMS
 
@@ -271,7 +254,18 @@ class BatchInterceptor extends ApiCommLayer{
 				session['apiResult'] = temp
 			}
 
-			String output = (params?.combine==true)? session['apiResult'] as String:((format=='XML')? (content as XML) as String:(content as JSON) as String)
+
+			String output
+			if(params?.combine==true){
+				output = session['apiResult'] as String
+			}else{
+				if(format=='XML'){
+					output = (session['apiResult'] as XML) as String
+				}else{
+					output = (session['apiResult'] as JSON) as String
+				}
+			}
+
 			session['apiResult'] = null
 
 			byte[] contentLength = output.getBytes( "ISO-8859-1" )
