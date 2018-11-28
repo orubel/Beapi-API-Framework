@@ -58,6 +58,7 @@ class BatchInterceptor extends ApiCommLayer{
 
 
 		// Init params
+
 		if (formats.contains(format)) {
 			LinkedHashMap attribs = [:]
 			switch (format) {
@@ -230,6 +231,7 @@ class BatchInterceptor extends ApiCommLayer{
 
 			int batchLength = (int) request.getAttribute('batchLength')
 			int batchInc = (int) request.getAttribute('batchInc')
+			String output
 			if(batchEnabled && (batchLength > batchInc+1)){
 				WebUtils.exposeRequestAttributes(request, params);
 				// this will work fine when we upgrade to newer version that has fix in it
@@ -244,7 +246,6 @@ class BatchInterceptor extends ApiCommLayer{
 				String data = ((format=='XML')? (content as XML) as String:(content as JSON) as String)
 				temp.add(data)
 				session['apiResult'] = temp
-
 				forward('uri':request.forwardURI.toString(),'params':params)
 				return false
 			}else{
@@ -252,19 +253,15 @@ class BatchInterceptor extends ApiCommLayer{
 				String data = ((format=='XML')? (content as XML) as String:(content as JSON) as String)
 				temp.add(data)
 				session['apiResult'] = temp
+
+				if(params?.combine==true){
+					output = (format=='XML')?(session['apiResult'] as XML) as String:(session['apiResult'] as JSON) as String
+				}else{
+					output = data as String
+				}
 			}
 
-
-			String output
-			if(params?.combine==true){
-				output = (format=='XML')?(session['apiResult'] as XML) as String:(session['apiResult'] as JSON) as String
-			}else{
-				output = (format=='XML')?(content as XML) as String:(content as JSON) as String
-			}
-
-
-			session['apiResult'] = null
-
+			//session['apiResult'] = null
 			byte[] contentLength = output.getBytes( "ISO-8859-1" )
 			if(output){
 				if(apiThrottle) {

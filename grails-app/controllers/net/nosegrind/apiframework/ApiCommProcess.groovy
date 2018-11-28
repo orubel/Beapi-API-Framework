@@ -59,14 +59,18 @@ abstract class ApiCommProcess{
      * @param params
      */
     void setBatchParams(GrailsParameterMap params){
-        if (batchEnabled) {
-            def batchVars = request.getAttribute(request.format.toUpperCase())
-            if(!request.getAttribute('batchLength')){
-                request.setAttribute('batchLength',batchVars['batch'].size())
+        try{
+            if (batchEnabled) {
+                def batchVars = request.getAttribute(request.format.toUpperCase())
+                if(!request.getAttribute('batchLength')){
+                    request.setAttribute('batchLength',request.JSON?.batch.size())
+                }
+                batchVars['batch'][request.getAttribute('batchInc').toInteger()].each() { k,v ->
+                    params."${k}" = v
+                }
             }
-            batchVars['batch'][request.getAttribute('batchInc').toInteger()].each() { k,v ->
-                params."${k}" = v
-            }
+        }catch(Exception e) {
+            throw new Exception("[ApiCommProcess :: setBatchParams] : Exception - full stack trace follows:",e)
         }
     }
 

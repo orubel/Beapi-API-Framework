@@ -30,7 +30,7 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        // println("#### ContentTypeMarshallerFilter ####")
+        //println("#### ContentTypeMarshallerFilter ####")
         //HttpServletRequest request = servletRequest as HttpServletRequest
         //HttpServletResponse response = servletResponse as HttpServletResponse
 
@@ -73,12 +73,14 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
                 }
 
             }
+
         } catch (Exception e) {
             response.status = 401
-            response.setHeader('ERROR', 'Failed')
+            response.setHeader('ERROR', 'Badly formatted data')
             //response.writer.flush()
             return
         }
+
 
         chain.doFilter(request, response)
     }
