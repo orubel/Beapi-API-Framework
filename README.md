@@ -20,6 +20,7 @@ dependencies {
 ### How To Build
 If you want to build it yourself, download the project and then from the root of the project run the following:
 ```
+sudo chmod 755 gradlew
 ./gradlew clean;grails install
 ```
 
