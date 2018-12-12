@@ -68,7 +68,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
     @Override
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        // println("#### TokenCacheValidationFilter ####")
+        //println("#### TokenCacheValidationFilter ####")
         //HttpServletRequest httpRequest = request as HttpServletRequest
         //HttpServletResponse httpResponse = response as HttpServletResponse
         AccessToken accessToken
@@ -95,7 +95,9 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                     //return
                 }
             } else {
-                log.debug "Token not found"
+                response.status = 401
+                response.setHeader('ERROR', 'Unauthorized Access attempted. Token not found')
+                response.writer.flush()
                 return
             }
 
@@ -147,7 +149,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 ApplicationContext ctx = Holders.grailsApplication.mainContext
 
                 if(ctx) {
-                    GrailsCacheManager grailsCacheManager = ctx.getBean("grailsCacheManager");
+                    GrailsCacheManager grailsCacheManager = ctx.getBean("grailsCacheManager")
                     //def temp = grailsCacheManager?.getCache('ApiCache')
 
                     LinkedHashMap cache = [:]
@@ -172,6 +174,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                     if (tempCache) {
                         cache2 = tempCache.get() as LinkedHashMap
                         version = cache2['cacheversion']
+
                         if (!cache2?."${version}"?."${action}") {
                             log.debug "no cache"
                             response.status = 401

@@ -12,18 +12,15 @@ class HookService {
 
     static transactional = false
 	
-    void postData(String service, Map data, String state) {
-		send(data, state, service)
+    int postData(String service, String data) {
+		return send(data, service)
 	}
-	
-    void postData(String service, Object data, String state) {
-		data = formatDomainObject(data)
-		send(data, state, service)
-	}
-	
-    private boolean send(Map data, String state, String service) {
 
-		def hooks = grailsApplication.getClassForName('net.nosegrind.apiframework.Hook').findAll("from Hook where service=?",[service])
+
+
+    private boolean send(String data, String service) {
+
+		def hooks = grailsApplication.getClassForName('net.nosegrind.apiframework.Hook').findAll("from Hook where is_enabled=true and service=?",[service])
 
 		/*
 		GrailsDomainClass dc = grailsApplication.getDomainClass('net.nosegrind.apiframework.Hook')
@@ -37,39 +34,50 @@ class HookService {
 			if(hook.attempts>=grailsApplication.config.apitoolkit.attempts){
 				data = 	[message:'Number of attempts exceeded. Please reset hook via web interface']
 			}
-			String hookData
-			
+
+			HttpURLConnection myConn= null
+			DataOutputStream os = null
+			BufferedReader stdInput = null
 			try{
-				def conn = hook.url.toURL().openConnection()
-				conn.setRequestMethod("POST")
-				conn.doOutput = true
-				def queryString = []
-				switch(format){
-					case 'xml':
-						hookData = (data as XML).toString()
-						queryString << "state=${state}&xml=${hookData}"
-						break
-					case 'json':
-					default:
-						hookData = (data as JSON).toString()
-						queryString << "state=${state}&json=${hookData}"
-						break
+				URL hostURL = new URL(hook.url.toString())
+				myConn= (HttpURLConnection)hostURL.openConnection()
+				myConn.setRequestMethod("POST")
+				myConn.setRequestProperty("Content-Type", "application/json")
+				myConn.setRequestProperty("Authorization", "Bearer 7ulupum69o6dsl3utm87uvira39a6jcd")
+				myConn.setUseCaches(false)
+				myConn.setDoInput(true)
+				myConn.setDoOutput(true)
+				myConn.setReadTimeout(15*1000)
+
+				myConn.connect()
+
+				OutputStreamWriter out = new OutputStreamWriter(myConn.getOutputStream())
+				out.write(data)
+				out.close()
+
+				int code =  myConn.getResponseCode()
+				myConn.diconnect()
+
+				return code
+			}catch (Exception e){
+				try{
+					Thread.sleep(15000)
+				}catch (InterruptedException ie){
+					println(e)
 				}
-				def writer = new OutputStreamWriter(conn.outputStream)
-				writer.write(queryString)
-				writer.flush()
-				writer.close()
-				conn.connect()
-				if(conn.content.text!='connected'){
-					hook.attempts+=1
-					hook.save(flush: true)
-					log.info("[Hook] HookService : No Url ${hook.url} found")
+			} finally{
+				if (myConn!= null){
+					myConn.disconnect()
 				}
-			}catch(Exception e){
-				hook.attempts+=1
-				hook.save(flush: true)
-				log.info("[Hook] HookService : " + e)
+				if (stdInput != null){
+					try{
+						stdInput.close()
+					}catch (IOException io){
+						println(io)
+					}
+				}
 			}
+			return 400
 		}
 	}
 	
@@ -101,14 +109,12 @@ class HookService {
 	}
 	
 	boolean validateUrl(String url){
-		println("validate url :"+url)
 		try {
 			String[] schemes = ["http", "https"]
 			UrlValidator urlValidator = new UrlValidator(schemes)
 			if (urlValidator.isValid(url)) {
 				return true
 			} else {
-				println('returning false')
 				return false
 			}
 		}catch(Exception e){

@@ -199,27 +199,28 @@ abstract class ApiCommProcess{
      */
     boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions){
         ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','apiResult','combine','_','batch','max','offset']
-        try{
+        try {
             String authority = getUserRole() as String
             ArrayList temp = []
-            if(requestDefinitions["${authority}"]){
+            if (requestDefinitions["${authority}"]) {
                 temp = requestDefinitions["${authority}"] as ArrayList
-            }else if(requestDefinitions['permitAll'][0]!=null){
+            } else if (requestDefinitions['permitAll'][0] != null) {
                 temp = requestDefinitions['permitAll'] as ArrayList
             }
 
-            ArrayList requestList = (temp!=null)?temp.collect(){ it.name }:[]
+            ArrayList requestList = (temp != null) ? temp.collect() { it.name } : []
 
-            LinkedHashMap methodParams = getMethodParams(params)
-            ArrayList paramsList = methodParams.keySet() as ArrayList
-
-            // remove reservedNames from List
-            reservedNames.each(){ paramsList.remove(it) }
-
-            if (paramsList.size() == requestList.intersect(paramsList).size()) {
+            if (requestList.contains('*')) {
                 return true
+            } else {
+                LinkedHashMap methodParams = getMethodParams(params)
+                ArrayList paramsList = methodParams.keySet() as ArrayList
+                // remove reservedNames from List
+                reservedNames.each() { paramsList.remove(it) }
+                if (paramsList.size() == requestList.intersect(paramsList).size()) {
+                    return true
+                }
             }
-
             return false
         }catch(Exception e) {
            throw new Exception("[ApiCommProcess :: checkURIDefinitions] : Exception - full stack trace follows:",e)

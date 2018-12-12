@@ -100,7 +100,6 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
                     return 'JSON'==format
                     break
                 default:
-                    println(contentType.split(';')[0])
                     if(contentType.split(';')[0]=='multipart/form-data') {
                         return 'MULTIPARTFORM' == format
                     }else{

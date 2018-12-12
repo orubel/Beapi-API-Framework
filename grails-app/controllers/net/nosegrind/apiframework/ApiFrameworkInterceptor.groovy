@@ -59,7 +59,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * @return
 	 */
 	boolean before(){
-		println('##### FILTER (BEFORE)')
+		//println('##### FILTER (BEFORE)')
 
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
@@ -154,20 +154,25 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					return false
 				}
 
-				// RETRIEVE CACHED RESULT; DON'T CACHE LISTS
-				if (cache[params.apiObject][params.action.toString()]['cachedResult']) {
+				// RETRIEVE CACHED RESULT (only if using get method); DON'T CACHE LISTS
+
+				if (cache[params.apiObject][params.action.toString()]['cachedResult'] && request.method.toUpperCase()=='GET') {
 
 					String authority = getUserRole() as String
 					String domain = ((String) params.controller).capitalize()
 
 					JSONObject json = (JSONObject) cache[params.apiObject][params.action.toString()]['cachedResult'][authority][format]
-					if(!json){
+					if(!json || json==null){
 						return false
 					}else {
-						JSONObject first = (JSONObject) json.get('0')
+
+						Set keys = json.keySet()
+						def temp = keys.iterator().next()
+
+						def first = json.get(temp)
 
 						// is a List of objects
-						if(first.size()>0 && !first.isEmpty()){
+						if(first instanceof JSONObject && first.size()>0 && !first.isEmpty()){
 							JSONObject jsonObj = ((JSONObject)json.get('0'))
 							Integer version =  jsonObj.get('version') as Integer
 
@@ -251,14 +256,14 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * @return
 	 */
 	boolean after() {
-		println('##### FILTER (AFTER)')
+		//println('##### FILTER (AFTER)')
 
 		if(model) {
 
 			List unsafeMethods = ['PUT', 'POST', 'DELETE']
 			def vals = model.values()
 
-			try {
+			//try {
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
@@ -273,18 +278,14 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				}
 
 				// store webhook
-				if (unsafeMethods.contains(request.method.toUpperCase())) {
+				//if (unsafeMethods.contains(request.method.toUpperCase())) {
 					// if controller/action HOOK has roles, is HOOKABLE
 					//LinkedHashMap cache = apiCacheService.getApiCache(params.controller.toString())
-					if (cache[params.apiObject]["${params.action}"]['hookRoles']) {
-						List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
-						if (hookRoles.size() > 0) {
-							hookService.postData(params.controller.toString(), newModel, params.action.toString())
-						}
-					}else{
-						render(status: HttpServletResponse.SC_BAD_REQUEST, text: "The hookRoles in your IO State for "+params.controller+"is undefined.")
-					}
-				}
+
+
+				//}else{
+				//	render(status: HttpServletResponse.SC_BAD_REQUEST, text: "The GET request method is not allowed for webhooks associated with "+params.controller+"/"+params.action+". Please check your hook associations.")
+				//}
 
 
 				ApiDescriptor cachedEndpoint
@@ -296,17 +297,30 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				//boolean isNested = false
 				if (newModel != [:]) {
 
+                    String content = ''
+                    //if(params.controller=='apidoc'){
+                    //	content = handleApiResponse(null, ['permitAll'], mthd, format, response, newModel, params)
+                    //}else {
+                    content = handleApiResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, response, newModel, params)
+                    //}
+
+                    if (cache[params.apiObject]["${params.action}"]['hookRoles']) {
+                        List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
+
+                        if (hookRoles.size() > 0) {
+                            String service = "${params.controller}/${params.action}"
+                            hookService.postData(service, content)
+                        }
+                    }else{
+                        render(status: HttpServletResponse.SC_BAD_REQUEST, text: "The hookRoles in your IO State for "+params.controller+"is undefined.")
+                    }
+
 					//Object key = newModel?.keySet()?.iterator()?.next()
 					//if (newModel[key].getClass().getName() == 'java.util.LinkedHashMap') {
 					//	isNested = true
 					//}
 
-					String content = ''
-					//if(params.controller=='apidoc'){
-					//	content = handleApiResponse(null, ['permitAll'], mthd, format, response, newModel, params)
-					//}else {
-						content = handleApiResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, response, newModel, params)
-					//}
+
 
 					byte[] contentLength = content.getBytes("ISO-8859-1")
 					if (content) {
@@ -342,10 +356,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 				return false
 
-			} catch (Exception e) {
-				throw new Exception("[ApiToolkitFilters :: apitoolkit.after] : Exception - full stack trace follows:", e)
-				return false
-			}
+			//} catch (Exception e) {
+			//	throw new Exception("[ApiToolkitFilters :: apitoolkit.after] : Exception - full stack trace follows:", e)
+			//	return false
+			//}
 
 		}
 		return false
