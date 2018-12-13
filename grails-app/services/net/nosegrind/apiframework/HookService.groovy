@@ -12,8 +12,8 @@ class HookService {
 
     static transactional = false
 	
-    int postData(String service, String data) {
-		return send(data, service)
+    void postData(String service, String data) {
+		send(data, service)
 	}
 
 
@@ -70,13 +70,6 @@ class HookService {
 			} finally{
 				if (myConn!= null){
 					myConn.disconnect()
-				}
-				if (stdInput != null){
-					try{
-						stdInput.close()
-					}catch (IOException io){
-						println(io)
-					}
 				}
 			}
 			return 400
