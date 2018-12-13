@@ -43,7 +43,9 @@ class HookService {
 				myConn= (HttpURLConnection)hostURL.openConnection()
 				myConn.setRequestMethod("POST")
 				myConn.setRequestProperty("Content-Type", "application/json")
-				myConn.setRequestProperty("Authorization", "Bearer 7ulupum69o6dsl3utm87uvira39a6jcd")
+				if(hook?.authorization) {
+					myConn.setRequestProperty("Authorization", "${hook.authorization}")
+				}
 				myConn.setUseCaches(false)
 				myConn.setDoInput(true)
 				myConn.setDoOutput(true)
