@@ -103,7 +103,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 			params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
 		}
 
-		//try{
+		try{
 			//Test For APIDoc
 			if(params.controller=='apidoc') {
 				notApiDoc=false
@@ -245,10 +245,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 			return false
 
-		//}catch(Exception e){
-		//	throw new Exception("[ApiToolkitFilters :: preHandler] : Exception - full stack trace follows:", e)
-		//	return false
-		//}
+		}catch(Exception e){
+			throw new Exception("[ApiToolkitFilters :: preHandler] : Exception - full stack trace follows:", e)
+			return false
+		}
 	}
 
 	/**
@@ -263,7 +263,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 			List unsafeMethods = ['PUT', 'POST', 'DELETE']
 			def vals = model.values()
 
-			//try {
+			try {
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
@@ -277,15 +277,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					newModel = model as LinkedHashMap
 				}
 
-				// store webhook
-				//if (unsafeMethods.contains(request.method.toUpperCase())) {
-					// if controller/action HOOK has roles, is HOOKABLE
-					//LinkedHashMap cache = apiCacheService.getApiCache(params.controller.toString())
-
-
-				//}else{
-				//	render(status: HttpServletResponse.SC_BAD_REQUEST, text: "The GET request method is not allowed for webhooks associated with "+params.controller+"/"+params.action+". Please check your hook associations.")
-				//}
 
 
 				ApiDescriptor cachedEndpoint
@@ -297,30 +288,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				//boolean isNested = false
 				if (newModel != [:]) {
 
-                    String content = ''
-                    //if(params.controller=='apidoc'){
-                    //	content = handleApiResponse(null, ['permitAll'], mthd, format, response, newModel, params)
-                    //}else {
-                    content = handleApiResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, response, newModel, params)
-                    //}
 
-                    if (cache[params.apiObject]["${params.action}"]['hookRoles']) {
-                        List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
-
-                        if (hookRoles.size() > 0) {
-                            String service = "${params.controller}/${params.action}"
-                            hookService.postData(service, content)
-                        }
-                    }else{
-                        render(status: HttpServletResponse.SC_BAD_REQUEST, text: "The hookRoles in your IO State for "+params.controller+"is undefined.")
-                    }
-
-					//Object key = newModel?.keySet()?.iterator()?.next()
-					//if (newModel[key].getClass().getName() == 'java.util.LinkedHashMap') {
-					//	isNested = true
-					//}
-
-
+					String content = handleApiResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, response, newModel, params)
 
 					byte[] contentLength = content.getBytes("ISO-8859-1")
 					if (content) {
@@ -346,20 +315,29 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							}
 						} else {
 							render(text: content, contentType: request.getContentType())
-							return false
+							if(cache[params.apiObject]["${params.action}"]['hookRoles']) {
+								List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
+								String service = "${params.controller}/${params.action}"
+								hookService.postData(service, content, hookRoles, this.mthdKey)
+							}
 						}
 					}
 				} else {
 					String content = parseResponseMethod(mthd, format, params, newModel)
 					render(text: content, contentType: request.getContentType())
+					if(cache[params.apiObject]["${params.action}"]['hookRoles']) {
+						List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
+						String service = "${params.controller}/${params.action}"
+						hookService.postData(service, content, hookRoles, this.mthdKey)
+					}
 				}
 
 				return false
 
-			//} catch (Exception e) {
-			//	throw new Exception("[ApiToolkitFilters :: apitoolkit.after] : Exception - full stack trace follows:", e)
-			//	return false
-			//}
+			} catch (Exception e) {
+				throw new Exception("[ApiToolkitFilters :: apitoolkit.after] : Exception - full stack trace follows:", e)
+				return false
+			}
 
 		}
 		return false

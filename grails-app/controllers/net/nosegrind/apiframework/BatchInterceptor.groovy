@@ -1,5 +1,6 @@
 package net.nosegrind.apiframework
 
+import net.nosegrind.apiframework.HookService
 import org.grails.web.json.JSONObject
 
 import javax.annotation.Resource
@@ -27,6 +28,8 @@ class BatchInterceptor extends ApiCommLayer{
 	GrailsApplication grailsApplication
 	ApiCacheService apiCacheService = new ApiCacheService()
 	SpringSecurityService springSecurityService
+	HookService hookService
+	boolean apiThrottle
 
 	// TODO: detect and assign apiObjectVersion from uri
 	String entryPoint = "b${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
@@ -35,7 +38,6 @@ class BatchInterceptor extends ApiCommLayer{
 	String mthdKey
 	RequestMethod mthd
 	LinkedHashMap cache = [:]
-	boolean apiThrottle
 	grails.config.Config conf = Holders.grailsApplication.config
 	boolean notApiDoc=true
 
@@ -261,20 +263,28 @@ class BatchInterceptor extends ApiCommLayer{
 				}
 			}
 
-			//session['apiResult'] = null
+
 			byte[] contentLength = output.getBytes( "ISO-8859-1" )
 			if(output){
 				if(apiThrottle) {
 					if (checkLimit(contentLength.length)) {
 						render(text: output, contentType: request.getContentType())
-						return false
+						if(cache[params.apiObject]["${params.action}"]['hookRoles']) {
+							List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
+							String service = "${params.controller}/${params.action}"
+							hookService.postData(service, output, hookRoles, this.mthdKey)
+						}
 					} else {
 						render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-						return false
 					}
 				}else{
 					render(text: output, contentType: request.getContentType())
-					return false
+					if(cache[params.apiObject]["${params.action}"]['hookRoles']) {
+						List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
+						String service = "${params.controller}/${params.action}"
+						hookService.postData(service, output, hookRoles, this.mthdKey)
+					}
+
 				}
 			}
 

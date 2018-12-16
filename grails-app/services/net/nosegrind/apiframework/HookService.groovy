@@ -12,8 +12,16 @@ class HookService {
 
     static transactional = false
 	
-    void postData(String service, String data) {
-		send(data, service)
+    void postData(String service, String data, List hookRoles,String method) {
+		if (hookRoles.size() < 0) {
+			String msg = "The hookRoles in your IO State for " + params.controller + "is undefined."
+			sendError(msg, service)
+		}else if(method=='GET') {
+			String msg = "Webhooks are not applicable with GET method. Please check your IO State file as to what endpoints you are using webhooks with."
+			sendError(msg, service)
+		}else{
+			send(data, service)
+		}
 	}
 
 
@@ -75,7 +83,65 @@ class HookService {
 			return 400
 		}
 	}
-	
+
+	private boolean sendError(String data, String service) {
+
+		def hooks = grailsApplication.getClassForName('net.nosegrind.apiframework.Hook').findAll("from Hook where is_enabled=true and service=?",[service])
+
+		/*
+		GrailsDomainClass dc = grailsApplication.getDomainClass('net.nosegrind.apiframework.Hook')
+		def tempHook = dc.clazz.newInstance()
+
+		def hooks = tempHook.find("from Hook where service=?",[service])
+		*/
+
+		hooks.each { hook ->
+			String format = hook.format.toLowerCase()
+
+			String message = 	[message:data]
+
+
+			HttpURLConnection myConn= null
+			DataOutputStream os = null
+			BufferedReader stdInput = null
+			try{
+				URL hostURL = new URL(hook.url.toString())
+				myConn= (HttpURLConnection)hostURL.openConnection()
+				myConn.setRequestMethod("POST")
+				myConn.setRequestProperty("Content-Type", "application/json")
+				if(hook?.authorization) {
+					myConn.setRequestProperty("Authorization", "${hook.authorization}")
+				}
+				myConn.setUseCaches(false)
+				myConn.setDoInput(true)
+				myConn.setDoOutput(true)
+				myConn.setReadTimeout(15*1000)
+
+				myConn.connect()
+
+				OutputStreamWriter out = new OutputStreamWriter(myConn.getOutputStream())
+				out.write(message)
+				out.close()
+
+				int code =  myConn.getResponseCode()
+				myConn.diconnect()
+
+				return code
+			}catch (Exception e){
+				try{
+					Thread.sleep(15000)
+				}catch (InterruptedException ie){
+					println(e)
+				}
+			} finally{
+				if (myConn!= null){
+					myConn.disconnect()
+				}
+			}
+			return 400
+		}
+	}
+
 	Map formatDomainObject(Object data){
 	    def nonPersistent = ["log", "class", "constraints", "properties", "errors", "mapping", "metaClass","maps"]
 	    def newMap = [:]
