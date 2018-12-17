@@ -1,6 +1,8 @@
 
 
 # BeApi(tm) Api Framework 
+## Recent version release : 0.9.4
+
 ### Documentation located at http://orubel.github.io/Beapi-API-Framework/
 ### Implementation located at https://github.com/orubel/beapi_backend
 
