@@ -13,7 +13,7 @@ repositories {
 }
 dependencies {
   ...
-  compile "org.grails.plugins:api-framework:0.9.3"
+  compile "org.grails.plugins:api-framework:0.9.4"
 }
 ```
 
