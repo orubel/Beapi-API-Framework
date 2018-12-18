@@ -30,7 +30,7 @@ plugins {
     id "com.jfrog.bintray" version "1.2"
 }
 
-version "0.9.3"
+version "0.9.4"
 group "org.grails.plugins"
 
 

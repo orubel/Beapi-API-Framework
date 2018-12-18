@@ -118,7 +118,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     void doWithApplicationContext() {
 
         // Delegate OPTIONS requests to controllers
-        //try{
+        try{
             applicationContext.dispatcherServlet.setDispatchOptionsRequest(true)
 
             String basedir = BuildSettings.BASE_DIR
@@ -134,9 +134,9 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             doInitApiFrameworkInstall(applicationContext)
 
             parseFiles(apiObjectSrc.toString(), applicationContext)
-        //}catch(Exception e){
-        //    throw new Exception("[BeAPIFramework] : Cannot set system properties :",e)
-        //}
+        }catch(Exception e){
+            throw new Exception("[BeAPIFramework] : Cannot set system properties :",e)
+        }
     }
 
     private parseFiles(String path, ApplicationContext applicationContext){
@@ -147,6 +147,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         try {
             new File(path).eachFile() { file ->
                 String fileName = file.name.toString()
+                println(fileName)
                 def tmp = fileName.split('\\.')
                 String fileChar1 = fileName.charAt(fileName.length() - 1)
 
@@ -407,7 +408,9 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                         param.setMockData(v.mockData.toString())
                     }
                 } else {
-                    throw new Exception("[Runtime :: createApiDescriptor] : MockData Required for type '"+k+"' in IO State["+apiname+"]")
+                    try{}catch(Exception e) {
+                        throw new Exception("[Runtime :: createApiDescriptor] : MockData Required for type '" + k + "' in IO State[" + apiname + "]")
+                    }
                 }
 
                 // collect api vars into list to use in apiDescriptor

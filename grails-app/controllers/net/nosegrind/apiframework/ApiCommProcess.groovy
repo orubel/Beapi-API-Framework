@@ -216,7 +216,12 @@ abstract class ApiCommProcess{
                 LinkedHashMap methodParams = getMethodParams(params)
                 ArrayList paramsList = methodParams.keySet() as ArrayList
                 // remove reservedNames from List
+
                 reservedNames.each() { paramsList.remove(it) }
+
+                println("paramslist:" + paramsList)
+                println("requestlist:" + requestList)
+
                 if (paramsList.size() == requestList.intersect(paramsList).size()) {
                     return true
                 }

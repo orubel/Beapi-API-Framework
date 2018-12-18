@@ -277,8 +277,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					newModel = model as LinkedHashMap
 				}
 
-
-
 				ApiDescriptor cachedEndpoint
 				if(cache) {
 					cachedEndpoint = cache[params.apiObject][(String) params.action] as ApiDescriptor
@@ -287,7 +285,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				// TEST FOR NESTED MAP; WE DON'T CACHE NESTED MAPS
 				//boolean isNested = false
 				if (newModel != [:]) {
-
 
 					String content = handleApiResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, response, newModel, params)
 

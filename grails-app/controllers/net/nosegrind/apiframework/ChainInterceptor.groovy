@@ -38,6 +38,8 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 	LinkedHashMap cache = [:]
 	LinkedHashMap<String,LinkedHashMap<String,String>> chain
 	boolean apiThrottle
+	List acceptableMethod = ['GET']
+	List unacceptableMethod = []
 
 	ChainInterceptor(){
 		match(uri:"/${entryPoint}/**")
@@ -53,9 +55,12 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 		format = (request?.format) ? (request.format).toUpperCase() : 'JSON'
 		mthdKey = request.method.toUpperCase()
 		mthd = (RequestMethod) RequestMethod[mthdKey]
-
 		apiThrottle = Holders.grailsApplication.config.apiThrottle as boolean
 
+		// NEW
+		if(!acceptableMethod.contains(mthdKey)){
+			acceptableMethod.add(mthdKey)
+		}
 
 		//Map methods = ['GET':'show','PUT':'update','POST':'create','DELETE':'delete']
 		boolean restAlt = RequestMethod.isRestAlt(mthd.getKey())
@@ -140,9 +145,13 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 					// CHECK REQUEST METHOD FOR ENDPOINT
 					// NOTE: expectedMethod must be capitolized in IO State file
 					String expectedMethod = cache[params.apiObject][params.action.toString()]['method'] as String
-					if (!checkRequestMethod(mthd, expectedMethod, restAlt)) {
-						render(status: HttpServletResponse.SC_BAD_REQUEST, text: "Expected request method '${expectedMethod}' does not match sent method '${mthd.getKey()}'")
-						return false
+
+					if (!acceptableMethod.contains(mthdKey) || !acceptableMethod.contains(mthdKey)){
+						if (!unacceptableMethod.contains(mthdKey)) {
+							unacceptableMethod.add(mthdKey)
+							render(status: HttpServletResponse.SC_BAD_REQUEST, text: "Sent request method '${mthdKey}' does not match expected keys : '${acceptableMethod}'")
+							return false
+						}
 					}
 
 					params.max = (params.max!=null)?params.max:0
@@ -240,7 +249,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 					} else {
 						// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
 						ApiDescriptor cachedEndpoint = cache[(String) params.apiObject][(String) params.action] as ApiDescriptor
-						boolean result = handleApiRequest(cachedEndpoint['deprecated'] as List, (cachedEndpoint['method'])?.toString(), mthd, response, params)
+						boolean result = handleChainRequest(cachedEndpoint['deprecated'] as List, (cachedEndpoint['method'])?.toString(), mthd, response, params)
 
 						return result
 					}

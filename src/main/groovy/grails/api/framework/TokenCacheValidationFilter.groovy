@@ -90,13 +90,13 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                     processFilterChain(request, response, chain, accessToken)
                 }else{
                     response.status = 401
-                    response.setHeader('ERROR', 'Unauthorized Access attempted')
+                    response.setHeader('ERROR', 'Token Unauthenticated. Uauthorized Access.')
                     response.writer.flush()
                     //return
                 }
             } else {
                 response.status = 401
-                response.setHeader('ERROR', 'Unauthorized Access attempted. Token not found')
+                response.setHeader('ERROR', 'Token not found. Unauthorized Access.')
                 response.writer.flush()
                 return
             }
@@ -104,7 +104,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
         } catch (AuthenticationException ae) {
             // NOTE: This will happen if token not found in database
             response.status = 401
-            response.setHeader('ERROR', 'Authorization Attempt Failed')
+            response.setHeader('ERROR', 'Token not found in database. Authorization Attempt Failed')
             response.writer.flush()
 
             //authenticationEventPublisher.publishAuthenticationFailure(ae, accessToken)
@@ -195,6 +195,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
                     if (controller!='apidoc') {
                         if (!checkAuth(roles, authenticationResult)) {
+                            println(roles + "/" + authenticationResult)
                             log.debug "no auth"
                             response.status = 401
                             response.setHeader('ERROR', 'Unauthorized Access attempted')
@@ -217,7 +218,6 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
 
     boolean checkAuth(HashSet roles, AccessToken accessToken){
-
         HashSet tokenRoles = []
         accessToken.getAuthorities()*.authority.each() { tokenRoles.add(it) }
         try {
@@ -225,6 +225,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 if(roles.size()==1 && roles[0] == 'permitAll') {
                     return true
                 } else if(roles.intersect(tokenRoles).size()>0) {
+
                     return true
                 }
                 return false
