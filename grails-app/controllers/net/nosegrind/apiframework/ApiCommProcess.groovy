@@ -219,9 +219,6 @@ abstract class ApiCommProcess{
 
                 reservedNames.each() { paramsList.remove(it) }
 
-                println("paramslist:" + paramsList)
-                println("requestlist:" + requestList)
-
                 if (paramsList.size() == requestList.intersect(paramsList).size()) {
                     return true
                 }
