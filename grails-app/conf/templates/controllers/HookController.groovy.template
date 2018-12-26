@@ -2,7 +2,7 @@ package net.nosegrind.apiframework
 
 import org.springframework.dao.DataIntegrityViolationException
 import net.nosegrind.apitoolkit.*
-import net.nosegrind.apiframework.iostate.HookService
+import net.nosegrind.apiframework.HookService
 
 class HookController {
 

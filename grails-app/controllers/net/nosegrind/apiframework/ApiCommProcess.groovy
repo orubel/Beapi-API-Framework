@@ -219,6 +219,9 @@ abstract class ApiCommProcess{
 
                 reservedNames.each() { paramsList.remove(it) }
 
+                //println("paramslist:" + paramsList)
+                //println("reaquestlist:" + requestList)
+
                 if (paramsList.size() == requestList.intersect(paramsList).size()) {
                     return true
                 }
@@ -677,14 +680,16 @@ abstract class ApiCommProcess{
      */
     LinkedHashMap formatMap(LinkedHashMap map){
         LinkedHashMap newMap = [:]
-        map.each(){ key,val ->
-            if(val){
-                if (java.lang.Class.isInstance(val.class)) {
-                    newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map)?val:val.toString()
-                }else if(DomainClassArtefactHandler?.isDomainClass(val.getClass()) || DomainClassArtefactHandler?.isArtefactClass(val.class)){
-                    newMap[key]=formatDomainObject(val)
-                }else{
-                    newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map)?val:val.toString()
+        if(map) {
+            map.each() { key, val ->
+                if (val) {
+                    if (java.lang.Class.isInstance(val.class)) {
+                        newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? val : val.toString()
+                    } else if (DomainClassArtefactHandler?.isDomainClass(val.getClass()) || DomainClassArtefactHandler?.isArtefactClass(val.class)) {
+                        newMap[key] = formatDomainObject(val)
+                    } else {
+                        newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? val : val.toString()
+                    }
                 }
             }
         }
@@ -701,15 +706,17 @@ abstract class ApiCommProcess{
      */
     LinkedHashMap formatList(List list){
         LinkedHashMap newMap = [:]
-        list.eachWithIndex(){ val, key ->
-            if(val){
-                if(val instanceof java.util.ArrayList || val instanceof java.util.List) {
-                    newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map)?val:val.toString()
-                }else{
-                    if (DomainClassArtefactHandler?.isDomainClass(val.getClass())) {
-                        newMap[key] = formatDomainObject(val)
-                    }else{
-                        newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? list[key] : val.toString()
+        if(list) {
+            list.eachWithIndex() { val, key ->
+                if (val) {
+                    if (val instanceof java.util.ArrayList || val instanceof java.util.List) {
+                        newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? val : val.toString()
+                    } else {
+                        if (DomainClassArtefactHandler?.isDomainClass(val.getClass())) {
+                            newMap[key] = formatDomainObject(val)
+                        } else {
+                            newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? list[key] : val.toString()
+                        }
                     }
                 }
             }

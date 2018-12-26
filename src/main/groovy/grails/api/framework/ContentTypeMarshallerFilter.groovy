@@ -90,21 +90,30 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
         String contentType = request.getContentType()
 
         try{
-            switch(contentType){
+            switch(contentType) {
                 case 'text/xml':
                 case 'application/xml':
-                    return 'XML'==format
+                    return 'XML' == format
                     break
                 case 'text/json':
                 case 'application/json':
-                    return 'JSON'==format
+                    return 'JSON' == format
                     break
                 default:
-                    if(contentType.split(';')[0]=='multipart/form-data') {
-                        return 'MULTIPARTFORM' == format
-                    }else{
-                        return 'JSON'==format
+                    if (contentType) {
+                        def temp = contentType.split(';')[0]
+                        switch(temp) {
+                            case 'text/xml':
+                            case 'application/xml':
+                                return 'XML' == format
+                                break
+                            case 'multipart/form-data':
+                            case 'text/json':
+                            case 'application/json':
+                                return 'JSON' == format
+                        }
                     }
+                    return false
                     break
 
             }

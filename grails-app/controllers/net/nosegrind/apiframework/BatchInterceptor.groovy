@@ -114,7 +114,7 @@ class BatchInterceptor extends ApiCommLayer{
 					String result = parseRequestMethod(mthd, params)
 
 					if (result) {
-						byte[] contentLength = result.getBytes("ISO-8859-1")
+						byte[] contentLength = result.getBytes('ISO-8859-1')
 
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
@@ -165,7 +165,7 @@ class BatchInterceptor extends ApiCommLayer{
 					}else{
 						if (isCachedResult((Integer) json.get('version'), domain)) {
 							String result = cache[params.apiObject][params.action.toString()]['cachedResult'][authority][request.format.toUpperCase()] as String
-							byte[] contentLength = result.getBytes( "ISO-8859-1" )
+							byte[] contentLength = result.getBytes( 'ISO-8859-1' )
 							if(apiThrottle) {
 								if (checkLimit(contentLength.length)) {
 									render(text: result, contentType: request.getContentType())
@@ -190,7 +190,7 @@ class BatchInterceptor extends ApiCommLayer{
 							params.action = mthd.toString()
 
 							// FORWARD FOR REST DEFAULTS WITH NO ACTION
-							String[] tempUri = request.getRequestURI().split("/")
+							String[] tempUri = request.getRequestURI().split('/')
 							if (tempUri[2].contains('dispatch') && "${params.controller}.dispatch" == tempUri[2] && !cache[params.apiObject]['domainPackage']) {
 								forward(controller: params.controller, action: params.action)
 								return false
@@ -209,7 +209,7 @@ class BatchInterceptor extends ApiCommLayer{
 			return false
 
 		}catch(Exception e) {
-			throw new Exception("[BatchInterceptor :: before] : Exception - full stack trace follows:", e)
+			throw new Exception('[BatchInterceptor :: before] : Exception - full stack trace follows:', e)
 			return false
 		}
 	}
@@ -256,21 +256,17 @@ class BatchInterceptor extends ApiCommLayer{
 				temp.add(data)
 				session['apiResult'] = temp
 
-				if(params?.combine==true){
-					output = (format=='XML')?(session['apiResult'] as XML) as String:(session['apiResult'] as JSON) as String
-				}else{
-					output = data as String
-				}
+				output = (params?.combine==true)?((format=='XML')?(session['apiResult'] as XML) as String:(session['apiResult'] as JSON) as String):data as String
 			}
 
 
-			byte[] contentLength = output.getBytes( "ISO-8859-1" )
+			byte[] contentLength = output.getBytes( 'ISO-8859-1' )
 			if(output){
 				if(apiThrottle) {
 					if (checkLimit(contentLength.length)) {
 						render(text: output, contentType: request.getContentType())
-						if(cache[params.apiObject]["${params.action}"]['hookRoles']) {
-							List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
+						if(cache[params.apiObject][params.action.toString()]['hookRoles']) {
+							List hookRoles = cache[params.apiObject][params.action.toString()]['hookRoles'] as List
 							String service = "${params.controller}/${params.action}"
 							hookService.postData(service, output, hookRoles, this.mthdKey)
 						}
@@ -279,8 +275,8 @@ class BatchInterceptor extends ApiCommLayer{
 					}
 				}else{
 					render(text: output, contentType: request.getContentType())
-					if(cache[params.apiObject]["${params.action}"]['hookRoles']) {
-						List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
+					if(cache[params.apiObject][params.action.toString()]['hookRoles']) {
+						List hookRoles = cache[params.apiObject][params.action.toString()]['hookRoles'] as List
 						String service = "${params.controller}/${params.action}"
 						hookService.postData(service, output, hookRoles, this.mthdKey)
 					}
@@ -290,7 +286,7 @@ class BatchInterceptor extends ApiCommLayer{
 
 			return false
 		}catch(Exception e){
-			throw new Exception("[BatchInterceptor :: after] : Exception - full stack trace follows:", e)
+			throw new Exception('[BatchInterceptor :: after] : Exception - full stack trace follows:', e)
 			return false
 		}
 

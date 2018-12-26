@@ -69,6 +69,13 @@ class TokenCacheValidationFilter extends GenericFilterBean {
     @Override
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         //println("#### TokenCacheValidationFilter ####")
+
+        String actualUri = request.requestURI - request.contextPath
+        List prms = actualUri.split('/')
+        def cont = prms[2]
+        def act = prms[3]
+
+
         //HttpServletRequest httpRequest = request as HttpServletRequest
         //HttpServletResponse httpResponse = response as HttpServletResponse
         AccessToken accessToken
@@ -89,20 +96,25 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
                     processFilterChain(request, response, chain, accessToken)
                 }else{
+                    log.debug("not authenticated")
                     response.status = 401
                     response.setHeader('ERROR', 'Token Unauthenticated. Uauthorized Access.')
                     response.writer.flush()
                     //return
                 }
+
             } else {
+                log.debug('token not found')
                 response.status = 401
                 response.setHeader('ERROR', 'Token not found. Unauthorized Access.')
                 response.writer.flush()
                 return
             }
 
+
         } catch (AuthenticationException ae) {
             // NOTE: This will happen if token not found in database
+            log.debug('Token not found in database.')
             response.status = 401
             response.setHeader('ERROR', 'Token not found in database. Authorization Attempt Failed')
             response.writer.flush()
@@ -122,7 +134,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
         String actualUri = request.requestURI - request.contextPath
 
         if (!active) {
-            println("Token validation is disabled. Continuing the filter chain")
+            log.debug("Token validation is disabled. Continuing the filter chain")
             return
         }
 
@@ -195,7 +207,6 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
                     if (controller!='apidoc') {
                         if (!checkAuth(roles, authenticationResult)) {
-                            println(roles + "/" + authenticationResult)
                             log.debug "no auth"
                             response.status = 401
                             response.setHeader('ERROR', 'Unauthorized Access attempted')
@@ -206,11 +217,11 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                         }
                     }
                 }else{
-                    println("no ctx found")
+                    log.debug("no ctx found")
                 }
             }
         } else {
-            println("Request does not contain any token. Letting it continue through the filter chain")
+            log.debug("Request does not contain any token. Letting it continue through the filter chain")
         }
 
         chain.doFilter(request, response)
