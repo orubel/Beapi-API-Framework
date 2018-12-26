@@ -259,7 +259,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		//println('##### FILTER (AFTER)')
 
 		if(model) {
-
 			List unsafeMethods = ['PUT', 'POST', 'DELETE']
 			def vals = model.values()
 
@@ -305,9 +304,11 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
 								render(text: content, contentType: request.getContentType())
+								response.flushBuffer()
 								return false
 							} else {
 								render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
+								response.flushBuffer()
 								return false
 							}
 						} else {
@@ -327,8 +328,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						String service = "${params.controller}/${params.action}"
 						hookService.postData(service, content, hookRoles, this.mthdKey)
 					}
+					response.flushBuffer()
 				}
-
 				return false
 
 			} catch (Exception e) {

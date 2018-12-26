@@ -63,8 +63,6 @@ class CorsSecurityFilter extends OncePerRequestFilter {
                 response.addHeader("Access-Control-Expose-Headers", "xsrf-token, Location,X-Auth-Token")
                 response.addHeader("Access-Control-Max-Age", "3600")
             }
-        }else{
-            println("no options")
         }
 
 
