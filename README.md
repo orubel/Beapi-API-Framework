@@ -4,7 +4,9 @@
 ## Recent version release : 0.9.4
 
 ### Documentation located at http://orubel.github.io/Beapi-API-Framework/
-### Implementation located at https://github.com/orubel/beapi_backend
+
+### Backend Implementation (example) located at https://github.com/orubel/beapi_backend
+### Frontend (requires backend) located at https://github.com/orubel/beapi_frontend
 
 ### How To Install in your project
 Merely add the repository and then add the dependency to your project...
