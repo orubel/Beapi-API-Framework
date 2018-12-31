@@ -5,10 +5,14 @@ import grails.converters.XML
 import org.grails.validation.routines.UrlValidator
 import org.grails.core.artefact.DomainClassArtefactHandler
 import grails.core.GrailsDomainClass
+import static groovyx.gpars.GParsPool.withPool
+import grails.util.Holders
 
 class HookService {
 
 	def grailsApplication
+
+	Integer cores = Holders.grailsApplication.config.apitoolkit.procCores as Integer
 
     static transactional = false
 	
@@ -37,50 +41,52 @@ class HookService {
 		def hooks = tempHook.find("from Hook where service=?",[service])
 		*/
 
-		hooks.each { hook ->
-			String format = hook.format.toLowerCase()
-			if(hook.attempts>=grailsApplication.config.apitoolkit.attempts){
-				data = 	[message:'Number of attempts exceeded. Please reset hook via web interface']
+		withPool(this.cores) { pool ->
+			hooks.eachParallel { hook ->
+				String format = hook.format.toLowerCase()
+				if (hook.attempts >= grailsApplication.config.apitoolkit.attempts) {
+					data = [message: 'Number of attempts exceeded. Please reset hook via web interface']
+				}
+
+				HttpURLConnection myConn = null
+				DataOutputStream os = null
+				BufferedReader stdInput = null
+				try {
+					URL hostURL = new URL(hook.url.toString())
+					myConn = (HttpURLConnection) hostURL.openConnection()
+					myConn.setRequestMethod("POST")
+					myConn.setRequestProperty("Content-Type", "application/json")
+					if (hook?.authorization) {
+						myConn.setRequestProperty("Authorization", "${hook.authorization}")
+					}
+					myConn.setUseCaches(false)
+					myConn.setDoInput(true)
+					myConn.setDoOutput(true)
+					myConn.setReadTimeout(15 * 1000)
+
+					myConn.connect()
+
+					OutputStreamWriter out = new OutputStreamWriter(myConn.getOutputStream())
+					out.write(data)
+					out.close()
+
+					int code = myConn.getResponseCode()
+					myConn.diconnect()
+
+					return code
+				} catch (Exception e) {
+					try {
+						Thread.sleep(15000)
+					} catch (InterruptedException ie) {
+						println(e)
+					}
+				} finally {
+					if (myConn != null) {
+						myConn.disconnect()
+					}
+				}
+				return 400
 			}
-
-			HttpURLConnection myConn= null
-			DataOutputStream os = null
-			BufferedReader stdInput = null
-			try{
-				URL hostURL = new URL(hook.url.toString())
-				myConn= (HttpURLConnection)hostURL.openConnection()
-				myConn.setRequestMethod("POST")
-				myConn.setRequestProperty("Content-Type", "application/json")
-				if(hook?.authorization) {
-					myConn.setRequestProperty("Authorization", "${hook.authorization}")
-				}
-				myConn.setUseCaches(false)
-				myConn.setDoInput(true)
-				myConn.setDoOutput(true)
-				myConn.setReadTimeout(15*1000)
-
-				myConn.connect()
-
-				OutputStreamWriter out = new OutputStreamWriter(myConn.getOutputStream())
-				out.write(data)
-				out.close()
-
-				int code =  myConn.getResponseCode()
-				myConn.diconnect()
-
-				return code
-			}catch (Exception e){
-				try{
-					Thread.sleep(15000)
-				}catch (InterruptedException ie){
-					println(e)
-				}
-			} finally{
-				if (myConn!= null){
-					myConn.disconnect()
-				}
-			}
-			return 400
 		}
 	}
 
