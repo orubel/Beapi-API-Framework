@@ -42,15 +42,18 @@ class HookService {
 		*/
 
 		withPool(this.cores) { pool ->
+
+			HttpURLConnection myConn = null
+			DataOutputStream os = null
+			BufferedReader stdInput = null
+
 			hooks.eachParallel { hook ->
 				String format = hook.format.toLowerCase()
 				if (hook.attempts >= grailsApplication.config.apitoolkit.attempts) {
 					data = [message: 'Number of attempts exceeded. Please reset hook via web interface']
 				}
 
-				HttpURLConnection myConn = null
-				DataOutputStream os = null
-				BufferedReader stdInput = null
+
 				try {
 					URL hostURL = new URL(hook.url.toString())
 					myConn = (HttpURLConnection) hostURL.openConnection()
