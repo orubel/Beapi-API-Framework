@@ -157,7 +157,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				// RETRIEVE CACHED RESULT (only if using get method); DON'T CACHE LISTS
 
 				if (cache[params.apiObject][params.action.toString()]['cachedResult'] && request.method.toUpperCase()=='GET') {
-
 					String authority = getUserRole() as String
 					String domain = ((String) params.controller).capitalize()
 
@@ -165,7 +164,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					if(!json || json==null){
 						return false
 					}else {
-
 						Set keys = json.keySet()
 						def temp = keys.iterator().next()
 
@@ -173,6 +171,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 						// is a List of objects
 						if(first instanceof JSONObject && first.size()>0 && !first.isEmpty()){
+
 							JSONObject jsonObj = ((JSONObject)json.get('0'))
 							Integer version =  jsonObj.get('version') as Integer
 
@@ -194,8 +193,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 									return false
 								}
 							}
-						}else {
-							if (json.get('version')) {
+						}else{
+							if (json.version!=null) {
 								if (isCachedResult((Integer) json.get('version'), domain)) {
 									LinkedHashMap result = cache[params.apiObject][params.action.toString()]['cachedResult'][authority][format] as LinkedHashMap
 									String content = new groovy.json.JsonBuilder(result).toString()
