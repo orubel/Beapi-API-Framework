@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>BeAPI-API-Framework</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <img src="beapi_logo2.png" style="width:auto;height:auto;padding:0px;">
+        <p></p>
+
+        <ul>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/index.html"><strong>About</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/installation.html"><strong>Installation</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/model.html"><strong>Model/Domain Object</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/controller.html"><strong>Controller</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/iostate.html"><strong>IO State</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/usage.html"><strong>API Usage</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/batch.html"><strong>Batch Processing</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/chain.html"><strong>Api Chaining</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/hook.html"><strong>Web Hooks</strong></a>
+            <ul>
+              <li><a href="model.html#enable">Enable Your Endpoint To Be Hookable</a></li>
+              <li><a href="model.html#create">Creating a Hook</a></li>
+            </ul>
+          </li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/troubleshooting.html"><strong>Troubleshooting</strong></a></li>
+          <li>&nbsp</li>
+
+        </ul>
+      </header>
+      <section>
+        <h3><a id="req" class="anchor" href="#enable" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Enable Your Endpoint To Be Hookable</h3>
+
+        <p>A <b>Web Hook</b> is a way to notify a user of a change to data whenevr it occurs. So they can update 'their' systems/application whenever your system/application makes a change to its data. Of course, you don't always WANT users to see all the changes to all your data so you want to <b>be very careful who you expose your web hooks to</b>!</p>
+        <p>Every endpoint in the framework has the ability to be hookable via your <b>IO State files</b> which can be found in your:
+        <pre><code>&lt;homedir&gt;/.beapi/.iostate/' directory.</code></pre>
+        </p>
+        <p>Simply modify the <b>ROLES</b> section of the <b>URI</b> for the endpoint of the controller you want to add a hook to in the iostate file by adding a new role. For example, if I wanted to add a new role to the 'person/create' endpoint which looks like the following:
+        <pre><code>
+ ...
+"create": {
+    "METHOD":"POST",
+    "DESCRIPTION":"Create new Person",
+    "ROLES":{
+    "DEFAULT":["ROLE_ADMIN","ROLE_USER"],
+    "BATCH":["ROLE_ADMIN"],
+    "HOOK":["ROLE_ADMIN"]
+},
+    "REQUEST": {
+        "permitAll":["username","password","email"]
+    },
+    "RESPONSE": {
+        "permitAll":["id","version"]
+    }
+}
+...
+      </code></pre>
+        ... I would simply add a new ROLE to the ['HOOK'] section like so...
+        <pre><code>
+...
+"create": {
+    "METHOD":"POST",
+    "DESCRIPTION":"Create new Person",
+    "ROLES":{
+    "DEFAULT":["ROLE_ADMIN","ROLE_USER"],
+    "BATCH":["ROLE_ADMIN"],
+    "HOOK":["ROLE_ADMIN","ROLE_USER"]
+},
+    "REQUEST": {
+        "permitAll":["username","password","email"]
+    },
+    "RESPONSE": {
+        "permitAll":["id","version"]
+    }
+}
+...
+      </code></pre>
+        This will be defined as your <b>SERVICE</b> in the web hook
+
+        Note that the ROLE <b>has to exist in DEFAULT</b> for it to be able to be used by BATCH or HOOK as these are the ROLES that have access to the endpoint. If you have questions about creating a new role, consult <a href="https://grails-plugins.github.io/grails-spring-security-core/latest/">the spring-security-plugin guidelines</a>.
+        </p>
+
+
+        <h3><a id="req" class="anchor" href="#create" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Create Your Hook</h3>
+
+        <p>To create your first webhook, setup an URL endpoint on a separate service (like AWS Lambda) that we can forward the data to. Enter the url (or IP) into your CORS 'allowedOrigins' in your &lt;homedir&gt;/.beapi/beapi.yml. This will be defined as your <b>URL</b> in your webhook.</p>
+
+        <p>Finally, go into your database and type the following SQL Query:
+
+        <pre><code>
+        select id from person where email='[your_email]';
+        // this is how you get your user id
+
+        insert into hook (attempts,date_created,format,last_modified,user_id,is_enabled,url,service) values(0,NOW(),'JSON',NOW(),[your_user_id],true,'[your_url]','[your_service]');
+      </code></pre>
+        </p>
+
+        <p>And there you have it! Your first webhook!</p>
+      </section>
+      <footer>
+        <p class="view"><a href="https://github.com/orubel/Boomstick-API-Framework">View the Project on GitHub <small>orubel/Beapi-API-Framework</small></a></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
