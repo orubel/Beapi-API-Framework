@@ -24,6 +24,7 @@ import javax.servlet.http.HttpServletResponse
 import groovy.transform.CompileStatic
 import org.springframework.http.HttpStatus
 import net.nosegrind.apiframework.HookService
+import net.nosegrind.apiframework.StatsService
 import org.springframework.web.context.request.RequestContextHolder as RCH
 import javax.servlet.http.HttpSession
 
@@ -37,6 +38,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	ApiCacheService apiCacheService = new ApiCacheService()
 	SpringSecurityService springSecurityService
 	HookService hookService
+	StatsService statsService
 	boolean apiThrottle
 
 	// TODO: detect and assign apiObjectVersion from uri
@@ -48,7 +50,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	LinkedHashMap cache = [:]
 	grails.config.Config conf = Holders.grailsApplication.config
 	boolean notApiDoc=true
-
+	LinkedHashMap stat = [:]
+	String remoteAddr
 
 	ApiFrameworkInterceptor(){
 		match(uri:"/${entryPoint}/**")
@@ -65,6 +68,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
 		//println("FILTERCHAIN : "+filterChain)
 
+		remoteAddr = getRemoteAddr(request)
 		format = (request?.format)?request.format.toUpperCase():'JSON'
 		mthdKey = request.method.toUpperCase()
 		mthd = (RequestMethod) RequestMethod[mthdKey]
@@ -115,6 +119,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				// NOTE: expectedMethod must be capitolized in IO State file
 				String expectedMethod = cache[params.apiObject][params.action.toString()]['method'] as String
 				if (!checkRequestMethod(mthd,expectedMethod, restAlt)) {
+					statsService.setStatsCache(getUserId(), 400)
 					render(status: 400, text: "Expected request method '${expectedMethod}' does not match sent method '${mthd.getKey()}'")
 					return false
 				}
@@ -132,13 +137,16 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
+								statsService.setStatsCache(getUserId(), response.status)
 								render(text: result, contentType: request.getContentType())
 								return false
 							} else {
+								statsService.setStatsCache(getUserId(), 400)
 								render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 								return false
 							}
 						}else{
+							statsService.setStatsCache(getUserId(), response.status)
 							render(text: result, contentType: request.getContentType())
 							return false
 						}
@@ -149,6 +157,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
 
 				if (!checkURIDefinitions(params, receives)) {
+					statsService.setStatsCache(getUserId(), HttpStatus.BAD_REQUEST.value())
 					render(status: HttpStatus.BAD_REQUEST.value(), text: 'Expected request variables for endpoint do not match sent variables')
 					response.flushBuffer()
 					return false
@@ -181,14 +190,17 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								byte[] contentLength = content.getBytes("ISO-8859-1")
 								if (apiThrottle) {
 									if (checkLimit(contentLength.length)) {
+										statsService.setStatsCache(getUserId(), response.status)
 										render(text: result as JSON, contentType: request.getContentType())
 										return false
 									} else {
+										statsService.setStatsCache(getUserId(), 400)
 										render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 										response.flushBuffer()
 										return false
 									}
 								} else {
+									statsService.setStatsCache(getUserId(), response.status)
 									render(text: result as JSON, contentType: request.getContentType())
 									return false
 								}
@@ -201,14 +213,17 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 									byte[] contentLength = content.getBytes("ISO-8859-1")
 									if (apiThrottle) {
 										if (checkLimit(contentLength.length)) {
+											statsService.setStatsCache(getUserId(), response.status)
 											render(text: result as JSON, contentType: request.getContentType())
 											return false
 										} else {
+											statsService.setStatsCache(getUserId(), 400)
 											render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 											response.flushBuffer()
 											return false
 										}
 									} else {
+										statsService.setStatsCache(getUserId(), response.status)
 										render(text: result as JSON, contentType: request.getContentType())
 										return false
 									}
@@ -265,6 +280,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
+						statsService.setStatsCache(getUserId(), HttpServletResponse.SC_NOT_FOUND)
 						render(status: HttpServletResponse.SC_NOT_FOUND, text: 'No resource returned / domain is empty')
 						response.flushBuffer()
 						return false
@@ -302,15 +318,18 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
+								statsService.setStatsCache(getUserId(), response.status)
 								render(text: content, contentType: request.getContentType())
 								response.flushBuffer()
 								return false
 							} else {
+								statsService.setStatsCache(getUserId(), HttpServletResponse.SC_BAD_REQUEST)
 								render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 								response.flushBuffer()
 								return false
 							}
 						} else {
+							statsService.setStatsCache(getUserId(), response.status)
 							render(text: content, contentType: request.getContentType())
 							if(cache[params.apiObject]["${params.action}"]['hookRoles']) {
 								List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
@@ -320,6 +339,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						}
 					}
 				} else {
+					statsService.setStatsCache(getUserId(), response.status)
 					String content = parseResponseMethod(mthd, format, params, newModel)
 					render(text: content, contentType: request.getContentType())
 					if(cache[params.apiObject]["${params.action}"]['hookRoles']) {

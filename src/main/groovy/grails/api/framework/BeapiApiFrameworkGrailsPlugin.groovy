@@ -133,6 +133,9 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
             doInitApiFrameworkInstall(applicationContext)
 
+            def statsService = applicationContext.getBean("statsService")
+            statsService.flushAllStatsCache()
+
             parseFiles(apiObjectSrc.toString(), applicationContext)
         }catch(Exception e){
             throw new Exception("[BeAPIFramework] : Cannot set system properties :",e)

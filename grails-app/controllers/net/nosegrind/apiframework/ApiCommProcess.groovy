@@ -21,6 +21,7 @@ import org.grails.core.artefact.DomainClassArtefactHandler
 import org.springframework.beans.factory.annotation.Autowired
 import org.grails.plugin.cache.GrailsCacheManager
 
+import javax.servlet.http.HttpServletRequest
 
 /**
  *
@@ -115,11 +116,24 @@ abstract class ApiCommProcess{
      * @deprecated
      * @return
      */
-    String getUserId() {
+    Integer getUserId() {
         if (springSecurityService.loggedIn){
-            return springSecurityService.principal.id
+            return (springSecurityService.principal.id).toInteger()
         }
         return null
+    }
+
+    /**
+     *
+     * springSecurity functionality for returning userId
+     * @see #checkLimit(int)
+     * @deprecated
+     * @return
+     */
+    String getRemoteAddr(HttpServletRequest req) {
+        String temp = request.getRemoteAddr()
+        String addr = (temp!=null)?temp:"null"
+        return addr
     }
 
     /**

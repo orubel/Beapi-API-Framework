@@ -60,7 +60,7 @@ config:
         maxElementsInMemory: 100000
         maxElementsOnDisk: 10000000
     cache:
-        name: 'Trace'
+        name: 'Stats'
         eternal: false
         overflowToDisk: true
         maxElementsInMemory: 100000
