@@ -122,29 +122,29 @@ class StatsService{
 
 
 	void setStatsCache(Integer userId, int code){
-		Integer day = (Integer) System.currentTimeMillis()/((1000*60**60*24)+1)
-		//try{
-			List entry = [userId, code, System.currentTimeMillis()]
-			setStatCache(day, entry)
-		//}catch(Exception e){
-		//	throw new Exception("[ApiCacheService :: setApiCache] : Exception - full stack trace follows:",e)
-		//}
+		Integer day = (Integer) System.currentTimeMillis()/((1000*60*60*24)+1)
+		try{
+
+			setStatCache(day, userId, code)
+		}catch(Exception e){
+			throw new Exception("[ApiCacheService :: setApiCache] : Exception - full stack trace follows:",e)
+		}
 	}
 
 	@CachePut(value="StatsCache",key={statsKey})
-	private List setStatCache(Integer statsKey, List stat){
-		//try{
+	private List setStatCache(Integer statsKey, Integer userId, int code){
+		try{
 			def cache = getStats(statsKey)
-		println("cache:"+cache)
-			cache.add(stat)
+			List entry = [userId, code, System.currentTimeMillis()]
+			cache.add(entry)
 			return cache
-		//}catch(Exception e){
-		//	throw new Exception("[ApiCacheService :: setApiCache] : Exception - full stack trace follows:",e)
-		//}
+		}catch(Exception e){
+			throw new Exception("[ApiCacheService :: setApiCache] : Exception - full stack trace follows:",e)
+		}
 	}
 
 
-	private List getStats(Integer statsKey){
+	List getStats(Integer statsKey){
 		try{
 			def temp = grailsCacheManager?.getCache('StatsCache')
 
@@ -165,6 +165,37 @@ class StatsService{
 		}catch(Exception e){
 			throw new Exception("[ApiCacheService :: getApiCache] : Exception - full stack trace follows:",e)
 		}
+	}
+
+	LinkedHashMap getStatsByWeek(Integer statsKey){
+		int inc = 0
+		LinkedHashMap stats = [:]
+		while(inc!=7){
+			stats[statsKey] = getStats(statsKey)
+			inc++
+			statsKey = statsKey-1
+		}
+		return stats
+	}
+
+	List getStatsByMonth(Integer statsKey){
+		int inc = 0
+		List stats = []
+		while(inc!=4){
+			stats.add(getStatsByWeek(statsKey))
+			inc++
+		}
+		return stats
+	}
+
+	List getStatsByYear(Integer statsKey){
+		int inc = 0
+		List stats = []
+		while(inc!=12){
+			stats.add(getStatsByMonth(statsKey))
+			inc++
+		}
+		return stats
 	}
 
 }

@@ -668,7 +668,7 @@ abstract class ApiCommProcess{
 
             if (d!=null) {
                 // println("PP:"+d.persistentProperties)
-                d.persistentProperties?.each(){ it ->
+                d?.persistentProperties?.each(){ it ->
                     if (it?.name) {
                         if (DomainClassArtefactHandler.isDomainClass(data[it.name].getClass())) {
                             newMap["${it.name}Id"] = data[it.name].id
