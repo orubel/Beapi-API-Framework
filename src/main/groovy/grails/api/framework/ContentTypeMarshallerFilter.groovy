@@ -61,14 +61,15 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
                         break
                     case 'JSON':
                     default:
-                        def json = request.JSON.toString()
-                        if(json!='[:]') {
-                            def slurper = new JsonSlurperClassic()
-                            slurper.parseText(json).each() { k, v ->
-                                dataParams[k] = v
-                            }
-                            request.setAttribute('JSON', dataParams)
+                        def temp = request.JSON.toString()
+                        temp = (temp =~ /\{.*\}/)
+                        def json = temp[0]
+                        def slurper = new JsonSlurperClassic()
+                        def slurp = slurper.parseText(json)
+                        slurp.each() { k, v ->
+                            dataParams[k] = v
                         }
+                        request.setAttribute('JSON', dataParams)
                         break
                 }
 
@@ -80,7 +81,6 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
             //response.writer.flush()
             return
         }
-
 
         chain.doFilter(request, response)
     }

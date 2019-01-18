@@ -119,7 +119,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				// NOTE: expectedMethod must be capitolized in IO State file
 				String expectedMethod = cache[params.apiObject][params.action.toString()]['method'] as String
 				if (!checkRequestMethod(mthd,expectedMethod, restAlt)) {
-					statsService.setStatsCache(getUserId(), 400)
+					//statsService.setStatsCache(getUserId(), 400)
 					render(status: 400, text: "Expected request method '${expectedMethod}' does not match sent method '${mthd.getKey()}'")
 					return false
 				}
@@ -137,16 +137,16 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
-								statsService.setStatsCache(getUserId(), response.status)
+								//statsService.setStatsCache(getUserId(), response.status)
 								render(text: result, contentType: request.getContentType())
 								return false
 							} else {
-								statsService.setStatsCache(getUserId(), 400)
+								//statsService.setStatsCache(getUserId(), 400)
 								render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 								return false
 							}
 						}else{
-							statsService.setStatsCache(getUserId(), response.status)
+							//statsService.setStatsCache(getUserId(), response.status)
 							render(text: result, contentType: request.getContentType())
 							return false
 						}
@@ -157,7 +157,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
 
 				if (!checkURIDefinitions(params, receives)) {
-					statsService.setStatsCache(getUserId(), HttpStatus.BAD_REQUEST.value())
+					//statsService.setStatsCache(getUserId(), HttpStatus.BAD_REQUEST.value())
 					render(status: HttpStatus.BAD_REQUEST.value(), text: 'Expected request variables for endpoint do not match sent variables')
 					response.flushBuffer()
 					return false
@@ -190,17 +190,17 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								byte[] contentLength = content.getBytes("ISO-8859-1")
 								if (apiThrottle) {
 									if (checkLimit(contentLength.length)) {
-										statsService.setStatsCache(getUserId(), response.status)
+										//statsService.setStatsCache(getUserId(), response.status)
 										render(text: result as JSON, contentType: request.getContentType())
 										return false
 									} else {
-										statsService.setStatsCache(getUserId(), 400)
+										//statsService.setStatsCache(getUserId(), 400)
 										render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 										response.flushBuffer()
 										return false
 									}
 								} else {
-									statsService.setStatsCache(getUserId(), response.status)
+									//statsService.setStatsCache(getUserId(), response.status)
 									render(text: result as JSON, contentType: request.getContentType())
 									return false
 								}
@@ -213,17 +213,17 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 									byte[] contentLength = content.getBytes("ISO-8859-1")
 									if (apiThrottle) {
 										if (checkLimit(contentLength.length)) {
-											statsService.setStatsCache(getUserId(), response.status)
+											//statsService.setStatsCache(getUserId(), response.status)
 											render(text: result as JSON, contentType: request.getContentType())
 											return false
 										} else {
-											statsService.setStatsCache(getUserId(), 400)
+											//statsService.setStatsCache(getUserId(), 400)
 											render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 											response.flushBuffer()
 											return false
 										}
 									} else {
-										statsService.setStatsCache(getUserId(), response.status)
+										//statsService.setStatsCache(getUserId(), response.status)
 										render(text: result as JSON, contentType: request.getContentType())
 										return false
 									}
@@ -280,7 +280,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
-						statsService.setStatsCache(getUserId(), HttpServletResponse.SC_NOT_FOUND)
+						//statsService.setStatsCache(getUserId(), HttpServletResponse.SC_NOT_FOUND)
 						render(status: HttpServletResponse.SC_NOT_FOUND, text: 'No resource returned / domain is empty')
 						response.flushBuffer()
 						return false
@@ -318,12 +318,12 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
-								statsService.setStatsCache(getUserId(), response.status)
+								//statsService.setStatsCache(getUserId(), response.status)
 								render(text: content, contentType: request.getContentType())
 								response.flushBuffer()
 								return false
 							} else {
-								statsService.setStatsCache(getUserId(), HttpServletResponse.SC_BAD_REQUEST)
+								//statsService.setStatsCache(getUserId(), HttpServletResponse.SC_BAD_REQUEST)
 								render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 								response.flushBuffer()
 								return false
@@ -339,7 +339,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						}
 					}
 				} else {
-					statsService.setStatsCache(getUserId(), response.status)
+					//statsService.setStatsCache(getUserId(), response.status)
 					String content = parseResponseMethod(mthd, format, params, newModel)
 					render(text: content, contentType: request.getContentType())
 					if(cache[params.apiObject]["${params.action}"]['hookRoles']) {
