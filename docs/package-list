@@ -1,0 +1,11 @@
+commands.net.nosegrind.apiframework
+conf
+conf.spring
+conf.templates.domains
+controllers.net.nosegrind.apiframework
+init
+init.grails.api.framework
+main.groovy.grails.api.framework
+main.groovy.net.nosegrind.apiframework
+services.net.nosegrind.apiframework
+services.net.nosegrind.apiframework.comm

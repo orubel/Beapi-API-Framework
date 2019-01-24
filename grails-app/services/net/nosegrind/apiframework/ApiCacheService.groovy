@@ -95,6 +95,7 @@ class ApiCacheService{
 			cache[apiversion][methodname]['description'] = apidoc.description
 			cache[apiversion][methodname]['receives'] = apidoc.receives
 			cache[apiversion][methodname]['returns'] = apidoc.returns
+			cache[apiversion][methodname]['stats'] = [] // [[code:200,cnt:56,time:123456789]]
 			cache[apiversion][methodname]['doc'] = generateApiDoc(controllername, methodname,apiversion)
 			cache[apiversion][methodname]['doc']['hookRoles'] = cache[apiversion][methodname]['hookRoles']
 			cache[apiversion][methodname]['doc']['batchRoles'] = cache[apiversion][methodname]['batchRoles']

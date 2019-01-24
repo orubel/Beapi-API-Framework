@@ -157,8 +157,10 @@ class StatsService{
 			}
 
 			if(cache?.get()){
+				println("has cache")
 				return cache.get() as List
-			}else{ 
+			}else{
+				println("no cache")
 				return []
 			}
 

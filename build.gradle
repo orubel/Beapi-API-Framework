@@ -41,7 +41,7 @@ apply plugin: "com.jfrog.bintray"
 // Used for publishing to central repository, remove if not needed
 apply plugin: "org.grails.grails-plugin-publish"
 apply plugin: "org.grails.grails-plugin"
-
+apply plugin: "org.grails.grails-doc"
 
 grailsPublish {
     user = System.getenv('BINTRAY_USER')
