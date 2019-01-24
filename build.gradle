@@ -43,6 +43,8 @@ apply plugin: "org.grails.grails-plugin-publish"
 apply plugin: "org.grails.grails-plugin"
 apply plugin: "org.grails.grails-doc"
 
+
+
 grailsPublish {
     user = System.getenv('BINTRAY_USER')
     key = System.getenv('BINTRAY_KEY')
