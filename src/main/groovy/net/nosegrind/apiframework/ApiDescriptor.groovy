@@ -24,6 +24,7 @@ class ApiDescriptor implements Validateable {
     LinkedHashMap<String,ParamsDescriptor> receives
     LinkedHashMap<String,ParamsDescriptor> returns
 	LinkedHashMap cachedResult
+	LinkedHashMap stats
 
 
 	static constraints = { 
@@ -40,6 +41,7 @@ class ApiDescriptor implements Validateable {
 				}
 			}
 		})
+
 		hookRoles(nullable:true, validator: { val, obj ->
 			if (hookRoles){
 				if(obj?.roles.containsAll(hookRoles)) {
@@ -55,6 +57,7 @@ class ApiDescriptor implements Validateable {
 		receives(nullable:true)
 		returns(nullable:true)
 		cachedResult(nullable:true)
+		stats(nullable:true)
 	}
 
 }

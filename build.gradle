@@ -1,3 +1,5 @@
+
+
 buildscript {
     ext {
         //grailsVersion = '3.1.9'
@@ -42,7 +44,6 @@ apply plugin: "com.jfrog.bintray"
 apply plugin: "org.grails.grails-plugin-publish"
 apply plugin: "org.grails.grails-plugin"
 apply plugin: "org.grails.grails-doc"
-
 
 
 grailsPublish {

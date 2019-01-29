@@ -150,6 +150,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         try {
             new File(path).eachFile() { file ->
                 String fileName = file.name.toString()
+
                 def tmp = fileName.split('\\.')
                 String fileChar1 = fileName.charAt(fileName.length() - 1)
 

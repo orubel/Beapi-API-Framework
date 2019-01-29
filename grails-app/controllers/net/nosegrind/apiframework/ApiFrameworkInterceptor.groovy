@@ -28,6 +28,16 @@ import net.nosegrind.apiframework.StatsService
 import org.springframework.web.context.request.RequestContextHolder as RCH
 import javax.servlet.http.HttpSession
 
+/**
+ *
+ * HandlerInterceptor for Basic API Calls. Parses XML/JSON, handles authentication, rate limiting, caching, and statistics reporting
+ *
+ *
+ * @see ApiCommLayer
+ * @see BatchkInterceptor
+ * @see ChainInterceptor
+ *
+ */
 @CompileStatic
 class ApiFrameworkInterceptor extends ApiCommLayer{
 
@@ -53,12 +63,16 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	LinkedHashMap stat = [:]
 	String remoteAddr
 
+	/**
+	 * Constructor for ApiFrameworkInterceptor. Matches on entrypoint (ie v0.1 for example)
+	 * @return
+	 */
 	ApiFrameworkInterceptor(){
 		match(uri:"/${entryPoint}/**")
 	}
 
 	/**
-	 * PreHandler
+	 * PreHandler for the HandlerInterceptor
 	 * @return
 	 */
 	boolean before(){
