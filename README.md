@@ -15,6 +15,9 @@ repositories {
   ...
   maven { url "http://dl.bintray.com/nosegrind/plugins" }
 }
+```
+and then add the dependency...
+```
 dependencies {
   ...
   compile "org.grails.plugins:api-framework:0.9.4"
@@ -58,7 +61,11 @@ The BeAPI Framework is a full featured reactive api framework providing automati
 ### FAQ
 
 **Q: How hard is this to implement?**
-**A:** BeApi is 'Plug-N-Play'. Merely install the plugin and it takes care of the 'REST'. The only thing you have to do is build an IO state file for each controller. This enables us to separate all IO data from functionality so it can be shared with other services in the architecture.
+**A:** BeApi is 'Plug-N-Play'. Merely install the plugin and it takes care of the 'REST'. The only thing you have to do is build an IO state file for each controller or use the built in bootstrap command:
+```
+./gradlew GenerateIostate
+```
+This enables us to separate all IO data from functionality so it can be shared with other services in the architecture.
 
 **Q: How do I implement the listener for IO state webhook on my proxy/Message queue?**
 **A:** It merely requires an endpoint to send the data to. As a side project, I may actually supply a simple daemon in the future with ehCache to do this for people.
