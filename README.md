@@ -4,6 +4,7 @@
 ## Recent version release : [0.9.4](http://dl.bintray.com/nosegrind/plugins/org/grails/plugins/api-framework/)
 
 ### Documentation located at http://orubel.github.io/Beapi-API-Framework/
+(newer documentation can be found here - https://www.beapi.io/documentation)
 
 ### Backend Implementation (example) located at https://github.com/orubel/beapi_backend
 ### Frontend (requires backend) located at https://github.com/orubel/beapi_frontend
