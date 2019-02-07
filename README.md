@@ -9,21 +9,7 @@
 ### Backend Implementation (example) located at https://github.com/orubel/beapi_backend
 ### Frontend (requires backend) located at https://github.com/orubel/beapi_frontend
 
-### How To Install in your project
-Merely add the repository and then add the dependency to your project...
-```
-repositories {
-  ...
-  maven { url "http://dl.bintray.com/nosegrind/plugins" }
-}
-```
-and then add the dependency...
-```
-dependencies {
-  ...
-  compile "org.grails.plugins:api-framework:0.9.4"
-}
-```
+### How To Install in your project - https://www.beapi.io/installation
 
 ### How To Build Locally
 If you want to build it yourself, download the project and then from the root of the project run the following:
