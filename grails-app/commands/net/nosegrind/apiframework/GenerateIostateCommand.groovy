@@ -81,6 +81,9 @@ class GenerateIostateCommand implements ApplicationCommand {
             realName = file
             def controller = Holders.grailsApplication.getArtefactByLogicalPropertyName('Controller', logicalName)
             def domain = Holders.grailsApplication.getArtefactByLogicalPropertyName('Domain', logicalName)
+            String packageName = domain.getPackageName()
+            println(packageName)
+
             ClassMetadata hibernateMetaClass = sessionFactory.getClassMetadata(domain.clazz)
 
             String[] keys = hibernateMetaClass.getKeyColumnNames()
@@ -262,6 +265,8 @@ class GenerateIostateCommand implements ApplicationCommand {
                 String uris = "\r"
                 def controller = Holders.grailsApplication.getArtefactByLogicalPropertyName('Controller', logicalName)
                 def domain = Holders.grailsApplication.getArtefactByLogicalPropertyName('Domain', logicalName)
+                String packageName = domain.getPackageName()
+                println(packageName)
 
                 //println("[" + logicalName + "]:" + domain.getConstrainedProperties())
                 def constraints = domain.getConstrainedProperties()

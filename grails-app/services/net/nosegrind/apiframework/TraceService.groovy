@@ -24,7 +24,6 @@ class TraceService {
 		return request
 	}
 
-
 	public void startTrace(String className, String methodName){
 		Long mStart = System.currentTimeMillis()
 		String uri = getRequest().forwardURI
