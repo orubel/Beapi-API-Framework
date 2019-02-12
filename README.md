@@ -1,7 +1,7 @@
 
 
 # BeApi(tm) Api Framework 
-## Recent version release : [0.9.4](http://dl.bintray.com/nosegrind/plugins/org/grails/plugins/api-framework/)
+## Recent version release : [0.9.5](http://dl.bintray.com/nosegrind/plugins/org/grails/plugins/api-framework/)
 
 ### Documentation located at https://www.beapi.io/documentation
 (older documentation can be found here - http://orubel.github.io/Beapi-API-Framework/
