@@ -1,5 +1,5 @@
 
-![alt text](https://flic.kr/p/2eLmoP6)
+![alt text](https://github.com/orubel/logos/blob/master/beapi_logo_large.png)
 # BeApi(tm) Api Framework 
 ## Recent version release : [0.9.5](http://dl.bintray.com/nosegrind/plugins/org/grails/plugins/api-framework/)
 
