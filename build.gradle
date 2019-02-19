@@ -31,7 +31,7 @@ plugins {
     id "com.jfrog.bintray" version "1.2"
 }
 
-version "0.9.4"
+version "0.9.5"
 group "org.grails.plugins"
 
 
@@ -102,6 +102,7 @@ dependencies {
     compile('org.grails.plugins:spring-security-core:3.2.0.M1') {
         exclude(module: 'org.springframework.security:spring-security-web')
     }
+    compile group: 'com.google.guava', name: 'guava', version: '14.0'
 
     compile('org.grails.plugins:spring-security-rest:2.0.0.M2') {
         exclude(module: 'com.google.guava:guava-io')

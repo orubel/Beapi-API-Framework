@@ -23,6 +23,9 @@ import org.grails.plugin.cache.GrailsCacheManager
 
 import javax.servlet.http.HttpServletRequest
 
+import com.google.common.hash.Hashing
+import java.nio.charset.StandardCharsets;
+
 /**
  *
  * This abstract provides Common API Methods used by APICommLayer and those that extend it
@@ -874,4 +877,35 @@ abstract class ApiCommProcess{
         return true
     }
 
+    // interceptor::before
+    /**
+     * Returns concatenated IDS as a HASH used as ID for the API cache
+     * @see ApiFrameworkInterceptor#before()
+     * @see BatchInterceptor#before()
+     * @see ChainInterceptor#before()
+     * @param params
+     * @param receives
+     * @return
+     */
+    String createCacheHash(GrailsParameterMap params, LinkedHashMap receives){
+        String hashString = ''
+        String authority = getUserRole() as String
+        ArrayList temp = []
+        if (receives["${authority}"]) {
+            temp = receives["${authority}"] as ArrayList
+        } else if (receives['permitAll'][0] != null) {
+            temp = receives['permitAll'] as ArrayList
+        }
+
+        ArrayList receivesList = (temp != null)?temp.collect(){ it.name }:[]
+        receivesList.each(){ it ->
+            hashString += params[it] + "/"
+        }
+        return hashWithGuava(hashString)
+    }
+
+    protected static String hashWithGuava(final String originalString) {
+        final String sha256hex = Hashing.sha256().hashString(originalString, StandardCharsets.UTF_8).toString()
+        return sha256hex;
+    }
 }

@@ -124,7 +124,6 @@ class StatsService{
 	void setStatsCache(Integer userId, int code){
 		Integer day = (Integer) System.currentTimeMillis()/((1000*60*60*24)+1)
 		try{
-
 			setStatCache(day, userId, code)
 		}catch(Exception e){
 			throw new Exception("[ApiCacheService :: setApiCache] : Exception - full stack trace follows:",e)

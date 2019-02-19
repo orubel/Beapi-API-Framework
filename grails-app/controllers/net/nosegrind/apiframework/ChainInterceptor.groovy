@@ -14,6 +14,7 @@ import javax.servlet.http.HttpServletResponse
 import groovy.transform.CompileStatic
 
 
+
 @CompileStatic
 class ChainInterceptor extends ApiCommLayer implements grails.api.framework.RequestForwarder{
 
@@ -40,6 +41,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 	boolean apiThrottle
 	List acceptableMethod = ['GET']
 	List unacceptableMethod = []
+	String cacheHash
 
 	ChainInterceptor(){
 		match(uri:"/${entryPoint}/**")
@@ -212,6 +214,8 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 					// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
 					LinkedHashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as LinkedHashMap
+					cacheHash = createCacheHash(params, receives)
+
 					//boolean requestKeysMatch = checkURIDefinitions(params, receives)
 					if (!checkURIDefinitions(params, receives)) {
 						render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Expected request variables for endpoint do not match sent variables')
@@ -316,8 +320,8 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 						String format = request.format.toUpperCase()
 						String authority = getUserRole() as String
 
-						if (!newModel) {
-							apiCacheService.setApiCachedResult((String) params.controller, (String) params.apiObject, (String) params.action, authority, format, content)
+						if (!newModel && request.method.toUpperCase()=='GET') {
+							apiCacheService.setApiCachedResult(cacheHash,(String) params.controller, (String) params.apiObject, (String) params.action, authority, format, content)
 						}
 
 						if (apiThrottle) {

@@ -108,7 +108,7 @@ class ApiCacheService{
 
 	//@org.springframework.cache.annotation.CachePut(value="ApiCache",key="#controllername")
 	@CachePut(value="ApiCache",key={controllername})
-	LinkedHashMap setApiCachedResult(String controllername, String apiversion, String methodname, String authority, String format, String content){
+	LinkedHashMap setApiCachedResult(String cacheHash, String controllername, String apiversion, String methodname, String authority, String format, String content){
 		try {
 			JSONObject json = JSON.parse(content)
 			LinkedHashMap cachedResult = [:]
@@ -117,7 +117,8 @@ class ApiCacheService{
 
 			def cache = getApiCache(controllername)
 			if (cache[apiversion]) {
-				cache[apiversion][methodname]['cachedResult'] = cachedResult
+				cache[apiversion][methodname]['cachedResult'] = [:]
+				cache[apiversion][methodname]['cachedResult'][cacheHash] = cachedResult
 			}
 			return cache
 		}catch(Exception e){
