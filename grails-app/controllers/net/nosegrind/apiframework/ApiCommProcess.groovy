@@ -696,14 +696,11 @@ abstract class ApiCommProcess{
      * @return
      */
     LinkedHashMap formatMap(LinkedHashMap map){
-        println(map)
         LinkedHashMap newMap = [:]
         if(map) {
             map.each() { key, val ->
                 if (val) {
-                    println(val)
-                    println(val.getClass())
-                    println(val.class)
+
                     if (java.lang.Class.isInstance(val.class)) {
                         newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? val : val.toString()
                     } else if (DomainClassArtefactHandler?.isDomainClass(val.getClass())) {

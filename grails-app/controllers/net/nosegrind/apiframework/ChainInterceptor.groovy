@@ -118,10 +118,6 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 			return false
 		}
 
-
-
-
-
 		if(cache) {
 			params.apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
 			params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
@@ -223,39 +219,42 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 					}
 
 					// RETRIEVE CACHED RESULT; DON'T CACHE LISTS
-					if (cache[params.apiObject][params.action.toString()]['cachedResult']) {
-						String authority = getUserRole() as String
-						String domain = ((String) params.controller).capitalize()
+					if (cache[params.apiObject][params.action.toString()]['cachedResult'] && request.method.toUpperCase()=='GET' ) {
+						if (cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash]) {
 
-						JSONObject json = (JSONObject) cache[params.apiObject][params.action.toString()]['cachedResult'][authority][request.format.toUpperCase()]
-						if(!json){
-							return false
-						}else{
-							if (isCachedResult((Integer) json.get('version'), domain)) {
+							String authority = getUserRole() as String
+							String domain = ((String) params.controller).capitalize()
 
-								String result = cache[params.apiObject][params.action.toString()]['cachedResult'][authority][request.format.toUpperCase()] as String
-								byte[] contentLength = result.getBytes( "ISO-8859-1" )
-								if(apiThrottle) {
-									if (checkLimit(contentLength.length)) {
+							JSONObject json = (JSONObject) cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash][authority][request.format.toUpperCase()]
+							if (!json) {
+								return false
+							} else {
+								if (isCachedResult((Integer) json.get('version'), domain)) {
+
+									String result = cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash][authority][request.format.toUpperCase()] as String
+									byte[] contentLength = result.getBytes("ISO-8859-1")
+									if (apiThrottle) {
+										if (checkLimit(contentLength.length)) {
+											render(text: result, contentType: request.getContentType())
+											return false
+										} else {
+											render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
+											response.flushBuffer()
+											return false
+										}
+									} else {
 										render(text: result, contentType: request.getContentType())
 										return false
-									} else {
-										render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-										response.flushBuffer()
-										return false
 									}
-								}else{
-									render(text: result, contentType: request.getContentType())
-									return false
 								}
 							}
-						}
-					} else {
-						// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
-						ApiDescriptor cachedEndpoint = cache[(String) params.apiObject][(String) params.action] as ApiDescriptor
-						boolean result = handleChainRequest(cachedEndpoint['deprecated'] as List, (cachedEndpoint['method'])?.toString(), mthd, response, params)
+						} else {
+							// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
+							ApiDescriptor cachedEndpoint = cache[(String) params.apiObject][(String) params.action] as ApiDescriptor
+							boolean result = handleChainRequest(cachedEndpoint['deprecated'] as List, (cachedEndpoint['method'])?.toString(), mthd, response, params)
 
-						return result
+							return result
+						}
 					}
 				}
 			}

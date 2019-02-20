@@ -184,7 +184,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 				if (cache[params.apiObject][params.action.toString()]['cachedResult'] && request.method.toUpperCase()=='GET' ) {
 					if(cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash]){
-						println("187 :" + cache[params.apiObject][params.action.toString()]['cachedResult'])
+
 						String authority = getUserRole() as String
 						String domain = ((String) params.controller).capitalize()
 
