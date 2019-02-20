@@ -250,6 +250,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								}
 							}
 						}
+					}else{
+						render(status: 404, text: 'No content found')
+						response.flushBuffer()
+						return false
 					}
 				} else {
 					if (params.action == null || !params.action) {
