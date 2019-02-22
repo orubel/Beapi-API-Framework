@@ -11,7 +11,7 @@
 
 ### Old Documentation - http://orubel.github.io/Beapi-API-Framework/
 
-
+***
 ### Description
 The BeAPI Framework is a full featured reactive api framework providing automation and simplification of api's for scale. Some features include:
 
@@ -35,9 +35,7 @@ The BeAPI Framework is a full featured reactive api framework providing automati
 
 - **Built-In Profiler:** Profile your API's and have them deliver a metrics report of time it takes for every class/method to deliver so you can optimize queries, methods services
 
-
-
-
+***
 
 ### FAQ
 
