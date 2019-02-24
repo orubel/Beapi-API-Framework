@@ -1,23 +1,16 @@
 
 ![alt text](https://github.com/orubel/logos/blob/master/beapi_logo_large.png)
 # BeApi(tm) Api Framework ( https://www.beapi.io/ )
-## Recent version release : [0.9.6](http://dl.bintray.com/nosegrind/plugins/org/grails/plugins/api-framework/)
+## Recent version release : [0.9.61](http://dl.bintray.com/nosegrind/plugins/org/grails/plugins/api-framework/)
+### Documentation - https://www.beapi.io/documentation
+### Installation - https://www.beapi.io/installation
 
-### Documentation located at https://www.beapi.io/documentation
-(older documentation can be found here - http://orubel.github.io/Beapi-API-Framework/
+### Backend Implementation - https://github.com/orubel/beapi_backend
+### Frontend Implementation - https://github.com/orubel/beapi_frontend
 
-### Backend Implementation (example) located at https://github.com/orubel/beapi_backend
-### Frontend (requires backend) located at https://github.com/orubel/beapi_frontend
+### Old Documentation - http://orubel.github.io/Beapi-API-Framework/
 
-### How To Install in your project - https://www.beapi.io/installation
-
-### How To Build Locally
-If you want to build it yourself, download the project and then from the root of the project run the following:
-```
-sudo chmod 755 gradlew
-./gradlew clean;grails install
-```
-
+***
 ### Description
 The BeAPI Framework is a full featured reactive api framework providing automation and simplification of api's for scale. Some features include:
 
@@ -41,9 +34,7 @@ The BeAPI Framework is a full featured reactive api framework providing automati
 
 - **Built-In Profiler:** Profile your API's and have them deliver a metrics report of time it takes for every class/method to deliver so you can optimize queries, methods services
 
-
-
-
+***
 
 ### FAQ
 
