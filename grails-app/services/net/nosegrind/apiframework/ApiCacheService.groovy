@@ -58,18 +58,13 @@ class ApiCacheService{
 	}
 
 
-	/**
-	 * Private method to flush the cache
-	 * @see #flushAllApiCache
-	 * @param controllername
-	 */
 	@CacheEvict(value="ApiCache",key={controllername})
 	private void flushApiCache(String controllername){}
 
 
 	//@org.springframework.cache.annotation.CachePut(value="ApiCache",key="#controllername")
 	/**
-	 *
+	 * Method to set the apicache associated with the controller name
 	 * @param controllername
 	 * @param apidesc
 	 * @return
@@ -79,7 +74,14 @@ class ApiCacheService{
 		return apidesc
 	}
 
-	//@org.springframework.cache.annotation.CachePut(value="ApiCache",key="#controllername")
+	/**
+	 * Method to set the apicache associated with the controller name using pregenerated apidoc
+	 * @param controllername
+	 * @param methodname
+	 * @param apidoc
+	 * @param apiversion
+	 * @return
+	 */
 	@CachePut(value="ApiCache",key={controllername})
 	LinkedHashMap setApiCache(String controllername,String methodname, ApiDescriptor apidoc, String apiversion){
 		try{
@@ -106,7 +108,18 @@ class ApiCacheService{
 		}
 	}
 
-	//@org.springframework.cache.annotation.CachePut(value="ApiCache",key="#controllername")
+	/**
+	 * Method to set the cached result associated with endpoint; only works with GET method
+	 * and uses HASH of all id's as ID for the cache itself. Also checks authority and format
+	 * @param cacheHash
+	 * @param controllername
+	 * @param apiversion
+	 * @param methodname
+	 * @param authority
+	 * @param format
+	 * @param content
+	 * @return
+	 */
 	@CachePut(value="ApiCache",key={controllername})
 	LinkedHashMap setApiCachedResult(String cacheHash, String controllername, String apiversion, String methodname, String authority, String format, String content){
 		try {
@@ -125,7 +138,14 @@ class ApiCacheService{
 			throw new Exception("[ApiCacheService :: setApiCache] : Exception - full stack trace follows:",e)
 		}
 	}
-	
+
+	/**
+	 * Method to autogenerate the apidoc data set from loaded IO state files
+	 * @param controllername
+	 * @param actionname
+	 * @param apiversion
+	 * @return
+	 */
 	LinkedHashMap generateApiDoc(String controllername, String actionname, String apiversion){
 		try{
 			LinkedHashMap doc = [:]
@@ -179,7 +199,12 @@ class ApiCacheService{
 			throw new Exception("[ApiCacheService :: generateApiDoc] : Exception - full stack trace follows:",e)
 		}
 	}
-	
+
+	/**
+	 * Method to load the 'ApiCache' cache object
+	 * @param controllername
+	 * @return
+	 */
 	LinkedHashMap getApiCache(String controllername){
 		try{
 			def temp = grailsCacheManager?.getCache('ApiCache')
@@ -202,7 +227,11 @@ class ApiCacheService{
 			throw new Exception("[ApiCacheService :: getApiCache] : Exception - full stack trace follows:",e)
 		}
 	}
-	
+
+	/**
+	 * Method to load the list of all object contained in the 'ApiCache' cache
+	 * @return
+	 */
 	List getCacheNames(){
 		List cacheNames = []
 		def temp = grailsCacheManager?.getCache('ApiCache')

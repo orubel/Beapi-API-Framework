@@ -15,7 +15,16 @@ class HookService {
 	Integer cores = Holders.grailsApplication.config.apitoolkit.procCores as Integer
 
     static transactional = false
-	
+
+	/**
+	 * Given the  REST Method, the ROLES, the data to be sent and 'service' for which hook is defined,
+	 * will sendData(). Exceptions will sendError()
+	 * @param service
+	 * @param data
+	 * @param hookRoles
+	 * @param method
+	 * @return
+	 */
     void postData(String service, String data, List hookRoles,String method) {
 		if (hookRoles.size() < 0) {
 			String msg = "The hookRoles in your IO State for " + params.controller + "is undefined."
@@ -28,8 +37,13 @@ class HookService {
 		}
 	}
 
-
-
+	/**
+	 * Given the data to be sent and 'service' for which hook is defined,
+	 * will send data to all 'subscribers'
+	 * @param service
+	 * @param data
+	 * @return
+	 */
     private boolean send(String data, String service) {
 
 		def hooks = grailsApplication.getClassForName('net.nosegrind.apiframework.Hook').findAll("from Hook where is_enabled=true and service=?",[service])
@@ -37,7 +51,6 @@ class HookService {
 		/*
 		GrailsDomainClass dc = grailsApplication.getDomainClass('net.nosegrind.apiframework.Hook')
 		def tempHook = dc.clazz.newInstance()
-
 		def hooks = tempHook.find("from Hook where service=?",[service])
 		*/
 
@@ -93,16 +106,16 @@ class HookService {
 		}
 	}
 
+	/**
+	 * Given the data to be sent and 'service' for which hook is defined,
+	 * will send error message to all 'subscribers'
+	 * @param service
+	 * @param data
+	 * @return
+	 */
 	private boolean sendError(String data, String service) {
 
 		def hooks = grailsApplication.getClassForName('net.nosegrind.apiframework.Hook').findAll("from Hook where is_enabled=true and service=?",[service])
-
-		/*
-		GrailsDomainClass dc = grailsApplication.getDomainClass('net.nosegrind.apiframework.Hook')
-		def tempHook = dc.clazz.newInstance()
-
-		def hooks = tempHook.find("from Hook where service=?",[service])
-		*/
 
 		hooks.each { hook ->
 			String format = hook.format.toLowerCase()
@@ -151,6 +164,11 @@ class HookService {
 		}
 	}
 
+	/**
+	 * Determines if object is valid domain class and return object as a Map
+	 * @param object
+	 * @return
+	 */
 	Map formatDomainObject(Object data){
 	    def nonPersistent = ["log", "class", "constraints", "properties", "errors", "mapping", "metaClass","maps"]
 	    def newMap = [:]
@@ -165,7 +183,8 @@ class HookService {
 	    }
 		return newMap
 	}
-	
+
+	/*
 	Map processMap(Map data,Map processor){
 		processor.each() { key, val ->
 			if(!val?.trim()){
@@ -192,4 +211,5 @@ class HookService {
 		}
 		return false
 	}
+	*/
 }

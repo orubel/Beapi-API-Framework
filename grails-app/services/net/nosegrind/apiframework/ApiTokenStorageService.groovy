@@ -23,11 +23,18 @@ class ApiTokenStorageService implements TokenStorageService {
 
     GrailsApplication grailsApplication
 
-
+    /**
+     * Constructor
+     */
     public ApiTokenStorageService() {
         this.grailsApplication = Holders.grailsApplication
     }
 
+    /**
+     * Given a tokenValue, returns user details for said token to be loaded into a session
+     * @param tokenValue
+     * @return
+     */
     @Override
     UserDetails loadUserByToken(String tokenValue) throws TokenNotFoundException {
         log.debug "Finding token ${tokenValue} in GORM"
@@ -43,7 +50,13 @@ class ApiTokenStorageService implements TokenStorageService {
         throw new TokenNotFoundException("Token ${tokenValue} not found")
     }
 
-    // TODO: add 'App' to storeToken
+
+    /**
+     * Stores tokenValue associated with loggedIn user
+     * @param tokenValue
+     * @param principal
+     * @return
+     */
     void storeToken(String tokenValue, UserDetails principal) {
         log.debug "Storing principal for token: ${tokenValue}"
         log.debug "Principal: ${principal}"
@@ -65,6 +78,12 @@ class ApiTokenStorageService implements TokenStorageService {
         }
     }
 
+    /**
+     * Stores tokenValue associated with loggedIn user. Removes token upon logging out
+     * @see grails.plugin.springsecurity.rest.RestLogoutFilter
+     * @param tokenValue
+     * @return
+     */
     void removeToken(String tokenValue) throws TokenNotFoundException {
         log.debug "Removing token ${tokenValue} from GORM"
         def conf = SpringSecurityUtils.securityConfig
@@ -89,16 +108,14 @@ class ApiTokenStorageService implements TokenStorageService {
         def domainClass = grailsApplication.getClassForName(tokenClassName)
 
         //TODO check at startup, not here
-        if (!dc) {
+        if (!domainClass) {
             throw new IllegalArgumentException("The specified token domain class '$tokenClassName' is not a domain class")
         }
 
-        dc.withTransaction() { status ->
+        domainClass.withTransaction() { status ->
             return domainClass.findWhere((tokenValuePropertyName): tokenValue)
         }
     }
 
-    public createToken(){
-
-    }
+    public createToken(){}
 }

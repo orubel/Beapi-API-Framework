@@ -48,8 +48,7 @@ apply plugin: "org.grails.grails-doc"
 grailsPublish {
     user = System.getenv('BINTRAY_USER')
     key = System.getenv('BINTRAY_KEY')
-    userOrg = 'nosegrind' // Optional
-    githubSlug = 'orubel/api-framework'
+    githubSlug = 'orubel/Beapi-API-Framework'
     license {
         name = 'MIT'
     }
