@@ -179,7 +179,6 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                         }
                     }
 
-
                     def cache2
                     String version
                     //if (tempCache && controller!='apidoc') {

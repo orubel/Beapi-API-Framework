@@ -42,6 +42,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 	List acceptableMethod = ['GET']
 	List unacceptableMethod = []
 	String cacheHash
+	String contentType
 
 	ChainInterceptor(){
 		match(uri:"/${entryPoint}/**")
@@ -58,6 +59,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 		mthdKey = request.method.toUpperCase()
 		mthd = (RequestMethod) RequestMethod[mthdKey]
 		apiThrottle = Holders.grailsApplication.config.apiThrottle as boolean
+		contentType = request.getContentType()
 
 		// NEW
 		if(!acceptableMethod.contains(mthdKey)){
@@ -113,7 +115,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 		chainLength = inc
 
 		// TODO : test for where chain data was sent
-		if(!isChain(request)){
+		if(!isChain(contentType)){
 			render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Expected request variables for endpoint do not match sent variables')
 			return false
 		}
@@ -163,14 +165,14 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 							byte[] contentLength = result.getBytes("ISO-8859-1")
 							if (apiThrottle) {
 								if (checkLimit(contentLength.length)) {
-									render(text: result, contentType: request.getContentType())
+									render(text: result, contentType: contentType)
 									return false
 								} else {
 									render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 									return false
 								}
 							}else{
-								render(text: result, contentType: request.getContentType())
+								render(text: result, contentType: contentType)
 								return false
 							}
 						}
@@ -235,7 +237,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 									byte[] contentLength = result.getBytes("ISO-8859-1")
 									if (apiThrottle) {
 										if (checkLimit(contentLength.length)) {
-											render(text: result, contentType: request.getContentType())
+											render(text: result, contentType: contentType)
 											return false
 										} else {
 											render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
@@ -243,7 +245,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 											return false
 										}
 									} else {
-										render(text: result, contentType: request.getContentType())
+										render(text: result, contentType: contentType)
 										return false
 									}
 								}
@@ -324,14 +326,14 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
-								render(text: content, contentType: request.getContentType())
+								render(text: content, contentType: contentType)
 								return false
 							} else {
 								render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 								return false
 							}
 						} else {
-							render(text: content, contentType: request.getContentType())
+							render(text: content, contentType: contentType)
 							return false
 						}
 					}

@@ -7,6 +7,7 @@ import org.grails.core.artefact.DomainClassArtefactHandler
 import grails.core.GrailsDomainClass
 import static groovyx.gpars.GParsPool.withPool
 import grails.util.Holders
+import grails.core.GrailsApplication
 
 class HookService {
 

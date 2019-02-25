@@ -194,7 +194,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
             if(!result){
                 response.status = 400
             }else{
-                return parseBatchResponseMethod(mthd, format, params, result)
+                return parseBatchResponseMethod(mthd, format, result)
             }
         }catch(Exception e){
             throw new Exception("[ApiCommLayer : handleBatchResponse] : Exception - full stack trace follows:",e)

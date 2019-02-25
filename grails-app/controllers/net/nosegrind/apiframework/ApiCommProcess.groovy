@@ -46,8 +46,8 @@ abstract class ApiCommProcess{
     @Autowired
     ThrottleCacheService throttleCacheService
 
-    @Autowired
-    ApiCacheService apiCacheService = new ApiCacheService()
+    //@Autowired
+    //ApiCacheService apiCacheService = new ApiCacheService()
     List formats = ['text/json','application/json','text/xml','application/xml']
     List optionalParams = ['method','format','contentType','encoding','action','controller','v','apiCombine', 'apiObject','entryPoint','uri']
 
@@ -60,7 +60,7 @@ abstract class ApiCommProcess{
     /**
      * Given the request params, resets parameters for a batch based upon each iteration
      * @see BatchInterceptor#before()
-     * @param GrailsParameterMap params used for batch processing
+     * @param GrailsParameterMap Map of params created from the request data
      */
     void setBatchParams(GrailsParameterMap params){
         try{
@@ -83,7 +83,7 @@ abstract class ApiCommProcess{
     /**
      * Given the request params, resets parameters for an api chain based upon for each iteration
      * @see ChainInterceptor#before()
-     * @param GrailsParameterMap params used for chain processing
+     * @param GrailsParameterMap Map of params created from the request data
      */
     void setChainParams(GrailsParameterMap params){
         if (chainEnabled) {
@@ -110,34 +110,6 @@ abstract class ApiCommProcess{
             authority = springSecurityService.principal.authorities*.authority[0]
         }
         return authority
-    }
-
-
-    /**
-     * Given request and List of roles(authorities), tests whether user is logged in and user authorities match authorities sent; returns boolean
-     * Used mainly to check endpoint authorities against user authorities
-     * @param HttpServletRequest request
-     * @param ArrayList roles
-     * @return a boolean
-     */
-    boolean checkAuth(HttpServletRequest request, List roles){
-        try {
-            boolean hasAuth = false
-            if (springSecurityService.loggedIn) {
-                def principal = springSecurityService.principal
-                ArrayList userRoles = principal.authorities*.authority as ArrayList
-                roles.each {
-                    if (userRoles.contains(it) || it=='permitAll') {
-                        hasAuth = true
-                    }
-                }
-            }else{
-                //println("NOT LOGGED IN!!!")
-            }
-            return hasAuth
-        }catch(Exception e) {
-            throw new Exception("[ApiCommProcess :: checkAuth] : Exception - full stack trace follows:",e)
-        }
     }
 
     /**
@@ -184,7 +156,7 @@ abstract class ApiCommProcess{
      * @see ApiFrameworkInterceptor#before()
      * @see BatchInterceptor#before()
      * @see ChainInterceptor#before()
-     * @param GrailsParameterMap params for given request
+     * @param GrailsParameterMap Map of params created from the request data
      * @param LinkedHashMap map of variables defining endpoint request variables
      * @return returns false if request variable keys do not match expected endpoint keys
      */
@@ -231,7 +203,7 @@ abstract class ApiCommProcess{
      * @see ChainInterceptor#after()
      * @param RequestMethod mthd
      * @param String format
-     * @param GrailsParameterMap params
+     * @param GrailsParameterMap Map of params created from the request data
      * @param LinkedHashMap result
      * @return
      */
@@ -267,7 +239,7 @@ abstract class ApiCommProcess{
         return content
     }
 
-    LinkedHashMap parseBatchResponseMethod(RequestMethod mthd, String format, GrailsParameterMap params, LinkedHashMap result){
+    LinkedHashMap parseBatchResponseMethod(RequestMethod mthd, String format, LinkedHashMap result){
         LinkedHashMap content
         switch(mthd.getKey()) {
             case 'GET':
@@ -286,8 +258,8 @@ abstract class ApiCommProcess{
      * @see ApiFrameworkInterceptor#before()
      * @see BatchInterceptor#before()
      * @see ChainInterceptor#before()
-     * @param mthd
-     * @param params
+     * @param RequestMethod mthd
+     * @param GrailsParameterMap Map of params created from the request data
      * @return
      */
     String parseRequestMethod(RequestMethod mthd, GrailsParameterMap params){
@@ -315,8 +287,8 @@ abstract class ApiCommProcess{
      * @see ApiCommLayer#handleApiResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, LinkedHashMap, GrailsParameterMap)
      * @see ApiCommLayer#handleBatchResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, LinkedHashMap, GrailsParameterMap)
      * @see ApiCommLayer#handleChainResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, LinkedHashMap, GrailsParameterMap)
-     * @param model
-     * @param responseList
+     * @param LinkedHashMap model
+     * @param ArrayList responseList
      * @return
      */
     LinkedHashMap parseURIDefinitions(LinkedHashMap model,ArrayList responseList){
@@ -358,8 +330,8 @@ abstract class ApiCommProcess{
      * @see ApiCommLayer#handleApiRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
      * @see ApiCommLayer#handleBatchRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
      * @see ApiCommLayer#handleChainRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
-     * @param protocol
-     * @param mthd
+     * @param String protocol
+     * @param RequestMethod mthd
      * @return
      */
     boolean isRequestMatch(String protocol,RequestMethod mthd){
@@ -387,7 +359,7 @@ abstract class ApiCommProcess{
     /**
      * Given the request params, returns a parsed LinkedHashMap of all request params NOT found in optionalParams List
      * @see checkURIDefinitions(GrailsParameterMap,LinkedHashMap)
-     * @param params
+     * @param GrailsParameterMap Map of params created from the request data
      * @return
      */
     LinkedHashMap getMethodParams(GrailsParameterMap params){
@@ -404,11 +376,11 @@ abstract class ApiCommProcess{
     /**
      * Given an ArrayList of authorities associated with endpoint, determines if User authorities match; returns boolean
      * @see #getApiDoc(GrailsParameterMap)
-     * @param set
+     * @param ArrayList list
      * @return
      */
-    Boolean hasRoles(ArrayList set) {
-        if(springSecurityService.principal.authorities*.authority.any { set.contains(it) }){
+    Boolean hasRoles(ArrayList list) {
+        if(springSecurityService.principal.authorities*.authority.any { list.contains(it) }){
             return true
         }
         return false
@@ -417,7 +389,7 @@ abstract class ApiCommProcess{
     /**
      * Given the controllername, returns cached LinkedHashMap for endpoint if it exists
      * @see #getApiDoc(GrailsParameterMap)
-     * @param controllername
+     * @param String controllername
      * @return
      */
     LinkedHashMap getApiCache(String controllername){
@@ -447,7 +419,7 @@ abstract class ApiCommProcess{
      * Convenience method.
      * @see #parseResponseMethod(RequestMethod, String, GrailsParameterMap, LinkedHashMap)
      * @see #parseRequestMethod(RequestMethod, GrailsParameterMap)
-     * @param params
+     * @param GrailsParameterMap Map of params created from the request data
      * @return
      */
     String getApiDoc(GrailsParameterMap params){
@@ -539,7 +511,7 @@ abstract class ApiCommProcess{
     /**
      * Given a LinkedHashMap, parses and return a JSON String;
      * @see #getApiDoc
-     * @param returns
+     * @param LinkedHashMap returns
      * @return
      */
     private String processJson(LinkedHashMap returns){
@@ -598,7 +570,7 @@ abstract class ApiCommProcess{
      * @see ApiFrameworkInterceptor#after()
      * @see BatchInterceptor#after()
      * @see ChainInterceptor#after()
-     * @param map
+     * @param Map map
      * @return
      */
     LinkedHashMap convertModel(Map map){
@@ -629,7 +601,7 @@ abstract class ApiCommProcess{
      * Given an Object detected as a DomainObject, processes in a standardized format and returns a LinkedHashMap;
      * Used by convertModel and called by the PostHandler
      * @see #convertModel(Map)
-     * @param data
+     * @param Object data
      * @return
      */
     LinkedHashMap formatDomainObject(Object data){
@@ -666,7 +638,7 @@ abstract class ApiCommProcess{
      * Given a LinkedHashMap detected as a Map, processes in a standardized format and returns a LinkedHashMap;
      * Used by convertModel and called by the PostHandler
      * @see #convertModel(Map)
-     * @param map
+     * @param LinkedHashMap map
      * @return
      */
     LinkedHashMap formatMap(LinkedHashMap map){
@@ -693,7 +665,7 @@ abstract class ApiCommProcess{
      * Given a List detected as a List, processes in a standardized format and returns a LinkedHashMap;
      * Used by convertModel and called by the PostHandler
      * @see #convertModel(Map)
-     * @param list
+     * @param ArrayList list
      * @return
      */
     LinkedHashMap formatList(List list){
@@ -721,8 +693,8 @@ abstract class ApiCommProcess{
      * Given api version and a controllerName/className, tests whether cache exists; returns boolean
      * @see ApiFrameworkInterceptor#before()
      * @see BatchInterceptor#before()
-     * @param version
-     * @param className
+     * @param Integer version
+     * @param String className
      * @return
      */
     boolean isCachedResult(Integer version, String className){
@@ -744,11 +716,10 @@ abstract class ApiCommProcess{
     /**
      * Given request, test whether current request sent is an api chain; returns boolean
      * @see ChainInterceptor#before()
-     * @param request
+     * @param String contentType
      * @return
      */
-    boolean isChain(HttpServletRequest request){
-        String contentType = request.getContentType()
+    boolean isChain(String contentType){
         try{
             switch(contentType){
                 case 'text/xml':
@@ -788,7 +759,7 @@ abstract class ApiCommProcess{
      * Given the contentLength of the response, tests to see if rateLimit or dataLimit have been reached or supassed; returns boolean
      * @see ApiFrameworkInterceptor#before()
      * @see ApiFrameworkInterceptor#after()
-     * @param contentLength
+     * @param int contentLength
      * @return
      */
     boolean checkLimit(int contentLength){
@@ -854,9 +825,9 @@ abstract class ApiCommProcess{
      * @see ApiFrameworkInterceptor#before()
      * @see BatchInterceptor#before()
      * @see ChainInterceptor#before()
-     * @param params
-     * @param receives
-     * @return
+     * @param GrailsParameterMap Map of params created from the request data
+     * @param LinkedHashMap List of ids required when making request to endpoint
+     * @return a hash from all id's needed when making request to endpoint
      */
     String createCacheHash(GrailsParameterMap params, LinkedHashMap receives){
         String hashString = ''

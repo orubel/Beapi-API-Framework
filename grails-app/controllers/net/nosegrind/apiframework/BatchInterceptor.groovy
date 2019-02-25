@@ -40,6 +40,7 @@ class BatchInterceptor extends ApiCommLayer{
 	LinkedHashMap cache = [:]
 	grails.config.Config conf = Holders.grailsApplication.config
 	boolean notApiDoc=true
+	String contentType
 
 	BatchInterceptor(){
 		match(uri:"/${entryPoint}/**")
@@ -54,7 +55,7 @@ class BatchInterceptor extends ApiCommLayer{
 
 		apiThrottle = this.conf.apiThrottle as boolean
 		boolean restAlt = RequestMethod.isRestAlt(mthd.getKey())
-
+		contentType = request.getContentType()
 
 		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
 

@@ -62,6 +62,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	grails.config.Config conf = Holders.grailsApplication.config
 	boolean notApiDoc=true
 	LinkedHashMap stat = [:]
+	String contentType
 
 
 	/**
@@ -87,9 +88,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		format = (request?.format)?request.format.toUpperCase():'JSON'
 		mthdKey = request.method.toUpperCase()
 		mthd = (RequestMethod) RequestMethod[mthdKey]
-
 		apiThrottle = this.conf.apiThrottle as boolean
-
+		contentType = request.getContentType()
 
 		boolean restAlt = RequestMethod.isRestAlt(mthd.getKey())
 
@@ -153,7 +153,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
 								//statsService.setStatsCache(getUserId(), response.status)
-								render(text: result, contentType: request.getContentType())
+								render(text: result, contentType: contentType)
 								return false
 							} else {
 								//statsService.setStatsCache(getUserId(), 400)
@@ -162,7 +162,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							}
 						}else{
 							//statsService.setStatsCache(getUserId(), response.status)
-							render(text: result, contentType: request.getContentType())
+							render(text: result, contentType: contentType)
 							return false
 						}
 					}
@@ -210,7 +210,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 									if (apiThrottle) {
 										if (checkLimit(contentLength.length)) {
 											//statsService.setStatsCache(getUserId(), response.status)
-											render(text: result as JSON, contentType: request.getContentType())
+											render(text: result as JSON, contentType: contentType)
 											return false
 										} else {
 											//statsService.setStatsCache(getUserId(), 400)
@@ -220,7 +220,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 										}
 									} else {
 										//statsService.setStatsCache(getUserId(), response.status)
-										render(text: result as JSON, contentType: request.getContentType())
+										render(text: result as JSON, contentType: contentType)
 										return false
 									}
 								}
@@ -233,7 +233,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 										if (apiThrottle) {
 											if (checkLimit(contentLength.length)) {
 												//statsService.setStatsCache(getUserId(), response.status)
-												render(text: result as JSON, contentType: request.getContentType())
+												render(text: result as JSON, contentType: contentType)
 												return false
 											} else {
 												//statsService.setStatsCache(getUserId(), 400)
@@ -243,7 +243,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 											}
 										} else {
 											//statsService.setStatsCache(getUserId(), response.status)
-											render(text: result as JSON, contentType: request.getContentType())
+											render(text: result as JSON, contentType: contentType)
 											return false
 										}
 									}
@@ -344,7 +344,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
 								//statsService.setStatsCache(getUserId(), response.status)
-								render(text: content, contentType: request.getContentType())
+								render(text: content, contentType: contentType)
 								response.flushBuffer()
 								return false
 							} else {
@@ -355,7 +355,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							}
 						} else {
 							//statsService.setStatsCache(getUserId(), response.status)
-							render(text: content, contentType: request.getContentType())
+							render(text: content, contentType: contentType)
 							if(cache[params.apiObject]["${params.action}"]['hookRoles']) {
 								List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
 								String service = "${params.controller}/${params.action}"
@@ -366,7 +366,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				} else {
 					//statsService.setStatsCache(getUserId(), response.status)
 					String content = parseResponseMethod(mthd, format, params, newModel)
-					render(text: content, contentType: request.getContentType())
+					render(text: content, contentType: contentType)
 					if(cache[params.apiObject]["${params.action}"]['hookRoles']) {
 						List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
 						String service = "${params.controller}/${params.action}"
