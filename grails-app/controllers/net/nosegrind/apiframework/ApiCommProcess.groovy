@@ -24,7 +24,7 @@ import org.grails.plugin.cache.GrailsCacheManager
 import javax.servlet.http.HttpServletRequest
 
 import com.google.common.hash.Hashing
-import java.nio.charset.StandardCharsets;
+import java.nio.charset.StandardCharsets
 
 /**
  *

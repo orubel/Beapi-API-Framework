@@ -10,8 +10,14 @@ import grails.util.Holders
 
 class HookService {
 
-	def grailsApplication
+	/**
+	 * Application Class
+	 */
+	GrailsApplication grailsApplication
 
+	/**
+	 * Number of processor cores; read from config
+	 */
 	Integer cores = Holders.grailsApplication.config.apitoolkit.procCores as Integer
 
     static transactional = false

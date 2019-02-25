@@ -65,9 +65,9 @@ class ApiCacheService{
 	//@org.springframework.cache.annotation.CachePut(value="ApiCache",key="#controllername")
 	/**
 	 * Method to set the apicache associated with the controller name
-	 * @param controllername
-	 * @param apidesc
-	 * @return
+	 * @param String controllername for designated endpoint
+	 * @param LinkedHashMap a map of all apidoc information for all roles which can be easily traversed
+	 * @return A LinkedHashMap of Cached data associated with controllername
 	 */
 	@CachePut(value="ApiCache",key={controllername})
 	LinkedHashMap setApiCache(String controllername,LinkedHashMap apidesc){
@@ -76,11 +76,11 @@ class ApiCacheService{
 
 	/**
 	 * Method to set the apicache associated with the controller name using pregenerated apidoc
-	 * @param controllername
-	 * @param methodname
-	 * @param apidoc
-	 * @param apiversion
-	 * @return
+	 * @param String controllername for designated endpoint
+	 * @param String methodname for designated endpoint
+	 * @param ApiDescriptor apidocs for current application
+	 * @param String apiversion of current application
+	 * @return A LinkedHashMap of Cached data associated with controllername
 	 */
 	@CachePut(value="ApiCache",key={controllername})
 	LinkedHashMap setApiCache(String controllername,String methodname, ApiDescriptor apidoc, String apiversion){
@@ -111,15 +111,16 @@ class ApiCacheService{
 	/**
 	 * Method to set the cached result associated with endpoint; only works with GET method
 	 * and uses HASH of all id's as ID for the cache itself. Also checks authority and format
-	 * @param cacheHash
-	 * @param controllername
-	 * @param apiversion
-	 * @param methodname
-	 * @param authority
-	 * @param format
-	 * @param content
-	 * @return
+	 * @param String hash of all ids sent for given endpoint
+	 * @param String controllername for designated endpoint
+	 * @param String apiversion of current application
+	 * @param String methodname for designated endpoint
+	 * @param String authority of user making current request for cache which we are storing
+	 * @param String format of cache being stored (ie xml/json)
+	 * @param String content of 'response' to be added to endpoint cache
+	 * @return A LinkedHashMap of Cached data associated with controllername
 	 */
+	// TODO: parse for XML as well
 	@CachePut(value="ApiCache",key={controllername})
 	LinkedHashMap setApiCachedResult(String cacheHash, String controllername, String apiversion, String methodname, String authority, String format, String content){
 		try {
@@ -141,10 +142,10 @@ class ApiCacheService{
 
 	/**
 	 * Method to autogenerate the apidoc data set from loaded IO state files
-	 * @param controllername
-	 * @param actionname
-	 * @param apiversion
-	 * @return
+	 * @param String controllername for designated endpoint
+	 * @param String actionname for designated endpoint
+	 * @param String apiversion of current application
+	 * @return A LinkedHashMap of all apidoc information for all roles which can be easily traversed
 	 */
 	LinkedHashMap generateApiDoc(String controllername, String actionname, String apiversion){
 		try{
@@ -202,8 +203,8 @@ class ApiCacheService{
 
 	/**
 	 * Method to load the 'ApiCache' cache object
-	 * @param controllername
-	 * @return
+	 * @param String controller name for designated endpoint
+	 * @return A LinkedHashMap of Cached data associated with controllername
 	 */
 	LinkedHashMap getApiCache(String controllername){
 		try{
@@ -230,7 +231,7 @@ class ApiCacheService{
 
 	/**
 	 * Method to load the list of all object contained in the 'ApiCache' cache
-	 * @return
+	 * @return A List of keys of all object names contained with the 'ApiCache'
 	 */
 	List getCacheNames(){
 		List cacheNames = []
