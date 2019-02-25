@@ -14,9 +14,18 @@ import grails.plugin.cache.CachePut
 class ThrottleCacheService{
 
 	static transactional = false
-	
+
+	/**
+	 * Application Class
+	 */
 	GrailsApplication grailsApplication
+	/**
+	 * Cache Manager Class
+	 */
 	GrailsCacheManager grailsCacheManager
+	/**
+	 * Security service; used for accessing principal ID
+	 */
 	SpringSecurityService springSecurityService
 
 	// called through generateJSON()
@@ -25,9 +34,9 @@ class ThrottleCacheService{
 	/**
 	 * Sets cached variables for user rate limiting / data limiting
 	 * ex ['timestamp': currentTime, 'currentRate': 1, 'currentData':contentLength,'locked': false, 'expires': expires]
-	 * @param userId
-	 * @param cache
-	 * @return
+	 * @param String userId of user being rate limited
+	 * @param LinkedHashMap cache of properties used in rate limiting
+	 * @return A LinkedHashMap of Cached data associated with userId
 	 */
 	//@org.springframework.cache.annotation.CachePut(value="Throttle",key="#userId")
 	@CachePut(value="Throttle",key={userId})
@@ -41,8 +50,8 @@ class ThrottleCacheService{
 
 	/**
 	 * increments the rate limit in the cache associated with user id
-	 * @param userId
-	 * @return
+	 * @param String userId of user being rate limited
+	 * @return A LinkedHashMap of Cached data associated with userId
 	 */
 	//@org.springframework.cache.annotation.CachePut(value="Throttle",key="#userId")
 	@CachePut(value="Throttle",key={userId})
@@ -72,8 +81,8 @@ class ThrottleCacheService{
 
 	/**
 	 * returns the rate limit cache associated with given user id
-	 * @param userId
-	 * @return
+	 * @param String userId of user being rate limited
+	 * @return A LinkedHashMap of Cached data associated with userId
 	 */
 	LinkedHashMap getLimitCache(String userId){
 		try{
@@ -93,7 +102,7 @@ class ThrottleCacheService{
 
 	/**
 	 * Method to load the list of all object contained in the 'Throttle' cache
-	 * @return
+	 * @return A List of keys of all object names contained with the 'Throttle'
 	 */
 	List getCacheNames(){
 		List cacheNames = []

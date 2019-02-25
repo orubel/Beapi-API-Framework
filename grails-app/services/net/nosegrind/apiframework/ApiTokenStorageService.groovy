@@ -21,6 +21,9 @@ import grails.plugin.springsecurity.rest.token.storage.TokenStorageService
 
 class ApiTokenStorageService implements TokenStorageService {
 
+    /**
+     * Application Class
+     */
     GrailsApplication grailsApplication
 
     /**

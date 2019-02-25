@@ -23,7 +23,13 @@ import static groovyx.gpars.GParsPool.withPool
  */
 class ApiCacheService{
 
+	/**
+	 * Application Class
+	 */
 	GrailsApplication grailsApplication
+	/**
+	 * Cache Manager Class
+	 */
 	GrailsCacheManager grailsCacheManager
 
 	/**

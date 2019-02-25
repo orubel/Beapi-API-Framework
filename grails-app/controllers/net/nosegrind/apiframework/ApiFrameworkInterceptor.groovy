@@ -62,7 +62,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	grails.config.Config conf = Holders.grailsApplication.config
 	boolean notApiDoc=true
 	LinkedHashMap stat = [:]
-	String remoteAddr
+
 
 	/**
 	 * Constructor for ApiFrameworkInterceptor. Matches on entrypoint (ie v0.1 for example)
@@ -83,7 +83,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
 		//println("FILTERCHAIN : "+filterChain)
 
-		remoteAddr = getRemoteAddr(request)
+
 		format = (request?.format)?request.format.toUpperCase():'JSON'
 		mthdKey = request.method.toUpperCase()
 		mthd = (RequestMethod) RequestMethod[mthdKey]

@@ -60,7 +60,7 @@ abstract class ApiCommProcess{
     /**
      * Given the request params, resets parameters for a batch based upon each iteration
      * @see BatchInterceptor#before()
-     * @param params
+     * @param GrailsParameterMap params used for batch processing
      */
     void setBatchParams(GrailsParameterMap params){
         try{
@@ -83,7 +83,7 @@ abstract class ApiCommProcess{
     /**
      * Given the request params, resets parameters for an api chain based upon for each iteration
      * @see ChainInterceptor#before()
-     * @param params
+     * @param GrailsParameterMap params used for chain processing
      */
     void setChainParams(GrailsParameterMap params){
         if (chainEnabled) {
@@ -102,7 +102,7 @@ abstract class ApiCommProcess{
      * @see #checkURIDefinitions(GrailsParameterMap,LinkedHashMap)
      * @see #checkLimit(int)
      * @see ApiCommLayer#handleApiResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, LinkedHashMap, GrailsParameterMap)
-     * @return
+     * @return a String of the Role of current principal (logged in user)
      */
     String getUserRole() {
         String authority = 'permitAll'
@@ -112,39 +112,13 @@ abstract class ApiCommProcess{
         return authority
     }
 
-    /**
-     *
-     * springSecurity functionality for returning userId
-     * @see #checkLimit(int)
-     * @deprecated
-     * @return
-     */
-    Integer getUserId() {
-        if (springSecurityService.loggedIn){
-            return (springSecurityService.principal.id).toInteger()
-        }
-        return null
-    }
-
-    /**
-     *
-     * springSecurity functionality for returning userId
-     * @see #checkLimit(int)
-     * @deprecated
-     * @return
-     */
-    String getRemoteAddr(HttpServletRequest req) {
-        String temp = request.getRemoteAddr()
-        String addr = (temp!=null)?temp:"null"
-        return addr
-    }
 
     /**
      * Given request and List of roles(authorities), tests whether user is logged in and user authorities match authorities sent; returns boolean
      * Used mainly to check endpoint authorities against user authorities
-     * @param request
-     * @param roles
-     * @return
+     * @param HttpServletRequest request
+     * @param ArrayList roles
+     * @return a boolean
      */
     boolean checkAuth(HttpServletRequest request, List roles){
         try {
@@ -172,8 +146,8 @@ abstract class ApiCommProcess{
      * @see ApiCommLayer#handleApiRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
      * @see ApiCommLayer#handleBatchRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
      * @see ApiCommLayer#handleChainRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
-     * @param deprecationDate
-     * @return
+     * @param String deprecationDate
+     * @return a boolean
      */
     boolean checkDeprecationDate(String deprecationDate){
         try{
@@ -192,10 +166,10 @@ abstract class ApiCommProcess{
     /**
      * Given the RequestMethod Object for the request, the endpoint request method and a boolean declaration of whether it is a restAlt(ernative),
      * test To check whether RequestMethod value matches expected request method for endpoint; returns boolean
-     * @param mthd
-     * @param method
-     * @param restAlt
-     * @return
+     * @param RequestMethod request method for httprequest
+     * @param String method associated with endpoint
+     * @param boolean a boolean value determining if endpoint is 'restAlt' (OPTIONS,TRACE,etc)
+     * @return returns true if not endpoint method matches request method
      */
     boolean checkRequestMethod(RequestMethod mthd,String method, boolean restAlt){
         if(!restAlt) {
@@ -210,9 +184,9 @@ abstract class ApiCommProcess{
      * @see ApiFrameworkInterceptor#before()
      * @see BatchInterceptor#before()
      * @see ChainInterceptor#before()
-     * @param params
-     * @param requestDefinitions
-     * @return
+     * @param GrailsParameterMap params for given request
+     * @param LinkedHashMap map of variables defining endpoint request variables
+     * @return returns false if request variable keys do not match expected endpoint keys
      */
     boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions){
         ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','apiResult','combine','_','batch','max','offset']
@@ -255,10 +229,10 @@ abstract class ApiCommProcess{
      * @see ApiFrameworkInterceptor#after()
      * @see BatchInterceptor#after()
      * @see ChainInterceptor#after()
-     * @param mthd
-     * @param format
-     * @param params
-     * @param result
+     * @param RequestMethod mthd
+     * @param String format
+     * @param GrailsParameterMap params
+     * @param LinkedHashMap result
      * @return
      */
     String parseResponseMethod(RequestMethod mthd, String format, GrailsParameterMap params, LinkedHashMap result){

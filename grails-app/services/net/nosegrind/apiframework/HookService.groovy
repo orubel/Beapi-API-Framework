@@ -25,10 +25,10 @@ class HookService {
 	/**
 	 * Given the  REST Method, the ROLES, the data to be sent and 'service' for which hook is defined,
 	 * will sendData(). Exceptions will sendError()
-	 * @param service
-	 * @param data
-	 * @param hookRoles
-	 * @param method
+	 * @param String URI of local endpoint being hooked into
+	 * @param String data to be sent to all subscribers
+	 * @param List Roles associated with given hook endpoint
+	 * @param String request method (GET,PUT,POST,DELETE)
 	 * @return
 	 */
     void postData(String service, String data, List hookRoles,String method) {
@@ -46,8 +46,8 @@ class HookService {
 	/**
 	 * Given the data to be sent and 'service' for which hook is defined,
 	 * will send data to all 'subscribers'
-	 * @param service
-	 * @param data
+	 * @param String URI of local endpoint being hooked into
+	 * @param String data to be sent to all subscribers
 	 * @return
 	 */
     private boolean send(String data, String service) {
@@ -115,8 +115,8 @@ class HookService {
 	/**
 	 * Given the data to be sent and 'service' for which hook is defined,
 	 * will send error message to all 'subscribers'
-	 * @param service
-	 * @param data
+	 * @param String URI of local endpoint being hooked into
+	 * @param String data to be sent to all subscribers
 	 * @return
 	 */
 	private boolean sendError(String data, String service) {
@@ -172,8 +172,8 @@ class HookService {
 
 	/**
 	 * Determines if object is valid domain class and return object as a Map
-	 * @param object
-	 * @return
+	 * @param Object an object assumed to be a domain object
+	 * @return Data as a Map
 	 */
 	Map formatDomainObject(Object data){
 	    def nonPersistent = ["log", "class", "constraints", "properties", "errors", "mapping", "metaClass","maps"]
