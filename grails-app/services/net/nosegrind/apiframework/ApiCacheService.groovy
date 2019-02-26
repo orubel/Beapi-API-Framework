@@ -1,7 +1,7 @@
 package net.nosegrind.apiframework
 
 import grails.converters.JSON
-//import grails.converters.XML
+import grails.converters.XML
 import org.grails.web.json.JSONObject
 import grails.util.Metadata
 import grails.plugin.cache.CacheEvict
@@ -130,11 +130,21 @@ class ApiCacheService{
 	@CachePut(value="ApiCache",key={controllername})
 	LinkedHashMap setApiCachedResult(String cacheHash, String controllername, String apiversion, String methodname, String authority, String format, String content){
 		try {
-			JSONObject json = JSON.parse(content)
 			LinkedHashMap cachedResult = [:]
-			cachedResult[authority] = [:]
-			cachedResult[authority][format] = json
-
+			switch(format){
+				case 'XML':
+					Object xml = XML.parse(content)
+					cachedResult[authority] = [:]
+					cachedResult[authority][format] = xml
+					break
+				case 'JSON':
+				default:
+					JSONObject json = JSON.parse(content)
+					cachedResult[authority] = [:]
+					cachedResult[authority][format] = json
+					break
+			}
+			
 			def cache = getApiCache(controllername)
 			if (cache[apiversion]) {
 				cache[apiversion][methodname]['cachedResult'] = [:]
