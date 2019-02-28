@@ -1,9 +1,9 @@
 package net.nosegrind.apiframework;
 
 import grails.validation.Validateable
-//import grails.compiler.GrailsCompileStatic
+import grails.compiler.GrailsCompileStatic
 
-//@GrailsCompileStatic
+@GrailsCompileStatic
 class ParamsDescriptor implements Validateable {
 
 	String paramType

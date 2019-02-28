@@ -5,8 +5,9 @@ import java.beans.BeanInfo
 import java.beans.PropertyDescriptor
 import java.beans.Introspector
 import java.lang.reflect.InvocationTargetException
+import groovy.transform.CompileStatic
 
-//@GrailsCompileStatic
+@CompileStatic
 class ApiParams{
 
 	ParamsDescriptor param
@@ -18,7 +19,7 @@ class ApiParams{
 	private ApiParams() {}
 
 	
-	def toObject(){
+	Map toObject(){
 		Map<String, Object> result = new HashMap<String, Object>()
 		BeanInfo info = Introspector.getBeanInfo(param.getClass())
 		for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
@@ -41,33 +42,33 @@ class ApiParams{
 		return result
 	}
 	
-	def setMockData(String data){
+	ApiParams setMockData(String data){
 		this.param.mockData = data
 		return this
 	}
 	
-	def setDescription(String data){
+	ApiParams setDescription(String data){
 		this.param.description = data
 		return this
 	}
 
-	def setKey(String data){
+	ApiParams setKey(String data){
 		this.param.keyType = data
 		return this
 	}
 
 
-	def hasParams(ParamsDescriptor[] values){
+	ApiParams hasParams(ParamsDescriptor[] values){
 		this.param.values = values
 		return this
 	}
 
-	def setReference(String data){
+	ApiParams setReference(String data){
 		this.param.idReferences = data
 		return this
 	}
-	
-	def setParam(String type,String name){
+
+	ApiParams setParam(String type,String name){
 		this.param = new ParamsDescriptor(paramType:"${type}",name:"${name}")
 		return this
 	}

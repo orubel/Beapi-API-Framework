@@ -12,10 +12,5 @@
 
 class ApiBootStrap {
 
-	def init = { servletContext ->
-
-	}
-	
-	def destroy = {}
 
 }

@@ -65,7 +65,7 @@ abstract class ApiCommProcess{
     void setBatchParams(GrailsParameterMap params){
         try{
             if (batchEnabled) {
-                def batchVars = request.getAttribute(request.format.toUpperCase())
+                Object batchVars = request.getAttribute(request.format.toUpperCase())
                 if(!request.getAttribute('batchLength')){
                     request.setAttribute('batchLength',request.JSON?.batch.size())
                 }
@@ -88,7 +88,7 @@ abstract class ApiCommProcess{
     void setChainParams(GrailsParameterMap params){
         if (chainEnabled) {
             if(!params.apiChain){ params.apiChain = [:] }
-            def chainVars = request.JSON
+            LinkedHashMap chainVars = request.JSON
             if(!request.getAttribute('chainLength')){ request.setAttribute('chainLength',chainVars['chain'].size()) }
             chainVars['chain'].each() { k,v ->
                 params.apiChain[k] = v
@@ -123,9 +123,9 @@ abstract class ApiCommProcess{
      */
     boolean checkDeprecationDate(String deprecationDate){
         try{
-            def ddate = new SimpleDateFormat("MM/dd/yyyy").parse(deprecationDate)
-            def deprecated = new Date(ddate.time)
-            def today = new Date()
+            Date ddate = new SimpleDateFormat("MM/dd/yyyy").parse(deprecationDate)
+            Date deprecated = new Date(ddate.time)
+            Date today = new Date()
             if(deprecated < today ) {
                 return true
             }
@@ -386,127 +386,6 @@ abstract class ApiCommProcess{
         return false
     }
 
-    /**
-     * Given the controllername, returns cached LinkedHashMap for endpoint if it exists
-     * @see #getApiDoc(GrailsParameterMap)
-     * @param String controllername
-     * @return
-     */
-    LinkedHashMap getApiCache(String controllername){
-        try{
-            def temp = grailsCacheManager?.getCache('ApiCache')
-
-            List cacheNames=temp.getAllKeys() as List
-            def cache
-            cacheNames.each(){
-                if(it.simpleKey==controllername) {
-                    cache = temp.get(it)
-                }
-            }
-
-            if(cache?.get()){
-                return cache.get() as LinkedHashMap
-            }else{
-                return [:]
-            }
-        }catch(Exception e){
-            throw new Exception("[ApiCommProcess :: getApiCache] : Exception - full stack trace follows:",e)
-        }
-    }
-
-    /**
-     * Given the request params, returns api docs as JSON string
-     * Convenience method.
-     * @see #parseResponseMethod(RequestMethod, String, GrailsParameterMap, LinkedHashMap)
-     * @see #parseRequestMethod(RequestMethod, GrailsParameterMap)
-     * @param GrailsParameterMap Map of params created from the request data
-     * @return
-     */
-    String getApiDoc(GrailsParameterMap params){
-        // TODO: Need to compare multiple authorities
-        // TODO: check for ['doc'][role] in cache; if none, continue
-
-        LinkedHashMap newDoc = [:]
-        List paramDescProps = ['paramType','idReferences','name','description']
-        try{
-            def controller = grailsApplication.getArtefactByLogicalPropertyName('Controller', params.controller)
-            if(controller){
-                def cache = (params.controller)?getApiCache(params.controller):null
-                //LinkedHashMap cache = session['cache'] as LinkedHashMap
-                if(cache){
-                    if(cache[params.apiObject][params.action]){
-                        def doc = cache[params.apiObject][params.action].doc
-                        def path = doc?.path
-                        def method = doc?.method
-                        def description = doc?.description
-
-
-                        //def authority = springSecurityService.principal.authorities*.authority[0]
-                        newDoc[params.action] = ['path':path,'method':method,'description':description]
-                        if(doc.receives){
-                            newDoc[params.action].receives = []
-
-                            doc.receives.each{ it ->
-                                if(hasRoles([it.key]) || it.key=='permitAll'){
-                                    it.value.each(){ it2 ->
-                                        LinkedHashMap values = [:]
-                                        it2.each(){ it3 ->
-                                            if(paramDescProps.contains(it3.key)){
-                                                values[it3.key] = it3.value
-                                            }
-                                        }
-                                        if(values) {
-                                            newDoc[params.action].receives.add(values)
-                                        }
-                                    }
-
-                                }
-                            }
-                        }
-
-                        if(doc.returns){
-                            newDoc[params.action].returns = []
-                            List jsonReturns = []
-                            doc.returns.each(){ v ->
-                                if(hasRoles([v.key]) || v.key=='permitAll'){
-                                    jsonReturns.add(["${v.key}":v.value])
-                                    v.value.each(){ v2 ->
-                                        LinkedHashMap values3 = [:]
-                                        v2.each(){ v3 ->
-                                            if(paramDescProps.contains(v3.key)){
-                                                values3[v3.key] = v3.value
-                                            }
-                                        }
-                                        if(values3) {
-                                            newDoc[params.action].returns.add(values3)
-                                        }
-                                    }
-                                    //newDoc[params.action].returns[v.key] = v.value
-                                }
-                            }
-
-                            //newDoc[params.action].json = processJson(newDoc[params.action].returns)
-
-                            newDoc[params.action].json = processJson(jsonReturns[0] as LinkedHashMap)
-                        }
-
-                        if(doc.errorcodes){
-                            doc.errorcodes.each{ it ->
-                                newDoc[params.action].errorcodes.add(it)
-                            }
-                        }
-
-                        // store ['doc'][role] in cache
-
-                        return newDoc as JSON
-                    }
-                }
-            }
-            return [:]
-        }catch(Exception e){
-            throw new Exception("[ApiCommProcess :: getApiDoc] : Exception - full stack trace follows:",e)
-        }
-    }
 
     /**
      * Given a LinkedHashMap, parses and return a JSON String;
@@ -533,7 +412,7 @@ abstract class ApiCommProcess{
                         withPool(this.cores) { pool ->
                             j.eachParallel { key, val ->
                                 if (val instanceof List) {
-                                    def child = [:]
+                                    LinkedHashMap child = [:]
                                     withExistingPool(pool, {
                                         val.eachParallel { it2 ->
                                             withExistingPool(pool, {
@@ -614,7 +493,6 @@ abstract class ApiCommProcess{
             //DefaultGrailsDomainClass d = new DefaultGrailsDomainClass(data.class)
 
             def d = grailsApplication?.getArtefact(DomainClassArtefactHandler.TYPE, data.class.getName())
-
             if (d!=null) {
                 // println("PP:"+d.persistentProperties)
                 d?.persistentProperties?.each(){ it ->

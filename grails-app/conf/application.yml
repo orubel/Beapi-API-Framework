@@ -52,25 +52,25 @@ grails:
         defaultScope: singleton
     converters:
         encoding: UTF-8
-config:
-    cache:
-        name: 'ApiCache'
-        eternal: false
-        overflowToDisk: true
-        maxElementsInMemory: 100000
-        maxElementsOnDisk: 10000000
-    cache:
-        name: 'Stats'
-        eternal: false
-        overflowToDisk: true
-        maxElementsInMemory: 100000
-        maxElementsOnDisk: 10000000
-    cache:
-        name: 'Throttle'
-        eternal: false
-        overflowToDisk: true
-        maxElementsInMemory: 100000
-        maxElementsOnDisk: 10000000
+    config:
+        cache:
+            name: 'ApiCache'
+            eternal: false
+            overflowToDisk: true
+            maxElementsInMemory: 100000
+            maxElementsOnDisk: 10000000
+        cache:
+            name: 'Stats'
+            eternal: false
+            overflowToDisk: true
+            maxElementsInMemory: 100000
+            maxElementsOnDisk: 10000000
+        cache:
+            name: 'Throttle'
+            eternal: false
+            overflowToDisk: true
+            maxElementsInMemory: 100000
+            maxElementsOnDisk: 10000000
 
 ---
 apitoolkit:

@@ -144,7 +144,7 @@ class ApiCacheService{
 					cachedResult[authority][format] = json
 					break
 			}
-			
+
 			def cache = getApiCache(controllername)
 			if (cache[apiversion]) {
 				cache[apiversion][methodname]['cachedResult'] = [:]
