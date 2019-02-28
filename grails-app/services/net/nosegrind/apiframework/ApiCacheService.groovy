@@ -8,12 +8,12 @@ import grails.plugin.cache.CacheEvict
 import grails.plugin.cache.CachePut
 import org.springframework.cache.annotation.*
 import org.grails.plugin.cache.GrailsCacheManager
-//import grails.plugin.cache.GrailsConcurrentMapCacheManager
 import org.grails.groovy.grails.commons.*
 import grails.core.GrailsApplication
 import grails.util.Holders
+import grails.plugin.cache.GrailsConcurrentMapCache
+import grails.plugin.cache.GrailsValueWrapper
 
-import javax.annotation.Resource
 
 import groovyx.gpars.*
 import static groovyx.gpars.GParsPool.withPool
@@ -21,6 +21,7 @@ import static groovyx.gpars.GParsPool.withPool
 /**
  * A class for caching processed api calls and returning them
  */
+
 class ApiCacheService{
 
 	/**
@@ -91,7 +92,7 @@ class ApiCacheService{
 	@CachePut(value="ApiCache",key={controllername})
 	LinkedHashMap setApiCache(String controllername,String methodname, ApiDescriptor apidoc, String apiversion){
 		try{
-			def cache = getApiCache(controllername)
+			LinkedHashMap cache = getApiCache(controllername)
 			if(!cache[apiversion]){
 				cache[apiversion] = [:]
 			}
@@ -139,13 +140,13 @@ class ApiCacheService{
 					break
 				case 'JSON':
 				default:
-					JSONObject json = JSON.parse(content)
+					JSONObject json = JSON.parse(content) as JSONObject
 					cachedResult[authority] = [:]
 					cachedResult[authority][format] = json
 					break
 			}
 
-			def cache = getApiCache(controllername)
+			LinkedHashMap cache = getApiCache(controllername)
 			if (cache[apiversion]) {
 				cache[apiversion][methodname]['cachedResult'] = [:]
 				cache[apiversion][methodname]['cachedResult'][cacheHash] = cachedResult
@@ -166,7 +167,7 @@ class ApiCacheService{
 	LinkedHashMap generateApiDoc(String controllername, String actionname, String apiversion){
 		try{
 			LinkedHashMap doc = [:]
-			def cache = getApiCache(controllername)
+			LinkedHashMap cache = getApiCache(controllername)
 
 			String apiPrefix = "v${Metadata.current.getApplicationVersion()}"
 
@@ -224,10 +225,9 @@ class ApiCacheService{
 	 */
 	LinkedHashMap getApiCache(String controllername){
 		try{
-			def temp = grailsCacheManager?.getCache('ApiCache')
-
+			GrailsConcurrentMapCache temp = grailsCacheManager?.getCache('ApiCache')
 			List cacheNames=temp.getAllKeys() as List
-			def cache
+			GrailsValueWrapper cache
 			cacheNames.each(){
 				if(it.simpleKey==controllername) {
 					cache = temp.get(it)
@@ -251,7 +251,7 @@ class ApiCacheService{
 	 */
 	List getCacheNames(){
 		List cacheNames = []
-		def temp = grailsCacheManager?.getCache('ApiCache')
+		GrailsConcurrentMapCache temp = grailsCacheManager?.getCache('ApiCache')
 		cacheNames = temp.getAllKeys() as List
 		return cacheNames
 	}

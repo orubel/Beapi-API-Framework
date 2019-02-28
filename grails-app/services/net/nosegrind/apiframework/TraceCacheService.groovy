@@ -2,9 +2,8 @@ package net.nosegrind.apiframework
 
 import grails.converters.JSON
 //import grails.converters.XML
-import grails.plugin.cache.CachePut
-//import grails.plugin.cache.GrailsCacheManager
-//import org.grails.plugin.cache.GrailsCacheManager
+import grails.plugin.cache.*
+import org.grails.plugin.cache.*
 import org.springframework.cache.CacheManager
 import org.grails.groovy.grails.commons.*
 import grails.core.GrailsApplication
@@ -54,7 +53,7 @@ class TraceCacheService{
 
 	LinkedHashMap getTraceCache(String uri){
 		try{
-			def temp = cacheManager?.getCache('Trace')
+			GrailsConcurrentMapCache temp = cacheManager?.getCache('Trace')
 			def cache = temp?.get(uri)
 			if(cache?.get()){
 				return cache.get() as LinkedHashMap
