@@ -3,6 +3,7 @@
 # BeApi(tm) Api Framework ( https://www.beapi.io/ )
 ## Recent Stable Release : [0.9.7](http://dl.bintray.com/orubel/plugins/org/grails/plugins/api-framework/)
 ## Documentation/Installation - https://www.beapi.io/documentation
+## Forums - http://beapi.freeforums.net/
 
 ### Backend Implementation - https://github.com/orubel/beapi_backend
 ### Frontend Implementation - https://github.com/orubel/beapi_frontend
