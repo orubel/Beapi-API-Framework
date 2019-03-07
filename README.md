@@ -45,7 +45,7 @@ The BeAPI Framework is a full featured reactive api framework providing automati
 ```
 This enables us to separate all IO data from functionality so it can be shared with other services in the architecture.
 
-**Q: Why am I getting the error "DisconnectableInputStream source reader" when I build the example project?
+**Q: Why am I getting the error "DisconnectableInputStream source reader" when I build the example project?**
 **A:** This is actually nothing to worry about as it is a known Gradle issue that does not affect the project. The following error:
 ```
 Exception in thread "DisconnectableInputStream source reader" org.gradle.api.UncheckedIOException: java.io.IOException: Resource temporarily unavailable
