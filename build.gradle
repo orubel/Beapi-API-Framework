@@ -31,9 +31,8 @@ plugins {
     id "com.jfrog.bintray" version "1.2"
 }
 
-version "0.9.7"
+version "0.9.71"
 group "org.grails.plugins"
-
 
 apply plugin: "maven-publish"
 apply plugin: "org.springframework.boot"
@@ -109,18 +108,16 @@ dependencies {
         exclude(module: 'org.grails.plugins:spring-security-core')
     }
 
+    /**
+     * These are not excluded because spring-security-rest
+     * has GSP dependencies; may rewrite that plugin in future
+     */
     runtime('org.grails:grails-web') {
         //exclude(module: 'org.grails:grails-web-jsp')
         //exclude(module: 'org.grails:grails-web-sitemesh')
         //exclude(module: 'org.grails:grails-web-gsp')
         //exclude(module: 'org.grails:grails-web-databinding:5.0.1')
     }
-
-    //compile('org.grails:grails-dependencies'){
-    //    exclude(module:'grails-plugin-rest')
-    //    exclude(module:'grails-bootstrap')
-    //    exclude(module:'grails-plugin-gsp')
-    //}
 
     // UNCOMMENT NOSQL DB AS NEEDED FOR LIBRARIES
     //compile 'org.grails.plugins:mongodb:5.0.2'
@@ -137,17 +134,6 @@ dependencies {
     compile "org.grails.plugins:hibernate5"
     compile "org.hibernate:hibernate-core:5.1.5.Final"
     compile "org.hibernate:hibernate-ehcache:5.1.5.Final"
-    //compile 'org.grails.plugins:hibernate:4.3.10.6'
-    //compile "org.hibernate:hibernate-ehcache"
-
-    //runtime "org.apache.tomcat:tomcat-jdbc"
-
-    //testCompile "org.grails:grails-gorm-testing-support"
-    //testCompile "org.grails:grails-plugin-testing"
-    //testCompile "org.grails.plugins:geb"
-    //testRuntime "net.sourceforge.htmlunit:htmlunit:2.18"
-    //testCompile "org.grails:grails-web-testing-support"
-    //testCompile "org.grails:grails-test-mixins:3.3.0"
 }
 
 task wrapper(type: Wrapper) {

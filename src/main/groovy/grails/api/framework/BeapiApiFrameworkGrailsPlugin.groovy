@@ -29,8 +29,11 @@ import java.util.jar.JarFile
 import java.util.jar.JarException
 import java.util.jar.JarEntry
 
+/**
+ * Plugin class for BeAPI API Framework
+ */
 class BeapiApiFrameworkGrailsPlugin extends Plugin{
-	def version = "0.9.7"
+	def version = "0.2.1.2"
     def grailsVersion = "3.1.1 > *"
     def title = "BeAPI Api Framework" // Headline display name of the plugin
 	def author = "Owen Rubel"
@@ -118,7 +121,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     void doWithApplicationContext() {
 
         // Delegate OPTIONS requests to controllers
-        try{
+        //try{
             applicationContext.dispatcherServlet.setDispatchOptionsRequest(true)
 
             String basedir = BuildSettings.BASE_DIR
@@ -137,13 +140,18 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             statsService.flushAllStatsCache()
 
             parseFiles(apiObjectSrc.toString(), applicationContext)
-        }catch(Exception e){
-            throw new Exception("[BeAPIFramework] : Cannot set system properties :",e)
-        }
+        //}catch(Exception e){
+        //    throw new Exception("[BeAPIFramework] : Cannot set system properties :",e)
+        //}
     }
 
+    /**
+     * Given the context and path, looks for IO state files, parses and loads them into local cache
+     * @param String path for direoctory of IO State files
+     * @param ApplicationContext context for application
+     */
     private parseFiles(String path, ApplicationContext applicationContext){
-        LinkedHashMap methods = [:]
+        //LinkedHashMap methods = [:]
 
         println "### Loading IO State Files ..."
 
@@ -157,8 +165,8 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 if (tmp[1] == 'json' && fileChar1== "n") {
                     try{
                         JSONObject json = JSON.parse(file.text)
-                        methods[json.NAME.toString()] = parseJson(json.NAME.toString(), json, applicationContext)
-
+                        //methods[json.NAME.toString()] = parseJson(json.NAME.toString(), json, applicationContext)
+                        parseJson(json.NAME.toString(), json, applicationContext)
                     }catch(Exception e){
                         throw new Exception("[ApiObjectService :: initialize] : Unacceptable file '${file.name}' - full stack trace follows:",e)
                     }
@@ -288,7 +296,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         }
 	}
 
-    LinkedHashMap parseJson(String apiName,JSONObject json, ApplicationContext applicationContext){
+    void parseJson(String apiName,JSONObject json, ApplicationContext applicationContext){
         def apiCacheService = applicationContext.getBean("apiCacheService")
         apiCacheService.flushAllApiCache()
 
@@ -360,7 +368,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             }
 
         }
-        return methods
+        //return methods
     }
 
     private ApiDescriptor createApiDescriptor(String apiname,String apiMethod, String apiDescription, List apiRoles, List batchRoles, List hookRoles, String uri, JSONObject values, JSONObject json){
