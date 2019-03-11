@@ -1,8 +1,9 @@
 
 ![alt text](https://github.com/orubel/logos/blob/master/beapi_logo_large.png)
 # BeApi(tm) Api Framework ( https://www.beapi.io/ )
-## Recent version release : [0.9.61](http://dl.bintray.com/nosegrind/plugins/org/grails/plugins/api-framework/)
+## Recent Stable Release : [0.9.7](http://dl.bintray.com/orubel/plugins/org/grails/plugins/api-framework/)
 ## Documentation/Installation - https://www.beapi.io/documentation
+## Forums - http://beapi.freeforums.net/
 
 ### Backend Implementation - https://github.com/orubel/beapi_backend
 ### Frontend Implementation - https://github.com/orubel/beapi_frontend
@@ -37,13 +38,31 @@ The BeAPI Framework is a full featured reactive api framework providing automati
 
 ### FAQ
 
-**Q: How hard is this to implement?**
+**Q: How hard is this to implement?**  
 **A:** BeApi is 'Plug-N-Play'. Merely install the plugin and it takes care of the 'REST'. The only thing you have to do is build an IO state file for each controller or use the built in bootstrap command:
 ```
 ./gradlew GenerateIostate
 ```
 This enables us to separate all IO data from functionality so it can be shared with other services in the architecture.
 
-**Q: How do I implement the listener for IO state webhook on my proxy/Message queue?**
+**Q: Why am I getting the error "DisconnectableInputStream source reader" when I build the example project?**  
+**A:** This is actually nothing to worry about as it is a known Gradle issue that does not affect the project. The following error:
+```
+Exception in thread "DisconnectableInputStream source reader" org.gradle.api.UncheckedIOException: java.io.IOException: Resource temporarily unavailable
+        at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:43)
+        at org.gradle.util.DisconnectableInputStream$1.run(DisconnectableInputStream.java:125)
+        at java.lang.Thread.run(Thread.java:748)
+Caused by: java.io.IOException: Resource temporarily unavailable
+        at java.io.FileInputStream.readBytes(Native Method)
+        at java.io.FileInputStream.read(FileInputStream.java:255)
+        at java.io.BufferedInputStream.fill(BufferedInputStream.java:246)
+        at java.io.BufferedInputStream.read1(BufferedInputStream.java:286)
+        at java.io.BufferedInputStream.read(BufferedInputStream.java:345)
+        at org.gradle.util.DisconnectableInputStream$1.run(DisconnectableInputStream.java:96)
+        ... 1 more
+```
+... Will be see on every build and is caused by a known Gradle bug. This is fixed in later versions but not in the version built into Grails. It does not affect the build and is nothing to be concerned with.
+
+**Q: How do I implement the listener for IO state webhook on my proxy/Message queue?**  
 **A:** It merely requires an endpoint to send the data to. As a side project, I may actually supply a simple daemon in the future with ehCache to do this for people.
 
