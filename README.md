@@ -39,11 +39,10 @@ The BeAPI Framework is a full featured reactive api framework providing automati
 ### FAQ
 
 **Q: How hard is this to implement?**  
-**A:** BeApi is 'Plug-N-Play'. Merely install the plugin and it takes care of the 'REST'. The only thing you have to do is build an IO state file for each controller or use the built in bootstrap command:
+**A:** BeApi is 'Plug-N-Play'. Merely install the plugin and it takes care of the 'REST'. Implementing in your project is as simple as a one line command:
 ```
-./gradlew GenerateIostate
+grails create-app <name of your app> --profile org.grails.profiles:beapi:1.0.0
 ```
-This enables us to separate all IO data from functionality so it can be shared with other services in the architecture.
 
 **Q: Why am I getting the error "DisconnectableInputStream source reader" when I build the example project?**  
 **A:** This is actually nothing to worry about as it is a known Gradle issue that does not affect the project. The following error:
