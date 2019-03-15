@@ -151,7 +151,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
      * @param ApplicationContext context for application
      */
     private parseFiles(String path, ApplicationContext applicationContext){
-        //LinkedHashMap methods = [:]
+        LinkedHashMap methods = [:]
 
         println "### Loading IO State Files ..."
 
@@ -165,8 +165,8 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 if (tmp[1] == 'json' && fileChar1== "n") {
                     try{
                         JSONObject json = JSON.parse(file.text)
-                        //methods[json.NAME.toString()] = parseJson(json.NAME.toString(), json, applicationContext)
-                        parseJson(json.NAME.toString(), json, applicationContext)
+                        methods[json.NAME.toString()] = parseJson(json.NAME.toString(), json, applicationContext)
+                        //parseJson(json.NAME.toString(), json, applicationContext)
                     }catch(Exception e){
                         throw new Exception("[ApiObjectService :: initialize] : Unacceptable file '${file.name}' - full stack trace follows:",e)
                     }
@@ -296,7 +296,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         }
 	}
 
-    void parseJson(String apiName,JSONObject json, ApplicationContext applicationContext){
+    LinkedHashMap parseJson(String apiName,JSONObject json, ApplicationContext applicationContext){
         def apiCacheService = applicationContext.getBean("apiCacheService")
         apiCacheService.flushAllApiCache()
 
@@ -368,7 +368,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             }
 
         }
-        //return methods
+        return methods
     }
 
     private ApiDescriptor createApiDescriptor(String apiname,String apiMethod, String apiDescription, List apiRoles, List batchRoles, List hookRoles, String uri, JSONObject values, JSONObject json){

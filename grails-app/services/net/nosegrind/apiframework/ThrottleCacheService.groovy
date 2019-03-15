@@ -59,6 +59,10 @@ class ThrottleCacheService{
 		try{
 			def cache = getLimitCache(userId)
 			cache['rateLimitCurrent']++
+
+			// send via webhook to subscribing services
+			List servers = grailsApplication.config.apitoolkit.secondaryServers
+
 			return cache
 		}catch(Exception e){
 			throw new Exception("[ThrottleCacheService :: incrementThrottleCache] : Exception - full stack trace follows:",e)

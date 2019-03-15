@@ -1,10 +1,6 @@
 package net.nosegrind.apiframework
 
-import grails.converters.JSON
-import grails.converters.XML
-import org.grails.validation.routines.UrlValidator
-import org.grails.core.artefact.DomainClassArtefactHandler
-import grails.core.GrailsDomainClass
+
 import static groovyx.gpars.GParsPool.withPool
 import grails.util.Holders
 import grails.core.GrailsApplication
@@ -153,7 +149,7 @@ class HookService {
 				out.close()
 
 				int code =  myConn.getResponseCode()
-				myConn.diconnect()
+				myConn.disconnect()
 
 				return code
 			}catch (Exception e){
