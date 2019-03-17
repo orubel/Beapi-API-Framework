@@ -12,8 +12,8 @@ class ApidocController {
 		redirect(action:'show')
 	}
 
-	LinkedHashMap show(){
-		Map docs = [:]
+	HashMap show(){
+		HashMap docs = [:]
 		
 		grailsApplication.controllerClasses.each { DefaultGrailsControllerClass controllerClass ->
 			String controllername = controllerClass.logicalPropertyName

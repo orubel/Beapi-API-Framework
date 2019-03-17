@@ -29,6 +29,8 @@ import java.util.jar.JarFile
 import java.util.jar.JarException
 import java.util.jar.JarEntry
 
+import grails.util.Metadata
+
 /**
  * Plugin class for BeAPI API Framework
  */
@@ -121,11 +123,12 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     void doWithApplicationContext() {
 
         // Delegate OPTIONS requests to controllers
-        //try{
+        try{
             applicationContext.dispatcherServlet.setDispatchOptionsRequest(true)
 
             String basedir = BuildSettings.BASE_DIR
             String apiObjectSrc = "${System.properties.'user.home'}/${grails.util.Holders.grailsApplication.config.iostate.preloadDir}"
+
 
             def ant = new AntBuilder()
 
@@ -140,9 +143,9 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             statsService.flushAllStatsCache()
 
             parseFiles(apiObjectSrc.toString(), applicationContext)
-        //}catch(Exception e){
-        //    throw new Exception("[BeAPIFramework] : Cannot set system properties :",e)
-        //}
+        }catch(Exception e){
+            throw new Exception("[BeAPIFramework] : Cannot set system properties :",e)
+        }
     }
 
     /**

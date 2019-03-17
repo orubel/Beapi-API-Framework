@@ -16,13 +16,13 @@ class ServerController {
 
     def pingService
 
-    LinkedHashMap pingServers(){
-        LinkedHashMap servers = pingService.send()
+    HashMap pingServers(){
+        HashMap servers = pingService.send()
 
         return [server: [servers:servers]]
     }
 
-    LinkedHashMap ping(){
+    HashMap ping(){
         return [server:[ping:true]]
     }
 

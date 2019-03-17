@@ -38,9 +38,9 @@ class PingService {
      * @param String data to be sent to all subscribers
      * @return
      */
-    private LinkedHashMap send() {
+    private HashMap send() {
         List servers = Holders.grailsApplication.config.apitoolkit.secondaryServer as List
-        LinkedHashMap results = [:]
+        HashMap results = [:]
         HttpServletRequest request = getRequest()
 
         withPool(this.cores) { pool ->

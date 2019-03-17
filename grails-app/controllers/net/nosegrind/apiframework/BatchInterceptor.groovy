@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse
 import groovy.transform.CompileStatic
 import org.springframework.http.HttpStatus
 import groovy.json.JsonSlurper
+import javax.servlet.http.HttpSession
 
 @CompileStatic
 class BatchInterceptor extends ApiCommLayer{
@@ -82,7 +83,7 @@ class BatchInterceptor extends ApiCommLayer{
 
 
 		// INITIALIZE CACHE
-		def session = request.getSession()
+		HttpSession session = request.getSession()
 		cache = session['cache'] as LinkedHashMap
 
 		if(cache) {
@@ -147,6 +148,7 @@ class BatchInterceptor extends ApiCommLayer{
 
 				// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
 				LinkedHashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as LinkedHashMap
+
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
 				if (!checkURIDefinitions(params, receives)) {
 					render(status: HttpStatus.BAD_REQUEST.value(), text: 'Expected request variables for endpoint do not match sent variables')
@@ -220,7 +222,7 @@ class BatchInterceptor extends ApiCommLayer{
 
 		try{
 			String format = request.format.toUpperCase()
-			LinkedHashMap newModel = [:]
+			HashMap newModel = [:]
 
 			if (!model) {
 				render(status:HttpServletResponse.SC_NOT_FOUND , text: 'No resource returned')

@@ -8,7 +8,7 @@ class StatsController{
 	def springSecurityService
 	def statsService
 
-	LinkedHashMap show() {
+	HashMap show() {
 		Integer time = System.currentTimeMillis()
 		Integer day = (Integer) time/((1000*60*60*24)+1)
 		switch(params.type){

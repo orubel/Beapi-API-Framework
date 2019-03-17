@@ -9,7 +9,7 @@ class IostateController {
 	def apiCacheService
 	def webhookService
 
-	LinkedHashMap update() {
+	HashMap update() {
 		if(isSuperuser()){
 		    def file = request.getFile('iostate')
 		    
@@ -25,7 +25,7 @@ class IostateController {
 			}
 			
 			def cache = apiCacheService.getApiCache(json.NAME)
-			LinkedHashMap model = [name:cache.name,cacheversion:cache.cacheversion]
+			HashMap model = [name:cache.name,cacheversion:cache.cacheversion]
 			webhookService.postData('Iostate', model,'update')
 			return ['iostate':model]
 		}

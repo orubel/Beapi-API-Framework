@@ -2,30 +2,20 @@ package net.nosegrind.apiframework
 
 import javax.annotation.Resource
 import grails.core.GrailsApplication
-//import net.nosegrind.apiframework.ApiDescriptor
 import grails.plugin.springsecurity.SpringSecurityService
 
-//import net.nosegrind.apiframework.RequestMethod
-
-import javax.servlet.ServletInputStream
-import com.google.common.io.CharStreams
-import groovy.json.JsonSlurper
-import java.io.InputStreamReader
-
 import grails.util.Metadata
-//import groovy.json.internal.LazyMap
 import grails.converters.JSON
 import grails.converters.XML
 import org.grails.web.json.JSONObject
 
 import grails.util.Holders
-//import javax.servlet.http.HttpServletRequest
+
 import javax.servlet.http.HttpServletResponse
 import groovy.transform.CompileStatic
 import org.springframework.http.HttpStatus
 import net.nosegrind.apiframework.HookService
 import net.nosegrind.apiframework.StatsService
-import org.springframework.web.context.request.RequestContextHolder as RCH
 import javax.servlet.http.HttpSession
 
 /**
@@ -34,7 +24,7 @@ import javax.servlet.http.HttpSession
  *
  *
  * @see ApiCommLayer
- * @see BatchkInterceptor
+ * @see BatchInterceptor
  * @see ChainInterceptor
  *
  */
@@ -114,7 +104,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		}
 
 		// INITIALIZE CACHE
-		def session = request.getSession()
+		HttpSession session = request.getSession()
+
 		cache = session['cache'] as LinkedHashMap
 
 		if(cache) {
@@ -168,7 +159,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					}
 				}
 
-				LinkedHashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as LinkedHashMap
+				HashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as HashMap
 				cacheHash = createCacheHash(params, receives)
 
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
@@ -193,9 +184,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							return false
 						} else {
 							Set keys = json.keySet()
-							def temp = keys.iterator().next()
-
-							def first = json.get(temp)
+							String temp = keys.iterator().next()
+							Boolean first = json.get(temp)
 
 							// is a List of objects
 							if (first instanceof JSONObject && first.size() > 0 && !first.isEmpty()) {
@@ -298,10 +288,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 		if(model) {
 			List unsafeMethods = ['PUT', 'POST', 'DELETE']
-			def vals = model.values()
-
+			Object vals = model.values()
 			try {
-				LinkedHashMap newModel = [:]
+				HashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
 						//statsService.setStatsCache(getUserId(), HttpServletResponse.SC_NOT_FOUND)

@@ -131,7 +131,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
      * @param params
      * @return
      */
-    def handleApiResponse(LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model, GrailsParameterMap params){
+    String handleApiResponse(LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, HashMap model, GrailsParameterMap params){
 
         try{
             String content
@@ -152,7 +152,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
 
                 responseList = (ArrayList)temp?.collect(){ if(it!=null){it.name} }
 
-                LinkedHashMap result = parseURIDefinitions(model, responseList)
+                HashMap result = parseURIDefinitions(model, responseList)
                 // will parse empty map the same as map with content
 
                 content = parseResponseMethod(mthd, format, params, result)
@@ -176,7 +176,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
      * @param params
      * @return
      */
-    def handleBatchResponse(LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model, GrailsParameterMap params){
+    def handleBatchResponse(LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, HashMap model, GrailsParameterMap params){
         try{
             String authority = getUserRole() as String
             response.setHeader('Authorization', roles.join(', '))
@@ -184,7 +184,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
             ArrayList<LinkedHashMap> temp = (requestDefinitions[authority.toString()])?requestDefinitions[authority.toString()] as ArrayList<LinkedHashMap>:requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
             ArrayList responseList = (ArrayList)temp.collect(){ it.name }
 
-            LinkedHashMap result = parseURIDefinitions(model,responseList)
+            HashMap result = parseURIDefinitions(model,responseList)
 
             // TODO : add combine functionality for batching
             //if(params?.apiBatch.combine=='true'){
@@ -213,7 +213,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
      * @param params
      * @return
      */
-    def handleChainResponse(LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model, GrailsParameterMap params){
+    def handleChainResponse(LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, HashMap model, GrailsParameterMap params){
         try{
             String authority = getUserRole() as String
             response.setHeader('Authorization', roles.join(', '))
@@ -222,7 +222,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
 
             ArrayList responseList = (ArrayList)temp.collect(){ it.name }
 
-            LinkedHashMap result = parseURIDefinitions(model,responseList)
+            HashMap result = parseURIDefinitions(model,responseList)
             LinkedHashMap chain = params.apiChain as LinkedHashMap
 
             if (chain?.combine == 'true') {

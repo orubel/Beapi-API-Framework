@@ -211,7 +211,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 					setChainParams(params)
 
 					// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
-					LinkedHashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as LinkedHashMap
+					HashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as HashMap
 					cacheHash = createCacheHash(params, receives)
 
 					//boolean requestKeysMatch = checkURIDefinitions(params, receives)
@@ -278,7 +278,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 		int chainInc = (int) request.getAttribute('chainInc')
 
 		try{
-			LinkedHashMap newModel = [:]
+			HashMap newModel = [:]
 
 			if (!model) {
 				render(status:HttpServletResponse.SC_NOT_FOUND , text: 'No resource returned')

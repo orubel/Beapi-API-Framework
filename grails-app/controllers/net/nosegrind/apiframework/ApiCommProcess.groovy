@@ -26,6 +26,9 @@ import javax.servlet.http.HttpServletRequest
 import com.google.common.hash.Hashing
 import java.nio.charset.StandardCharsets
 
+import org.grails.core.DefaultGrailsDomainClass
+import grails.orm.HibernateCriteriaBuilder
+
 /**
  *
  * This abstract provides Common API Methods used by APICommLayer and those that extend it
@@ -101,7 +104,7 @@ abstract class ApiCommProcess{
      * against endpoint 'roles' if no 'loggedIn' user is found
      * @see #checkURIDefinitions(GrailsParameterMap,LinkedHashMap)
      * @see #checkLimit(int)
-     * @see ApiCommLayer#handleApiResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, LinkedHashMap, GrailsParameterMap)
+     * @see ApiCommLayer#handleApiResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, HashMap, GrailsParameterMap)
      * @return a String of the Role of current principal (logged in user)
      */
     String getUserRole() {
@@ -160,7 +163,7 @@ abstract class ApiCommProcess{
      * @param LinkedHashMap map of variables defining endpoint request variables
      * @return returns false if request variable keys do not match expected endpoint keys
      */
-    boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions){
+    boolean checkURIDefinitions(GrailsParameterMap params,HashMap requestDefinitions){
         ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','apiResult','combine','_','batch','max','offset']
         try {
             String authority = getUserRole() as String
@@ -176,7 +179,7 @@ abstract class ApiCommProcess{
             if (requestList.contains('*')) {
                 return true
             } else {
-                LinkedHashMap methodParams = getMethodParams(params)
+                HashMap methodParams = getMethodParams(params)
                 ArrayList paramsList = methodParams.keySet() as ArrayList
                 // remove reservedNames from List
 
@@ -204,10 +207,10 @@ abstract class ApiCommProcess{
      * @param RequestMethod mthd
      * @param String format
      * @param GrailsParameterMap Map of params created from the request data
-     * @param LinkedHashMap result
+     * @param HashMap result
      * @return
      */
-    String parseResponseMethod(RequestMethod mthd, String format, GrailsParameterMap params, LinkedHashMap result){
+    String parseResponseMethod(RequestMethod mthd, String format, GrailsParameterMap params, HashMap result){
         String content
         switch(mthd.getKey()) {
             case 'PURGE':
@@ -239,12 +242,15 @@ abstract class ApiCommProcess{
         return content
     }
 
-    LinkedHashMap parseBatchResponseMethod(RequestMethod mthd, String format, LinkedHashMap result){
-        LinkedHashMap content
+    HashMap parseBatchResponseMethod(RequestMethod mthd, String format, HashMap result){
+        HashMap content
         switch(mthd.getKey()) {
             case 'GET':
+                // placeholder
             case 'PUT':
+                // placeholder
             case 'POST':
+                // placeholder
             case 'DELETE':
                 content = result
                 break
@@ -283,16 +289,16 @@ abstract class ApiCommProcess{
     }
 
     /**
-     * Given the returning resource and a list of response variables, creates and returns a LinkedHashMap from request params sent that match endpoint params
-     * @see ApiCommLayer#handleApiResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, LinkedHashMap, GrailsParameterMap)
-     * @see ApiCommLayer#handleBatchResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, LinkedHashMap, GrailsParameterMap)
-     * @see ApiCommLayer#handleChainResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, LinkedHashMap, GrailsParameterMap)
-     * @param LinkedHashMap model
+     * Given the returning resource and a list of response variables, creates and returns a HashMap from request params sent that match endpoint params
+     * @see ApiCommLayer#handleApiResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, HashMap, GrailsParameterMap)
+     * @see ApiCommLayer#handleBatchResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, HashMap, GrailsParameterMap)
+     * @see ApiCommLayer#handleChainResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, HashMap, GrailsParameterMap)
+     * @param HashMap model
      * @param ArrayList responseList
      * @return
      */
-    LinkedHashMap parseURIDefinitions(LinkedHashMap model,ArrayList responseList){
-        if(model[0].getClass().getName()=='java.util.LinkedHashMap') {
+    HashMap parseURIDefinitions(HashMap model,ArrayList responseList){
+        if(model[0].getClass().getName()=='java.util.HashMap') {
             model.each() { key, val ->
                 model[key] = parseURIDefinitions(val, responseList)
             }
@@ -357,14 +363,14 @@ abstract class ApiCommProcess{
 
 
     /**
-     * Given the request params, returns a parsed LinkedHashMap of all request params NOT found in optionalParams List
-     * @see checkURIDefinitions(GrailsParameterMap,LinkedHashMap)
+     * Given the request params, returns a parsed HashMap of all request params NOT found in optionalParams List
+     * @see checkURIDefinitions(GrailsParameterMap,HashMap)
      * @param GrailsParameterMap Map of params created from the request data
      * @return
      */
-    LinkedHashMap getMethodParams(GrailsParameterMap params){
+    HashMap getMethodParams(GrailsParameterMap params){
         try{
-            LinkedHashMap paramsRequest = [:]
+            HashMap paramsRequest = [:]
             paramsRequest = params.findAll { it2 -> !optionalParams.contains(it2.key) }
             return paramsRequest
         }catch(Exception e){
@@ -388,11 +394,13 @@ abstract class ApiCommProcess{
 
 
     /**
-     * Given a LinkedHashMap, parses and return a JSON String;
+     * Given a HashMap, parses and return a JSON String;
+     * @deprecated
      * @see #getApiDoc
-     * @param LinkedHashMap returns
+     * @param HashMap returns
      * @return
      */
+    /*
     private String processJson(LinkedHashMap returns){
         // TODO: Need to compare multiple authorities
         try{
@@ -441,10 +449,10 @@ abstract class ApiCommProcess{
             throw new Exception("[ApiCommProcess :: processJson] : Exception - full stack trace follows:",e)
         }
     }
-
+    */
 
     /**
-     * Given a Map, will process cased on type of object and return a LinkedHashMap;
+     * Given a Map, will process cased on type of object and return a HashMap;
      * Called by the PostHandler
      * @see ApiFrameworkInterceptor#after()
      * @see BatchInterceptor#after()
@@ -452,9 +460,9 @@ abstract class ApiCommProcess{
      * @param Map map
      * @return
      */
-    LinkedHashMap convertModel(Map map){
+    HashMap convertModel(Map map){
         try{
-            LinkedHashMap newMap = [:]
+            HashMap newMap = [:]
             String k = map.entrySet().toList().first().key
 
             if(map && (!map?.response && !map?.metaClass && !map?.params)){
@@ -464,7 +472,7 @@ abstract class ApiCommProcess{
                 } else if(['class java.util.LinkedList', 'class java.util.ArrayList'].contains(map[k].getClass().toString())) {
                     newMap = formatList(map[k])
                     return newMap
-                } else if(['class java.util.Map', 'class java.util.LinkedHashMap'].contains(map[k].getClass().toString())) {
+                } else if(['class java.util.Map', 'class java.util.LinkedHashMap','class java.util.HashMap'].contains(map[k].getClass().toString())) {
                     newMap = formatMap(map[k])
                     return newMap
                 }
@@ -477,22 +485,23 @@ abstract class ApiCommProcess{
 
 
     /**
-     * Given an Object detected as a DomainObject, processes in a standardized format and returns a LinkedHashMap;
+     * Given an Object detected as a DomainObject, processes in a standardized format and returns a HashMap;
      * Used by convertModel and called by the PostHandler
      * @see #convertModel(Map)
      * @param Object data
      * @return
      */
-    LinkedHashMap formatDomainObject(Object data){
+    HashMap formatDomainObject(Object data){
         try {
-            LinkedHashMap newMap = [:]
+            HashMap newMap = [:]
 
             newMap.put('id', data?.id)
             newMap.put('version', data?.version)
 
             //DefaultGrailsDomainClass d = new DefaultGrailsDomainClass(data.class)
 
-            def d = grailsApplication?.getArtefact(DomainClassArtefactHandler.TYPE, data.class.getName())
+            DefaultGrailsDomainClass d = grailsApplication?.getArtefact(DomainClassArtefactHandler.TYPE, data.class.getName())
+
             if (d!=null) {
                 // println("PP:"+d.persistentProperties)
                 d?.persistentProperties?.each(){ it ->
@@ -519,8 +528,8 @@ abstract class ApiCommProcess{
      * @param LinkedHashMap map
      * @return
      */
-    LinkedHashMap formatMap(LinkedHashMap map){
-        LinkedHashMap newMap = [:]
+    HashMap formatMap(HashMap map){
+        HashMap newMap = [:]
         if(map) {
             map.each() { key, val ->
                 if (val) {
@@ -540,14 +549,14 @@ abstract class ApiCommProcess{
 
 
     /**
-     * Given a List detected as a List, processes in a standardized format and returns a LinkedHashMap;
+     * Given a List detected as a List, processes in a standardized format and returns a HashMap;
      * Used by convertModel and called by the PostHandler
      * @see #convertModel(Map)
      * @param ArrayList list
      * @return
      */
-    LinkedHashMap formatList(List list){
-        LinkedHashMap newMap = [:]
+    HashMap formatList(List list){
+        HashMap newMap = [:]
         if(list) {
             list.eachWithIndex() { val, key ->
                 if (val) {
@@ -576,10 +585,12 @@ abstract class ApiCommProcess{
      * @return
      */
     boolean isCachedResult(Integer version, String className){
+
         Class clazz = grailsApplication.domainClasses.find { it.clazz.simpleName == className }.clazz
 
-        def c = clazz.createCriteria()
-        def currentVersion = c.get {
+        HibernateCriteriaBuilder c = clazz.createCriteria()
+
+        Long currentVersion = c.get {
             projections {
                 property('version')
             }
@@ -641,9 +652,9 @@ abstract class ApiCommProcess{
      * @return
      */
     boolean checkLimit(int contentLength){
-        LinkedHashMap throttle = Holders.grailsApplication.config.apitoolkit.throttle as LinkedHashMap
-        LinkedHashMap rateLimit = throttle.rateLimit as LinkedHashMap
-        LinkedHashMap dataLimit = throttle.dataLimit as LinkedHashMap
+        HashMap throttle = Holders.grailsApplication.config.apitoolkit.throttle as HashMap
+        HashMap rateLimit = throttle.rateLimit as HashMap
+        HashMap dataLimit = throttle.dataLimit as HashMap
         ArrayList roles = rateLimit.keySet() as ArrayList
         String auth = getUserRole()
 
@@ -707,7 +718,7 @@ abstract class ApiCommProcess{
      * @param LinkedHashMap List of ids required when making request to endpoint
      * @return a hash from all id's needed when making request to endpoint
      */
-    String createCacheHash(GrailsParameterMap params, LinkedHashMap receives){
+    String createCacheHash(GrailsParameterMap params, HashMap receives){
         String hashString = ''
         String authority = getUserRole() as String
         ArrayList temp = []
