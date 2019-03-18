@@ -139,7 +139,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					String result = parseRequestMethod(mthd, params)
 
 					if (result) {
-						byte[] contentLength = result.getBytes("ISO-8859-1")
+						byte[] contentLength = result.getBytes('ISO-8859-1')
 
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
@@ -159,7 +159,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					}
 				}
 
-				HashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as HashMap
+				LinkedHashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as LinkedHashMap
 				cacheHash = createCacheHash(params, receives)
 
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
@@ -185,18 +185,18 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						} else {
 							Set keys = json.keySet()
 							String temp = keys.iterator().next()
-							Boolean first = json.get(temp)
+							boolean first = json.get(temp)
 
 							// is a List of objects
 							if (first instanceof JSONObject && first.size() > 0 && !first.isEmpty()) {
 
 								JSONObject jsonObj = ((JSONObject) json.get('0'))
-								Integer version = jsonObj.get('version') as Integer
+								int version = jsonObj.get('version') as Integer
 
 								if (isCachedResult((Integer) version, domain)) {
 									LinkedHashMap result = cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash][authority][format] as LinkedHashMap
 									String content = new groovy.json.JsonBuilder(result).toString()
-									byte[] contentLength = content.getBytes("ISO-8859-1")
+									byte[] contentLength = content.getBytes('ISO-8859-1')
 									if (apiThrottle) {
 										if (checkLimit(contentLength.length)) {
 											//statsService.setStatsCache(getUserId(), response.status)
@@ -219,7 +219,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 									if (isCachedResult((Integer) json.get('version'), domain)) {
 										LinkedHashMap result = cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash][authority][format] as LinkedHashMap
 										String content = new groovy.json.JsonBuilder(result).toString()
-										byte[] contentLength = content.getBytes("ISO-8859-1")
+										byte[] contentLength = content.getBytes('ISO-8859-1')
 										if (apiThrottle) {
 											if (checkLimit(contentLength.length)) {
 												//statsService.setStatsCache(getUserId(), response.status)
@@ -254,7 +254,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							params.action = mthd.toString()
 
 							// FORWARD FOR REST DEFAULTS WITH NO ACTION
-							String[] tempUri = request.getRequestURI().split("/")
+							String[] tempUri = request.getRequestURI().split('/')
 							if (tempUri[2].contains('dispatch') && "${params.controller}.dispatch" == tempUri[2] && !cache[params.apiObject]['domainPackage']) {
 								forward(controller: params.controller, action: params.action)
 								return false
@@ -274,7 +274,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 			return false
 
 		}catch(Exception e){
-			throw new Exception("[ApiToolkitFilters :: preHandler] : Exception - full stack trace follows:", e)
+			throw new Exception('[ApiToolkitFilters :: preHandler] : Exception - full stack trace follows:', e)
 			return false
 		}
 	}
@@ -290,7 +290,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 			List unsafeMethods = ['PUT', 'POST', 'DELETE']
 			Object vals = model.values()
 			try {
-				HashMap newModel = [:]
+				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
 						//statsService.setStatsCache(getUserId(), HttpServletResponse.SC_NOT_FOUND)
@@ -315,7 +315,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 					String content = handleApiResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, response, newModel, params)
 
-					byte[] contentLength = content.getBytes("ISO-8859-1")
+					byte[] contentLength = content.getBytes('ISO-8859-1')
 					if (content) {
 
 						// STORE CACHED RESULT

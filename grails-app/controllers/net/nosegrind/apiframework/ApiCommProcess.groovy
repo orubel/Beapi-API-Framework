@@ -54,7 +54,7 @@ abstract class ApiCommProcess{
     List formats = ['text/json','application/json','text/xml','application/xml']
     List optionalParams = ['method','format','contentType','encoding','action','controller','v','apiCombine', 'apiObject','entryPoint','uri']
 
-    Integer cores = Holders.grailsApplication.config.apitoolkit.procCores as Integer
+    int cores = Holders.grailsApplication.config.apitoolkit.procCores as Integer
 
     boolean batchEnabled = Holders.grailsApplication.config.apitoolkit.batching.enabled
     boolean chainEnabled = Holders.grailsApplication.config.apitoolkit.chaining.enabled
@@ -163,7 +163,7 @@ abstract class ApiCommProcess{
      * @param LinkedHashMap map of variables defining endpoint request variables
      * @return returns false if request variable keys do not match expected endpoint keys
      */
-    boolean checkURIDefinitions(GrailsParameterMap params,HashMap requestDefinitions){
+    boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions){
         ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','apiResult','combine','_','batch','max','offset']
         try {
             String authority = getUserRole() as String
@@ -179,7 +179,7 @@ abstract class ApiCommProcess{
             if (requestList.contains('*')) {
                 return true
             } else {
-                HashMap methodParams = getMethodParams(params)
+                LinkedHashMap methodParams = getMethodParams(params)
                 ArrayList paramsList = methodParams.keySet() as ArrayList
                 // remove reservedNames from List
 
@@ -210,7 +210,7 @@ abstract class ApiCommProcess{
      * @param HashMap result
      * @return
      */
-    String parseResponseMethod(RequestMethod mthd, String format, GrailsParameterMap params, HashMap result){
+    String parseResponseMethod(RequestMethod mthd, String format, GrailsParameterMap params, LinkedHashMap result){
         String content
         switch(mthd.getKey()) {
             case 'PURGE':
@@ -242,8 +242,8 @@ abstract class ApiCommProcess{
         return content
     }
 
-    HashMap parseBatchResponseMethod(RequestMethod mthd, String format, HashMap result){
-        HashMap content
+    LinkedHashMap parseBatchResponseMethod(RequestMethod mthd, String format, LinkedHashMap result){
+        LinkedHashMap content
         switch(mthd.getKey()) {
             case 'GET':
                 // placeholder
@@ -297,8 +297,8 @@ abstract class ApiCommProcess{
      * @param ArrayList responseList
      * @return
      */
-    HashMap parseURIDefinitions(HashMap model,ArrayList responseList){
-        if(model[0].getClass().getName()=='java.util.HashMap') {
+    LinkedHashMap parseURIDefinitions(LinkedHashMap model,ArrayList responseList){
+        if(model[0].getClass().getName()=='java.util.LinkedHashMap') {
             model.each() { key, val ->
                 model[key] = parseURIDefinitions(val, responseList)
             }
@@ -323,7 +323,7 @@ abstract class ApiCommProcess{
                 }
 
             } catch (Exception e) {
-                throw new Exception("[ApiCommProcess :: parseURIDefinitions] : Exception - full stack trace follows:", e)
+                throw new Exception('[ApiCommProcess :: parseURIDefinitions] : Exception - full stack trace follows:', e)
             }
         }
     }
@@ -368,13 +368,13 @@ abstract class ApiCommProcess{
      * @param GrailsParameterMap Map of params created from the request data
      * @return
      */
-    HashMap getMethodParams(GrailsParameterMap params){
+    LinkedHashMap getMethodParams(GrailsParameterMap params){
         try{
-            HashMap paramsRequest = [:]
+            LinkedHashMap paramsRequest = [:]
             paramsRequest = params.findAll { it2 -> !optionalParams.contains(it2.key) }
             return paramsRequest
         }catch(Exception e){
-            throw new Exception("[ApiCommProcess :: getMethodParams] : Exception - full stack trace follows:",e)
+            throw new Exception('[ApiCommProcess :: getMethodParams] : Exception - full stack trace follows:',e)
         }
         return [:]
     }
@@ -460,9 +460,9 @@ abstract class ApiCommProcess{
      * @param Map map
      * @return
      */
-    HashMap convertModel(Map map){
+    LinkedHashMap convertModel(Map map){
         try{
-            HashMap newMap = [:]
+            LinkedHashMap newMap = [:]
             String k = map.entrySet().toList().first().key
 
             if(map && (!map?.response && !map?.metaClass && !map?.params)){
@@ -491,9 +491,9 @@ abstract class ApiCommProcess{
      * @param Object data
      * @return
      */
-    HashMap formatDomainObject(Object data){
+    LinkedHashMap formatDomainObject(Object data){
         try {
-            HashMap newMap = [:]
+            LinkedHashMap newMap = [:]
 
             newMap.put('id', data?.id)
             newMap.put('version', data?.version)
@@ -528,8 +528,8 @@ abstract class ApiCommProcess{
      * @param LinkedHashMap map
      * @return
      */
-    HashMap formatMap(HashMap map){
-        HashMap newMap = [:]
+    LinkedHashMap formatMap(HashMap map){
+        LinkedHashMap newMap = [:]
         if(map) {
             map.each() { key, val ->
                 if (val) {
@@ -539,7 +539,7 @@ abstract class ApiCommProcess{
                     } else if (DomainClassArtefactHandler?.isDomainClass(val.getClass())) {
                         newMap[key] = formatDomainObject(val)
                     } else {
-                        newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? val : val.toString()
+                        newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || (val in java.util.Map || val in java.util.Map || val in java.util.LinkedHashMap)) ? val : val.toString()
                     }
                 }
             }
@@ -555,8 +555,8 @@ abstract class ApiCommProcess{
      * @param ArrayList list
      * @return
      */
-    HashMap formatList(List list){
-        HashMap newMap = [:]
+    LinkedHashMap formatList(List list){
+        LinkedHashMap newMap = [:]
         if(list) {
             list.eachWithIndex() { val, key ->
                 if (val) {
@@ -590,12 +590,12 @@ abstract class ApiCommProcess{
 
         HibernateCriteriaBuilder c = clazz.createCriteria()
 
-        Long currentVersion = c.get {
+        long currentVersion = c.get {
             projections {
                 property('version')
             }
             maxResults(1)
-            order("version", "desc")
+            order('version', 'desc')
         }
 
         return (currentVersion > version)?false:true
@@ -664,8 +664,8 @@ abstract class ApiCommProcess{
             def lcache = throttleCacheService.getThrottleCache(userId)
 
             if(lcache['timestamp']==null) {
-                Integer currentTime= System.currentTimeMillis() / 1000
-                Integer expires = currentTime+((Integer)Holders.grailsApplication.config.apitoolkit.throttle.expires)
+                int currentTime= System.currentTimeMillis() / 1000
+                int expires = currentTime+((Integer)Holders.grailsApplication.config.apitoolkit.throttle.expires)
                 LinkedHashMap cache = ['timestamp': currentTime, 'currentRate': 1, 'currentData':contentLength,'locked': false, 'expires': expires]
                 response.setHeader("Content-Length", "${contentLength}")
                 throttleCacheService.setThrottleCache(userId, cache)
@@ -673,16 +673,16 @@ abstract class ApiCommProcess{
             }else{
                 if(lcache['locked']==false) {
 
-                    Integer userLimit = rateLimit["${auth}"] as Integer
-                    Integer userDataLimit = dataLimit["${auth}"] as Integer
+                    int userLimit = rateLimit["${auth}"] as Integer
+                    int userDataLimit = dataLimit["${auth}"] as Integer
                     if(lcache['currentRate']>=userLimit || lcache['currentData']>=userDataLimit){
                         // TODO : check locked (and lock if not locked) and expires
-                        Integer now = System.currentTimeMillis() / 1000
+                        int now = System.currentTimeMillis() / 1000
                         if(lcache['expires']<=now){
                             currentTime= System.currentTimeMillis() / 1000
                             expires = currentTime+((Integer)Holders.grailsApplication.config.apitoolkit.throttle.expires)
                             cache = ['timestamp': currentTime, 'currentRate': 1, 'currentData':contentLength,'locked': false, 'expires': expires]
-                            response.setHeader("Content-Length", "${contentLength}")
+                            response.setHeader('Content-Length', "${contentLength}")
                             throttleCacheService.setThrottleCache(userId, cache)
                             return true
                         }else{
@@ -694,7 +694,7 @@ abstract class ApiCommProcess{
                     }else{
                         lcache['currentRate']++
                         lcache['currentData']+=contentLength
-                        response.setHeader("Content-Length", "${contentLength}")
+                        response.setHeader('Content-Length', "${contentLength}")
                         throttleCacheService.setThrottleCache(userId, lcache)
                         return true
                     }
@@ -718,7 +718,7 @@ abstract class ApiCommProcess{
      * @param LinkedHashMap List of ids required when making request to endpoint
      * @return a hash from all id's needed when making request to endpoint
      */
-    String createCacheHash(GrailsParameterMap params, HashMap receives){
+    String createCacheHash(GrailsParameterMap params, LinkedHashMap receives){
         String hashString = ''
         String authority = getUserRole() as String
         ArrayList temp = []

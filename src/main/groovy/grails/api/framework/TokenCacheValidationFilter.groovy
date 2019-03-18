@@ -96,7 +96,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
                     processFilterChain(request, response, chain, accessToken)
                 }else{
-                    log.debug("not authenticated")
+                    log.debug('not authenticated')
                     response.status = 401
                     response.setHeader('ERROR', 'Token Unauthenticated. Uauthorized Access.')
                     response.writer.flush()
@@ -134,13 +134,13 @@ class TokenCacheValidationFilter extends GenericFilterBean {
         String actualUri = request.requestURI - request.contextPath
 
         if (!active) {
-            log.debug("Token validation is disabled. Continuing the filter chain")
+            log.debug('Token validation is disabled. Continuing the filter chain')
             return
         }
 
         if (authenticationResult?.accessToken) {
             if (actualUri == validationEndpointUrl) {
-                log.debug "Validation endpoint called. Generating response."
+                log.debug 'Validation endpoint called. Generating response.'
                 authenticationSuccessHandler.onAuthenticationSuccess(request, response, authenticationResult)
             } else {
                 String entryPoint = Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)
@@ -161,7 +161,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 ApplicationContext ctx = Holders.grailsApplication.mainContext
 
                 if(ctx) {
-                    GrailsCacheManager grailsCacheManager = ctx.getBean("grailsCacheManager")
+                    GrailsCacheManager grailsCacheManager = ctx.getBean('grailsCacheManager')
                     //def temp = grailsCacheManager?.getCache('ApiCache')
 
                     LinkedHashMap cache = [:]
@@ -187,7 +187,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                         version = cache2['cacheversion']
 
                         if (!cache2?."${version}"?."${action}") {
-                            log.debug "no cache"
+                            log.debug 'no cache'
                             response.status = 401
                             response.setHeader('ERROR', 'IO State Not properly Formatted for this URI. Please contact the Administrator.')
                             //response.writer.flush()
@@ -206,21 +206,21 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
                     if (controller!='apidoc') {
                         if (!checkAuth(roles, authenticationResult)) {
-                            log.debug "no auth"
+                            log.debug 'no auth'
                             response.status = 401
                             response.setHeader('ERROR', 'Unauthorized Access attempted')
                             //response.writer.flush()
                             return
                         } else {
-                            log.debug "Continuing the filter chain"
+                            log.debug 'Continuing the filter chain'
                         }
                     }
                 }else{
-                    log.debug("no ctx found")
+                    log.debug('no ctx found')
                 }
             }
         } else {
-            log.debug("Request does not contain any token. Letting it continue through the filter chain")
+            log.debug 'Request does not contain any token. Letting it continue through the filter chain'
         }
 
         chain.doFilter(request, response)
@@ -241,7 +241,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 return false
             }
         }catch(Exception e) {
-            throw new Exception("[TokenCacheValidationFilter :: checkAuth] : Exception - full stack trace follows:",e)
+            throw new Exception('[TokenCacheValidationFilter :: checkAuth] : Exception - full stack trace follows:',e)
         }
     }
 }

@@ -40,7 +40,7 @@ class ApiTokenStorageService implements TokenStorageService {
      */
     @Override
     UserDetails loadUserByToken(String tokenValue) throws TokenNotFoundException {
-        log.debug "Finding token ${tokenValue} in GORM"
+        //log.debug "Finding token ${tokenValue} in GORM"
         def conf = SpringSecurityUtils.securityConfig
         println("loadUser:"+conf)
         String usernamePropertyName = conf.rest.token.storage.gorm.usernamePropertyName
@@ -62,8 +62,8 @@ class ApiTokenStorageService implements TokenStorageService {
      * @return
      */
     void storeToken(String tokenValue, UserDetails principal) {
-        log.debug "Storing principal for token: ${tokenValue}"
-        log.debug "Principal: ${principal}"
+        //log.debug "Storing principal for token: ${tokenValue}"
+        //log.debug "Principal: ${principal}"
 
         def conf = SpringSecurityUtils.securityConfig
         String tokenClassName = conf.rest.token.storage.gorm.tokenDomainClassName
@@ -89,7 +89,7 @@ class ApiTokenStorageService implements TokenStorageService {
      * @return
      */
     void removeToken(String tokenValue) throws TokenNotFoundException {
-        log.debug "Removing token ${tokenValue} from GORM"
+        //log.debug "Removing token ${tokenValue} from GORM"
         def conf = SpringSecurityUtils.securityConfig
         String tokenClassName = conf.rest.token.storage.gorm.tokenDomainClassName
         def existingToken = findExistingToken(tokenValue)
@@ -105,7 +105,7 @@ class ApiTokenStorageService implements TokenStorageService {
     }
 
     private findExistingToken(String tokenValue) {
-        log.debug "Searching in GORM for UserDetails of token ${tokenValue}"
+        //log.debug "Searching in GORM for UserDetails of token ${tokenValue}"
         def conf = SpringSecurityUtils.securityConfig
         String tokenClassName = conf.rest.token.storage.gorm.tokenDomainClassName
         String tokenValuePropertyName = conf.rest.token.storage.gorm.tokenValuePropertyName

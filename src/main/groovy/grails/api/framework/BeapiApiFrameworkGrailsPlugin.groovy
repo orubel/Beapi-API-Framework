@@ -35,25 +35,25 @@ import grails.util.Metadata
  * Plugin class for BeAPI API Framework
  */
 class BeapiApiFrameworkGrailsPlugin extends Plugin{
-	def version = "0.2.1.2"
-    def grailsVersion = "3.1.1 > *"
-    def title = "BeAPI Api Framework" // Headline display name of the plugin
-	def author = "Owen Rubel"
-	def authorEmail = "orubel@gmail.com"
+	def version = '0.2.1.2'
+    def grailsVersion = '3.1.1 > *'
+    def title = 'BeAPI Api Framework' // Headline display name of the plugin
+	def author = 'Owen Rubel'
+	def authorEmail = 'orubel@gmail.com'
 	def description = 'BeAPI Framework is a fully reactive plug-n-play API Framework for Distributed Architectures providing api abstraction, cached IO state, automated batching and more. It is meant to autmoate alot of the issues behind setting up and maintaining API\'s in distributed architectures as well as handling and simplifying automation.'
-	def documentation = "https://github.com/orubel/grails-api-toolkit-docs"
-	def license = "MIT"
-    def organization = [ name: "BeAPI", url: "http://www.beapi.io" ]
-    def developers = [[ name: "Owen Rubel", email: "orubel@gmail.com" ]]
+	def documentation = 'https://www.beapi.io/documentation'
+	def license = 'MIT'
+    def organization = [ name: 'BeAPI', url: 'http://www.beapi.io' ]
+    def developers = [[ name: 'Owen Rubel', email: 'orubel@gmail.com' ]]
 	def issueManagement = [system: 'GitHub', url: 'https://github.com/orubel/grails-api-toolkit-docs/issues']
 	def scm = [url: 'https://github.com/orubel/api-framework']
 	
-	def dependsOn = [cache: "* > 3.0"]
+	def dependsOn = [cache: '* > 3.0']
 	def loadAfter = ['cache']
     //def loadBefore = ['spring-boot-starter-tomcat']
 
     def pluginExcludes = [
-        "grails-app/views/error.gsp"
+        'grails-app/views/error.gsp'
     ]
     def profiles = ['web']
 
@@ -95,7 +95,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     def doWithDynamicMethods = { applicationContext ->
         // Configure servlets
         try {
-            def config = getBean("grailsApplication").config
+            def config = getBean('grailsApplication').config
             def servletContext = applicationContext.servletContext
             def serverInfo = servletContext.getServerInfo()
 
@@ -116,7 +116,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 }
             }
         }catch(Exception e){
-            throw new Exception("[BeAPIFramework] : Bad Mapping for initialization :",e)
+            throw new Exception('[BeAPIFramework] : Bad Mapping for initialization :',e)
         }
     }
 
@@ -139,12 +139,12 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
             doInitApiFrameworkInstall(applicationContext)
 
-            def statsService = applicationContext.getBean("statsService")
+            def statsService = applicationContext.getBean('statsService')
             statsService.flushAllStatsCache()
 
             parseFiles(apiObjectSrc.toString(), applicationContext)
         }catch(Exception e){
-            throw new Exception("[BeAPIFramework] : Cannot set system properties :",e)
+            throw new Exception('[BeAPIFramework] : Cannot set system properties :',e)
         }
     }
 
@@ -156,7 +156,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     private parseFiles(String path, ApplicationContext applicationContext){
         LinkedHashMap methods = [:]
 
-        println "### Loading IO State Files ..."
+        println '### Loading IO State Files ...'
 
         try {
             new File(path).eachFile() { file ->
@@ -174,11 +174,11 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                         throw new Exception("[ApiObjectService :: initialize] : Unacceptable file '${file.name}' - full stack trace follows:",e)
                     }
                 }else{
-                    println(" # Bad File Type ["+tmp[1]+"]; Ignoring file : "+fileName)
+                    println(" # Bad File Type [ ${tmp[1]} ]; Ignoring file : ${fileName}")
                 }
             }
         }catch(Exception e){
-            throw new Exception("[BeAPIFramework] : No IO State Files found for initialization :",e)
+            throw new Exception('[BeAPIFramework] : No IO State Files found for initialization :',e)
         }
     }
 
@@ -188,36 +188,36 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         def ant = new AntBuilder()
 		//basedir = basedir.substring(0,basedir.length())
 
-        println "### Installing API Framework ..."
+        println '### Installing API Framework ...'
 
         def iostateDir = "${basedir}/src/iostate/"
         def iofile = new File(iostateDir)
         if(!iofile.exists()) {
-            writeFile("templates/iostate/Apidoc.json.template", "${iostateDir}Apidoc.json")
-            writeFile("templates/iostate/Hook.json.template", "${iostateDir}Hook.json")
-            writeFile("templates/iostate/IOState.json.template", "${iostateDir}IOState.json")
-            println " ... installing IO state dir/files ..."
+            writeFile('templates/iostate/Apidoc.json.template', "${iostateDir}Apidoc.json")
+            writeFile('templates/iostate/Hook.json.template', "${iostateDir}Hook.json")
+            writeFile('templates/iostate/IOState.json.template', "${iostateDir}IOState.json")
+            println ' ... installing IO state dir/files ...'
         }
-
+/*
         def contDir = "${basedir}/grails-app/controllers/net/nosegrind/apiframework/"
         def cfile = new File(contDir)
         if(!cfile.exists()) {
             ant.mkdir(dir: contDir)
-            writeFile("templates/controllers/ApidocController.groovy.template", "${contDir}ApidocController.groovy")
-            writeFile("templates/controllers/HookController.groovy.template", "${contDir}HookController.groovy")
-            writeFile("templates/controllers/IostateController.groovy.template", "${contDir}IostateController.groovy")
-            println " ... installing Controller dir/files ..."
+            writeFile('templates/controllers/ApidocController.groovy.template', "${contDir}ApidocController.groovy")
+            writeFile('templates/controllers/HookController.groovy.template', "${contDir}HookController.groovy")
+            writeFile('templates/controllers/IostateController.groovy.template', "${contDir}IostateController.groovy")
+            println ' ... installing Controller dir/files ...'
         }
 
         def domainDir = "${basedir}/grails-app/domain/net/nosegrind/apiframework/"
         def dfile = new File(domainDir)
         if(!dfile.exists()) {
-            writeFile("templates/domains/Hook.groovy.template", "${domainDir}Hook.groovy")
-            writeFile("templates/domains/HookRole.groovy.template", "${domainDir}HookRole.groovy")
-            writeFile("templates/domains/Role.groovy.template", "${domainDir}Role.groovy")
-            println " ... installing Domain dir/files ..."
+            writeFile('templates/domains/Hook.groovy.template', "${domainDir}Hook.groovy")
+            writeFile('templates/domains/HookRole.groovy.template', "${domainDir}HookRole.groovy")
+            writeFile('templates/domains/Role.groovy.template', "${domainDir}Role.groovy")
+            println ' ... installing Domain dir/files ...'
         }
-
+*/
 
 
         if(!grailsApplication.config.apitoolkit){
@@ -256,7 +256,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         System.setProperty('isChainServer', isChainServer)
         //System.setProperty('isLocalAuth', isLocalAuth)
 
-        println  "... API Framework installed. ###"
+        println  '... API Framework installed. ###'
 	}
 
 

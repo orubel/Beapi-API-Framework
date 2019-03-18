@@ -150,69 +150,68 @@ class ApiFrameworkUrlMappings {
             }
         }
 
-        "200"{
+        '200'{
             id = '200'
             controller = "error"
         }
-        "302"{
+        '302'{
             id = '302'
             controller = "error"
         }
-        "304"{
+        '304'{
             id = '304'
             controller = "error"
         }
-        "400"{
+        '400'{
             id = '400'
             controller = "error"
         }
-        "401"{
+        '401'{
             id = '401'
             controller = "error"
         }
-        "403" {
+        '403' {
             id = '403'
             controller = "error"
         }
-        "404" {
+        '404' {
             id = '404'
             controller = "error"
         }
-        "405" {
+        '405' {
             id = '405'
             controller = "error"
         }
-        "409"{
+        '409'{
             id = '409'
             controller = "error"
         }
-        "412"{
+        '412'{
             id = '412'
             controller = "error"
         }
-        "413"{
+        '413'{
             id = '413'
             controller = "error"
         }
-        "416"{
+        '416'{
             id = '416'
             controller = "error"
         }
-        "500" {
+        '500' {
             id = '500'
             controller = "error"
         }
-        "500" {
+        '500' {
             id = '500'
             exception = NullPointerException
             controller = "error"
         }
 
-        "503"{
+        '503'{
             id = '503'
             controller = "error"
         }
-
     }
 
 }

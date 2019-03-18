@@ -222,7 +222,7 @@ class BatchInterceptor extends ApiCommLayer{
 
 		try{
 			String format = request.format.toUpperCase()
-			HashMap newModel = [:]
+			LinkedHashMap newModel = [:]
 
 			if (!model) {
 				render(status:HttpServletResponse.SC_NOT_FOUND , text: 'No resource returned')

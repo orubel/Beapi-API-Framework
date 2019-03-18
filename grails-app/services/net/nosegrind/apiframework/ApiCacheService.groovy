@@ -33,6 +33,8 @@ class ApiCacheService{
 	 */
 	GrailsCacheManager grailsCacheManager
 
+	int cores = Holders.grailsApplication.config.apitoolkit.procCores as int
+
 	/**
 	 * Constructor
 	 */
@@ -65,7 +67,7 @@ class ApiCacheService{
 	}
 
 
-	@CacheEvict(value="ApiCache",key={controllername})
+	@CacheEvict(value='ApiCache',key={controllername})
 	private void flushApiCache(String controllername){}
 
 
@@ -76,7 +78,7 @@ class ApiCacheService{
 	 * @param LinkedHashMap a map of all apidoc information for all roles which can be easily traversed
 	 * @return A LinkedHashMap of Cached data associated with controllername
 	 */
-	@CachePut(value="ApiCache",key={controllername})
+	@CachePut(value='ApiCache',key={controllername})
 	LinkedHashMap setApiCache(String controllername,LinkedHashMap apidesc){
 		return apidesc
 	}
@@ -89,7 +91,7 @@ class ApiCacheService{
 	 * @param String apiversion of current application
 	 * @return A LinkedHashMap of Cached data associated with controllername
 	 */
-	@CachePut(value="ApiCache",key={controllername})
+	@CachePut(value='ApiCache',key={controllername})
 	LinkedHashMap setApiCache(String controllername,String methodname, ApiDescriptor apidoc, String apiversion){
 		try{
 			LinkedHashMap cache = getApiCache(controllername)
@@ -128,7 +130,7 @@ class ApiCacheService{
 	 * @return A LinkedHashMap of Cached data associated with controllername
 	 */
 	// TODO: parse for XML as well
-	@CachePut(value="ApiCache",key={controllername})
+	@CachePut(value='ApiCache',key={controllername})
 	LinkedHashMap setApiCachedResult(String cacheHash, String controllername, String apiversion, String methodname, String authority, String format, String content){
 		try {
 			LinkedHashMap cachedResult = [:]
@@ -207,8 +209,8 @@ class ApiCacheService{
 						}
 					}
 
-					doc['inputjson'] = processJson(doc["receives"])
-					doc['outputjson'] = processJson(doc["returns"])
+					doc['inputjson'] = processJson(doc['receives'])
+					doc['outputjson'] = processJson(doc['returns'])
 				}
 	
 			}
@@ -260,7 +262,7 @@ class ApiCacheService{
  * TODO: Need to compare multiple authorities
  */
 	private String processJson(LinkedHashMap returns){
-		Integer cores = grailsApplication.config.apitoolkit.procCores as Integer
+		// int cores = grailsApplication.config.apitoolkit.procCores as int
 		try{
 			LinkedHashMap json = [:]
 			returns.each{ p ->
@@ -275,13 +277,13 @@ class ApiCacheService{
 							String dataName = (['PKEY', 'FKEY', 'INDEX'].contains(paramDesc?.paramType?.toString())) ? 'ID' : paramDesc.paramType
 							j = (paramDesc?.mockData?.trim()) ? ["$paramDesc.name": "$paramDesc.mockData"] : ["$paramDesc.name": "$dataName"]
 						}
-						GParsPool.withPool(cores,{
+						GParsPool.withPool(this.cores,{
 							j.eachParallel { key, val ->
 								if (val instanceof List) {
 									def child = [:]
-									withPool(cores) {
+									withPool(this.cores) {
 										val.eachParallel { it2 ->
-											withPool(cores) {
+											withPool(this.cores) {
 												it2.eachParallel { key2, val2 ->
 													child[key2] = val2
 												}
