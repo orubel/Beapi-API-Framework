@@ -70,6 +70,8 @@ class TokenCacheValidationFilter extends GenericFilterBean {
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         //println("#### TokenCacheValidationFilter ####")
 
+
+
         String actualUri = request.requestURI - request.contextPath
         List prms = actualUri.split('/')
         def cont = prms[2]
@@ -147,15 +149,19 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 String controller
                 String action
 
-                if (actualUri ==~ /\/.{0}[a-z]${entryPoint}\/(.*)/) {
-                    List params = actualUri.split('/')
-                    controller = params[2]
-                    action = params[3]
-                } else {
-                    response.status = 401
-                    response.setHeader('ERROR', 'BAD Access attempted')
-                    //response.writer.flush()
-                    return
+                switch(actualUri) {
+                    case ~/\/.{0}[a-z]${entryPoint}\/(.*)/:
+                    case ~/\/.{0}[a-z]${entryPoint}-[0-9]+\/(.*)/:
+                        List params = actualUri.split('/')
+                        controller = params[2]
+                        action = params[3]
+                        break
+                    default :
+                        println("####URI####:"+actualUri)
+                        response.status = 401
+                        response.setHeader('ERROR', 'BAD Access attempted')
+                        //response.writer.flush()
+                        return
                 }
 
                 ApplicationContext ctx = Holders.grailsApplication.mainContext

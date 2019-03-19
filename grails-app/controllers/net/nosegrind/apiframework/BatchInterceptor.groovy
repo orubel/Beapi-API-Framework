@@ -45,6 +45,7 @@ class BatchInterceptor extends ApiCommLayer{
 
 	BatchInterceptor(){
 		match(uri:"/${entryPoint}/**")
+		match(uri:"/${entryPoint}-[0-9]/**")
 	}
 
 	boolean before(){

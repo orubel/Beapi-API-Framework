@@ -61,6 +61,15 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 */
 	ApiFrameworkInterceptor(){
 		match(uri:"/${entryPoint}/**")
+		match(uri:"/${entryPoint}-1/**")
+		match(uri:"/${entryPoint}-2/**")
+		match(uri:"/${entryPoint}-3/**")
+		match(uri:"/${entryPoint}-4/**")
+		match(uri:"/${entryPoint}-5/**")
+		match(uri:"/${entryPoint}-6/**")
+		match(uri:"/${entryPoint}-7/**")
+		match(uri:"/${entryPoint}-8/**")
+		match(uri:"/${entryPoint}-9/**")
 	}
 
 	/**

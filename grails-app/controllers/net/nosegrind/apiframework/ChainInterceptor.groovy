@@ -46,6 +46,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 	ChainInterceptor(){
 		match(uri:"/${entryPoint}/**")
+		match(uri:"/${entryPoint}-[0-9]/**")
 	}
 
 	boolean before() {
