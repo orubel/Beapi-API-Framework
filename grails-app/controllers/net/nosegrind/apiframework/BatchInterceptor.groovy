@@ -20,6 +20,17 @@ import org.springframework.http.HttpStatus
 import groovy.json.JsonSlurper
 import javax.servlet.http.HttpSession
 
+
+/**
+ *
+ * HandlerInterceptor for Batch API Calls. Parses XML/JSON, handles authentication, rate limiting, caching, and statistics reporting
+ * @author Owen Rubel
+ *
+ * @see ApiCommLayer
+ * @see BatchInterceptor
+ * @see ChainInterceptor
+ *
+ */
 @CompileStatic
 class BatchInterceptor extends ApiCommLayer{
 

@@ -11,6 +11,7 @@ import grails.compiler.GrailsCompileStatic
  *
  * This abstract provides basic communication logic for prehandling/posthandling and to simplify/standardize processing of
  * the request/response.
+ * @author Owen Rubel
  *
  * @see ApiFrameworkInterceptor
  * @see BatchkInterceptor

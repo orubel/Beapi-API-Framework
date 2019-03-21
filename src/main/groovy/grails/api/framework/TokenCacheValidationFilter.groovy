@@ -46,9 +46,15 @@ import grails.util.Holders
 import javax.servlet.http.HttpSession
 import org.springframework.web.context.request.RequestContextHolder as RCH
 import org.grails.plugin.cache.GrailsCacheManager
+import grails.compiler.GrailsCompileStatic
 
-@Slf4j
-//@CompileStatic
+/**
+ * Filter for validation of token send through the request.
+ *
+ * @author Owen Rubel
+ */
+
+@GrailsCompileStatic
 class TokenCacheValidationFilter extends GenericFilterBean {
 
     String headerName
@@ -66,26 +72,27 @@ class TokenCacheValidationFilter extends GenericFilterBean {
     Boolean enableAnonymousAccess
     GrailsCacheManager grailsCacheManager
 
-    @Override
+    //@Override
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         //println("#### TokenCacheValidationFilter ####")
 
+        HttpServletRequest httpRequest = request as HttpServletRequest
+        HttpServletResponse httpResponse = response as HttpServletResponse
 
-
-        String actualUri = request.requestURI - request.contextPath
-        List prms = actualUri.split('/')
+        String actualUri = httpRequest.requestURI - httpRequest.contextPath
+        String[] prms = actualUri.split('/')
         def cont = prms[2]
         def act = prms[3]
 
 
-        //HttpServletRequest httpRequest = request as HttpServletRequest
-        //HttpServletResponse httpResponse = response as HttpServletResponse
+
+
         AccessToken accessToken
 
         try {
-            accessToken = tokenReader.findToken(request)
+            accessToken = tokenReader.findToken(httpRequest)
             if (accessToken) {
-                log.debug "Token found: ${accessToken.accessToken}"
+                //log.debug "Token found: ${accessToken.accessToken}"
 
                 accessToken = restAuthenticationProvider.authenticate(accessToken) as AccessToken
 
@@ -96,30 +103,30 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
                     //authenticationEventPublisher.publishAuthenticationSuccess(accessToken)
 
-                    processFilterChain(request, response, chain, accessToken)
+                    processFilterChain(httpRequest, httpResponse, chain, accessToken)
                 }else{
-                    log.debug('not authenticated')
-                    response.status = 401
-                    response.setHeader('ERROR', 'Token Unauthenticated. Uauthorized Access.')
-                    response.writer.flush()
+                    //log.debug('not authenticated')
+                    httpResponse.status = 401
+                    httpResponse.setHeader('ERROR', 'Token Unauthenticated. Uauthorized Access.')
+                    httpResponse.writer.flush()
                     //return
                 }
 
             } else {
-                log.debug('token not found')
-                response.status = 401
-                response.setHeader('ERROR', 'Token not found. Unauthorized Access.')
-                response.writer.flush()
+                //log.debug('token not found')
+                httpResponse.status = 401
+                httpResponse.setHeader('ERROR', 'Token not found. Unauthorized Access.')
+                httpResponse.writer.flush()
                 return
             }
 
 
         } catch (AuthenticationException ae) {
             // NOTE: This will happen if token not found in database
-            log.debug('Token not found in database.')
-            response.status = 401
-            response.setHeader('ERROR', 'Token not found in database. Authorization Attempt Failed')
-            response.writer.flush()
+            //log.debug('Token not found in database.')
+            httpResponse.status = 401
+            httpResponse.setHeader('ERROR', 'Token not found in database. Authorization Attempt Failed')
+            httpResponse.writer.flush()
 
             //authenticationEventPublisher.publishAuthenticationFailure(ae, accessToken)
             //authenticationFailureHandler.onAuthenticationFailure(request, response, ae)
@@ -128,7 +135,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
     }
 
     @CompileDynamic
-    private void processFilterChain(ServletRequest request, ServletResponse response, FilterChain chain, AccessToken authenticationResult) {
+    private void processFilterChain(HttpServletRequest request, HttpServletResponse response, FilterChain chain, AccessToken authenticationResult) {
 
         //HttpServletRequest httpRequest = request as HttpServletRequest
         //HttpServletResponse httpResponse = response as HttpServletResponse
@@ -142,7 +149,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
         if (authenticationResult?.accessToken) {
             if (actualUri == validationEndpointUrl) {
-                log.debug 'Validation endpoint called. Generating response.'
+                //log.debug 'Validation endpoint called. Generating response.'
                 authenticationSuccessHandler.onAuthenticationSuccess(request, response, authenticationResult)
             } else {
                 String entryPoint = Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)
@@ -157,7 +164,6 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                         action = params[3]
                         break
                     default :
-                        println("####URI####:"+actualUri)
                         response.status = 401
                         response.setHeader('ERROR', 'BAD Access attempted')
                         //response.writer.flush()
@@ -193,7 +199,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                         version = cache2['cacheversion']
 
                         if (!cache2?."${version}"?."${action}") {
-                            log.debug 'no cache'
+                            //log.debug 'no cache'
                             response.status = 401
                             response.setHeader('ERROR', 'IO State Not properly Formatted for this URI. Please contact the Administrator.')
                             //response.writer.flush()
@@ -212,21 +218,21 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
                     if (controller!='apidoc') {
                         if (!checkAuth(roles, authenticationResult)) {
-                            log.debug 'no auth'
+                            //log.debug 'no auth'
                             response.status = 401
                             response.setHeader('ERROR', 'Unauthorized Access attempted')
                             //response.writer.flush()
                             return
                         } else {
-                            log.debug 'Continuing the filter chain'
+                            //log.debug 'Continuing the filter chain'
                         }
                     }
                 }else{
-                    log.debug('no ctx found')
+                    //log.debug('no ctx found')
                 }
             }
         } else {
-            log.debug 'Request does not contain any token. Letting it continue through the filter chain'
+            //log.debug 'Request does not contain any token. Letting it continue through the filter chain'
         }
 
         chain.doFilter(request, response)

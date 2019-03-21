@@ -34,6 +34,7 @@ import grails.orm.HibernateCriteriaBuilder
  * This abstract provides Common API Methods used by APICommLayer and those that extend it
  * This is simply organizational in keeping repetitively called methods from communication processes
  * for readability
+ * @author Owen Rubel
  *
  * @see ApiCommLayer
  *

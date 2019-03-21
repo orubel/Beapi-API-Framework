@@ -20,6 +20,7 @@ import static groovyx.gpars.GParsPool.withPool
 
 /**
  * A class for caching processed api calls and returning them
+ * @author Owen Rubel
  */
 
 class ApiCacheService{

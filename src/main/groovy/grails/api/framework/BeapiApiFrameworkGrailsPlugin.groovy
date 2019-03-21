@@ -33,6 +33,7 @@ import grails.util.Metadata
 
 /**
  * Plugin class for BeAPI API Framework
+ * @author Owen Rubel
  */
 class BeapiApiFrameworkGrailsPlugin extends Plugin{
 	def version = '0.2.1.2'

@@ -14,6 +14,12 @@ import grails.util.Environment
 import grails.util.Holders
 import org.springframework.context.ApplicationContext
 
+
+/**
+ * Filter for handling CORS(cross origin resource sharing) for request from frontend
+ *
+ * @author Owen Rubel
+ */
 class CorsSecurityFilter extends OncePerRequestFilter {
 
     //@Autowired

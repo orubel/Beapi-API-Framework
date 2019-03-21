@@ -10,6 +10,11 @@ import javax.servlet.http.HttpServletRequest
 import org.springframework.web.context.request.RequestContextHolder as RCH
 import org.springframework.web.context.request.ServletRequestAttributes
 
+/**
+ * A class for 'pinging' all the other API servers in your architecture to test for uptime
+ *
+ * @author Owen Rubel
+ */
 class PingService {
 
     /**

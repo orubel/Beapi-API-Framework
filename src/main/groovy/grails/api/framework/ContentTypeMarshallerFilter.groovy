@@ -16,13 +16,16 @@ import javax.servlet.http.HttpServletResponse
 
 // import groovy.json.JsonSlurper
 import groovy.json.JsonSlurperClassic
+import grails.compiler.GrailsCompileStatic
+import groovy.transform.CompileStatic
 
 /**
  * Used to check proper format was sent for endpoint and to format
  * params using common naming
+ * @author Owen Rubel
  */
-@Slf4j
-//@CompileStatic
+//@Slf4j
+@GrailsCompileStatic
 class ContentTypeMarshallerFilter extends OncePerRequestFilter {
 
     String headerName
@@ -30,14 +33,12 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        //println("#### ContentTypeMarshallerFilter ####")
-
-
-        //HttpServletRequest request = servletRequest as HttpServletRequest
-        //HttpServletResponse response = servletResponse as HttpServletResponse
+        // println("#### ContentTypeMarshallerFilter ####")
 
         String format = (request?.format)?request.format.toUpperCase():'JSON'
-        HashSet formats = ['XML', 'JSON']
+        HashSet formats = new HashSet()
+        formats.add('XML')
+        formats.add('JSON')
 
         if(!doesContentTypeMatch(request)){
                 response.status = 401
@@ -52,25 +53,12 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
                 LinkedHashMap dataParams = [:]
                 switch (format) {
                     case 'XML':
-                        String xml = request.XML.toString()
-                        if(xml!='null') {
-                            def xslurper = new XmlSlurper()
-                            xslurper.parseText(xml).each() { k, v ->
-                                dataParams[k] = v
-                            }
-                            request.setAttribute('XML', dataParams)
-                        }
+                        dataParams = request.XML  as LinkedHashMap
+                        request.setAttribute('XML', dataParams)
                         break
                     case 'JSON':
                     default:
-                        def temp = request.JSON.toString()
-                        temp = (temp =~ /\{.*\}/)
-                        def json = temp[0]
-                        def slurper = new JsonSlurperClassic()
-                        def slurp = slurper.parseText(json)
-                        slurp.each() { k, v ->
-                            dataParams[k] = v
-                        }
+                        dataParams = request.JSON as LinkedHashMap
                         request.setAttribute('JSON', dataParams)
                         break
                 }
@@ -102,7 +90,7 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
                     break
                 default:
                     if (contentType) {
-                        def temp = contentType.split(';')[0]
+                        String temp = contentType.split(';')[0]
                         switch(temp) {
                             case 'text/xml':
                             case 'application/xml':

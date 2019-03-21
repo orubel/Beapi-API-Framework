@@ -14,7 +14,16 @@ import javax.servlet.http.HttpServletResponse
 import groovy.transform.CompileStatic
 
 
-
+/**
+ *
+ * HandlerInterceptor for Chained API Calls. Parses XML/JSON, handles authentication, rate limiting, caching, and statistics reporting
+ * @author Owen Rubel
+ *
+ * @see ApiCommLayer
+ * @see BatchInterceptor
+ * @see ChainInterceptor
+ *
+ */
 @CompileStatic
 class ChainInterceptor extends ApiCommLayer implements grails.api.framework.RequestForwarder{
 

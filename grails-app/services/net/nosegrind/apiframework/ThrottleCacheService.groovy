@@ -11,6 +11,10 @@ import grails.plugin.springsecurity.SpringSecurityService
 import grails.plugin.cache.CacheEvict
 import grails.plugin.cache.CachePut
 
+/**
+ * A class for caching rate limiting data; used by handler interceptors.
+ * @author Owen Rubel
+ */
 class ThrottleCacheService{
 
 	static transactional = false

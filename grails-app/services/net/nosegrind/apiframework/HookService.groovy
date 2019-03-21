@@ -5,6 +5,11 @@ import static groovyx.gpars.GParsPool.withPool
 import grails.util.Holders
 import grails.core.GrailsApplication
 
+/**
+ * A class for automating webhooks through the handlerinterceptors
+ *
+ * @author Owen Rubel
+ */
 class HookService {
 
 	/**
