@@ -13,11 +13,11 @@ class ApiDescriptor implements Validateable {
 	String defaultAction
 	List deprecated
 	String method
-	List pkey
-	List fkeys
-	List roles
-	List batchRoles
-	List hookRoles
+	Set pkey
+	Set fkeys
+	Set roles
+	Set batchRoles
+	Set hookRoles
 	String name
     String description
 	Map doc

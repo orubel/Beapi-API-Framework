@@ -310,7 +310,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             def versKey = vers.key
             String defaultAction = (vers.value['DEFAULTACTION'])?vers.value.DEFAULTACTION:'index'
 
-            List deprecated = (vers.value.DEPRECATED)?vers.value.DEPRECATED:[]
+            Set deprecated = (vers.value.DEPRECATED)?vers.value.DEPRECATED:[]
             String domainPackage = (vers.value.DOMAINPACKAGE!=null || vers.value.DOMAINPACKAGE?.size()>0)?vers.value.DOMAINPACKAGE:null
 
             String actionname
@@ -331,9 +331,9 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 String apiMethod = it.value.METHOD
                 String apiDescription = it.value.DESCRIPTION
 
-                List apiRoles = it.value.ROLES.DEFAULT
-                List batchRoles = it.value.ROLES.BATCH
-                List hookRoles = it.value.ROLES.HOOK
+                Set apiRoles = it.value.ROLES.DEFAULT
+                Set batchRoles = it.value.ROLES.BATCH
+                Set hookRoles = it.value.ROLES.HOOK
 
                 String uri = it.key
                 apiDescriptor = createApiDescriptor(apiName, apiMethod, apiDescription, apiRoles, batchRoles, hookRoles, uri, json.get('VALUES'), apiVersion)
@@ -375,12 +375,12 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         return methods
     }
 
-    private ApiDescriptor createApiDescriptor(String apiname,String apiMethod, String apiDescription, List apiRoles, List batchRoles, List hookRoles, String uri, JSONObject values, JSONObject json){
+    private ApiDescriptor createApiDescriptor(String apiname,String apiMethod, String apiDescription, Set apiRoles, Set batchRoles, Set hookRoles, String uri, JSONObject values, JSONObject json){
         LinkedHashMap<String,ParamsDescriptor> apiObject = [:]
         ApiParams param = new ApiParams()
 
-        List fkeys = []
-        List pkeys= []
+        Set fkeys = []
+        Set pkeys= []
         try {
             values.each { k, v ->
                 v.reference = (v.reference) ? v.reference : 'self';
