@@ -129,6 +129,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				return true
 			}
 
+			params.max = (params.max!=null)?params.max:0
+			params.offset = (params.offset!=null)?params.offset:0
+
 			if(cache) {
 				//CHECK REQUEST METHOD FOR ENDPOINT
 				// NOTE: expectedMethod must be capitolized in IO State file
@@ -139,8 +142,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					return false
 				}
 
-				params.max = (params.max!=null)?params.max:0
-				params.offset = (params.offset!=null)?params.offset:0
 
 				// CHECK FOR REST ALTERNATIVES
 				if (restAlt) {

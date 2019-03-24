@@ -53,7 +53,7 @@ abstract class ApiCommProcess{
     //@Autowired
     //ApiCacheService apiCacheService = new ApiCacheService()
     List formats = ['text/json','application/json','text/xml','application/xml']
-    List optionalParams = ['method','format','contentType','encoding','action','controller','v','apiCombine', 'apiObject','entryPoint','uri']
+    List optionalParams = ['method','format','contentType','encoding','action','controller','v','apiCombine', 'apiObject','entryPoint','uri','apiObjectVersion']
 
     int cores = Holders.grailsApplication.config.apitoolkit.procCores as Integer
 
@@ -165,7 +165,7 @@ abstract class ApiCommProcess{
      * @return returns false if request variable keys do not match expected endpoint keys
      */
     boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions){
-        ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','apiResult','combine','_','batch','max','offset']
+        ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','apiResult','combine','_','batch','max','offset','apiObjectVersion']
         try {
             String authority = getUserRole() as String
             ArrayList temp = []
@@ -187,7 +187,7 @@ abstract class ApiCommProcess{
                 reservedNames.each() { paramsList.remove(it) }
 
                 //println("paramslist:" + paramsList)
-                //println("reaquestlist:" + requestList)
+                //println("requestlist:" + requestList)
 
                 if (paramsList.size() == requestList.intersect(paramsList).size()) {
                     return true

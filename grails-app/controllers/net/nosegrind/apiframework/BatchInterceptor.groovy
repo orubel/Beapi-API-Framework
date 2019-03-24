@@ -56,7 +56,6 @@ class BatchInterceptor extends ApiCommLayer{
 
 	BatchInterceptor(){
 		match(uri:"/${entryPoint}/**")
-		match(uri:"/${entryPoint}-[0-9]/**")
 	}
 
 	boolean before(){
@@ -99,28 +98,31 @@ class BatchInterceptor extends ApiCommLayer{
 		cache = session['cache'] as LinkedHashMap
 
 		if(cache) {
-			params.apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
+			params.apiObject = (params.apiObjectVersion) ? params.apiObjectVersion.toString() : cache['currentStable']['value']
 			params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
 		}
 
-		try{
+		//try{
 			//Test For APIDoc
 			if(params.controller=='apidoc') {
 				notApiDoc=false
 				return true
 			}
 
+			params.max = (params.max!=null)?params.max:0
+			params.offset = (params.offset!=null)?params.offset:0
+
 			if(cache) {
 				//CHECK REQUEST METHOD FOR ENDPOINT
 				// NOTE: expectedMethod must be capitolized in IO State file
+
 				String expectedMethod = cache[params.apiObject][params.action.toString()]['method'] as String
 				if (!checkRequestMethod(mthd,expectedMethod, restAlt)) {
 					render(status: 400, text: "Expected request method '${expectedMethod}' does not match sent method '${mthd.getKey()}'")
 					return false
 				}
 
-				params.max = (params.max!=null)?params.max:0
-				params.offset = (params.offset!=null)?params.offset:0
+
 
 				// CHECK FOR REST ALTERNATIVES
 				if (restAlt) {
@@ -223,10 +225,10 @@ class BatchInterceptor extends ApiCommLayer{
 
 			return false
 
-		}catch(Exception e) {
-			throw new Exception('[BatchInterceptor :: before] : Exception - full stack trace follows:', e)
-			return false
-		}
+		//}catch(Exception e) {
+		//	throw new Exception('[BatchInterceptor :: before] : Exception - full stack trace follows:', e)
+		//	return false
+		//}
 	}
 
 	boolean after(){
@@ -295,7 +297,6 @@ class BatchInterceptor extends ApiCommLayer{
 						String service = "${params.controller}/${params.action}"
 						hookService.postData(service, output, hookRoles, this.mthdKey)
 					}
-
 				}
 			}
 

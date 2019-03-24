@@ -55,7 +55,6 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 	ChainInterceptor(){
 		match(uri:"/${entryPoint}/**")
-		match(uri:"/${entryPoint}-[0-9]/**")
 	}
 
 	boolean before() {
@@ -148,8 +147,12 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 				}
 				return false
 			} else {
+
+				params.max = (params.max!=null)?params.max:0
+				params.offset = (params.offset!=null)?params.offset:0
+
 				if (cache) {
-					params.apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
+					params.apiObject = (params.apiObject) ? params.apiObject : cache['currentStable']['value']
 					params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
 
 					// CHECK REQUEST METHOD FOR ENDPOINT
@@ -163,9 +166,6 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 							return false
 						}
 					}
-
-					params.max = (params.max!=null)?params.max:0
-					params.offset = (params.offset!=null)?params.offset:0
 
 					// CHECK FOR REST ALTERNATIVES
 					if (restAlt) {
@@ -196,27 +196,6 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 						request.setAttribute('chainInc', newBI + 1)
 					}
 
-/*
-					int chainInc = request.getAttribute('chainInc') as int
-					if(params.max!=null) {
-						List max = params.max as List
-						println("chaininc :"+chainInc)
-						println("max :"+max)
-						println("test:"+max.get(chainInc))
-						params.max = max.get(chainInc)
-						println("params.max : "+params.max)
-					}else{
-						println("max is null")
-						params.max = 0
-					}
-
-					if(params.offset!=null) {
-						List offset = params.offset as List
-						params.offset = offset[chainInc]
-					}else{
-						params.offset = 0
-					}
-				*/
 
 					setChainParams(params)
 
