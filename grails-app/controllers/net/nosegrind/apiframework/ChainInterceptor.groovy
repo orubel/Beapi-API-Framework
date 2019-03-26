@@ -134,6 +134,8 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 			params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
 		}
 
+		params.max = (params.max==null)?0:params.max
+		params.offset = (params.offset==null)?0:params.offset
 
 		// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
 		//String path = "${params.controller}/${params.action}".toString()
@@ -142,112 +144,108 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 		try{
 			if (params.controller == 'apidoc') {
-				if (cache) {
-					return true
-				}
+				render(status: 400, text: "API Docs cannot be Chained. Pleased called via the normal method (ie v0.1)")
 				return false
-			} else {
+			}
 
-				params.max = (params.max!=null)?params.max:0
-				params.offset = (params.offset!=null)?params.offset:0
 
-				if (cache) {
-					params.apiObject = (params.apiObject) ? params.apiObject : cache['currentStable']['value']
-					params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
+			if (cache) {
+				params.apiObject = (params.apiObject) ? params.apiObject : cache['currentStable']['value']
+				params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
 
-					// CHECK REQUEST METHOD FOR ENDPOINT
-					// NOTE: expectedMethod must be capitolized in IO State file
-					String expectedMethod = cache[params.apiObject][params.action.toString()]['method'] as String
+				// CHECK REQUEST METHOD FOR ENDPOINT
+				// NOTE: expectedMethod must be capitolized in IO State file
+				String expectedMethod = cache[params.apiObject][params.action.toString()]['method'] as String
 
-					if (!acceptableMethod.contains(mthdKey) || !acceptableMethod.contains(mthdKey)){
-						if (!unacceptableMethod.contains(mthdKey)) {
-							unacceptableMethod.add(mthdKey)
-							render(status: HttpServletResponse.SC_BAD_REQUEST, text: "Sent request method '${mthdKey}' does not match expected keys : '${acceptableMethod}'")
+				if (!acceptableMethod.contains(mthdKey) || !acceptableMethod.contains(mthdKey)){
+					if (!unacceptableMethod.contains(mthdKey)) {
+						unacceptableMethod.add(mthdKey)
+						render(status: HttpServletResponse.SC_BAD_REQUEST, text: "Sent request method '${mthdKey}' does not match expected keys : '${acceptableMethod}'")
+						return false
+					}
+				}
+
+				// CHECK FOR REST ALTERNATIVES
+				if (restAlt) {
+					// PARSE REST ALTS (TRACE, OPTIONS, ETC)
+					String result = parseRequestMethod(mthd, params)
+					if (result) {
+						byte[] contentLength = result.getBytes("ISO-8859-1")
+						if (apiThrottle) {
+							if (checkLimit(contentLength.length)) {
+								render(text: result, contentType: contentType)
+								return false
+							} else {
+								render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
+								return false
+							}
+						}else{
+							render(text: result, contentType: contentType)
 							return false
 						}
 					}
-
-					// CHECK FOR REST ALTERNATIVES
-					if (restAlt) {
-						// PARSE REST ALTS (TRACE, OPTIONS, ETC)
-						String result = parseRequestMethod(mthd, params)
-						if (result) {
-							byte[] contentLength = result.getBytes("ISO-8859-1")
-							if (apiThrottle) {
-								if (checkLimit(contentLength.length)) {
-									render(text: result, contentType: contentType)
-									return false
-								} else {
-									render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-									return false
-								}
-							}else{
-								render(text: result, contentType: contentType)
-								return false
-							}
-						}
-					}
+				}
 
 
-					if (request?.getAttribute('chainInc') == null) {
-						request.setAttribute('chainInc', 0)
-					} else {
-						Integer newBI = (Integer) request?.getAttribute('chainInc')
-						request.setAttribute('chainInc', newBI + 1)
-					}
+				if (request?.getAttribute('chainInc') == null) {
+					request.setAttribute('chainInc', 0)
+				} else {
+					Integer newBI = (Integer) request?.getAttribute('chainInc')
+					request.setAttribute('chainInc', newBI + 1)
+				}
 
 
-					setChainParams(params)
+				setChainParams(params)
 
-					// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
-					LinkedHashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as LinkedHashMap
-					cacheHash = createCacheHash(params, receives)
+				// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
+				LinkedHashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as LinkedHashMap
+				cacheHash = createCacheHash(params, receives)
 
-					//boolean requestKeysMatch = checkURIDefinitions(params, receives)
-					if (!checkURIDefinitions(params, receives)) {
-						render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Expected request variables for endpoint do not match sent variables')
-						return false
-					}
+				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
+				if (!checkURIDefinitions(params, receives)) {
+					render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Expected request variables for endpoint do not match sent variables')
+					return false
+				}
 
-					// RETRIEVE CACHED RESULT; DON'T CACHE LISTS
-					if (cache[params.apiObject][params.action.toString()]['cachedResult'] && request.method.toUpperCase()=='GET' ) {
-						if (cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash]) {
+				// RETRIEVE CACHED RESULT; DON'T CACHE LISTS
+				if (cache[params.apiObject][params.action.toString()]['cachedResult'] && request.method.toUpperCase()=='GET' ) {
+					if (cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash]) {
 
-							String authority = getUserRole() as String
-							String domain = ((String) params.controller).capitalize()
+						String authority = getUserRole() as String
+						String domain = ((String) params.controller).capitalize()
 
-							JSONObject json = (JSONObject) cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash][authority][request.format.toUpperCase()]
-							if (!json) {
-								return false
-							} else {
-								if (isCachedResult((Integer) json.get('version'), domain)) {
+						JSONObject json = (JSONObject) cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash][authority][request.format.toUpperCase()]
+						if (!json) {
+							return false
+						} else {
+							if (isCachedResult((Integer) json.get('version'), domain)) {
 
-									String result = cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash][authority][request.format.toUpperCase()] as String
-									byte[] contentLength = result.getBytes("ISO-8859-1")
-									if (apiThrottle) {
-										if (checkLimit(contentLength.length)) {
-											render(text: result, contentType: contentType)
-											return false
-										} else {
-											render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-											response.flushBuffer()
-											return false
-										}
-									} else {
+								String result = cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash][authority][request.format.toUpperCase()] as String
+								byte[] contentLength = result.getBytes("ISO-8859-1")
+								if (apiThrottle) {
+									if (checkLimit(contentLength.length)) {
 										render(text: result, contentType: contentType)
 										return false
+									} else {
+										render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
+										response.flushBuffer()
+										return false
 									}
+								} else {
+									render(text: result, contentType: contentType)
+									return false
 								}
 							}
-						} else {
-							// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
-							ApiDescriptor cachedEndpoint = cache[(String) params.apiObject][(String) params.action] as ApiDescriptor
-							boolean result = handleChainRequest(cachedEndpoint['deprecated'] as List, (cachedEndpoint['method'])?.toString(), mthd, response, params)
-							return result
 						}
+					} else {
+						// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
+						ApiDescriptor cachedEndpoint = cache[(String) params.apiObject][(String) params.action] as ApiDescriptor
+						boolean result = handleChainRequest(cachedEndpoint['deprecated'] as List, (cachedEndpoint['method'])?.toString(), mthd, response, params)
+						return result
 					}
 				}
 			}
+
 
 			return false
 

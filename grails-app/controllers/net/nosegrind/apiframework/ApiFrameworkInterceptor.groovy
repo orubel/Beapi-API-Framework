@@ -50,10 +50,11 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	RequestMethod mthd
 	LinkedHashMap cache = [:]
 	grails.config.Config conf = Holders.grailsApplication.config
-	boolean notApiDoc=true
 	LinkedHashMap stat = [:]
 	String contentType
-
+	String apiObject
+	String controller
+	String action
 
 	/**
 	 * Constructor for ApiFrameworkInterceptor. Matches on entrypoint (ie v0.1 for example)
@@ -90,10 +91,12 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		apiThrottle = this.conf.apiThrottle as boolean
 		contentType = request.getContentType()
 
+
 		boolean restAlt = RequestMethod.isRestAlt(mthd.getKey())
 
 		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
 
+		// Init params
 		if (formats.contains(format)) {
 			LinkedHashMap attribs = [:]
 			switch (format) {
@@ -114,28 +117,32 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 		// INITIALIZE CACHE
 		HttpSession session = request.getSession()
-
 		cache = session['cache'] as LinkedHashMap
 
 		if(cache) {
+			apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
+			action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
+
 			params.apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
 			params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
+		}else{
+			action = params?.action
 		}
+		controller = params?.controller
+
 
 		try{
 			//Test For APIDoc
-			if(params.controller=='apidoc') {
-				notApiDoc=false
-				return true
-			}
+			if(controller=='apidoc') { return true }
 
-			params.max = (params.max!=null)?params.max:0
-			params.offset = (params.offset!=null)?params.offset:0
+			params.max = (params.max==null)?0:params.max
+			params.offset = (params.offset==null)?0:params.offset
 
 			if(cache) {
+
 				//CHECK REQUEST METHOD FOR ENDPOINT
 				// NOTE: expectedMethod must be capitolized in IO State file
-				String expectedMethod = cache[params.apiObject][params.action.toString()]['method'] as String
+				String expectedMethod = cache[apiObject][action]['method'] as String
 				if (!checkRequestMethod(mthd,expectedMethod, restAlt)) {
 					//statsService.setStatsCache(getUserId(), 400)
 					render(status: 400, text: "Expected request method '${expectedMethod}' does not match sent method '${mthd.getKey()}'")
@@ -155,21 +162,19 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							if (checkLimit(contentLength.length)) {
 								//statsService.setStatsCache(getUserId(), response.status)
 								render(text: result, contentType: contentType)
-								return false
 							} else {
 								//statsService.setStatsCache(getUserId(), 400)
 								render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-								return false
 							}
 						}else{
 							//statsService.setStatsCache(getUserId(), response.status)
 							render(text: result, contentType: contentType)
-							return false
 						}
+						return false
 					}
 				}
 
-				LinkedHashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as LinkedHashMap
+				LinkedHashMap receives = cache[apiObject][action]['receives'] as LinkedHashMap
 				cacheHash = createCacheHash(params, receives)
 
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
@@ -183,13 +188,13 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 				// RETRIEVE CACHED RESULT (only if using get method); DON'T CACHE LISTS
 
-				if (cache[params.apiObject][params.action.toString()]['cachedResult'] && request.method.toUpperCase()=='GET' ) {
-					if(cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash]){
+				if (cache[apiObject][action]['cachedResult'] && mthdKey=='GET' ) {
+					if(cache[apiObject][action]['cachedResult'][cacheHash]){
 
 						String authority = getUserRole() as String
-						String domain = ((String) params.controller).capitalize()
+						String domain = ((String) controller).capitalize()
 
-						JSONObject json = (JSONObject) cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash][authority][format]
+						JSONObject json = (JSONObject) cache[apiObject][action]['cachedResult'][cacheHash][authority][format]
 						if (!json || json == null) {
 							return false
 						} else {
@@ -204,7 +209,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								int version = jsonObj.get('version') as Integer
 
 								if (isCachedResult((Integer) version, domain)) {
-									LinkedHashMap result = cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash][authority][format] as LinkedHashMap
+									LinkedHashMap result = cache[apiObject][action]['cachedResult'][cacheHash][authority][format] as LinkedHashMap
 									String content = new groovy.json.JsonBuilder(result).toString()
 									byte[] contentLength = content.getBytes('ISO-8859-1')
 									if (apiThrottle) {
@@ -227,7 +232,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							} else {
 								if (json.version != null) {
 									if (isCachedResult((Integer) json.get('version'), domain)) {
-										LinkedHashMap result = cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash][authority][format] as LinkedHashMap
+										LinkedHashMap result = cache[apiObject][action]['cachedResult'][cacheHash][authority][format] as LinkedHashMap
 										String content = new groovy.json.JsonBuilder(result).toString()
 										byte[] contentLength = content.getBytes('ISO-8859-1')
 										if (apiThrottle) {
@@ -256,24 +261,25 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						return false
 					}
 				} else {
-					if (params.action == null || !params.action) {
+					if (action == null || !action) {
 						String methodAction = mthd.toString()
-						if (!cache[(String) params.apiObject][methodAction]) {
-							params.action = cache[(String) params.apiObject]['defaultAction']
+						if (!cache[apiObject][methodAction]) {
+							params.action = cache[apiObject]['defaultAction']
 						} else {
 							params.action = mthd.toString()
 
 							// FORWARD FOR REST DEFAULTS WITH NO ACTION
 							String[] tempUri = request.getRequestURI().split('/')
-							if (tempUri[2].contains('dispatch') && "${params.controller}.dispatch" == tempUri[2] && !cache[params.apiObject]['domainPackage']) {
-								forward(controller: params.controller, action: params.action)
+							if (tempUri[2].contains('dispatch') && "${controller}.dispatch" == tempUri[2]) {
+								forward(controller: controller, action: action)
 								return false
 							}
 						}
+						action = params.action.toString()
 					}
 
 					// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
-					ApiDescriptor cachedEndpoint = cache[(String) params.apiObject][(String) params.action] as ApiDescriptor
+					ApiDescriptor cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 					boolean result = handleApiRequest(cachedEndpoint['deprecated'] as List, (cachedEndpoint['method'])?.toString(), mthd, response, params)
 					return result
 				}
@@ -297,7 +303,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		//println('##### FILTER (AFTER)')
 
 		if(model) {
-			List unsafeMethods = ['PUT', 'POST', 'DELETE']
+			//List unsafeMethods = ['PUT', 'POST', 'DELETE']
 			Object vals = model.values()
 			try {
 				LinkedHashMap newModel = [:]
@@ -316,7 +322,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 				ApiDescriptor cachedEndpoint
 				if(cache) {
-					cachedEndpoint = cache[params.apiObject][(String) params.action] as ApiDescriptor
+					cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 				}
 
 				// TEST FOR NESTED MAP; WE DON'T CACHE NESTED MAPS
@@ -329,15 +335,12 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					if (content) {
 
 						// STORE CACHED RESULT
-						String format = request.format.toUpperCase()
+						//String format = request.format.toUpperCase()
 						String authority = getUserRole() as String
-
+						String role
 						if(request.method.toUpperCase()=='GET') {
-							if (params.controller == 'apidoc') {
-								apiCacheService.setApiCachedResult(cacheHash,(String) params.controller, (String) params.apiObject, (String) params.action, 'permitAll', format, content)
-							} else {
-								apiCacheService.setApiCachedResult(cacheHash,(String) params.controller, (String) params.apiObject, (String) params.action, authority, format, content)
-							}
+							role = (controller == 'apidoc')? 'permitAll' : authority
+							apiCacheService.setApiCachedResult(cacheHash, controller, apiObject, action, role, this.format, content)
 						}
 
 						if (apiThrottle) {
@@ -355,9 +358,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						} else {
 							//statsService.setStatsCache(getUserId(), response.status)
 							render(text: content, contentType: contentType)
-							if(cache[params.apiObject]["${params.action}"]['hookRoles']) {
-								List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
-								String service = "${params.controller}/${params.action}"
+							if(cache[apiObject][action]['hookRoles']) {
+								List hookRoles = cache[apiObject][action]['hookRoles'] as List
+								String service = "${controller}/${action}"
 								hookService.postData(service, content, hookRoles, this.mthdKey)
 							}
 						}
@@ -366,9 +369,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					//statsService.setStatsCache(getUserId(), response.status)
 					String content = parseResponseMethod(mthd, format, params, newModel)
 					render(text: content, contentType: contentType)
-					if(cache[params.apiObject]["${params.action}"]['hookRoles']) {
-						List hookRoles = cache[params.apiObject]["${params.action}"]['hookRoles'] as List
-						String service = "${params.controller}/${params.action}"
+					if(cache[apiObject][action]['hookRoles']) {
+						List hookRoles = cache[apiObject][action]['hookRoles'] as List
+						String service = "${controller}/${action}"
 						hookService.postData(service, content, hookRoles, this.mthdKey)
 					}
 					response.flushBuffer()

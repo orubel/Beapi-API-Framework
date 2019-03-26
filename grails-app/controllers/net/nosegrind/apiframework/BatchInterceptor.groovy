@@ -51,7 +51,6 @@ class BatchInterceptor extends ApiCommLayer{
 	RequestMethod mthd
 	LinkedHashMap cache = [:]
 	grails.config.Config conf = Holders.grailsApplication.config
-	boolean notApiDoc=true
 	String contentType
 
 	BatchInterceptor(){
@@ -73,7 +72,6 @@ class BatchInterceptor extends ApiCommLayer{
 
 
 		// Init params
-
 		if (formats.contains(format)) {
 			LinkedHashMap attribs = [:]
 			switch (format) {
@@ -99,18 +97,18 @@ class BatchInterceptor extends ApiCommLayer{
 
 		if(cache) {
 			params.apiObject = (params.apiObjectVersion) ? params.apiObjectVersion.toString() : cache['currentStable']['value']
-			params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
+			params.action = (params.action) ? params.action : cache[params.apiObject]['defaultAction']
 		}
 
 		//try{
 			//Test For APIDoc
 			if(params.controller=='apidoc') {
-				notApiDoc=false
-				return true
+				render(status: 400, text: "API Docs cannot be Batched. Pleased called via the normal method (ie v0.1)")
+				return false
 			}
 
-			params.max = (params.max!=null)?params.max:0
-			params.offset = (params.offset!=null)?params.offset:0
+			params.max = (params.max==null)?0:params.max
+			params.offset = (params.offset==null)?0:params.offset
 
 			if(cache) {
 				//CHECK REQUEST METHOD FOR ENDPOINT
@@ -135,15 +133,13 @@ class BatchInterceptor extends ApiCommLayer{
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
 								render(text: result, contentType: request.getContentType())
-								return false
 							} else {
 								render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-								return false
 							}
 						}else{
 							render(text: result, contentType: request.getContentType())
-							return false
 						}
+						return false
 					}
 				}
 
