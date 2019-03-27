@@ -12,7 +12,9 @@
 
 ***
 ### Description
-The BeAPI Framework is a full featured reactive api framework providing automation and simplification of api's for scale. Some features include:
+The BeAPI Framework is a full featured reactive api framework providing FULL automation and simplification of api's for scale and speed providing an AVERAGE respond time per API call of 0.3 milliseconds (Google requires their calls to be UNDER 200 ms). 
+
+Some features include:
 
 - **Automated Batching:** all endpoints are batchable by default with AUTH ROLES assignable to restrict access. Batching can also be TOGGLED to turn this feature ON/OFF per endpoint.
 
