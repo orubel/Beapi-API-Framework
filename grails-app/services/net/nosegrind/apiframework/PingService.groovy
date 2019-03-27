@@ -44,7 +44,7 @@ class PingService {
      * @return
      */
     private HashMap send() {
-        List servers = Holders.grailsApplication.config.apitoolkit.secondaryServer as List
+        List servers = Holders.grailsApplication.config.apitoolkit.apiServer as List
         HashMap results = [:]
         HttpServletRequest request = getRequest()
 

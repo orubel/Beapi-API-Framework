@@ -65,7 +65,7 @@ class ThrottleCacheService{
 			cache['rateLimitCurrent']++
 
 			// send via webhook to subscribing services
-			List servers = grailsApplication.config.apitoolkit.secondaryServers
+			List servers = grailsApplication.config.apitoolkit.apiServer
 
 			return cache
 		}catch(Exception e){
