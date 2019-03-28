@@ -1,7 +1,8 @@
 
 ![alt text](https://github.com/orubel/logos/blob/master/beapi_logo_large.png)
 # BeApi(tm) Api Framework ( https://www.beapi.io/ )
-## Recent Stable Release : [0.9.7](http://dl.bintray.com/orubel/plugins/org/grails/plugins/api-framework/)
+[ ![Download](https://api.bintray.com/packages/orubel/plugins/api-framework/images/download.svg?version=0.9.71) ](https://bintray.com/orubel/plugins/api-framework/0.9.71/link)
+
 ## Documentation/Installation - https://www.beapi.io/documentation
 ## Forums - http://beapi.freeforums.net/
 
