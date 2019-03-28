@@ -43,12 +43,6 @@ abstract class ApiCommLayer extends ApiCommProcess{
                 }
             }
 
-            // DOES api.methods.contains(request.method)
-            //if(!isRequestMatch(method,mthd)){
-            //    response.status = 400
-            //    response.setHeader('ERROR',"Request method doesn't match expected method.")
-            //    return false
-            //}
             return true
         }catch(Exception e){
             throw new Exception("[ApiCommLayer : handleApiRequest] : Exception - full stack trace follows:",e)

@@ -79,12 +79,10 @@ class TokenCacheValidationFilter extends GenericFilterBean {
         HttpServletRequest httpRequest = request as HttpServletRequest
         HttpServletResponse httpResponse = response as HttpServletResponse
 
-        String actualUri = httpRequest.requestURI - httpRequest.contextPath
-        String[] prms = actualUri.split('/')
-        def cont = prms[2]
-        def act = prms[3]
-
-
+        //String actualUri = httpRequest.requestURI - httpRequest.contextPath
+        //String[] prms = actualUri.split('/')
+        //def cont = prms[2]
+        //def act = prms[3]
 
 
         AccessToken accessToken
@@ -155,11 +153,13 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 String entryPoint = Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)
                 String controller
                 String action
+                String version
 
                 switch(actualUri) {
-                    case ~/\/.{0}[a-z]${entryPoint}\/(.*)/:
-                    case ~/\/.{0}[a-z]${entryPoint}-[0-9]+\/(.*)/:
+                    case ~/\/.{0}[a-z]${entryPoint}(-[0-9])*\/(.*)/:
                         List params = actualUri.split('/')
+                        List temp = ((String)params[1]).split('-')
+                        version = (temp.size()>1) ? temp[1].toString() : ''
                         controller = params[2]
                         action = params[3]
                         break
@@ -171,18 +171,12 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 }
 
                 ApplicationContext ctx = Holders.grailsApplication.mainContext
-
                 if(ctx) {
                     GrailsCacheManager grailsCacheManager = ctx.getBean('grailsCacheManager')
-                    //def temp = grailsCacheManager?.getCache('ApiCache')
-
                     LinkedHashMap cache = [:]
                     def temp = grailsCacheManager?.getCache('ApiCache')
-
                     List cacheNames = temp.getAllKeys() as List
-
                     def tempCache
-
                     for (it in cacheNames) {
                         String cKey = it.simpleKey.toString()
                         if (cKey == controller) {
@@ -192,14 +186,11 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                     }
 
                     def cache2
-                    String version
-                    //if (tempCache && controller!='apidoc') {
                     if (tempCache) {
                         cache2 = tempCache.get() as LinkedHashMap
-                        version = cache2['cacheversion']
+                        version = (version.isEmpty()) ? cache2['cacheversion'] : version
 
                         if (!cache2?."${version}"?."${action}") {
-                            //log.debug 'no cache'
                             response.status = 401
                             response.setHeader('ERROR', 'IO State Not properly Formatted for this URI. Please contact the Administrator.')
                             //response.writer.flush()
@@ -214,19 +205,6 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                         //println("no cache found")
                     }
 
-                    HashSet roles = cache2?."${version}"?."${action}"?.roles as HashSet
-
-                    if (controller!='apidoc') {
-                        if (!checkAuth(roles, authenticationResult)) {
-                            //log.debug 'no auth'
-                            response.status = 401
-                            response.setHeader('ERROR', 'Unauthorized Access attempted')
-                            //response.writer.flush()
-                            return
-                        } else {
-                            //log.debug 'Continuing the filter chain'
-                        }
-                    }
                 }else{
                     //log.debug('no ctx found')
                 }
@@ -247,7 +225,6 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 if(roles.size()==1 && roles[0] == 'permitAll') {
                     return true
                 } else if(roles.intersect(tokenRoles).size()>0) {
-
                     return true
                 }
                 return false

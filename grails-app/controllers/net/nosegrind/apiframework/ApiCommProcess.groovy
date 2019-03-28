@@ -709,6 +709,34 @@ abstract class ApiCommProcess{
         return true
     }
 
+    /**
+     * Given request and List of roles(authorities), tests whether user is logged in and user authorities match authorities sent; returns boolean
+     * Used mainly to check endpoint authorities against user authorities
+     * @param request
+     * @param roles
+     * @return
+     */
+    boolean checkAuth(List roles){
+        try {
+            boolean hasAuth = false
+            if (springSecurityService.loggedIn) {
+                def principal = springSecurityService.principal
+                ArrayList userRoles = principal.authorities*.authority as ArrayList
+                roles.each {
+                    if (userRoles.contains(it) || it=='permitAll') {
+                        hasAuth = true
+                    }
+                }
+            }else{
+                //println("NOT LOGGED IN!!!")
+            }
+            return hasAuth
+        }catch(Exception e) {
+            throw new Exception("[ApiCommProcess :: checkAuth] : Exception - full stack trace follows:",e)
+        }
+    }
+
+
     // interceptor::before
     /**
      * Returns concatenated IDS as a HASH used as ID for the API cache

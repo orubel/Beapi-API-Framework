@@ -131,6 +131,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		controller = params?.controller
 
 
+
 		try{
 			//Test For APIDoc
 			if(controller=='apidoc') { return true }
@@ -193,6 +194,14 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 						String authority = getUserRole() as String
 						String domain = ((String) controller).capitalize()
+
+						//List roles = cache['roles'] as List
+						//List roles = cache[apiObject][action]['roles'] as List
+						//if(!checkAuth(roles)){
+						//	response.status = 401
+						//	response.setHeader('ERROR','Unauthorized Access attempted')
+						//	return false
+						//}
 
 						JSONObject json = (JSONObject) cache[apiObject][action]['cachedResult'][cacheHash][authority][format]
 						if (!json || json == null) {
@@ -276,6 +285,14 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							}
 						}
 						action = params.action.toString()
+					}
+
+					//List roles = cache['roles'] as List
+					List roles = cache[apiObject][action]['roles'] as List
+					if(!checkAuth(roles)){
+						response.status = 401
+						response.setHeader('ERROR','Unauthorized Access attempted')
+						return false
 					}
 
 					// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)

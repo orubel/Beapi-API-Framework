@@ -134,8 +134,6 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 			params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
 		}
 
-		params.max = (params.max==null)?0:params.max
-		params.offset = (params.offset==null)?0:params.offset
 
 		// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
 		//String path = "${params.controller}/${params.action}".toString()
@@ -148,10 +146,12 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 				return false
 			}
 
-
 			if (cache) {
-				params.apiObject = (params.apiObject) ? params.apiObject : cache['currentStable']['value']
-				params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
+				params.max = (params.max==null)?0:params.max
+				params.offset = (params.offset==null)?0:params.offset
+
+
+
 
 				// CHECK REQUEST METHOD FOR ENDPOINT
 				// NOTE: expectedMethod must be capitolized in IO State file
@@ -192,6 +192,13 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 				} else {
 					Integer newBI = (Integer) request?.getAttribute('chainInc')
 					request.setAttribute('chainInc', newBI + 1)
+
+                    List roles = cache[params.apiObject.toString()][params.action.toString()]['roles'] as List
+                    if(!checkAuth(roles)){
+                    	response.status = 401
+                    	response.setHeader('ERROR',"Unauthorized Access attempted at '${entryPoint}/${params.controller}/${params.action}'. This user does not have proper permissions or URL does not exist.")
+                    	return false
+                    }
 				}
 
 
