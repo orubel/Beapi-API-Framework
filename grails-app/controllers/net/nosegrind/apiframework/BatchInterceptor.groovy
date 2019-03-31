@@ -52,13 +52,16 @@ class BatchInterceptor extends ApiCommLayer{
 	LinkedHashMap cache = [:]
 	grails.config.Config conf = Holders.grailsApplication.config
 	String contentType
+	String apiObject
+	String controller
+	String action
 
 	BatchInterceptor(){
 		match(uri:"/${entryPoint}/**")
 	}
 
 	boolean before(){
-		//println('##### BATCHINTERCEPTOR (BEFORE)')
+		//println("##### BATCHINTERCEPTOR (BEFORE): ${params.action}")
 
 		format = (request?.format)?request.format.toUpperCase():'JSON'
 		mthdKey = request.method.toUpperCase()
@@ -96,13 +99,19 @@ class BatchInterceptor extends ApiCommLayer{
 		cache = session['cache'] as LinkedHashMap
 
 		if(cache) {
-			params.apiObject = (params.apiObjectVersion) ? params.apiObjectVersion.toString() : cache['currentStable']['value']
-			params.action = (params.action) ? params.action : cache[params.apiObject]['defaultAction']
+			apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
+			action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
+
+			//params.apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
+			//params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
+		}else{
+			action = params?.action
 		}
+		controller = params?.controller
 
 		//try{
 			//Test For APIDoc
-			if(params.controller=='apidoc') {
+			if(controller=='apidoc') {
 				render(status: 400, text: "API Docs cannot be Batched. Pleased called via the normal method (ie v0.1)")
 				return false
 			}
@@ -114,7 +123,7 @@ class BatchInterceptor extends ApiCommLayer{
 				//CHECK REQUEST METHOD FOR ENDPOINT
 				// NOTE: expectedMethod must be capitolized in IO State file
 
-				String expectedMethod = cache[params.apiObject][params.action.toString()]['method'] as String
+				String expectedMethod = cache[apiObject][action]['method'] as String
 				if (!checkRequestMethod(mthd,expectedMethod, restAlt)) {
 					render(status: 400, text: "Expected request method '${expectedMethod}' does not match sent method '${mthd.getKey()}'")
 					return false
@@ -157,7 +166,7 @@ class BatchInterceptor extends ApiCommLayer{
 				// END HANDLE BATCH PARAMS
 
 				// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
-				LinkedHashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as LinkedHashMap
+				LinkedHashMap receives = cache[apiObject][action]['receives'] as LinkedHashMap
 
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
 				if (!checkURIDefinitions(params, receives)) {
@@ -168,16 +177,16 @@ class BatchInterceptor extends ApiCommLayer{
 
 
 				// RETRIEVE CACHED RESULT
-				if (cache[params.apiObject][params.action.toString()]['cachedResult']) {
+				if (cache[apiObject][action]['cachedResult']) {
 					String authority = getUserRole() as String
-					String domain = ((String) params.controller).capitalize()
+					String domain = (controller).capitalize()
 
-					JSONObject json = (JSONObject) cache[params.apiObject][params.action.toString()]['cachedResult'][authority][request.format.toUpperCase()]
+					JSONObject json = (JSONObject) cache[apiObject][action]['cachedResult'][authority][request.format.toUpperCase()]
 					if(!json){
 						return false
 					}else{
 						if (isCachedResult((Integer) json.get('version'), domain)) {
-							String result = cache[params.apiObject][params.action.toString()]['cachedResult'][authority][request.format.toUpperCase()] as String
+							String result = cache[apiObject][action]['cachedResult'][authority][request.format.toUpperCase()] as String
 							byte[] contentLength = result.getBytes( 'ISO-8859-1' )
 							if(apiThrottle) {
 								if (checkLimit(contentLength.length)) {
@@ -195,10 +204,10 @@ class BatchInterceptor extends ApiCommLayer{
 						}
 					}
 				} else {
-					if (params.action == null || !params.action) {
+					if (action == null || !action) {
 						String methodAction = mthd.toString()
-						if (!cache[(String) params.apiObject][methodAction]) {
-							params.action = cache[(String) params.apiObject]['defaultAction']
+						if (!cache[apiObject][methodAction]) {
+							params.action = cache[apiObject]['defaultAction']
 						} else {
 							params.action = mthd.toString()
 
@@ -209,10 +218,11 @@ class BatchInterceptor extends ApiCommLayer{
 								return false
 							}
 						}
+						action = params.action.toString()
 					}
 
 					// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
-					ApiDescriptor cachedEndpoint = cache[(String) params.apiObject][(String) params.action] as ApiDescriptor
+					ApiDescriptor cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 					boolean result = handleApiRequest(cachedEndpoint['deprecated'] as List, cachedEndpoint['method']?.toString().trim(), mthd, response, params)
 
 					return result
@@ -228,7 +238,7 @@ class BatchInterceptor extends ApiCommLayer{
 	}
 
 	boolean after(){
-		//println('##### BATCHFILTER (AFTER)')
+		//println("##### BATCHINTERCEPTOR (AFTER): ${params.action}")
 
 		try{
 			String format = request.format.toUpperCase()
@@ -241,7 +251,7 @@ class BatchInterceptor extends ApiCommLayer{
 				newModel = convertModel(model)
 			}
 
-			ApiDescriptor cachedEndpoint = cache[params.apiObject][(String)params.action] as ApiDescriptor
+			ApiDescriptor cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 			LinkedHashMap content = handleBatchResponse(cachedEndpoint['returns'] as LinkedHashMap,cachedEndpoint['roles'] as List,mthd,format,response,newModel,params) as LinkedHashMap
 
 			int batchLength = (int) request.getAttribute('batchLength')
@@ -278,9 +288,9 @@ class BatchInterceptor extends ApiCommLayer{
 				if(apiThrottle) {
 					if (checkLimit(contentLength.length)) {
 						render(text: output, contentType: request.getContentType())
-						if(cache[params.apiObject][params.action.toString()]['hookRoles']) {
-							List hookRoles = cache[params.apiObject][params.action.toString()]['hookRoles'] as List
-							String service = "${params.controller}/${params.action}"
+						if(cache[apiObject][action.toString()]['hookRoles']) {
+							List hookRoles = cache[apiObject][action]['hookRoles'] as List
+							String service = "${controller}/${action}"
 							hookService.postData(service, output, hookRoles, this.mthdKey)
 						}
 					} else {
@@ -288,9 +298,9 @@ class BatchInterceptor extends ApiCommLayer{
 					}
 				}else{
 					render(text: output, contentType: request.getContentType())
-					if(cache[params.apiObject][params.action.toString()]['hookRoles']) {
-						List hookRoles = cache[params.apiObject][params.action.toString()]['hookRoles'] as List
-						String service = "${params.controller}/${params.action}"
+					if(cache[apiObject][action]['hookRoles']) {
+						List hookRoles = cache[apiObject][action]['hookRoles'] as List
+						String service = "${controller}/${action}"
 						hookService.postData(service, output, hookRoles, this.mthdKey)
 					}
 				}
