@@ -55,6 +55,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	String apiObject
 	String controller
 	String action
+	ApiDescriptor cachedEndpoint
 
 	/**
 	 * Constructor for ApiFrameworkInterceptor. Matches on entrypoint (ie v0.1 for example)
@@ -130,7 +131,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		}
 		controller = params?.controller
 
-
+		cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 
 		try{
 			//Test For APIDoc
@@ -143,7 +144,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 				//CHECK REQUEST METHOD FOR ENDPOINT
 				// NOTE: expectedMethod must be capitolized in IO State file
-				String expectedMethod = cache[apiObject][action]['method'] as String
+				String expectedMethod = cachedEndpoint['method'] as String
 				if (!checkRequestMethod(mthd,expectedMethod, restAlt)) {
 					//statsService.setStatsCache(getUserId(), 400)
 					render(status: 400, text: "Expected request method '${expectedMethod}' does not match sent method '${mthd.getKey()}'")
@@ -175,7 +176,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					}
 				}
 
-				LinkedHashMap receives = cache[apiObject][action]['receives'] as LinkedHashMap
+				LinkedHashMap receives = cachedEndpoint['receives'] as LinkedHashMap
 				cacheHash = createCacheHash(params, receives)
 
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
@@ -189,8 +190,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 				// RETRIEVE CACHED RESULT (only if using get method); DON'T CACHE LISTS
 
-				if (cache[apiObject][action]['cachedResult'] && mthdKey=='GET' ) {
-					if(cache[apiObject][action]['cachedResult'][cacheHash]){
+				if (cachedEndpoint['cachedResult'] && mthdKey=='GET' ) {
+					if(cachedEndpoint['cachedResult'][cacheHash]){
 
 						String authority = getUserRole() as String
 						String domain = ((String) controller).capitalize()
@@ -203,7 +204,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						//	return false
 						//}
 
-						JSONObject json = (JSONObject) cache[apiObject][action]['cachedResult'][cacheHash][authority][format]
+						JSONObject json = (JSONObject) cachedEndpoint['cachedResult'][cacheHash][authority][format]
 						if (!json || json == null) {
 							return false
 						} else {
@@ -218,7 +219,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								int version = jsonObj.get('version') as Integer
 
 								if (isCachedResult((Integer) version, domain)) {
-									LinkedHashMap result = cache[apiObject][action]['cachedResult'][cacheHash][authority][format] as LinkedHashMap
+									LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][authority][format] as LinkedHashMap
 									String content = new groovy.json.JsonBuilder(result).toString()
 									byte[] contentLength = content.getBytes('ISO-8859-1')
 									if (apiThrottle) {
@@ -241,7 +242,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							} else {
 								if (json.version != null) {
 									if (isCachedResult((Integer) json.get('version'), domain)) {
-										LinkedHashMap result = cache[apiObject][action]['cachedResult'][cacheHash][authority][format] as LinkedHashMap
+										LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][authority][format] as LinkedHashMap
 										String content = new groovy.json.JsonBuilder(result).toString()
 										byte[] contentLength = content.getBytes('ISO-8859-1')
 										if (apiThrottle) {
@@ -288,7 +289,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					}
 
 					//List roles = cache['roles'] as List
-					List roles = cache[apiObject][action]['roles'] as List
+					List roles = cachedEndpoint['roles'] as List
 					if(!checkAuth(roles)){
 						response.status = 401
 						response.setHeader('ERROR','Unauthorized Access attempted')
@@ -296,7 +297,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					}
 
 					// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
-					ApiDescriptor cachedEndpoint = cache[apiObject][action] as ApiDescriptor
+					//ApiDescriptor cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 					boolean result = handleApiRequest(cachedEndpoint['deprecated'] as List, (cachedEndpoint['method'])?.toString(), mthd, response, params)
 					return result
 				}

@@ -251,7 +251,11 @@ class BatchInterceptor extends ApiCommLayer{
 				newModel = convertModel(model)
 			}
 
-			ApiDescriptor cachedEndpoint = cache[apiObject][action] as ApiDescriptor
+			ApiDescriptor cachedEndpoint
+			if(cache) {
+				cachedEndpoint = cache[apiObject][action] as ApiDescriptor
+			}
+
 			LinkedHashMap content = handleBatchResponse(cachedEndpoint['returns'] as LinkedHashMap,cachedEndpoint['roles'] as List,mthd,format,response,newModel,params) as LinkedHashMap
 
 			int batchLength = (int) request.getAttribute('batchLength')
@@ -288,8 +292,8 @@ class BatchInterceptor extends ApiCommLayer{
 				if(apiThrottle) {
 					if (checkLimit(contentLength.length)) {
 						render(text: output, contentType: request.getContentType())
-						if(cache[apiObject][action.toString()]['hookRoles']) {
-							List hookRoles = cache[apiObject][action]['hookRoles'] as List
+						if(cachedEndpoint['hookRoles']) {
+							List hookRoles = cachedEndpoint['hookRoles'] as List
 							String service = "${controller}/${action}"
 							hookService.postData(service, output, hookRoles, this.mthdKey)
 						}
@@ -298,8 +302,8 @@ class BatchInterceptor extends ApiCommLayer{
 					}
 				}else{
 					render(text: output, contentType: request.getContentType())
-					if(cache[apiObject][action]['hookRoles']) {
-						List hookRoles = cache[apiObject][action]['hookRoles'] as List
+					if(cachedEndpoint['hookRoles']) {
+						List hookRoles = cachedEndpoint['hookRoles'] as List
 						String service = "${controller}/${action}"
 						hookService.postData(service, output, hookRoles, this.mthdKey)
 					}
