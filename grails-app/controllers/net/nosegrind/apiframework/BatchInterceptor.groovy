@@ -42,6 +42,7 @@ class BatchInterceptor extends ApiCommLayer{
 	SpringSecurityService springSecurityService
 	HookService hookService
 	boolean apiThrottle
+	String cacheHash
 
 	// TODO: detect and assign apiObjectVersion from uri
 	String entryPoint = "b${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
@@ -55,6 +56,7 @@ class BatchInterceptor extends ApiCommLayer{
 	String apiObject
 	String controller
 	String action
+	ApiDescriptor cachedEndpoint
 
 	BatchInterceptor(){
 		match(uri:"/${entryPoint}/**")
@@ -68,7 +70,7 @@ class BatchInterceptor extends ApiCommLayer{
 		mthd = (RequestMethod) RequestMethod[mthdKey]
 
 		apiThrottle = this.conf.apiThrottle as boolean
-		boolean restAlt = RequestMethod.isRestAlt(mthd.getKey())
+
 		contentType = request.getContentType()
 
 		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
@@ -109,7 +111,9 @@ class BatchInterceptor extends ApiCommLayer{
 		}
 		controller = params?.controller
 
-		//try{
+		cachedEndpoint = cache[apiObject][action] as ApiDescriptor
+
+		try{
 			//Test For APIDoc
 			if(controller=='apidoc') {
 				render(status: 400, text: "API Docs cannot be Batched. Pleased called via the normal method (ie v0.1)")
@@ -120,10 +124,12 @@ class BatchInterceptor extends ApiCommLayer{
 			params.offset = (params.offset==null)?0:params.offset
 
 			if(cache) {
+				boolean restAlt = RequestMethod.isRestAlt(mthd.getKey())
+
 				//CHECK REQUEST METHOD FOR ENDPOINT
 				// NOTE: expectedMethod must be capitolized in IO State file
 
-				String expectedMethod = cache[apiObject][action]['method'] as String
+				String expectedMethod = cachedEndpoint['method'] as String
 				if (!checkRequestMethod(mthd,expectedMethod, restAlt)) {
 					render(status: 400, text: "Expected request method '${expectedMethod}' does not match sent method '${mthd.getKey()}'")
 					return false
@@ -166,7 +172,8 @@ class BatchInterceptor extends ApiCommLayer{
 				// END HANDLE BATCH PARAMS
 
 				// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
-				LinkedHashMap receives = cache[apiObject][action]['receives'] as LinkedHashMap
+				LinkedHashMap receives = cachedEndpoint['receives'] as LinkedHashMap
+				cacheHash = createCacheHash(params, receives)
 
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
 				if (!checkURIDefinitions(params, receives)) {
@@ -175,34 +182,77 @@ class BatchInterceptor extends ApiCommLayer{
 					return false
 				}
 
-
 				// RETRIEVE CACHED RESULT
-				if (cache[apiObject][action]['cachedResult']) {
-					String authority = getUserRole() as String
-					String domain = (controller).capitalize()
+				if (cachedEndpoint['cachedResult']) {
+					if(cachedEndpoint['cachedResult'][cacheHash]){
+						String authority = getUserRole() as String
+						String domain = (controller).capitalize()
+						JSONObject json = (JSONObject) cachedEndpoint['cachedResult'][cacheHash][authority][format]
+						if (!json || json == null) {
+							return false
+						} else {
+							Set keys = json.keySet()
+							String temp = keys.iterator().next()
+							boolean first = json.get(temp)
 
-					JSONObject json = (JSONObject) cache[apiObject][action]['cachedResult'][authority][request.format.toUpperCase()]
-					if(!json){
-						return false
-					}else{
-						if (isCachedResult((Integer) json.get('version'), domain)) {
-							String result = cache[apiObject][action]['cachedResult'][authority][request.format.toUpperCase()] as String
-							byte[] contentLength = result.getBytes( 'ISO-8859-1' )
-							if(apiThrottle) {
-								if (checkLimit(contentLength.length)) {
-									render(text: result, contentType: request.getContentType())
-									return false
-								} else {
-									render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-									response.flushBuffer()
-									return false
+							// is a List of objects
+							if (first instanceof JSONObject && first.size() > 0 && !first.isEmpty()) {
+
+								JSONObject jsonObj = ((JSONObject) json.get('0'))
+								int version = jsonObj.get('version') as Integer
+
+								if (isCachedResult((Integer) version, domain)) {
+									LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][authority][format] as LinkedHashMap
+									String content = new groovy.json.JsonBuilder(result).toString()
+									byte[] contentLength = content.getBytes('ISO-8859-1')
+									if (apiThrottle) {
+										if (checkLimit(contentLength.length)) {
+											//statsService.setStatsCache(getUserId(), response.status)
+											render(text: result as JSON, contentType: contentType)
+											return false
+										} else {
+											//statsService.setStatsCache(getUserId(), 400)
+											render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
+											response.flushBuffer()
+											return false
+										}
+									} else {
+										//statsService.setStatsCache(getUserId(), response.status)
+										render(text: result as JSON, contentType: contentType)
+										return false
+									}
 								}
-							}else{
-								render(text: result, contentType: request.getContentType())
-								return false
+							} else {
+								if (json.version != null) {
+									if (isCachedResult((Integer) json.get('version'), domain)) {
+										LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][authority][format] as LinkedHashMap
+										String content = new groovy.json.JsonBuilder(result).toString()
+										byte[] contentLength = content.getBytes('ISO-8859-1')
+										if (apiThrottle) {
+											if (checkLimit(contentLength.length)) {
+												//statsService.setStatsCache(getUserId(), response.status)
+												render(text: result as JSON, contentType: contentType)
+												return false
+											} else {
+												//statsService.setStatsCache(getUserId(), 400)
+												render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
+												response.flushBuffer()
+												return false
+											}
+										} else {
+											//statsService.setStatsCache(getUserId(), response.status)
+											render(text: result as JSON, contentType: contentType)
+											return false
+										}
+									}
+								}
 							}
 						}
-					}
+					}else{
+							render(status: 404, text: 'No content found')
+							response.flushBuffer()
+							return false
+						}
 				} else {
 					if (action == null || !action) {
 						String methodAction = mthd.toString()
@@ -222,7 +272,7 @@ class BatchInterceptor extends ApiCommLayer{
 					}
 
 					// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
-					ApiDescriptor cachedEndpoint = cache[apiObject][action] as ApiDescriptor
+					//ApiDescriptor cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 					boolean result = handleApiRequest(cachedEndpoint['deprecated'] as List, cachedEndpoint['method']?.toString().trim(), mthd, response, params)
 
 					return result
@@ -231,10 +281,10 @@ class BatchInterceptor extends ApiCommLayer{
 
 			return false
 
-		//}catch(Exception e) {
-		//	throw new Exception('[BatchInterceptor :: before] : Exception - full stack trace follows:', e)
-		//	return false
-		//}
+		}catch(Exception e) {
+			throw new Exception('[BatchInterceptor :: before] : Exception - full stack trace follows:', e)
+			return false
+		}
 	}
 
 	boolean after(){
@@ -251,7 +301,7 @@ class BatchInterceptor extends ApiCommLayer{
 				newModel = convertModel(model)
 			}
 
-			ApiDescriptor cachedEndpoint
+			//ApiDescriptor cachedEndpoint
 			if(cache) {
 				cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 			}

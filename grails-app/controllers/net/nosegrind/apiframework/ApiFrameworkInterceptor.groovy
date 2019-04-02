@@ -93,7 +93,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		contentType = request.getContentType()
 
 
-		boolean restAlt = RequestMethod.isRestAlt(mthd.getKey())
+
 
 		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
 
@@ -141,6 +141,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 			params.offset = (params.offset==null)?0:params.offset
 
 			if(cache) {
+				boolean restAlt = RequestMethod.isRestAlt(mthd.getKey())
 
 				//CHECK REQUEST METHOD FOR ENDPOINT
 				// NOTE: expectedMethod must be capitolized in IO State file
@@ -338,7 +339,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					newModel = model as LinkedHashMap
 				}
 
-				ApiDescriptor cachedEndpoint
+				//ApiDescriptor cachedEndpoint
 				if(cache) {
 					cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 				}
@@ -376,8 +377,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						} else {
 							//statsService.setStatsCache(getUserId(), response.status)
 							render(text: content, contentType: contentType)
-							if(cache[apiObject][action]['hookRoles']) {
-								List hookRoles = cache[apiObject][action]['hookRoles'] as List
+							if(cachedEndpoint['hookRoles']) {
+								List hookRoles = cachedEndpoint['hookRoles'] as List
 								String service = "${controller}/${action}"
 								hookService.postData(service, content, hookRoles, this.mthdKey)
 							}
@@ -387,8 +388,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					//statsService.setStatsCache(getUserId(), response.status)
 					String content = parseResponseMethod(mthd, format, params, newModel)
 					render(text: content, contentType: contentType)
-					if(cache[apiObject][action]['hookRoles']) {
-						List hookRoles = cache[apiObject][action]['hookRoles'] as List
+					if(cachedEndpoint['hookRoles']) {
+						List hookRoles = cachedEndpoint['hookRoles'] as List
 						String service = "${controller}/${action}"
 						hookService.postData(service, content, hookRoles, this.mthdKey)
 					}

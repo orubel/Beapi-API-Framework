@@ -76,7 +76,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 		}
 
 		//Map methods = ['GET':'show','PUT':'update','POST':'create','DELETE':'delete']
-		boolean restAlt = RequestMethod.isRestAlt(mthd.getKey())
+
 
 		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
 
@@ -146,12 +146,11 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 				return false
 			}
 
+			params.max = (params.max==null)?0:params.max
+			params.offset = (params.offset==null)?0:params.offset
+
 			if (cache) {
-				params.max = (params.max==null)?0:params.max
-				params.offset = (params.offset==null)?0:params.offset
-
-
-
+				boolean restAlt = RequestMethod.isRestAlt(mthd.getKey())
 
 				// CHECK REQUEST METHOD FOR ENDPOINT
 				// NOTE: expectedMethod must be capitolized in IO State file
