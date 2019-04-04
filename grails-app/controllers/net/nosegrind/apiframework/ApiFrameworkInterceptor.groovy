@@ -148,7 +148,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				String expectedMethod = cachedEndpoint['method'] as String
 				if (!checkRequestMethod(mthd,expectedMethod, restAlt)) {
 					//statsService.setStatsCache(getUserId(), 400)
-					errorResponse(response, 400, messages.checkRequestMethod.toString())
+					errorResponse(response, messages.checkRequestMethod as List)
 					return false
 				}
 
@@ -167,7 +167,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								render(text: result, contentType: contentType)
 							} else {
 								//statsService.setStatsCache(getUserId(), 400)
-								errorResponse(response, 404, "${messages.rateLimitExceeded} ${getThrottleExpiration()} seconds til next request.")
+								// "${messages.rateLimitExceeded} ${getThrottleExpiration()} seconds til next request."
+								errorResponse(response, messages.rateLimitExceeded as List)
 							}
 						}else{
 							//statsService.setStatsCache(getUserId(), response.status)
@@ -184,7 +185,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 				if (!checkURIDefinitions(params, receives)) {
 					//statsService.setStatsCache(getUserId(), 400)
-					errorResponse(response, 400, messages.checkURIDefinitions.toString())
+					errorResponse(response, messages.checkURIDefinitions as List)
 					return false
 				}
 
@@ -221,7 +222,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 											return false
 										} else {
 											//statsService.setStatsCache(getUserId(), 400)
-											errorResponse(response, 404, "${messages.rateLimitExceeded} ${getThrottleExpiration()} seconds til next request.")
+											errorResponse(response, messages.rateLimitExceeded as List)
 											return false
 										}
 									} else {
@@ -243,7 +244,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 												return false
 											} else {
 												//statsService.setStatsCache(getUserId(), 400)
-												errorResponse(response, 404, "${messages.rateLimitExceeded} ${getThrottleExpiration()} seconds til next request.")
+												errorResponse(response, messages.rateLimitExceeded as List)
 												return false
 											}
 										} else {
@@ -280,7 +281,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					//List roles = cache['roles'] as List
 					List roles = cachedEndpoint['roles'] as List
 					if(!checkAuth(roles)){
-						errorResponse(response, 400, messages.checkAuth.toString())
+						errorResponse(response, messages.checkAuth as List)
 						return false
 					}
 
@@ -316,7 +317,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
 						//statsService.setStatsCache(getUserId(), 404)
-						errorResponse(response, 400, messages.noResourceError.toString())
+						errorResponse(response, messages.noResourceError as List)
 						return false
 					} else {
 						newModel = convertModel(model)
@@ -356,7 +357,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								return false
 							} else {
 								//statsService.setStatsCache(getUserId(), 400)
-								errorResponse(response, 404, "${messages.rateLimitExceeded} ${getThrottleExpiration()} seconds til next request.")
+								errorResponse(response, messages.rateLimitExceeded as List)
 								return false
 							}
 						} else {
@@ -391,9 +392,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		return false
 	}
 
-	private void errorResponse(HttpServletResponse response, Integer status, String message){
-		response.status = status
-		response.setHeader('ERROR', message)
+	private void errorResponse(HttpServletResponse response, List error){
+		response.status = error[0] as Integer
+		response.setHeader('ERROR', error[1].toString())
 		response.writer.flush()
 	}
 }
