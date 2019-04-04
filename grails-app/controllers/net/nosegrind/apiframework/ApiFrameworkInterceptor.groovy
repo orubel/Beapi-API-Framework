@@ -13,7 +13,6 @@ import grails.util.Holders
 
 import javax.servlet.http.HttpServletResponse
 import groovy.transform.CompileStatic
-import org.springframework.http.HttpStatus
 import net.nosegrind.apiframework.HookService
 import net.nosegrind.apiframework.StatsService
 import javax.servlet.http.HttpSession
@@ -56,6 +55,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	String controller
 	String action
 	ApiDescriptor cachedEndpoint
+	LinkedHashMap messages = [:]
 
 	/**
 	 * Constructor for ApiFrameworkInterceptor. Matches on entrypoint (ie v0.1 for example)
@@ -79,20 +79,22 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * @return
 	 */
 	boolean before(){
-		//println('##### FILTER (BEFORE)')
+		//println('##### INTERCEPTOR (BEFORE)')
 
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
 		//println("FILTERCHAIN : "+filterChain)
 
 
+		LinkedHashMap temp2 = this.conf.interceptor as LinkedHashMap
+		messages = temp2['errorMsg']
+
+		//messages = (this.conf.interceptor)?this.conf.interceptor.errorMsg:messages
 		format = (request?.format)?request.format.toUpperCase():'JSON'
 		mthdKey = request.method.toUpperCase()
 		mthd = (RequestMethod) RequestMethod[mthdKey]
 		apiThrottle = this.conf.apiThrottle as boolean
 		contentType = request.getContentType()
-
-
 
 
 		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
@@ -109,16 +111,15 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					attribs = request.getAttribute('JSON') as LinkedHashMap
 					break
 			}
-			if(attribs){
-				attribs.each() { k, v ->
-					params.put(k, v)
-				}
+			attribs.each() { k, v ->
+				params.put(k, v)
 			}
 		}
 
 		// INITIALIZE CACHE
 		HttpSession session = request.getSession()
 		cache = session['cache'] as LinkedHashMap
+		controller = params?.controller
 
 		if(cache) {
 			apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
@@ -129,7 +130,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		}else{
 			action = params?.action
 		}
-		controller = params?.controller
 
 		cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 
@@ -148,7 +148,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				String expectedMethod = cachedEndpoint['method'] as String
 				if (!checkRequestMethod(mthd,expectedMethod, restAlt)) {
 					//statsService.setStatsCache(getUserId(), 400)
-					render(status: 400, text: "Expected request method '${expectedMethod}' does not match sent method '${mthd.getKey()}'")
+					errorResponse(response, 400, messages.checkRequestMethod.toString())
 					return false
 				}
 
@@ -167,7 +167,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								render(text: result, contentType: contentType)
 							} else {
 								//statsService.setStatsCache(getUserId(), 400)
-								render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
+								errorResponse(response, 404, "${messages.rateLimitExceeded} ${getThrottleExpiration()} seconds til next request.")
 							}
 						}else{
 							//statsService.setStatsCache(getUserId(), response.status)
@@ -183,9 +183,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
 
 				if (!checkURIDefinitions(params, receives)) {
-					//statsService.setStatsCache(getUserId(), HttpStatus.BAD_REQUEST.value())
-					render(status: HttpStatus.BAD_REQUEST.value(), text: 'Expected request variables for endpoint do not match sent variables')
-					response.flushBuffer()
+					//statsService.setStatsCache(getUserId(), 400)
+					errorResponse(response, 400, messages.checkURIDefinitions.toString())
 					return false
 				}
 
@@ -196,14 +195,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 						String authority = getUserRole() as String
 						String domain = ((String) controller).capitalize()
-
-						//List roles = cache['roles'] as List
-						//List roles = cache[apiObject][action]['roles'] as List
-						//if(!checkAuth(roles)){
-						//	response.status = 401
-						//	response.setHeader('ERROR','Unauthorized Access attempted')
-						//	return false
-						//}
 
 						JSONObject json = (JSONObject) cachedEndpoint['cachedResult'][cacheHash][authority][format]
 						if (!json || json == null) {
@@ -230,8 +221,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 											return false
 										} else {
 											//statsService.setStatsCache(getUserId(), 400)
-											render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-											response.flushBuffer()
+											errorResponse(response, 404, "${messages.rateLimitExceeded} ${getThrottleExpiration()} seconds til next request.")
 											return false
 										}
 									} else {
@@ -253,8 +243,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 												return false
 											} else {
 												//statsService.setStatsCache(getUserId(), 400)
-												render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-												response.flushBuffer()
+												errorResponse(response, 404, "${messages.rateLimitExceeded} ${getThrottleExpiration()} seconds til next request.")
 												return false
 											}
 										} else {
@@ -268,7 +257,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						}
 					}else{
 						render(status: 404, text: 'No content found')
-						response.flushBuffer()
 						return false
 					}
 				} else {
@@ -292,8 +280,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					//List roles = cache['roles'] as List
 					List roles = cachedEndpoint['roles'] as List
 					if(!checkAuth(roles)){
-						response.status = 401
-						response.setHeader('ERROR','Unauthorized Access attempted')
+						errorResponse(response, 400, messages.checkAuth.toString())
 						return false
 					}
 
@@ -319,7 +306,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * @return
 	 */
 	boolean after() {
-		//println('##### FILTER (AFTER)')
+		//println('##### INTERCEPTOR (AFTER)')
 
 		if(model) {
 			//List unsafeMethods = ['PUT', 'POST', 'DELETE']
@@ -328,9 +315,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
-						//statsService.setStatsCache(getUserId(), HttpServletResponse.SC_NOT_FOUND)
-						render(status: HttpServletResponse.SC_NOT_FOUND, text: 'No resource returned / domain is empty')
-						response.flushBuffer()
+						//statsService.setStatsCache(getUserId(), 404)
+						errorResponse(response, 400, messages.noResourceError.toString())
 						return false
 					} else {
 						newModel = convertModel(model)
@@ -369,9 +355,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								response.flushBuffer()
 								return false
 							} else {
-								//statsService.setStatsCache(getUserId(), HttpServletResponse.SC_BAD_REQUEST)
-								render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-								response.flushBuffer()
+								//statsService.setStatsCache(getUserId(), 400)
+								errorResponse(response, 404, "${messages.rateLimitExceeded} ${getThrottleExpiration()} seconds til next request.")
 								return false
 							}
 						} else {
@@ -404,5 +389,11 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 		}
 		return false
+	}
+
+	private void errorResponse(HttpServletResponse response, Integer status, String message){
+		response.status = status
+		response.setHeader('ERROR', message)
+		response.writer.flush()
 	}
 }

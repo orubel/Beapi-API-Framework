@@ -68,9 +68,7 @@ class BatchInterceptor extends ApiCommLayer{
 		format = (request?.format)?request.format.toUpperCase():'JSON'
 		mthdKey = request.method.toUpperCase()
 		mthd = (RequestMethod) RequestMethod[mthdKey]
-
 		apiThrottle = this.conf.apiThrottle as boolean
-
 		contentType = request.getContentType()
 
 		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
@@ -88,28 +86,22 @@ class BatchInterceptor extends ApiCommLayer{
 					attribs = request.getAttribute('JSON') as LinkedHashMap
 					break
 			}
-			if(attribs){
-				attribs.each() { k, v ->
-					params.put(k, v)
-				}
+			attribs.each() { k, v ->
+				params.put(k, v)
 			}
 		}
-
 
 		// INITIALIZE CACHE
 		HttpSession session = request.getSession()
 		cache = session['cache'] as LinkedHashMap
+		controller = params?.controller
 
 		if(cache) {
 			apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
 			action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
-
-			//params.apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
-			//params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
 		}else{
 			action = params?.action
 		}
-		controller = params?.controller
 
 		cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 
