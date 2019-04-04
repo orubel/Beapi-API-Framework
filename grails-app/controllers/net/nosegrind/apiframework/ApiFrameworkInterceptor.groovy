@@ -147,7 +147,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				// NOTE: expectedMethod must be capitolized in IO State file
 				String expectedMethod = cachedEndpoint['method'] as String
 				if (!checkRequestMethod(mthd,expectedMethod, restAlt)) {
-					//statsService.setStatsCache(getUserId(), 400)
 					errorResponse(response, messages.checkRequestMethod as List)
 					return false
 				}
@@ -166,7 +165,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								//statsService.setStatsCache(getUserId(), response.status)
 								render(text: result, contentType: contentType)
 							} else {
-								//statsService.setStatsCache(getUserId(), 400)
 								// "${messages.rateLimitExceeded} ${getThrottleExpiration()} seconds til next request."
 								errorResponse(response, messages.rateLimitExceeded as List)
 							}
@@ -184,7 +182,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
 
 				if (!checkURIDefinitions(params, receives)) {
-					//statsService.setStatsCache(getUserId(), 400)
 					errorResponse(response, messages.checkURIDefinitions as List)
 					return false
 				}
@@ -221,7 +218,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 											render(text: result as JSON, contentType: contentType)
 											return false
 										} else {
-											//statsService.setStatsCache(getUserId(), 400)
 											errorResponse(response, messages.rateLimitExceeded as List)
 											return false
 										}
@@ -243,7 +239,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 												render(text: result as JSON, contentType: contentType)
 												return false
 											} else {
-												//statsService.setStatsCache(getUserId(), 400)
 												errorResponse(response, messages.rateLimitExceeded as List)
 												return false
 											}
@@ -316,7 +311,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
-						//statsService.setStatsCache(getUserId(), 404)
 						errorResponse(response, messages.noResourceError as List)
 						return false
 					} else {
@@ -356,7 +350,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								response.flushBuffer()
 								return false
 							} else {
-								//statsService.setStatsCache(getUserId(), 400)
 								errorResponse(response, messages.rateLimitExceeded as List)
 								return false
 							}
@@ -393,8 +386,13 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	}
 
 	private void errorResponse(HttpServletResponse response, List error){
-		response.status = error[0] as Integer
-		response.setHeader('ERROR', error[1].toString())
+		Integer status = error[0] as Integer
+		String msg = error[1].toString()
+
+		//statsService.setStatsCache(getUserId(), status)
+
+		response.status = status
+		response.setHeader('ERROR', msg)
 		response.writer.flush()
 	}
 }
