@@ -736,8 +736,20 @@ abstract class ApiCommProcess{
         }
     }
 
+    /**
+     * Returns the existing Users ID
+     * @return
+     */
+    int getUserId(){
+        try {
+            if (springSecurityService.loggedIn) {
+                return springSecurityService.principal.id
+            }
+        }catch(Exception e) {
+            throw new Exception("[ApiCommProcess :: getUserId] : Exception - full stack trace follows:",e)
+        }
+    }
 
-    // interceptor::before
     /**
      * Returns concatenated IDS as a HASH used as ID for the API cache
      * @see ApiFrameworkInterceptor#before()

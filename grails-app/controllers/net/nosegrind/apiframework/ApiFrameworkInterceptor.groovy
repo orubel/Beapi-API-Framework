@@ -37,7 +37,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	ApiCacheService apiCacheService = new ApiCacheService()
 	SpringSecurityService springSecurityService
 	HookService hookService
-	//StatsService statsService
+	StatsService statsService
 	boolean apiThrottle
 	String cacheHash
 
@@ -124,9 +124,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		if(cache) {
 			apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
 			action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
-
-			//params.apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
-			//params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
 		}else{
 			action = params?.action
 		}
@@ -151,7 +148,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					return false
 				}
 
-
 				// CHECK FOR REST ALTERNATIVES
 				if (restAlt) {
 					// PARSE REST ALTS (TRACE, OPTIONS, ETC)
@@ -162,15 +158,13 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
-								//statsService.setStatsCache(getUserId(), response.status)
-								render(text: result, contentType: contentType)
+								renderResponse(response.status, result, contentType)
 							} else {
 								// "${messages.rateLimitExceeded} ${getThrottleExpiration()} seconds til next request."
 								errorResponse(response, messages.rateLimitExceeded as List)
 							}
 						}else{
-							//statsService.setStatsCache(getUserId(), response.status)
-							render(text: result, contentType: contentType)
+							renderResponse(response.status, result, contentType)
 						}
 						return false
 					}
@@ -214,16 +208,14 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 									byte[] contentLength = content.getBytes('ISO-8859-1')
 									if (apiThrottle) {
 										if (checkLimit(contentLength.length)) {
-											//statsService.setStatsCache(getUserId(), response.status)
-											render(text: result as JSON, contentType: contentType)
+											renderResponse(response.status, result, contentType)
 											return false
 										} else {
 											errorResponse(response, messages.rateLimitExceeded as List)
 											return false
 										}
 									} else {
-										//statsService.setStatsCache(getUserId(), response.status)
-										render(text: result as JSON, contentType: contentType)
+										renderResponse(response.status, result, contentType)
 										return false
 									}
 								}
@@ -235,16 +227,14 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 										byte[] contentLength = content.getBytes('ISO-8859-1')
 										if (apiThrottle) {
 											if (checkLimit(contentLength.length)) {
-												//statsService.setStatsCache(getUserId(), response.status)
-												render(text: result as JSON, contentType: contentType)
+												renderResponse(response.status, result, contentType)
 												return false
 											} else {
 												errorResponse(response, messages.rateLimitExceeded as List)
 												return false
 											}
 										} else {
-											//statsService.setStatsCache(getUserId(), response.status)
-											render(text: result as JSON, contentType: contentType)
+											renderResponse(response.status, result, contentType)
 											return false
 										}
 									}
@@ -252,7 +242,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							}
 						}
 					}else{
-						render(status: 404, text: 'No content found')
+						errorResponse(response, messages.noContent as List)
 						return false
 					}
 				} else {
@@ -280,8 +270,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						return false
 					}
 
-					// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
-					//ApiDescriptor cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 					boolean result = handleApiRequest(cachedEndpoint['deprecated'] as List, (cachedEndpoint['method'])?.toString(), mthd, response, params)
 					return result
 				}
@@ -328,14 +316,11 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				// TEST FOR NESTED MAP; WE DON'T CACHE NESTED MAPS
 				//boolean isNested = false
 				if (newModel != [:]) {
-
 					String content = handleApiResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, response, newModel, params)
-
 					byte[] contentLength = content.getBytes('ISO-8859-1')
 					if (content) {
 
 						// STORE CACHED RESULT
-						//String format = request.format.toUpperCase()
 						String authority = getUserRole() as String
 						String role
 						if(request.method.toUpperCase()=='GET') {
@@ -345,16 +330,14 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
-								//statsService.setStatsCache(getUserId(), response.status)
-								render(text: content, contentType: contentType)
-								response.flushBuffer()
+								renderResponse(response.status, content, contentType)
+								//response.flushBuffer()
 								return false
 							} else {
 								errorResponse(response, messages.rateLimitExceeded as List)
 								return false
 							}
 						} else {
-							//statsService.setStatsCache(getUserId(), response.status)
 							render(text: content, contentType: contentType)
 							if(cachedEndpoint['hookRoles']) {
 								List hookRoles = cachedEndpoint['hookRoles'] as List
@@ -364,15 +347,15 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						}
 					}
 				} else {
-					//statsService.setStatsCache(getUserId(), response.status)
 					String content = parseResponseMethod(mthd, format, params, newModel)
-					render(text: content, contentType: contentType)
+
+					renderResponse(response.status, content, contentType)
 					if(cachedEndpoint['hookRoles']) {
 						List hookRoles = cachedEndpoint['hookRoles'] as List
 						String service = "${controller}/${action}"
 						hookService.postData(service, content, hookRoles, this.mthdKey)
 					}
-					response.flushBuffer()
+					//response.flushBuffer()
 				}
 				return false
 
@@ -385,14 +368,35 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		return false
 	}
 
+	private void renderResponse(Integer status, Object result, String contentType){
+		statsService.setStatsCache(getUserId(), status)
+		render(text: getContent(result, contentType), contentType: contentType)
+	}
+
 	private void errorResponse(HttpServletResponse response, List error){
 		Integer status = error[0] as Integer
 		String msg = error[1].toString()
 
-		//statsService.setStatsCache(getUserId(), status)
+		statsService.setStatsCache(getUserId(), status)
 
 		response.status = status
 		response.setHeader('ERROR', msg)
 		response.writer.flush()
+	}
+
+	private String getContent(Object result, String contentType){
+		String content
+		switch(contentType){
+			case 'text/xml':
+			case 'application/xml':
+				content = result as XML
+				break
+			case 'text/json':
+			case 'application/json':
+			default:
+				content = result as JSON
+				break
+		}
+		return content
 	}
 }
