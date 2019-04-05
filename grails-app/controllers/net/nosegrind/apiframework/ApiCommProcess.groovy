@@ -2,10 +2,6 @@ package net.nosegrind.apiframework
 
 
 import javax.annotation.Resource
-import javax.servlet.http.HttpServletRequest
-import org.springframework.web.context.request.ServletRequestAttributes
-import javax.servlet.http.HttpSession
-
 
 import java.text.SimpleDateFormat
 import static groovyx.gpars.GParsPool.withPool
@@ -21,13 +17,12 @@ import org.grails.core.artefact.DomainClassArtefactHandler
 import org.springframework.beans.factory.annotation.Autowired
 import org.grails.plugin.cache.GrailsCacheManager
 
-import javax.servlet.http.HttpServletRequest
-
 import com.google.common.hash.Hashing
 import java.nio.charset.StandardCharsets
 
 import org.grails.core.DefaultGrailsDomainClass
 import grails.orm.HibernateCriteriaBuilder
+import org.grails.web.util.WebUtils
 
 /**
  *
@@ -50,16 +45,14 @@ abstract class ApiCommProcess{
     @Autowired
     ThrottleCacheService throttleCacheService
 
-    //@Autowired
-    //ApiCacheService apiCacheService = new ApiCacheService()
     List formats = ['text/json','application/json','text/xml','application/xml']
     List optionalParams = ['method','format','contentType','encoding','action','controller','v','apiCombine', 'apiObject','entryPoint','uri','apiObjectVersion']
 
+    // Used for parallelization
     int cores = Holders.grailsApplication.config.apitoolkit.procCores as Integer
 
     boolean batchEnabled = Holders.grailsApplication.config.apitoolkit.batching.enabled
     boolean chainEnabled = Holders.grailsApplication.config.apitoolkit.chaining.enabled
-
 
     /**
      * Given the request params, resets parameters for a batch based upon each iteration
@@ -193,6 +186,10 @@ abstract class ApiCommProcess{
                     return true
                 }
             }
+
+            response.status = 400
+            response.setHeader('ERROR', 'Expected request variables for endpoint do not match sent variables')
+            response.writer.flush()
             return false
         }catch(Exception e) {
            throw new Exception("[ApiCommProcess :: checkURIDefinitions] : Exception - full stack trace follows:",e)
@@ -660,7 +657,6 @@ abstract class ApiCommProcess{
         String auth = getUserRole()
 
         if(roles.contains(auth)){
-            //String userId = getUserId()
             String userId = springSecurityService.loggedIn?springSecurityService.principal.id : null
             def lcache = throttleCacheService.getThrottleCache(userId)
 
@@ -779,5 +775,21 @@ abstract class ApiCommProcess{
     protected static String hashWithGuava(final String originalString) {
         final String sha256hex = Hashing.sha256().hashString(originalString, StandardCharsets.UTF_8).toString()
         return sha256hex;
+    }
+
+    protected String getContent(Object result, String contentType){
+        String content
+        switch(contentType){
+            case 'text/xml':
+            case 'application/xml':
+                content = result as XML
+                break
+            case 'text/json':
+            case 'application/json':
+            default:
+                content = result as JSON
+                break
+        }
+        return content
     }
 }

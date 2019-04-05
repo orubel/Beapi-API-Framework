@@ -144,7 +144,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				// NOTE: expectedMethod must be capitolized in IO State file
 				String expectedMethod = cachedEndpoint['method'] as String
 				if (!checkRequestMethod(mthd,expectedMethod, restAlt)) {
-					errorResponse(response, messages.checkRequestMethod as List)
+					errorResponse(response, messages.checkRequestMethod)
 					return false
 				}
 
@@ -161,7 +161,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								renderResponse(response.status, result, contentType)
 							} else {
 								// "${messages.rateLimitExceeded} ${getThrottleExpiration()} seconds til next request."
-								errorResponse(response, messages.rateLimitExceeded as List)
+								errorResponse(response, messages.rateLimitExceeded)
 							}
 						}else{
 							renderResponse(response.status, result, contentType)
@@ -172,13 +172,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 				LinkedHashMap receives = cachedEndpoint['receives'] as LinkedHashMap
 				cacheHash = createCacheHash(params, receives)
-
-				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
-
-				if (!checkURIDefinitions(params, receives)) {
-					errorResponse(response, messages.checkURIDefinitions as List)
-					return false
-				}
+				checkURIDefinitions(params, receives)
 
 				// RETRIEVE CACHED RESULT (only if using get method); DON'T CACHE LISTS
 
@@ -211,7 +205,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 											renderResponse(response.status, result, contentType)
 											return false
 										} else {
-											errorResponse(response, messages.rateLimitExceeded as List)
+											errorResponse(response, messages.rateLimitExceeded)
 											return false
 										}
 									} else {
@@ -230,7 +224,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 												renderResponse(response.status, result, contentType)
 												return false
 											} else {
-												errorResponse(response, messages.rateLimitExceeded as List)
+												errorResponse(response, messages.rateLimitExceeded)
 												return false
 											}
 										} else {
@@ -242,7 +236,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							}
 						}
 					}else{
-						errorResponse(response, messages.noContent as List)
+						errorResponse(response, messages.noContent)
 						return false
 					}
 				} else {
@@ -266,7 +260,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					//List roles = cache['roles'] as List
 					List roles = cachedEndpoint['roles'] as List
 					if(!checkAuth(roles)){
-						errorResponse(response, messages.checkAuth as List)
+						errorResponse(response, messages.checkAuth)
 						return false
 					}
 
@@ -299,7 +293,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
-						errorResponse(response, messages.noResourceError as List)
+						errorResponse(response, messages.noResourceError)
 						return false
 					} else {
 						newModel = convertModel(model)
@@ -334,7 +328,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								//response.flushBuffer()
 								return false
 							} else {
-								errorResponse(response, messages.rateLimitExceeded as List)
+								errorResponse(response, messages.rateLimitExceeded)
 								return false
 							}
 						} else {
@@ -384,19 +378,4 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		response.writer.flush()
 	}
 
-	private String getContent(Object result, String contentType){
-		String content
-		switch(contentType){
-			case 'text/xml':
-			case 'application/xml':
-				content = result as XML
-				break
-			case 'text/json':
-			case 'application/json':
-			default:
-				content = result as JSON
-				break
-		}
-		return content
-	}
 }
