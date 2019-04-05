@@ -23,6 +23,7 @@ import java.nio.charset.StandardCharsets
 import org.grails.core.DefaultGrailsDomainClass
 import grails.orm.HibernateCriteriaBuilder
 import org.grails.web.util.WebUtils
+import javax.servlet.http.HttpServletResponse
 
 /**
  *
@@ -49,10 +50,11 @@ abstract class ApiCommProcess{
     List optionalParams = ['method','format','contentType','encoding','action','controller','v','apiCombine', 'apiObject','entryPoint','uri','apiObjectVersion']
 
     // Used for parallelization
-    int cores = Holders.grailsApplication.config.apitoolkit.procCores as Integer
+    //int cores = Holders.grailsApplication.config.apitoolkit.procCores as Integer
 
     boolean batchEnabled = Holders.grailsApplication.config.apitoolkit.batching.enabled
     boolean chainEnabled = Holders.grailsApplication.config.apitoolkit.chaining.enabled
+
 
     /**
      * Given the request params, resets parameters for a batch based upon each iteration
@@ -142,7 +144,11 @@ abstract class ApiCommProcess{
      */
     boolean checkRequestMethod(RequestMethod mthd,String method, boolean restAlt){
         if(!restAlt) {
-            return (mthd.getKey() == method) ? true : false
+            if(mthd.getKey() == method){
+                return true
+            }else{
+                errorResponse(response, [400,'Expected request method for endpoint does not match sent method'])
+            }
         }
         return true
     }
@@ -187,9 +193,7 @@ abstract class ApiCommProcess{
                 }
             }
 
-            response.status = 400
-            response.setHeader('ERROR', 'Expected request variables for endpoint do not match sent variables')
-            response.writer.flush()
+            errorResponse(response, [400,'Expected request variables for endpoint do not match sent variables'])
             return false
         }catch(Exception e) {
            throw new Exception("[ApiCommProcess :: checkURIDefinitions] : Exception - full stack trace follows:",e)
@@ -213,15 +217,15 @@ abstract class ApiCommProcess{
         switch(mthd.getKey()) {
             case 'PURGE':
                 // cleans cache; disabled for now
-                break;
+                break
             case 'TRACE':
-                break;
+                break
             case 'HEAD':
-                break;
+                break
             case 'OPTIONS':
                 String doc = getApiDoc(params)
                 content = doc
-                break;
+                break
             case 'GET':
             case 'PUT':
             case 'POST':
@@ -234,7 +238,7 @@ abstract class ApiCommProcess{
                     default:
                         content = result as JSON
                 }
-                break;
+                break
         }
 
         return content
@@ -271,16 +275,16 @@ abstract class ApiCommProcess{
         switch(mthd.getKey()) {
             case 'PURGE':
                 // cleans cache; disabled for now
-                break;
+                break
             case 'TRACE':
                 // placeholder
-                break;
+                break
             case 'HEAD':
                 // placeholder
-                break;
+                break
             case 'OPTIONS':
                 content = getApiDoc(params)
-                break;
+                break
         }
 
         return content
@@ -334,15 +338,15 @@ abstract class ApiCommProcess{
      * @see ApiCommLayer#handleApiRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
      * @see ApiCommLayer#handleBatchRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
      * @see ApiCommLayer#handleChainRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
-     * @param String protocol
+     * @param String method
      * @param RequestMethod mthd
      * @return
      */
-    boolean isRequestMatch(String protocol,RequestMethod mthd){
+    boolean isRequestMatch(String method,RequestMethod mthd){
         if(RequestMethod.isRestAlt(mthd.getKey())){
             return true
         }else{
-            if(protocol == mthd.getKey()){
+            if(method == mthd.getKey()){
                 return true
             }else{
                 return false
@@ -390,64 +394,6 @@ abstract class ApiCommProcess{
         return false
     }
 
-
-    /**
-     * Given a HashMap, parses and return a JSON String;
-     * @deprecated
-     * @see #getApiDoc
-     * @param HashMap returns
-     * @return
-     */
-    /*
-    private String processJson(LinkedHashMap returns){
-        // TODO: Need to compare multiple authorities
-        try{
-            LinkedHashMap json = [:]
-            returns.each{ p ->
-                p.value.each{ it ->
-                    if(it) {
-                        ParamsDescriptor paramDesc = it
-
-                        LinkedHashMap j = [:]
-                        if (paramDesc?.values) {
-                            j["$paramDesc.name"] = []
-                        } else {
-                            String dataName = (['PKEY', 'FKEY', 'INDEX'].contains(paramDesc?.paramType?.toString())) ? 'ID' : paramDesc.paramType
-                            j = (paramDesc?.mockData?.trim()) ? ["$paramDesc.name": "$paramDesc.mockData"] : ["$paramDesc.name": "$dataName"]
-                        }
-                        withPool(this.cores) { pool ->
-                            j.eachParallel { key, val ->
-                                if (val instanceof List) {
-                                    LinkedHashMap child = [:]
-                                    withExistingPool(pool, {
-                                        val.eachParallel { it2 ->
-                                            withExistingPool(pool, {
-                                                it2.eachParallel { key2, val2 ->
-                                                    child[key2] = val2
-                                                }
-                                            })
-                                        }
-                                    })
-                                    json[key] = child
-                                } else {
-                                    json[key] = val
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-
-            String jsonReturn
-            if(json){
-                jsonReturn = json as JSON
-            }
-            return jsonReturn
-        }catch(Exception e){
-            throw new Exception("[ApiCommProcess :: processJson] : Exception - full stack trace follows:",e)
-        }
-    }
-    */
 
     /**
      * Given a Map, will process cased on type of object and return a HashMap;
@@ -531,7 +477,6 @@ abstract class ApiCommProcess{
         if(map) {
             map.each() { key, val ->
                 if (val) {
-
                     if (java.lang.Class.isInstance(val.class)) {
                         newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? val : val.toString()
                     } else if (DomainClassArtefactHandler?.isDomainClass(val.getClass())) {
@@ -583,11 +528,8 @@ abstract class ApiCommProcess{
      * @return
      */
     boolean isCachedResult(Integer version, String className){
-
         Class clazz = grailsApplication.domainClasses.find { it.clazz.simpleName == className }.clazz
-
         HibernateCriteriaBuilder c = clazz.createCriteria()
-
         long currentVersion = c.get {
             projections {
                 property('version')
@@ -595,7 +537,6 @@ abstract class ApiCommProcess{
             maxResults(1)
             order('version', 'desc')
         }
-
         return (currentVersion > version)?false:true
     }
 
@@ -685,6 +626,7 @@ abstract class ApiCommProcess{
                         }else{
                             lcache['locked'] = true
                             throttleCacheService.setThrottleCache(userId, lcache)
+                            errorResponse(404, 'Rate Limit exceeded. Please wait')
                             return false
                         }
                         return false
@@ -695,8 +637,10 @@ abstract class ApiCommProcess{
                         throttleCacheService.setThrottleCache(userId, lcache)
                         return true
                     }
+                    errorResponse(404, 'Rate Limit exceeded. Please wait')
                     return false
                 }else{
+                    errorResponse(404, 'Rate Limit exceeded. Please wait')
                     return false
                 }
             }
@@ -726,7 +670,12 @@ abstract class ApiCommProcess{
             }else{
                 //println("NOT LOGGED IN!!!")
             }
-            return hasAuth
+            if(hasAuth==false){
+                errorResponse(400, 'Unauthorized Access attempted')
+                return false
+            }else{
+                return hasAuth
+            }
         }catch(Exception e) {
             throw new Exception("[ApiCommProcess :: checkAuth] : Exception - full stack trace follows:",e)
         }
@@ -792,4 +741,18 @@ abstract class ApiCommProcess{
         }
         return content
     }
+
+    protected void errorResponse(HttpServletResponse response, List error){
+        Integer status = error[0]
+        String msg = error[1]
+
+        //statsService.setStatsCache(getUserId(), status)
+
+        response.status = status
+        response.setHeader('ERROR', msg)
+        response.writer.flush()
+
+    }
+
+
 }

@@ -17,6 +17,7 @@ import net.nosegrind.apiframework.HookService
 import net.nosegrind.apiframework.StatsService
 import javax.servlet.http.HttpSession
 
+
 /**
  *
  * HandlerInterceptor for Basic API Calls. Parses XML/JSON, handles authentication, rate limiting, caching, and statistics reporting
@@ -48,14 +49,15 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	String mthdKey
 	RequestMethod mthd
 	LinkedHashMap cache = [:]
-	grails.config.Config conf = Holders.grailsApplication.config
+
 	LinkedHashMap stat = [:]
 	String contentType
 	String apiObject
 	String controller
 	String action
 	ApiDescriptor cachedEndpoint
-	LinkedHashMap messages = [:]
+	//LinkedHashMap messages = [:]
+	// Used for parallelization
 
 	/**
 	 * Constructor for ApiFrameworkInterceptor. Matches on entrypoint (ie v0.1 for example)
@@ -86,14 +88,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		//println("FILTERCHAIN : "+filterChain)
 
 
-		LinkedHashMap temp2 = this.conf.interceptor as LinkedHashMap
-		messages = temp2['errorMsg']
-
-		//messages = (this.conf.interceptor)?this.conf.interceptor.errorMsg:messages
 		format = (request?.format)?request.format.toUpperCase():'JSON'
 		mthdKey = request.method.toUpperCase()
 		mthd = (RequestMethod) RequestMethod[mthdKey]
-		apiThrottle = this.conf.apiThrottle as boolean
+		apiThrottle = Holders.grailsApplication.config.apiThrottle as boolean
 		contentType = request.getContentType()
 
 
@@ -143,10 +141,11 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				//CHECK REQUEST METHOD FOR ENDPOINT
 				// NOTE: expectedMethod must be capitolized in IO State file
 				String expectedMethod = cachedEndpoint['method'] as String
-				if (!checkRequestMethod(mthd,expectedMethod, restAlt)) {
-					errorResponse(response, messages.checkRequestMethod)
-					return false
-				}
+				checkRequestMethod(mthd,expectedMethod, restAlt)
+
+				LinkedHashMap receives = cachedEndpoint['receives'] as LinkedHashMap
+				cacheHash = createCacheHash(params, receives)
+				checkURIDefinitions(params, receives)
 
 				// CHECK FOR REST ALTERNATIVES
 				if (restAlt) {
@@ -155,13 +154,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 					if (result) {
 						byte[] contentLength = result.getBytes('ISO-8859-1')
-
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
 								renderResponse(response.status, result, contentType)
-							} else {
-								// "${messages.rateLimitExceeded} ${getThrottleExpiration()} seconds til next request."
-								errorResponse(response, messages.rateLimitExceeded)
 							}
 						}else{
 							renderResponse(response.status, result, contentType)
@@ -170,12 +165,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					}
 				}
 
-				LinkedHashMap receives = cachedEndpoint['receives'] as LinkedHashMap
-				cacheHash = createCacheHash(params, receives)
-				checkURIDefinitions(params, receives)
-
 				// RETRIEVE CACHED RESULT (only if using get method); DON'T CACHE LISTS
-
 				if (cachedEndpoint['cachedResult'] && mthdKey=='GET' ) {
 					if(cachedEndpoint['cachedResult'][cacheHash]){
 
@@ -194,18 +184,15 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							if (first instanceof JSONObject && first.size() > 0 && !first.isEmpty()) {
 
 								JSONObject jsonObj = ((JSONObject) json.get('0'))
-								int version = jsonObj.get('version') as Integer
+								Integer version = jsonObj.get('version') as Integer
 
-								if (isCachedResult((Integer) version, domain)) {
+								if(isCachedResult(version, domain)) {
 									LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][authority][format] as LinkedHashMap
 									String content = new groovy.json.JsonBuilder(result).toString()
 									byte[] contentLength = content.getBytes('ISO-8859-1')
 									if (apiThrottle) {
 										if (checkLimit(contentLength.length)) {
 											renderResponse(response.status, result, contentType)
-											return false
-										} else {
-											errorResponse(response, messages.rateLimitExceeded)
 											return false
 										}
 									} else {
@@ -223,9 +210,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 											if (checkLimit(contentLength.length)) {
 												renderResponse(response.status, result, contentType)
 												return false
-											} else {
-												errorResponse(response, messages.rateLimitExceeded)
-												return false
 											}
 										} else {
 											renderResponse(response.status, result, contentType)
@@ -236,7 +220,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							}
 						}
 					}else{
-						errorResponse(response, messages.noContent)
+						errorResponse(response, [404,'No Content found'])
 						return false
 					}
 				} else {
@@ -259,10 +243,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 					//List roles = cache['roles'] as List
 					List roles = cachedEndpoint['roles'] as List
-					if(!checkAuth(roles)){
-						errorResponse(response, messages.checkAuth)
-						return false
-					}
+					checkAuth(roles)
 
 					boolean result = handleApiRequest(cachedEndpoint['deprecated'] as List, (cachedEndpoint['method'])?.toString(), mthd, response, params)
 					return result
@@ -293,7 +274,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
-						errorResponse(response, messages.noResourceError)
+						errorResponse(response, [400,'No resource returned; query was empty'])
 						return false
 					} else {
 						newModel = convertModel(model)
@@ -323,12 +304,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						}
 
 						if (apiThrottle) {
-							if (checkLimit(contentLength.length)) {
+							if(checkLimit(contentLength.length)) {
 								renderResponse(response.status, content, contentType)
-								//response.flushBuffer()
-								return false
-							} else {
-								errorResponse(response, messages.rateLimitExceeded)
 								return false
 							}
 						} else {
@@ -363,19 +340,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	}
 
 	private void renderResponse(Integer status, Object result, String contentType){
-		statsService.setStatsCache(getUserId(), status)
-		render(text: getContent(result, contentType), contentType: contentType)
-	}
-
-	private void errorResponse(HttpServletResponse response, List error){
-		Integer status = error[0] as Integer
-		String msg = error[1].toString()
-
-		statsService.setStatsCache(getUserId(), status)
-
-		response.status = status
-		response.setHeader('ERROR', msg)
-		response.writer.flush()
+			//statsService.setStatsCache(getUserId(), status)
+			render(text: getContent(result, contentType), contentType: contentType)
 	}
 
 }
