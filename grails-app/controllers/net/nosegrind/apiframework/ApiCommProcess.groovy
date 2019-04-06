@@ -4,7 +4,6 @@ package net.nosegrind.apiframework
 import javax.annotation.Resource
 
 import java.text.SimpleDateFormat
-import static groovyx.gpars.GParsPool.withPool
 import grails.converters.JSON
 import grails.converters.XML
 import grails.web.servlet.mvc.GrailsParameterMap
@@ -24,6 +23,9 @@ import org.grails.core.DefaultGrailsDomainClass
 import grails.orm.HibernateCriteriaBuilder
 import org.grails.web.util.WebUtils
 import javax.servlet.http.HttpServletResponse
+
+import groovyx.gpars.*
+import static groovyx.gpars.GParsPool.withPool
 
 /**
  *
@@ -50,7 +52,7 @@ abstract class ApiCommProcess{
     List optionalParams = ['method','format','contentType','encoding','action','controller','v','apiCombine', 'apiObject','entryPoint','uri','apiObjectVersion']
 
     // Used for parallelization
-    //int cores = Holders.grailsApplication.config.apitoolkit.procCores as Integer
+    int cores = Holders.grailsApplication.config.apitoolkit.procCores as Integer
 
     boolean batchEnabled = Holders.grailsApplication.config.apitoolkit.batching.enabled
     boolean chainEnabled = Holders.grailsApplication.config.apitoolkit.chaining.enabled
@@ -301,9 +303,11 @@ abstract class ApiCommProcess{
      */
     LinkedHashMap parseURIDefinitions(LinkedHashMap model,ArrayList responseList){
         if(model[0].getClass().getName()=='java.util.LinkedHashMap') {
-            model.each() { key, val ->
-                model[key] = parseURIDefinitions(val, responseList)
-            }
+            GParsPool.withPool(this.cores, {
+                model.eachParallel() { key, val ->
+                    model[key] = parseURIDefinitions(val, responseList)
+                }
+            })
             return model
         }else{
             try {
@@ -448,15 +452,17 @@ abstract class ApiCommProcess{
 
             if (d!=null) {
                 // println("PP:"+d.persistentProperties)
-                d?.persistentProperties?.each(){ it ->
-                    if (it?.name) {
-                        if (DomainClassArtefactHandler.isDomainClass(data[it.name].getClass())) {
-                            newMap["${it.name}Id"] = data[it.name].id
-                        } else {
-                            newMap[it.name] = data[it.name]
+                GParsPool.withPool(this.cores, {
+                    d?.persistentProperties?.eachParallel() { it2 ->
+                        if (it2?.name) {
+                            if (DomainClassArtefactHandler.isDomainClass(data[it2.name].getClass())) {
+                                newMap["${it2.name}Id"] = data[it2.name].id
+                            } else {
+                                newMap[it2.name] = data[it2.name]
+                            }
                         }
                     }
-                }
+                })
             }
             return newMap
         }catch(Exception e){
@@ -475,17 +481,19 @@ abstract class ApiCommProcess{
     LinkedHashMap formatMap(HashMap map){
         LinkedHashMap newMap = [:]
         if(map) {
-            map.each() { key, val ->
-                if (val) {
-                    if (java.lang.Class.isInstance(val.class)) {
-                        newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? val : val.toString()
-                    } else if (DomainClassArtefactHandler?.isDomainClass(val.getClass())) {
-                        newMap[key] = formatDomainObject(val)
-                    } else {
-                        newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || (val in java.util.Map || val in java.util.Map || val in java.util.LinkedHashMap)) ? val : val.toString()
+            GParsPool.withPool(this.cores, {
+                map.eachParallel() { key, val ->
+                    if (val) {
+                        if (java.lang.Class.isInstance(val.class)) {
+                            newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? val : val.toString()
+                        } else if (DomainClassArtefactHandler?.isDomainClass(val.getClass())) {
+                            newMap[key] = formatDomainObject(val)
+                        } else {
+                            newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || (val in java.util.Map || val in java.util.Map || val in java.util.LinkedHashMap)) ? val : val.toString()
+                        }
                     }
                 }
-            }
+            })
         }
         return newMap
     }
@@ -501,19 +509,21 @@ abstract class ApiCommProcess{
     LinkedHashMap formatList(List list){
         LinkedHashMap newMap = [:]
         if(list) {
-            list.eachWithIndex() { val, key ->
-                if (val) {
-                    if (val instanceof java.util.ArrayList || val instanceof java.util.List) {
-                        newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? val : val.toString()
-                    } else {
-                        if (DomainClassArtefactHandler?.isDomainClass(val.getClass())) {
-                            newMap[key] = formatDomainObject(val)
+            GParsPool.withPool(this.cores, {
+                list.eachWithIndexParallel() { val, key ->
+                    if (val) {
+                        if (val instanceof java.util.ArrayList || val instanceof java.util.List) {
+                            newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? val : val.toString()
                         } else {
-                            newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? list[key] : val.toString()
+                            if (DomainClassArtefactHandler?.isDomainClass(val.getClass())) {
+                                newMap[key] = formatDomainObject(val)
+                            } else {
+                                newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? list[key] : val.toString()
+                            }
                         }
                     }
                 }
-            }
+            })
         }
         return newMap
     }
@@ -705,7 +715,7 @@ abstract class ApiCommProcess{
      * @return a hash from all id's needed when making request to endpoint
      */
     String createCacheHash(GrailsParameterMap params, LinkedHashMap receives){
-        String hashString = ''
+        StringBuilder hashString = new StringBuilder('')
         String authority = getUserRole() as String
         ArrayList temp = []
         if (receives["${authority}"]) {
@@ -716,14 +726,15 @@ abstract class ApiCommProcess{
 
         ArrayList receivesList = (temp != null)?temp.collect(){ it.name }:[]
         receivesList.each(){ it ->
-            hashString += params[it] + "/"
+            hashString.append(params[it])
+            hashString.append("/")
         }
-        return hashWithGuava(hashString)
+        return hashWithGuava(hashString.toString())
     }
 
     protected static String hashWithGuava(final String originalString) {
         final String sha256hex = Hashing.sha256().hashString(originalString, StandardCharsets.UTF_8).toString()
-        return sha256hex;
+        return sha256hex
     }
 
     protected String getContent(Object result, String contentType){

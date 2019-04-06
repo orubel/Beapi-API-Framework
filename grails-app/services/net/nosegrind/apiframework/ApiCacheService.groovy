@@ -231,11 +231,12 @@ class ApiCacheService{
 			GrailsConcurrentMapCache temp = grailsCacheManager?.getCache('ApiCache')
 			List cacheNames=temp.getAllKeys() as List
 			GrailsValueWrapper cache
-			cacheNames.each(){
-				if(it.simpleKey==controllername) {
-					cache = temp.get(it)
+			cacheNames.each() { it2 ->
+				if (it2.simpleKey == controllername) {
+						cache = temp.get(it2)
 				}
 			}
+
 
 			if(cache?.get()){
 				return cache.get() as LinkedHashMap

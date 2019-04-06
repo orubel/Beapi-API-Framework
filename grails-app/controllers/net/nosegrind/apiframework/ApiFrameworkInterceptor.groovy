@@ -56,6 +56,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	String controller
 	String action
 	ApiDescriptor cachedEndpoint
+	String authority
 	//LinkedHashMap messages = [:]
 	// Used for parallelization
 
@@ -87,7 +88,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
 		//println("FILTERCHAIN : "+filterChain)
 
-
+		authority = getUserRole() as String
 		format = (request?.format)?request.format.toUpperCase():'JSON'
 		mthdKey = request.method.toUpperCase()
 		mthd = (RequestMethod) RequestMethod[mthdKey]
@@ -169,10 +170,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				if (cachedEndpoint['cachedResult'] && mthdKey=='GET' ) {
 					if(cachedEndpoint['cachedResult'][cacheHash]){
 
-						String authority = getUserRole() as String
+						//String authority = getUserRole() as String
 						String domain = ((String) controller).capitalize()
 
-						JSONObject json = (JSONObject) cachedEndpoint['cachedResult'][cacheHash][authority][format]
+						JSONObject json = (JSONObject) cachedEndpoint['cachedResult'][cacheHash][this.authority][format]
 						if (!json || json == null) {
 							return false
 						} else {
@@ -187,7 +188,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								Integer version = jsonObj.get('version') as Integer
 
 								if(isCachedResult(version, domain)) {
-									LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][authority][format] as LinkedHashMap
+									LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
 									String content = new groovy.json.JsonBuilder(result).toString()
 									byte[] contentLength = content.getBytes('ISO-8859-1')
 									if (apiThrottle) {
@@ -203,7 +204,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							} else {
 								if (json.version != null) {
 									if (isCachedResult((Integer) json.get('version'), domain)) {
-										LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][authority][format] as LinkedHashMap
+										LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
 										String content = new groovy.json.JsonBuilder(result).toString()
 										byte[] contentLength = content.getBytes('ISO-8859-1')
 										if (apiThrottle) {
@@ -296,10 +297,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					if (content) {
 
 						// STORE CACHED RESULT
-						String authority = getUserRole() as String
+						//String authority = getUserRole() as String
 						String role
 						if(request.method.toUpperCase()=='GET') {
-							role = (controller == 'apidoc')? 'permitAll' : authority
+							role = (controller == 'apidoc')? 'permitAll' : this.authority
 							apiCacheService.setApiCachedResult(cacheHash, controller, apiObject, action, role, this.format, content)
 						}
 
@@ -343,5 +344,4 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 			//statsService.setStatsCache(getUserId(), status)
 			render(text: getContent(result, contentType), contentType: contentType)
 	}
-
 }
