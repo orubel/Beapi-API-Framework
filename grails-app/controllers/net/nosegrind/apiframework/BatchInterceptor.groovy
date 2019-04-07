@@ -265,7 +265,7 @@ class BatchInterceptor extends ApiCommLayer{
 
 					// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
 					//ApiDescriptor cachedEndpoint = cache[apiObject][action] as ApiDescriptor
-					boolean result = handleApiRequest(cachedEndpoint['deprecated'] as List, cachedEndpoint['method']?.toString().trim(), mthd, response, params)
+					boolean result = handleRequest(cachedEndpoint['deprecated'] as List, response)
 
 					return result
 				}
@@ -298,7 +298,7 @@ class BatchInterceptor extends ApiCommLayer{
 				cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 			}
 
-			LinkedHashMap content = handleBatchResponse(cachedEndpoint['returns'] as LinkedHashMap,cachedEndpoint['roles'] as List,mthd,format,response,newModel,params) as LinkedHashMap
+			LinkedHashMap content = handleBatchResponse(cachedEndpoint['returns'] as LinkedHashMap,cachedEndpoint['roles'] as List,mthd,format,response,newModel) as LinkedHashMap
 
 			int batchLength = (int) request.getAttribute('batchLength')
 			int batchInc = (int) request.getAttribute('batchInc')

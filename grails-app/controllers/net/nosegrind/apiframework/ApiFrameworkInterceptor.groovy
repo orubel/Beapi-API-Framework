@@ -157,10 +157,12 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						byte[] contentLength = result.getBytes('ISO-8859-1')
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {
-								renderResponse(response.status, result, contentType)
+								//statsService.setStatsCache(getUserId(), response.status)
+								render(text: getContent(result, contentType), contentType: contentType)
 							}
 						}else{
-							renderResponse(response.status, result, contentType)
+							//statsService.setStatsCache(getUserId(), response.status)
+							render(text: getContent(result, contentType), contentType: contentType)
 						}
 						return false
 					}
@@ -193,11 +195,13 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 									byte[] contentLength = content.getBytes('ISO-8859-1')
 									if (apiThrottle) {
 										if (checkLimit(contentLength.length)) {
-											renderResponse(response.status, result, contentType)
+											//statsService.setStatsCache(getUserId(), response.status)
+											render(text: getContent(result, contentType), contentType: contentType)
 											return false
 										}
 									} else {
-										renderResponse(response.status, result, contentType)
+										//statsService.setStatsCache(getUserId(), response.status)
+										render(text: getContent(result, contentType), contentType: contentType)
 										return false
 									}
 								}
@@ -209,11 +213,13 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 										byte[] contentLength = content.getBytes('ISO-8859-1')
 										if (apiThrottle) {
 											if (checkLimit(contentLength.length)) {
-												renderResponse(response.status, result, contentType)
+												//statsService.setStatsCache(getUserId(), response.status)
+												render(text: getContent(result, contentType), contentType: contentType)
 												return false
 											}
 										} else {
-											renderResponse(response.status, result, contentType)
+											//statsService.setStatsCache(getUserId(), response.status)
+											render(text: getContent(result, contentType), contentType: contentType)
 											return false
 										}
 									}
@@ -221,7 +227,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							}
 						}
 					}else{
-						errorResponse(response, [404,'No Content found'])
+						//statsService.setStatsCache(getUserId(), status)
+						response.status = 404
+						response.setHeader('ERROR', 'No Content found')
+						response.writer.flush()
 						return false
 					}
 				} else {
@@ -246,7 +255,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					List roles = cachedEndpoint['roles'] as List
 					checkAuth(roles)
 
-					boolean result = handleApiRequest(cachedEndpoint['deprecated'] as List, (cachedEndpoint['method'])?.toString(), mthd, response, params)
+					boolean result = handleRequest(cachedEndpoint['deprecated'] as List, response)
 					return result
 				}
 			}
@@ -275,7 +284,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
-						errorResponse(response, [400,'No resource returned; query was empty'])
+						//statsService.setStatsCache(getUserId(), status)
+						response.status = 400
+						response.setHeader('ERROR', 'No resource returned; query was empty')
+						response.writer.flush()
 						return false
 					} else {
 						newModel = convertModel(model)
@@ -306,7 +318,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 						if (apiThrottle) {
 							if(checkLimit(contentLength.length)) {
-								renderResponse(response.status, content, contentType)
+								//statsService.setStatsCache(getUserId(), response.status)
+								render(text: getContent(content, contentType), contentType: contentType)
 								return false
 							}
 						} else {
@@ -321,7 +334,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				} else {
 					String content = parseResponseMethod(mthd, format, params, newModel)
 
-					renderResponse(response.status, content, contentType)
+					//statsService.setStatsCache(getUserId(), response.status)
+					render(text: getContent(content, contentType), contentType: contentType)
 					if(cachedEndpoint['hookRoles']) {
 						List hookRoles = cachedEndpoint['hookRoles'] as List
 						String service = "${controller}/${action}"
@@ -340,8 +354,4 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		return false
 	}
 
-	private void renderResponse(Integer status, Object result, String contentType){
-			//statsService.setStatsCache(getUserId(), status)
-			render(text: getContent(result, contentType), contentType: contentType)
-	}
 }

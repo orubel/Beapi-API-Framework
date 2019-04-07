@@ -149,7 +149,7 @@ abstract class ApiCommProcess{
             if(mthd.getKey() == method){
                 return true
             }else{
-                errorResponse(response, [400,'Expected request method for endpoint does not match sent method'])
+                errorResponse([400,'Expected request method for endpoint does not match sent method'])
             }
         }
         return true
@@ -195,7 +195,7 @@ abstract class ApiCommProcess{
                 }
             }
 
-            errorResponse(response, [400,'Expected request variables for endpoint do not match sent variables'])
+            errorResponse([400,'Expected request variables for endpoint do not match sent variables'])
             return false
         }catch(Exception e) {
            throw new Exception("[ApiCommProcess :: checkURIDefinitions] : Exception - full stack trace follows:",e)
@@ -636,7 +636,7 @@ abstract class ApiCommProcess{
                         }else{
                             lcache['locked'] = true
                             throttleCacheService.setThrottleCache(userId, lcache)
-                            errorResponse(404, 'Rate Limit exceeded. Please wait')
+                            errorResponse([404, 'Rate Limit exceeded. Please wait'])
                             return false
                         }
                         return false
@@ -647,10 +647,10 @@ abstract class ApiCommProcess{
                         throttleCacheService.setThrottleCache(userId, lcache)
                         return true
                     }
-                    errorResponse(404, 'Rate Limit exceeded. Please wait')
+                    errorResponse([404, 'Rate Limit exceeded. Please wait'])
                     return false
                 }else{
-                    errorResponse(404, 'Rate Limit exceeded. Please wait')
+                    errorResponse([404, 'Rate Limit exceeded. Please wait'])
                     return false
                 }
             }
@@ -681,7 +681,7 @@ abstract class ApiCommProcess{
                 //println("NOT LOGGED IN!!!")
             }
             if(hasAuth==false){
-                errorResponse(400, 'Unauthorized Access attempted')
+                errorResponse([400, 'Unauthorized Access attempted'])
                 return false
             }else{
                 return hasAuth
@@ -753,7 +753,7 @@ abstract class ApiCommProcess{
         return content
     }
 
-    protected void errorResponse(HttpServletResponse response, List error){
+    protected void errorResponse(List error){
         Integer status = error[0]
         String msg = error[1]
 
@@ -762,7 +762,6 @@ abstract class ApiCommProcess{
         response.status = status
         response.setHeader('ERROR', msg)
         response.writer.flush()
-
     }
 
 

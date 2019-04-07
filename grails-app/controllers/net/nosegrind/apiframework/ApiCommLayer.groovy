@@ -31,86 +31,18 @@ abstract class ApiCommLayer extends ApiCommProcess{
      * @param params
      * @return
      */
-    boolean handleApiRequest(List deprecated, String method, RequestMethod mthd, HttpServletResponse response, GrailsParameterMap params){
+    boolean handleRequest(List deprecated,HttpServletResponse response){
         try{
             // CHECK VERSION DEPRECATION DATE
             if(deprecated?.get(0)){
                 if(checkDeprecationDate(deprecated[0].toString())){
-                    String depMsg = deprecated[1].toString()
-                    response.status = 400
-                    response.setHeader('ERROR',depMsg)
+                    errorResponse([400,deprecated[1].toString()])
                     return false
                 }
             }
-
             return true
         }catch(Exception e){
             throw new Exception("[ApiCommLayer : handleApiRequest] : Exception - full stack trace follows:",e)
-        }
-    }
-
-    /**
-     * Given params, handles basic tests for the BATCH request and returns boolean based upon result
-     * @see BatchInterceptor#before()
-     * @param deprecated
-     * @param method
-     * @param mthd
-     * @param response
-     * @param params
-     * @return
-     */
-    boolean handleBatchRequest(List deprecated, String method, RequestMethod mthd, HttpServletResponse response, GrailsParameterMap params){
-        int status = 400
-        try{
-
-            // CHECK VERSION DEPRECATION DATE
-            if(deprecated?.get(0)){
-                if(checkDeprecationDate(deprecated[0].toString())){
-                    String depMsg = deprecated[1].toString()
-                    response.status = status
-                    response.setHeader('ERROR',depMsg)
-                    return false
-                }
-            }
-
-            // DOES api.methods.contains(request.method)
-            //if(!isRequestMatch(method,mthd)){
-            //    response.status = status
-            //    response.setHeader('ERROR',"Request method doesn't match expected method.")
-            //    return false
-            //}
-            return true
-        }catch(Exception e){
-            throw new Exception("[ApiCommLayer : handleBatchRequest] : Exception - full stack trace follows:",e)
-        }
-    }
-
-    /**
-     * Given params, handles basic tests for the CHAIN request and returns boolean based upon result
-     * @see ChainInterceptor#before()
-     * @param deprecated
-     * @param method
-     * @param mthd
-     * @param response
-     * @param params
-     * @return
-     */
-    boolean handleChainRequest(List deprecated, String method, RequestMethod mthd,HttpServletResponse response, GrailsParameterMap params){
-        try{
-            // CHECK VERSION DEPRECATION DATE
-            if(deprecated?.get(0)){
-                if(checkDeprecationDate(deprecated[0].toString())){
-                    String depMsg = deprecated[1].toString()
-                    response.status = 400
-                    response.setHeader('ERROR',depMsg)
-                    return false
-                }
-            }
-
-
-            return true
-        }catch(Exception e){
-            throw new Exception("[ApiCommLayer : handleBatchRequest] : Exception - full stack trace follows:",e)
         }
     }
 
@@ -171,20 +103,14 @@ abstract class ApiCommLayer extends ApiCommProcess{
      * @param params
      * @return
      */
-    def handleBatchResponse(LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model, GrailsParameterMap params){
+    def handleBatchResponse(LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model){
         try{
             String authority = getUserRole() as String
             response.setHeader('Authorization', roles.join(', '))
 
             ArrayList<LinkedHashMap> temp = (requestDefinitions[authority.toString()])?requestDefinitions[authority.toString()] as ArrayList<LinkedHashMap>:requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
             ArrayList responseList = (ArrayList)temp.collect(){ it.name }
-
             LinkedHashMap result = parseURIDefinitions(model,responseList)
-
-            // TODO : add combine functionality for batching
-            //if(params?.apiBatch.combine=='true'){
-            //	params.apiCombine["${params.uri}"] = result
-            //}
 
             if(!result){
                 response.status = 400
@@ -214,9 +140,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
             response.setHeader('Authorization', roles.join(', '))
 
             ArrayList<LinkedHashMap> temp = (requestDefinitions[authority.toString()])?requestDefinitions[authority.toString()] as ArrayList<LinkedHashMap>:requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
-
             ArrayList responseList = (ArrayList)temp.collect(){ it.name }
-
             LinkedHashMap result = parseURIDefinitions(model,responseList)
             LinkedHashMap chain = params.apiChain as LinkedHashMap
 
