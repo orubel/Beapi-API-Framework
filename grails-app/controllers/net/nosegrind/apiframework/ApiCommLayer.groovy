@@ -5,7 +5,7 @@ import grails.web.servlet.mvc.GrailsParameterMap
 import javax.servlet.forward.*
 import org.grails.groovy.grails.commons.*
 import javax.servlet.http.HttpServletResponse
-import grails.compiler.GrailsCompileStatic
+
 
 /**
  *
@@ -18,7 +18,7 @@ import grails.compiler.GrailsCompileStatic
  * @see ChainInterceptor
  *
  */
-@GrailsCompileStatic
+
 abstract class ApiCommLayer extends ApiCommProcess{
 
     /**
@@ -31,7 +31,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
      * @param params
      * @return
      */
-    boolean handleRequest(List deprecated,HttpServletResponse response){
+    boolean handleRequest(List deprecated){
         try{
             // CHECK VERSION DEPRECATION DATE
             if(deprecated?.get(0)){
@@ -58,7 +58,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
      * @param params
      * @return
      */
-    String handleApiResponse(LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model, GrailsParameterMap params){
+    String handleApiResponse(LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, LinkedHashMap model, GrailsParameterMap params){
 
         try{
             String content

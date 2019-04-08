@@ -13,13 +13,14 @@ import org.springframework.http.HttpStatus
 import grails.util.Environment
 import grails.util.Holders
 import org.springframework.context.ApplicationContext
-
+import grails.compiler.GrailsCompileStatic
 
 /**
  * Filter for handling CORS(cross origin resource sharing) for request from frontend
  *
  * @author Owen Rubel
  */
+@GrailsCompileStatic
 class CorsSecurityFilter extends OncePerRequestFilter {
 
     //@Autowired
@@ -43,7 +44,7 @@ class CorsSecurityFilter extends OncePerRequestFilter {
 
     boolean processPreflight(HttpServletRequest request, HttpServletResponse response) {
 
-        Map corsInterceptorConfig = (Map) Holders.grailsApplication.config.apitoolkit.corsInterceptor
+        Map corsInterceptorConfig = (Map) Holders.grailsApplication.config.apitoolkit['corsInterceptor']
 
         String[] includeEnvironments = corsInterceptorConfig['includeEnvironments']?: null
         String[] excludeEnvironments = corsInterceptorConfig['excludeEnvironments']?: null

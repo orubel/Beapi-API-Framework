@@ -255,7 +255,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					List roles = cachedEndpoint['roles'] as List
 					checkAuth(roles)
 
-					boolean result = handleRequest(cachedEndpoint['deprecated'] as List, response)
+					boolean result = handleRequest(cachedEndpoint['deprecated'] as List)
 					return result
 				}
 			}
@@ -304,7 +304,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				// TEST FOR NESTED MAP; WE DON'T CACHE NESTED MAPS
 				//boolean isNested = false
 				if (newModel != [:]) {
-					String content = handleApiResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, response, newModel, params)
+					String content = handleApiResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, newModel, params)
 					byte[] contentLength = content.getBytes('ISO-8859-1')
 					if (content) {
 

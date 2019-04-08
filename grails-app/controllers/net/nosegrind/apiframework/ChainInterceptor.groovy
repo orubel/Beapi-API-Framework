@@ -246,7 +246,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 					} else {
 						// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
 						ApiDescriptor cachedEndpoint = cache[(String) params.apiObject][(String) params.action] as ApiDescriptor
-						boolean result = handleRequest(cachedEndpoint['deprecated'] as List, response)
+						boolean result = handleRequest(cachedEndpoint['deprecated'] as List)
 						return result
 					}
 				}

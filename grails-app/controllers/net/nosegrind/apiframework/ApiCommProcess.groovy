@@ -27,6 +27,9 @@ import javax.servlet.http.HttpServletResponse
 import groovyx.gpars.*
 import static groovyx.gpars.GParsPool.withPool
 
+import javax.servlet.http.HttpServletResponse
+
+
 /**
  *
  * This abstract provides Common API Methods used by APICommLayer and those that extend it
@@ -37,6 +40,7 @@ import static groovyx.gpars.GParsPool.withPool
  * @see ApiCommLayer
  *
  */
+
 abstract class ApiCommProcess{
 
     @Resource
@@ -52,7 +56,7 @@ abstract class ApiCommProcess{
     List optionalParams = ['method','format','contentType','encoding','action','controller','v','apiCombine', 'apiObject','entryPoint','uri','apiObjectVersion']
 
     // Used for parallelization
-    int cores = Holders.grailsApplication.config.apitoolkit.procCores as Integer
+    int cores = Holders.grailsApplication.config.apitoolkit['procCores'] as Integer
 
     boolean batchEnabled = Holders.grailsApplication.config.apitoolkit.batching.enabled
     boolean chainEnabled = Holders.grailsApplication.config.apitoolkit.chaining.enabled

@@ -14,7 +14,6 @@ import grails.util.Holders
 import grails.plugin.cache.GrailsConcurrentMapCache
 import grails.plugin.cache.GrailsValueWrapper
 
-
 import groovyx.gpars.*
 import static groovyx.gpars.GParsPool.withPool
 
@@ -22,6 +21,7 @@ import static groovyx.gpars.GParsPool.withPool
  * A class for caching processed api calls and returning them
  * @author Owen Rubel
  */
+
 
 class ApiCacheService{
 
@@ -34,7 +34,7 @@ class ApiCacheService{
 	 */
 	GrailsCacheManager grailsCacheManager
 
-	int cores = Holders.grailsApplication.config.apitoolkit.procCores as int
+	int cores = Holders.grailsApplication.config.apitoolkit['procCores'] as int
 
 	/**
 	 * Constructor

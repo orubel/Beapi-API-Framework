@@ -265,7 +265,7 @@ class BatchInterceptor extends ApiCommLayer{
 
 					// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
 					//ApiDescriptor cachedEndpoint = cache[apiObject][action] as ApiDescriptor
-					boolean result = handleRequest(cachedEndpoint['deprecated'] as List, response)
+					boolean result = handleRequest(cachedEndpoint['deprecated'] as List)
 
 					return result
 				}
