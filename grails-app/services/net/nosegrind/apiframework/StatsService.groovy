@@ -122,24 +122,25 @@ class StatsService{
 	}
 
 
-	void setStatsCache(Integer userId, int code){
+	void setStatsCache(int userId, int code, String uri){
 		Integer day = (Integer) System.currentTimeMillis()/((1000*60*60*24)+1)
 		try{
-			setStatCache(day, userId, code)
+			setStatCache(day, userId, uri, code)
 		}catch(Exception e){
-			throw new Exception("[ApiCacheService :: setApiCache] : Exception - full stack trace follows:",e)
+			throw new Exception("[ApiCacheService :: setstatsCache] : Exception - full stack trace follows:",e)
 		}
 	}
 
+
 	@CachePut(value="StatsCache",key={statsKey})
-	private List setStatCache(Integer statsKey, Integer userId, int code){
+	private List setStatCache(int statsKey, int userId, String uri, int code){
 		try{
 			def cache = getStats(statsKey)
-			List entry = [userId, code, System.currentTimeMillis()]
+			List entry = [userId, code, uri, System.currentTimeMillis()]
 			cache.add(entry)
 			return cache
 		}catch(Exception e){
-			throw new Exception("[ApiCacheService :: setApiCache] : Exception - full stack trace follows:",e)
+			throw new Exception("[ApiCacheService :: setStatCache] : Exception - full stack trace follows:",e)
 		}
 	}
 
@@ -165,7 +166,7 @@ class StatsService{
 			}
 
 		}catch(Exception e){
-			throw new Exception("[ApiCacheService :: getApiCache] : Exception - full stack trace follows:",e)
+			throw new Exception("[ApiCacheService :: getStats] : Exception - full stack trace follows:",e)
 		}
 	}
 

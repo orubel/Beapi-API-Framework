@@ -757,7 +757,7 @@ abstract class ApiCommProcess{
         Integer status = error[0]
         String msg = error[1]
 
-        //statsService.setStatsCache(getUserId(), status)
+        statsService.setStatsCache(getUserId(), response.status, request.requestURI)
 
         response.status = status
         response.setHeader('ERROR', msg)
