@@ -17,6 +17,7 @@ import javax.annotation.Resource
 
 import groovyx.gpars.*
 import static groovyx.gpars.GParsPool.withPool
+import grails.plugin.cache.GrailsConcurrentMapCache
 
 /**
  * A class for caching processed api calls and returning them
@@ -54,7 +55,7 @@ class StatsService{
 					flushStatsCache(it.simpleKey)
 			}
 		}catch(Exception e){
-			throw new Exception("[ApiCacheService :: flushApiCache] : Error :",e)
+			throw new Exception("[StatsService :: flushAllStatsCache] : Error :",e)
 		}
 	}
 
@@ -71,43 +72,77 @@ class StatsService{
 	 *
 	 * @return
 	 */
-	LinkedHashMap getStatsCache(){
+	List getStatsCache(){
 		try{
-			def stats = [:]
+			def stats = []
 
 			def temp = grailsCacheManager?.getCache('StatsCache')
 
 			List cacheNames=temp.getAllKeys() as List
 			//def cache
+			int i=0
 			cacheNames.each(){
 				def cache = temp.get(it)
 				if(cache?.get()){
-					stats[it.simpleKey] = cache.get() as LinkedHashMap
-					return stats
-				}else{
-					return [:]
+					stats[i] = cache.get() as List
+					i++
 				}
 			}
+			return stats
 		}catch(Exception e){
 			throw new Exception("[StatsService :: getStatsCache] : Exception - full stack trace follows:",e)
 		}
 	}
 
-	/**
-	 *
-	 * @param statsKey
-	 * @return
-	 */
-	LinkedHashMap getStatsCache(String statsKey){
+
+	void setStatsCache(int userId, int code, String uri){
+		//println(System.currentTimeMillis()/((1000*60*60*24)+1))
+		BigInteger currentTime = System.currentTimeMillis()
+		try{
+			String key = "k${currentTime}".toString()
+			setStatCache(key, userId, uri, code, currentTime)
+		}catch(Exception e){
+			throw new Exception("[StatsService :: setstatsCache] : Exception - full stack trace follows:",e)
+		}
+	}
+
+
+	@CachePut(value="StatsCache",key={key})
+	private List setStatCache(String key, int userId, String uri, int code, BigInteger timestamp){
+			List entry = [userId, code, uri, timestamp]
+			return entry
+	}
+
+
+	// need this to be a range
+	List getStats(Integer statsKey){
+		try{
+			def temp = grailsCacheManager?.getCache('StatsCache')
+
+			List cacheNames=temp.getAllKeys() as List
+			def cache = []
+			cacheNames.each(){
+				if(it.simpleKey==statsKey) {
+					cache += temp.get(it)?.get() as List
+				}
+			}
+
+			return cache
+
+		}catch(Exception e){
+			throw new Exception("[StatsService :: getStats] : Exception - full stack trace follows:",e)
+		}
+	}
+
+	/*
+	LinkedHashMap getStats(){
 		try{
 			def temp = grailsCacheManager?.getCache('StatsCache')
 
 			List cacheNames=temp.getAllKeys() as List
 			def cache
 			cacheNames.each(){
-				if(it.simpleKey==statsKey) {
-					cache = temp.get(it)
-				}
+				cache = temp.get(it.simpleKey)
 			}
 
 			if(cache?.get()){
@@ -117,54 +152,7 @@ class StatsService{
 			}
 
 		}catch(Exception e){
-			throw new Exception("[StatsService :: getStatsCache] : Exception - full stack trace follows:",e)
-		}
-	}
-
-
-	void setStatsCache(int userId, int code, String uri){
-		Integer day = (Integer) System.currentTimeMillis()/((1000*60*60*24)+1)
-		try{
-			setStatCache(day, userId, uri, code)
-		}catch(Exception e){
-			throw new Exception("[ApiCacheService :: setstatsCache] : Exception - full stack trace follows:",e)
-		}
-	}
-
-
-	@CachePut(value="StatsCache",key={statsKey})
-	private List setStatCache(int statsKey, int userId, String uri, int code){
-		try{
-			def cache = getStats(statsKey)
-			List entry = [userId, code, uri, statsKey]
-			cache.add(entry)
-			return cache
-		}catch(Exception e){
-			throw new Exception("[ApiCacheService :: setStatCache] : Exception - full stack trace follows:",e)
-		}
-	}
-
-
-	List getStats(Integer statsKey){
-		try{
-			def temp = grailsCacheManager?.getCache('StatsCache')
-
-			List cacheNames=temp.getAllKeys() as List
-			def cache
-			cacheNames.each(){
-				if(it.simpleKey==statsKey) {
-					cache = temp.get(it)
-				}
-			}
-
-			if(cache?.get()){
-				return cache.get() as List
-			}else{
-				return []
-			}
-
-		}catch(Exception e){
-			throw new Exception("[ApiCacheService :: getStats] : Exception - full stack trace follows:",e)
+			throw new Exception("[StatsService :: getStats] : Exception - full stack trace follows:",e)
 		}
 	}
 
@@ -198,5 +186,5 @@ class StatsService{
 		}
 		return stats
 	}
-
+*/
 }
