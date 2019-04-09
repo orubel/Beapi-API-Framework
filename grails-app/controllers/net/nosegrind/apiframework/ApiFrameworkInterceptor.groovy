@@ -175,51 +175,59 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						//String authority = getUserRole() as String
 						String domain = ((String) controller).capitalize()
 
-						JSONObject json = (JSONObject) cachedEndpoint['cachedResult'][cacheHash][this.authority][format]
-						if (!json || json == null) {
+						LinkedHashMap cachedResult = cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
+						Integer version = cachedResult['version'] as Integer
+						if (!cachedResult || cachedResult == null) {
 							return false
 						} else {
-							Set keys = json.keySet()
-							String temp = keys.iterator().next()
-							boolean first = json.get(temp)
-
-							// is a List of objects
-							if (first instanceof JSONObject && first.size() > 0 && !first.isEmpty()) {
-
-								JSONObject jsonObj = ((JSONObject) json.get('0'))
-								Integer version = jsonObj.get('version') as Integer
-
+							if (cachedResult.size() > 0) {
 								if(isCachedResult(version, domain)) {
-									LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
-									String content = new groovy.json.JsonBuilder(result).toString()
-									byte[] contentLength = content.getBytes('ISO-8859-1')
+									String output
+									switch (format) {
+										case 'XML':
+											output = cachedResult as XML
+											break
+										case 'JSON':
+										default:
+											output = cachedResult as JSON
+											break
+									}
+									byte[] contentLength = output.getBytes('ISO-8859-1')
 									if (apiThrottle) {
 										if (checkLimit(contentLength.length)) {
 											statsService.setStatsCache(userId, response.status, request.requestURI)
-											render(text: getContent(result, contentType), contentType: contentType)
+											render(text: output, contentType: contentType)
 											return false
 										}
 									} else {
 										statsService.setStatsCache(userId, response.status, request.requestURI)
-										render(text: getContent(result, contentType), contentType: contentType)
+										render(text: output, contentType: contentType)
 										return false
 									}
 								}
 							} else {
-								if (json.version != null) {
-									if (isCachedResult((Integer) json.get('version'), domain)) {
-										LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
-										String content = new groovy.json.JsonBuilder(result).toString()
-										byte[] contentLength = content.getBytes('ISO-8859-1')
+								if (version != null) {
+									if (isCachedResult(version, domain)) {
+										String output
+										switch (format) {
+											case 'XML':
+												output = cachedResult as XML
+												break
+											case 'JSON':
+											default:
+												output = cachedResult as JSON
+												break
+										}
+										byte[] contentLength = output.getBytes('ISO-8859-1')
 										if (apiThrottle) {
 											if (checkLimit(contentLength.length)) {
 												statsService.setStatsCache(userId, response.status, request.requestURI)
-												render(text: getContent(result, contentType), contentType: contentType)
+												render(text: output, contentType: contentType)
 												return false
 											}
 										} else {
 											statsService.setStatsCache(userId, response.status, request.requestURI)
-											render(text: getContent(result, contentType), contentType: contentType)
+											render(text: output, contentType: contentType)
 											return false
 										}
 									}
@@ -304,7 +312,36 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				// TEST FOR NESTED MAP; WE DON'T CACHE NESTED MAPS
 				//boolean isNested = false
 				if (newModel != [:]) {
-					String content = handleApiResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, newModel, params)
+					String content
+					LinkedHashMap result
+					ArrayList responseList = []
+					if(params.controller=='apidoc') {
+						content = parseResponseMethod(mthd, format, params, newModel)
+					}else{
+						List roles = cachedEndpoint['roles'] as List
+						LinkedHashMap requestDefinitions = cachedEndpoint['returns'] as LinkedHashMap
+						String authority = getUserRole() as String
+						response.setHeader('Authorization', roles.join(', '))
+
+						ArrayList<LinkedHashMap> temp = new ArrayList()
+						if(requestDefinitions[authority.toString()]) {
+							ArrayList<LinkedHashMap> temp1 = requestDefinitions[authority.toString()] as ArrayList<LinkedHashMap>
+							temp.addAll(temp1)
+						}else{
+							ArrayList<LinkedHashMap> temp2 = requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
+							temp.addAll(temp2)
+						}
+
+						responseList = (ArrayList)temp?.collect(){ if(it!=null){it.name} }
+
+						result = parseURIDefinitions(newModel, responseList)
+						// will parse empty map the same as map with content
+
+						content = parseResponseMethod(mthd, format, params, result)
+					}
+
+					//String content = handleApiResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, newModel, params)
+
 					byte[] contentLength = content.getBytes('ISO-8859-1')
 					if (content) {
 
@@ -313,7 +350,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						String role
 						if(request.method.toUpperCase()=='GET') {
 							role = (controller == 'apidoc')? 'permitAll' : this.authority
-							apiCacheService.setApiCachedResult(cacheHash, controller, apiObject, action, role, this.format, content)
+							apiCacheService.setApiCachedResult(cacheHash, controller, apiObject, action, role, this.format, result)
 						}
 
 						if (apiThrottle) {

@@ -313,9 +313,9 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 						String format = request.format.toUpperCase()
 						String authority = getUserRole() as String
 
-						if (!newModel && request.method.toUpperCase()=='GET') {
-							apiCacheService.setApiCachedResult(cacheHash,(String) params.controller, (String) params.apiObject, (String) params.action, authority, format, content)
-						}
+						//if (!newModel && request.method.toUpperCase()=='GET') {
+						//	apiCacheService.setApiCachedResult(cacheHash,(String) params.controller, (String) params.apiObject, (String) params.action, authority, format, content)
+						//}
 
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length)) {

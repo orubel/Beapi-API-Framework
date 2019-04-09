@@ -132,22 +132,11 @@ class ApiCacheService{
 	 */
 	// TODO: parse for XML as well
 	@CachePut(value='ApiCache',key={controllername})
-	LinkedHashMap setApiCachedResult(String cacheHash, String controllername, String apiversion, String methodname, String authority, String format, String content){
+	LinkedHashMap setApiCachedResult(String cacheHash, String controllername, String apiversion, String methodname, String authority, String format, LinkedHashMap content){
 		try {
 			LinkedHashMap cachedResult = [:]
-			switch(format){
-				case 'XML':
-					Object xml = XML.parse(content)
-					cachedResult[authority] = [:]
-					cachedResult[authority][format] = xml
-					break
-				case 'JSON':
-				default:
-					JSONObject json = JSON.parse(content) as JSONObject
-					cachedResult[authority] = [:]
-					cachedResult[authority][format] = json
-					break
-			}
+			cachedResult[authority] = [:]
+			cachedResult[authority][format] = content
 
 			LinkedHashMap cache = getApiCache(controllername)
 			if (cache[apiversion]) {

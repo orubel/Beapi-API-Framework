@@ -136,7 +136,7 @@ class StatsService{
 	private List setStatCache(int statsKey, int userId, String uri, int code){
 		try{
 			def cache = getStats(statsKey)
-			List entry = [userId, code, uri, System.currentTimeMillis()]
+			List entry = [userId, code, uri, statsKey]
 			cache.add(entry)
 			return cache
 		}catch(Exception e){
@@ -158,10 +158,8 @@ class StatsService{
 			}
 
 			if(cache?.get()){
-				//println("has cache")
 				return cache.get() as List
 			}else{
-				//println("no cache")
 				return []
 			}
 
