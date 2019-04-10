@@ -57,7 +57,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	String action
 	ApiDescriptor cachedEndpoint
 	String authority
-	int userId
+	Long userId
 
 
 	/**
@@ -94,7 +94,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		mthd = (RequestMethod) RequestMethod[mthdKey]
 		apiThrottle = Holders.grailsApplication.config.apiThrottle as boolean
 		contentType = request.getContentType()
-		userId = getUserId()
+		userId = springSecurityService.principal['id'] as Long
 
 		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
 

@@ -95,7 +95,7 @@ class StatsService{
 	}
 
 
-	void setStatsCache(int userId, int code, String uri){
+	void setStatsCache(Long userId, int code, String uri){
 		//println(System.currentTimeMillis()/((1000*60*60*24)+1))
 		BigInteger currentTime = System.currentTimeMillis()
 		try{
@@ -108,7 +108,7 @@ class StatsService{
 
 
 	@CachePut(value="StatsCache",key={key})
-	private List setStatCache(BigInteger key, int userId, String uri, int code, BigInteger timestamp){
+	private List setStatCache(BigInteger key, Long userId, String uri, int code, BigInteger timestamp){
 			List entry = [userId, code, uri, timestamp]
 			return entry
 	}

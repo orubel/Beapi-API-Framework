@@ -695,19 +695,6 @@ abstract class ApiCommProcess{
         }
     }
 
-    /**
-     * Returns the existing Users ID
-     * @return
-     */
-    int getUserId(){
-        try {
-            if (springSecurityService.loggedIn) {
-                return springSecurityService.principal.id
-            }
-        }catch(Exception e) {
-            throw new Exception("[ApiCommProcess :: getUserId] : Exception - full stack trace follows:",e)
-        }
-    }
 
     /**
      * Returns concatenated IDS as a HASH used as ID for the API cache
@@ -761,7 +748,7 @@ abstract class ApiCommProcess{
         Integer status = error[0]
         String msg = error[1]
 
-        statsService.setStatsCache(getUserId(), response.status, request.requestURI)
+        statsService.setStatsCache(springSecurityService.principal['id'], response.status, request.requestURI)
 
         response.status = status
         response.setHeader('ERROR', msg)
