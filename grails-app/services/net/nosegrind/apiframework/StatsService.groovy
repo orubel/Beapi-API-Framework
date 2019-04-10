@@ -52,7 +52,7 @@ class StatsService{
 
 			List cacheNames=temp.getAllKeys() as List
 			cacheNames.each(){
-					flushStatsCache(it.simpleKey)
+					flushStatsCache("${it.simpleKey}")
 			}
 		}catch(Exception e){
 			throw new Exception("[StatsService :: flushAllStatsCache] : Error :",e)
@@ -99,8 +99,8 @@ class StatsService{
 		//println(System.currentTimeMillis()/((1000*60*60*24)+1))
 		BigInteger currentTime = System.currentTimeMillis()
 		try{
-			String key = "k${currentTime}".toString()
-			setStatCache(key, userId, uri, code, currentTime)
+			//String key = "k${currentTime}".toString()
+			setStatCache(currentTime, userId, uri, code, currentTime)
 		}catch(Exception e){
 			throw new Exception("[StatsService :: setstatsCache] : Exception - full stack trace follows:",e)
 		}
@@ -108,7 +108,7 @@ class StatsService{
 
 
 	@CachePut(value="StatsCache",key={key})
-	private List setStatCache(String key, int userId, String uri, int code, BigInteger timestamp){
+	private List setStatCache(BigInteger key, int userId, String uri, int code, BigInteger timestamp){
 			List entry = [userId, code, uri, timestamp]
 			return entry
 	}
