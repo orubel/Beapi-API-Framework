@@ -177,11 +177,12 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 						LinkedHashMap cachedResult = cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
 						Integer version = cachedResult['version'] as Integer
+
 						if (!cachedResult || cachedResult == null) {
 							return false
 						} else {
 							if (cachedResult.size() > 0) {
-								if(isCachedResult(version, domain)) {
+								if(isCachedResult(apiObject as Integer, domain)) {
 									String output
 									switch (format) {
 										case 'XML':
@@ -207,7 +208,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								}
 							} else {
 								if (version != null) {
-									if (isCachedResult(version, domain)) {
+									if (isCachedResult(apiObject as Integer, domain)) {
 										String output
 										switch (format) {
 											case 'XML':
@@ -349,7 +350,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						//String authority = getUserRole() as String
 						String role
 						if(request.method.toUpperCase()=='GET') {
+
 							role = (controller == 'apidoc')? 'permitAll' : this.authority
+
 							apiCacheService.setApiCachedResult(cacheHash, controller, apiObject, action, role, this.format, result)
 						}
 
