@@ -316,8 +316,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					String content
 					LinkedHashMap result
 					ArrayList responseList = []
-					if(params.controller=='apidoc') {
-						content = parseResponseMethod(mthd, format, params, newModel)
+
+					if(controller=='apidoc') {
+						content = parseResponseMethod(mthd, format, params, cachedEndpoint['returns'] as LinkedHashMap)
 					}else{
 						List roles = cachedEndpoint['roles'] as List
 						LinkedHashMap requestDefinitions = cachedEndpoint['returns'] as LinkedHashMap
@@ -341,7 +342,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						content = parseResponseMethod(mthd, format, params, result)
 					}
 
-					//String content = handleApiResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, newModel, params)
+					//
 
 					byte[] contentLength = content.getBytes('ISO-8859-1')
 					if (content) {
@@ -352,6 +353,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						if(request.method.toUpperCase()=='GET') {
 
 							role = (controller == 'apidoc')? 'permitAll' : this.authority
+
 
 							apiCacheService.setApiCachedResult(cacheHash, controller, apiObject, action, role, this.format, result)
 						}
