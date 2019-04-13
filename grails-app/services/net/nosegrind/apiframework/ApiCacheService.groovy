@@ -242,11 +242,14 @@ class ApiCacheService{
 	 * Method to load the list of all object contained in the 'ApiCache' cache
 	 * @return A List of keys of all object names contained with the 'ApiCache'
 	 */
-	List getCacheNames(){
-		List cacheNames = []
+	List getCacheKeys(){
+		List cacheKeys = []
 		GrailsConcurrentMapCache temp = grailsCacheManager?.getCache('ApiCache')
-		cacheNames = temp.getAllKeys() as List
-		return cacheNames
+		List cacheNames=temp.getAllKeys() as List
+		cacheNames.each() { it2 ->
+			cacheKeys.add(it2.simpleKey)
+		}
+		return cacheKeys
 	}
 
 	/*

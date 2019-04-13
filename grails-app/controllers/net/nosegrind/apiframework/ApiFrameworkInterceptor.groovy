@@ -318,7 +318,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					ArrayList responseList = []
 
 					if(controller=='apidoc') {
-						content = parseResponseMethod(mthd, format, params, cachedEndpoint['returns'] as LinkedHashMap)
+						content = newModel
 					}else{
 						List roles = cachedEndpoint['roles'] as List
 						LinkedHashMap requestDefinitions = cachedEndpoint['returns'] as LinkedHashMap
@@ -360,12 +360,17 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 						if (apiThrottle) {
 							if(checkLimit(contentLength.length)) {
+								println("### apithrottle ###")
 								statsService.setStatsCache(userId, response.status, request.requestURI)
 								render(text: getContent(content, contentType), contentType: contentType)
 								return false
 							}
 						} else {
-							render(text: content, contentType: contentType)
+							if(controller=='apidoc') {
+								render(text: newModel as JSON, contentType: contentType)
+							}else {
+								render(text: content, contentType: contentType)
+							}
 							if(cachedEndpoint['hookRoles']) {
 								List hookRoles = cachedEndpoint['hookRoles'] as List
 								String service = "${controller}/${action}"
