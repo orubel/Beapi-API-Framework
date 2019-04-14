@@ -170,12 +170,12 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 				// RETRIEVE CACHED RESULT (only if using get method); DON'T CACHE LISTS
 				if (cachedEndpoint['cachedResult'] && mthdKey=='GET' ) {
-					if(cachedEndpoint['cachedResult'][cacheHash]){
-
+					LinkedHashMap cachedResult = cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
+					if(cachedResult){
 						//String authority = getUserRole() as String
 						String domain = ((String) controller).capitalize()
 
-						LinkedHashMap cachedResult = cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
+
 						Integer version = cachedResult['version'] as Integer
 
 						if (!cachedResult || cachedResult == null) {
@@ -360,7 +360,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 						if (apiThrottle) {
 							if(checkLimit(contentLength.length)) {
-								println("### apithrottle ###")
 								statsService.setStatsCache(userId, response.status, request.requestURI)
 								render(text: getContent(content, contentType), contentType: contentType)
 								return false
