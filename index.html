@@ -19,72 +19,97 @@
         <p></p>
 
         <ul>
-          <li><a href="http://orubel.github.io/BeAPI-API-Framework/index.html"><strong>About</strong></a>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/installation.html"><strong>Installation</strong></a>
             <ul>
-            <li><a href="index.html#what_is">What is BeAPI?</a></li>
-            <li><a href="index.html#benefits">Benefits</a></li>
-            <li><a href="index.html#apidev">Easy API Development</a></li>
+            <li><a href="installation.html#req">Requirements</a></li>
+            <li><a href="installation.html#conf">Configuration</a></li>
+            <li><a href="installation.html#samp">Sample Project</a></li>
             </ul>
           </li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/installation.html"><strong>Installation</strong></a></li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/confserv.html"><strong>Configure Server</strong></a></li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/confdb.html"><strong>Configure Database</strong></a></li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/confapi.html"><strong>Configure API Application</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/model.html"><strong>Model/Domain Object</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/controller.html"><strong>Controller</strong></a></li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/controller.html"><strong>Controller</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/iostate.html"><strong>IO State</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/usage.html"><strong>API Usage</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/batch.html"><strong>Batch Processing</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/chain.html"><strong>Api Chaining</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/hook.html"><strong>Web Hooks</strong></a></li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/hook.html"><strong>Web Hooks</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/troubleshooting.html"><strong>Troubleshooting</strong></a></li>
           <li>&nbsp</li>
 
         </ul>
       </header>
       <section>
-        <h3><a id="what_is" class="anchor" href="#what_is" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What is BeAPI&#8482; API Framework?</h3>
 
-<p>The <b>BeAPI&#8482; API Framework</b> is a Plugin for <a href="https://grails.org/">Grails</a> on the <a href="http://projects.spring.io/spring-boot/">Spring Boot Microservice</a>.</p>
-<p>It installs a full microservice API Framework allowing improved automation, code reduction, simplified/fast development, and improved performance/scalability for distributed architectures.</p>
-<p>It was built by <a href="https://www.linkedin.com/in/orubel">a leader in the API industry</a> who has spent years solving issues with API installations in distributed architectures and who has advised/consulted/worked with enterprise leaders such as Apple, Netflix, VMWare, Cisco, Mashery, Amazon and others.</p>
 
-<h3>
-<a id="benefits" class="anchor" href="#benefits" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What Are It's Benefits?</h3>
+<h1><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h1>
+<p>Getting started with BeAPI is simple process. Below are the steps for installation and configuration of your Beapi API Automation Tool Suite...</p>
 
-<p>The <b>BeAPI&#8482; API Framework</b> is based upon the principles of <a href="http://www.infoq.com/author/Owen-Rubel">API abstraction and shared IO state</a>. These create an entirely <b>NEW API Pattern</b> allowing us the ability to do the following:</p>
+</br>
+<h3><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Requirements</h3>
+
+<p>The <b>BeAPI&#8482; API Framework</b> has the following project requirements:</p>
+<pre><code>* Grails 3.3.0 (or higher)
+* Java 1.8 (or higher)</code></pre>
+
+</br>
+<h3><a id="conf" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Step 1: Installation</h3>
+
+<p>Type the following command to create a new project with the Beapi Framework Installed:</p>
+<pre><code>grails create-app myapp --profile org.grails.profiles:beapi:1.0.0</code></pre>
+
+</br>
+<h3><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Step 2: Make Configuration Directories</h3>
+
+<p>Create a file in your home directory for your configuration files using the following commands in a shell:</p>
+<pre><code>mkdir ~/.beapi
+cd ~/.beapi
+mkdir ~/.beapi/.iostate
+</code></pre>
 <ul>
-<li><b>60-80% code reduction for API development</b></li>
-<li><b>Vastly simplified API development</b></li>
-<li><b>Faster & More scalable</b></li>
-<li>On-the-fly reloading of endpoint data (no shutting down server to make changes)</li>
-<li>Ability to sychronize endpoint data across all services</li>
-</ul>
-<p>In addition, it also has the following built-in functionality...</p>
-<li>CORS</li>
-<li>Rate Limiting</li>
-<li>Token Validation</li>
-<li>Automated Webhooks</li>
-<li>Automated Api docs</li>
-<li>Automated Role check</li>
-<li>Automated Batching</li>
-<li>API Chaining</li>
-<li>Reduction in dropped threads</li>
-<li>100% stateless</li>
-<li>Parallelized Functionality</li>
+    <li>Move <b></b>beapi.yml, beapi_api.yml,beapi_db.yml, beapi_server.yml, beapi.groovy</li> from 'grails-app/conf' into '<your_home_directory>/.beapi/'</li>
+    <li>Now move all files from 'src/iostate' into '<your_home_directory>/.beapi/.iostate'</li>
 </ul>
 
-<h3>
-<a id="apidev" class="anchor" href="#apidev" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Easy API Development</h3>
 
-<p>All communication logic and data are abstracted away from the controllers and services leaving the controllers to only deal with retrieving and returning a resource. This makes API development INCREDIBLY simple and FAST. You simply have to:</p>
+</br>
+<h3><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Step 3: Configure</h3>
+
+<p>Next follow these configuration steps to get your environment setup and working:</p>
 <ul>
-<li>Install the plugin</li>
-<li>Build a JSON IO State file for each controller</li>
+    <li><a href="confserv.html">Configure Server</a></li>
+    <li><a href="confdb.html">Configure Database</a></li>
+    <li><a href="confapi.html">Configure API</a></li>
 </ul>
 
-<p>There are <b>NO ANNOTATIONS</b> to be set, <b>NO SERVICES</b> to rely upon, <b>NO CHECKS</b> to be made. The IO State file acts as a properties file for endpoint rules for ALL services in your architectures and is handled at the communication layer... NOT at the business logic. This makes it faster and more scalable and reduces code needed to create API's.</p>
+
+</br>
+<h3><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Step 4: Build & Test</h3>
+
+<p>You can now build the project using the following command:</p>
+<pre><code>./gradlew --stop;./gradlew clean;./gradlew build --stacktrace  --refresh-dependencies</code></pre>
+
+
+</br>
+<h3><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Step 5: Run</h3>
+
+<p>If you configured it properly, there should be no errors and you can now run the project using the following command:</p>
+<pre><code>java -jar build/libs/beapi-backend-0.1.jar</code></pre>
+
+
+</br>
+<h3><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Step 6: Test</h3>
+
+<p>You can now test out your running project using the following command (replacing 'login' and 'password' with root.login and password found in your beapi.yml file)::</p>
+<pre><code>curl -v -H "Content-Type: application/json" -X POST -d '{"username":"login","password":"password"}' http://localhost:8080/api/login</code></pre>
+
+<p>If everything ran right, you should see output similar to this:</p>
+<pre><code>{"username":"admin","authorities":["ROLE_ADMIN"],"token_type":"Bearer","access_token":"q3s2ov25h8jll757ff5baqhf8nscbjf9"}</code></pre>
 
 </section>
       <footer>
-        <p class="view"><a href="https://github.com/orubel/Beapi-API-Framework">View the Project on GitHub <small>orubel/BeAPI-API-Framework</small></a></p>
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
