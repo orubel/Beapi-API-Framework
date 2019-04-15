@@ -1,40 +1,40 @@
 package net.nosegrind.apiframework
 
 import org.grails.core.DefaultGrailsControllerClass
-
+import grails.util.Metadata
 
 class ApidocController {
 
-	def apiToolkitService
 	def apiCacheService
 	def springSecurityService
-	
+
 	def index(){
 		redirect(action:'show')
 	}
-	
-	def show(){
-		Map docs = [:]
-		grailsApplication.controllerClasses.each { DefaultGrailsControllerClass controllerClass ->
-			String controllername = controllerClass.logicalPropertyName
-			def cache = apiCacheService.getApiCache(controllername)
+
+	HashMap show(){
+		HashMap docs = [:]
+		List cacheKeys = apiCacheService.getCacheKeys()
+
+		String authority = springSecurityService.principal.authorities*.authority[0]
+		cacheKeys.each(){
+			def cache = apiCacheService.getApiCache(it)
 			if(cache){
-				cache.each(){ it ->
-					def newDocs=apiToolkitService.generateDoc(controllername, it.key)
-					if(newDocs){
-						if(!docs["$controllername"]){
-							docs["${controllername}"] = [:]
+				String version = cache['currentStable']['value']
+				cache[version].each() { k, v ->
+
+					if (!['deprecated', 'defaultAction','currentStable'].contains(k)) {
+						if(!docs["${it}"] && cache[version][k]['roles'].contains(authority)){
+							docs["${it}"] =[:]
 						}
-						docs["${controllername}"]["${it.key}"]=newDocs["${it.key}"]
 					}
 				}
 
 			}
 		}
-		
-		String authority = springSecurityService.principal.authorities*.authority[0]
-		authority = (authority=='ROLE_ANONYMOUS')?'permitAll':authority
-		[apiList:docs,authority:authority]
+
+		return ['apidoc':docs]
 	}
+
 }
 
