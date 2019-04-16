@@ -1,0 +1,179 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>BeAPI-API-Framework</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <img src="beapi_logo2.png" style="width:auto;height:auto;padding:0px;">
+        <p></p>
+
+        <ul>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/installation.html"><strong>Installation</strong></a></li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/confserv.html"><strong>Configure Server</strong></a></li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/confdb.html"><strong>Configure Database</strong></a>
+              <ul>
+                <li><a href="confserv.html#chg">Things You Have To Change</a></li>
+                <li><a href="confserv.html#init">Initialize Database</a></li>
+              </ul>
+            </li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/confapi.html"><strong>Configure API Application</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/model.html"><strong>Model/Domain Object</strong></a></li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/controller.html"><strong>Controller</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/iostate.html"><strong>IO State</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/usage.html"><strong>API Usage</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/batch.html"><strong>Batch Processing</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/chain.html"><strong>Api Chaining</strong></a></li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/hook.html"><strong>Web Hooks</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/troubleshooting.html"><strong>Troubleshooting</strong></a></li>
+          <li>&nbsp</li>
+
+        </ul>
+      </header>
+      <section>
+
+        <h1><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configuring The Database</h1>
+        <p>First the project needs MariaDB/MySQL installed. You can change this in your build.gradle file and your ~/.beapi/beapi_db.yml files if you know what you are doing but for now we will stick with a default install for the project.</p>
+        <p>To begin, we will be editing the your beapi_db.yml which looks like the following:</p>
+        <pre><code>hibernate:
+    flush:
+        mode: COMMIT
+    cache:
+        use_second_level_cache: true
+        use_query_cache: true
+        provider_class: 'org.hibernate.cache.EhCacheProvider'
+        region.factory_class: 'org.hibernate.cache.ehcache.EhCacheRegionFactory'
+
+---
+environments:
+    test:
+        dataSource:
+            pooled: true
+            jmxExport: true
+            driverClassName: "com.mysql.jdbc.Driver"
+            dialect: "org.hibernate.dialect.MySQL5InnoDBDialect"
+            username: "root"
+            password: "db_password"
+            # dbCreate: "create-drop"
+            url: "jdbc:mysql://localhost:3306/testdb" #changeit
+            dbCreate: update
+            properties:
+                   jmxEnabled: true
+                   initialSize: 5
+                   maxActive: 50
+                   minIdle: 5
+                   maxIdle: 25
+                   maxWait: 10000
+                   maxAge: 600000
+                   timeBetweenEvictionRunsMillis: 5000
+                   minEvictableIdleTimeMillis: 60000
+                   validationQuery: "SELECT 1"
+                   validationQueryTimeout: 3
+                   validationInterval: 15000
+                   testOnBorrow: true
+                   testWhileIdle: true
+                   testOnReturn: false
+                   jdbcInterceptors: "ConnectionState"
+                   defaultTransactionIsolation: 2 # "java.sql.Connection.TRANSACTION_READ_COMMITTED"
+    development:
+        dataSource:
+            pooled: true
+            jmxExport: true
+            driverClassName: "com.mysql.jdbc.Driver"
+            dialect: "org.hibernate.dialect.MySQL5InnoDBDialect"
+            username: "root"
+            password: "db_password"
+            # dbCreate: "create-drop"
+            url: "jdbc:mysql://localhost:3306/testdb" #changeit
+            dbCreate: update
+            properties:
+                   jmxEnabled: true
+                   initialSize: 5
+                   maxActive: 50
+                   minIdle: 5
+                   maxIdle: 25
+                   maxWait: 10000
+                   maxAge: 600000
+                   timeBetweenEvictionRunsMillis: 5000
+                   minEvictableIdleTimeMillis: 60000
+                   validationQuery: "SELECT 1"
+                   validationQueryTimeout: 3
+                   validationInterval: 15000
+                   testOnBorrow: true
+                   testWhileIdle: true
+                   testOnReturn: false
+                   jdbcInterceptors: "ConnectionState"
+                   defaultTransactionIsolation: 2 # "java.sql.Connection.TRANSACTION_READ_COMMITTED"
+    production:
+        dataSource:
+            pooled: true
+            jmxExport: true
+            driverClassName: "com.mysql.jdbc.Driver"
+            dialect: "org.hibernate.dialect.MySQL5InnoDBDialect"
+            username: "root"
+            password: "db_password"
+            # dbCreate: "create-drop"
+            url: "jdbc:mysql://localhost:3306/testdb" #changeit
+            dbCreate: update
+            properties:
+                   jmxEnabled: true
+                   initialSize: 5
+                   maxActive: 50
+                   minIdle: 5
+                   maxIdle: 25
+                   maxWait: 10000
+                   maxAge: 600000
+                   timeBetweenEvictionRunsMillis: 5000
+                   minEvictableIdleTimeMillis: 60000
+                   validationQuery: "SELECT 1"
+                   validationQueryTimeout: 3
+                   validationInterval: 15000
+                   testOnBorrow: true
+                   testWhileIdle: true
+                   testOnReturn: false
+                   jdbcInterceptors: "ConnectionState"
+                   defaultTransactionIsolation: 2 # "java.sql.Connection.TRANSACTION_READ_COMMITTED"</code></pre>
+
+
+        </br>
+        <h3><a id="chg" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The Only Things You Have To Change...</h3>
+
+        <p>Don't be intimidated! There are only a couple of things that have to be changed and configured here:
+        <ul>
+          <li><strong>url</strong>: There will be three instances of this variable (marked with #changeit): one for your test, development and production environments. You will need to enter a url with your database for each. First you will need to create a database and we will show you how to do that below.</li>
+        </ul>
+        </p>
+
+
+        </br>
+        <h3><a id="init" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Initializing Your Database</h3>
+        <p>If you have not installed your database yet, do the following first:</p>
+        <pre><code>sudo apt install mariadb-server</code></pre>
+        <p>If you have not installed your database yet, do the following first:
+        <pre><code>sudo apt install mariadb-server</code></pre>
+        <b>NOTE:</b> If you are having problems with the 'root' password, <a href="https://www.digitalocean.com/community/tutorials/how-to-reset-your-mysql-or-mariadb-root-password">go here</a> to solve your problem
+        </p>
+        <p>Then login to your mysql instance:</p>
+        <pre><code>mysql -uroot -p</code></pre>
+        <p>Then while in the mysql shell, create user and grant privileges using the login/password you just created:</p>
+        <pre><code>GRANT ALL PRIVILEGES ON your_database_name.* to application_login@'localhost' IDENTIFIED BY 'application_password';
+flush privileges;</code></pre>
+
+      </section>
+      <footer>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
