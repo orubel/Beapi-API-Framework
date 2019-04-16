@@ -3,13 +3,11 @@
 # BeApi(tm) Api Framework ( https://www.beapi.io/ )
 [ ![Download](https://api.bintray.com/packages/orubel/plugins/api-framework/images/download.svg?version=0.9.71) ](https://bintray.com/orubel/plugins/api-framework/0.9.71/link)
 
-## Documentation/Installation - https://www.beapi.io/documentation
+## Documentation/Installation - http://orubel.github.io/Beapi-API-Framework/
 ## Forums - http://beapi.freeforums.net/
 
 ### Backend Implementation - https://github.com/orubel/beapi_backend
 ### Frontend Implementation - https://github.com/orubel/beapi_frontend
-
-### Old Documentation - http://orubel.github.io/Beapi-API-Framework/
 
 ***
 ### Description
