@@ -28,10 +28,10 @@
             <li><a href="http://orubel.github.io/Beapi-API-Framework/version.html"><strong>Versioning</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/usage.html"><strong>API Usage</strong></a>
             <ul>
-              <li><a href="usage.html#controller">Controller Implementation</a></li>
-              <li><a href="usage.html#role_auth">Role Authorizing</a></li>
-              <li><a href="usage.html#data_shell">Sending Data to API via Shell</a></li>
-              <li><a href="usage.html#data_js">Sending Data to API via Javascript</a></li>
+              <li><a href="usage.html#authshell">Authorizing From A Shell</a></li>
+              <li><a href="usage.html#authjs">Authorizing From Javascript</a></li>
+              <li><a href="usage.html#data_shell">Calling API via Shell</a></li>
+              <li><a href="usage.html#data_js">Calling API via Javascript</a></li>
             </ul>
           </li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/batch.html"><strong>Batch Processing</strong></a></li>
@@ -42,51 +42,110 @@
         </ul>
       </header>
       <section>
-        <h3><a id="controller" class="anchor" href="#controller" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Controller Implementation</h3>
-        <p>Without <b>BeAPI&#8482;</b>, you may find yourself having to update your controllers, domains, security, urlmappings, etc just to install API's. <b>This is NOT THE CASE with BeAPI&#8482;</b>. BeAPI&#8482; makes API development simple, easy, fast and scalable. All you have to do is plug and play and BeAPI&#8482; takes care of the 'REST'.</p>
 
-        <p>The only requirement is that in  your controller when returning a 'resource', you <b>have to</b> return your data under the name of controller. So if your Controller is named 'FredController' and you are returning data from a 'show' method, you would return it like so:</p>
-<pre><code>return ['fred':data]
-</code></pre>
+  <h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>API Usage</h1>
+  <p>Below we show you several different ways to access and test your API using CURL and Javascript including getting your token, passing your token and doing basic GET and PUT.</p>
 
-        <h3><a id="role_auth" class="anchor" href="#role_auth" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Role Authorizing</h3>
-        <p>Since we don't use URLMapping to secure our endpoints, we store all that data in the IO State and then load and cache at runtime so we can share that data with other services. As a result, this makes it easier for us to automate alot of the security so you no longer have to:</p>
+  </br>
+  <h3><a id="authshell" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authorizing From A Shell</h3>
+  <p>The first thing you will need to do before you make any API calls is you will need to AUTHORIZE and get a token that you can then pass to the API's. To do this, you will pass the 'root' login/password that you entered in your 'beapi_api.yml' file when initially doing your setup in the following command:</p>
+  <pre><code>curl -v -H "Content-Type: application/json" -X POST -d '{"username":"login","password":"password"}' http://localhost:8080/api/login</code></pre>
 
-<p>All automation and checks are automated based on your IO state files and you no longer have to do this in your controllers or services. Please read about <a href="iostate.html#rules>">'Defining URI Rule'</a> under <b><a href="iostate.html">IO State</a></b></p>
+  <p>If everything ran right, you should see output similar to this:</p>
+  <pre><code>{"username":"admin","authorities":["ROLE_ADMIN"],"token_type":"Bearer","access_token":"q3s2ov25h8jll757ff5baqhf8nscbjf9"}</code></pre>
+<p>That weird 'access_token' value is what you pass to ALL API calls to validate who you are and your security ROLES.</p>
 
-        
-        <h3><a id="versioning" class="anchor" href="#versioning" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Versioning Explained</h3>
-        <p>Primarily, versioning is for the 'application' more so than the IO State(request/response data) but since <b>BeAPI&#8482;</b> can handle and serve multiple versions of the IO State, we havce to know what version of the IO State we are serving. Thus versioning is broken into TWO pieces: the version of application concatenated with version of IO State.</p>
+</br>
+<h3><a id="authjs" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authorizing From Javascript</h3>
+<p>To do the same thing and get your token in Javascript for your frontend, you can do something similar to the following and store it in a token for use on following calls:</p>
 
-        <pre><code>v0.1-1</code></pre>
-        
-        <p> The above version tells us:
-        <ul>
-          <li><b>v</b>: That this is a regular api call (vs a batch or chain call)</li>
-              <li><b>0.1</b>: The version of the application to use; this helps us with routing at the load balancer if you are handling multiple versions of the production software.</li>
-              <li><b>1</b>: THIS is the version of the IO State to use. If left blank (v0.1 for example), it defaults to 'currentStable' in the IO State file.</li>
-              <li><a href="usage.html#data_js">Sending Data to API via Javascript</a></li>
-        </ul>        
-        </p>
-        
-        <h3><a id="data_shell" class="anchor" href="#data" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Sending Data to API via Shell</h3>
+<pre><code>    $.ajax({
+    type: 'POST',
+    url: window.url + "/api/login",
+    cache:false,
+    async:true,
+    contentType: 'application/json',
+    data: JSON.stringify(jsonData),
+    //dataType:'json',
+    headers: {
+        'Access-Control-Allow-Origin': '*'
+    },
+    xhrFields:{
+        withCredentials: true
+    },
+    crossDomain: true,
+    success: function (data, textStatus, xhr){
+    ...
+    },
+    complete: function (xhr, textStatus) {
+    ...
+    }
+}).done(function(data, textStatus, jqXHR) {
+...
+}).fail(function(jqXHR, textStatus, errorThrown) {
+...
+})</code></pre>
 
-        <h2>Authorizing from Shell</h2>
-        <p>Simply replace <b><your_username</b> and <b>your_password</b> in the following curl command to login to your API from the shell:</p>
-        <pre><code>curl -v -H "Content-Type: application/json" -X POST -d '{"username":"your_username","password":"yourpassword"}' http://localhost:8080/api/login</code></pre>
-      <p>This will return an 'access token' which you then use in your calls below.</p>
-        </br>
-        <h2>Calling API from Shell</h2>
-        <p>Once you have authorized, you can now call the API endpoints using the token that was returned:</p>
+</br>
+<h3><a id="data_shell" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling API Via Shell</h3>
+<p><b><span style="text-decoration: underline;">GET Example</span></b></p>
+<pre><code>curl -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request GET "http://localhost:8080/v0.1/person/show/1"</code></pre>
+<p><b><span style="text-decoration: underline;">PUT Example</span></b></p>
+<pre><code>curl -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request PUT -d "{'title':'testamundo'"} "http://localhost:8080/v0.1/post/update/1"</code></pre>
 
-        <p><b>GET Example</b></p>
-        <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer [access token]" --request GET "http://localhost:8080/v0.1/post/show/1"</code></pre>
-
-        <p><b>POST Example</b></p>
-        <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer [access token]" --request POST -d "{'title': 'test post','teaser': 'This is just a test post to see if this works. Testing the api post system.','content':'Lorem ipsum dolor sit amet, consectetur adipiscing elit. In vel consequat nisl, quis commodo neque. Integer ultrices vitae nulla lacinia rutrum. Duis ut porta arcu, sed gravida tortor. Donec pulvinar elit turpis, ultricies tristique mi auctor ac. Ut elementum ullamcorper risus ac sollicitudin. Morbi semper ultrices enim vel euismod. Proin eleifend orci ac elit mollis tempor. Nulla egestas odio eu volutpat eleifend. Nunc nec massa eget nisl sodales posuere. Vestibulum ante ipsum primis in faucibus orci luctus et ultrices posuere cubilia Curae; Nunc accumsan pretium sapien a tincidunt. Sed at fringilla mi.','sectionId':2}" http://localhost:8080/v0.1/post/create</code></pre>
-
-        <p><b>PUT Example</b></p>
-        <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer [access token]" --request PUT -d "{'title':'testamundo'}" "http://localhost:8080/v0.1/post/update/1"</code></pre>
+</br>
+<h3><a id="data_js" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling API Via Javascript</h3>
+<p><b><span style="text-decoration: underline;">GET Example</span></b></p>
+<pre><code>$.ajax({
+    type: 'GET',
+    url: window.url+"/v0.1/"+path+"?"+string,
+    crossDomain: true,
+    cache:false,
+    xhrFields: {
+        withCredentials: false
+    },
+    beforeSend: function(request){
+        request.setRequestHeader('Authorization','Bearer '+window.token.access_token);
+    },
+    headers:{
+        'Content-Type': contenttype
+    },
+    dataType: datatype,
+    success: function(data) {
+        if(data){
+        ...
+        }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+            document.getElementById("output_"+count).innerHTML = jqXHR.status+" : "+jqXHR.statusText;
+    },
+});</code></pre>
+<p><b><span style="text-decoration: underline;">PUT Example</span></b></p>
+<pre><code>$.ajax({
+    type: 'PUT',
+    url: window.url+"/v0.1/"+path,
+    data: JSON.stringify(jsonData),
+    crossDomain: true,
+    cache:false,
+    xhrFields: {
+        withCredentials: false
+    },
+    beforeSend: function(request){
+        request.setRequestHeader('Authorization','Bearer '+window.token.access_token);
+    },
+    headers:{
+        'Content-Type': contenttype
+    },
+    dataType: datatype,
+    success: function(data) {
+        if(data){
+        ...
+        }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+            document.getElementById("output_"+count).innerHTML = jqXHR.status+" : "+jqXHR.statusText;
+    },
+});</code></pre>
 
       </section>
       <footer>
