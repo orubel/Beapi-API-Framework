@@ -23,14 +23,16 @@
           <li><a href="http://orubel.github.io/Beapi-API-Framework/confserv.html"><strong>Configure Server</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/confdb.html"><strong>Configure Database</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/confapi.html"><strong>Configure API Application</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/model.html"><strong>Model/Domain Object</strong></a>
-              <ul>
-                  <li><a href="model.html#req">How To Create Your Model</a></li>
-              </ul>
-          </li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/model.html"><strong>Model/Domain Object</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/controller.html"><strong>Controller</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/iostate.html"><strong>IO State</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/version.html"><strong>Versioning</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/version.html"><strong>Versioning</strong></a>
+            <ul>
+              <li><a href="version.html#woversion">Calling Without Version</a></li>
+              <li><a href="version.html#version">Calling With Version</a></li>
+              <li><a href="version.html#appversion">Calling With App Version</a></li>
+            </ul>
+          </li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/usage.html"><strong>API Usage</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/batch.html"><strong>Batch Processing</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/chain.html"><strong>Api Chaining</strong></a></li>
@@ -42,12 +44,33 @@
       </header>
       <section>
 
-        <h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The Model</h1>
+<h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Versioning</h1>
 
-        <p>Your <b>Model</b> requires no additional annotations added to it to make the api's function. You merely need to map the database tables like a normal model.</p>
+<p>The version for your api is sent through the URL but is set in two different places. Let's first break apart the URL version:</p>
+<pre><code>http://localhost:8080/v0.1-1/person/create</code></pre>
+<p>In the above example, the version is v0.1-1. This is broken out into three parts:</p>
+<ul>
+  <li><b>[v] 0.1-1 :</b> The 'v' determines what kind of call it is whether it is a batch call(b), a chained call(c) or a regular api call(v)</li>
+  <li><b>v[0.1] -1 :</b> This is the version of the application (as set by the application); this helps us to run multiple versions of the application should we need to.</li>
+  <li><b>v0.1[-1] :</b> This is the version of the IO State. It always defaults to '1' if this is not set (which it doesn't need to be). This allows you to have multiple version of your api rules running should you need to support older versions while running newer versions on the same application. Supports up 1-9 versions on any existing application for any IO State file.</li>
+</ul>
 
-          <p>Included is <a href="https://github.com/orubel/beapi_backend/blob/master/grails-app/domain/net/nosegrind/apiframework/Person.groovy">a link to an example class</a> to show you how one should look. There is nothing complex; just follow <a href="http://gorm.grails.org/latest/hibernate/manual/index.html">GORM principles</a> for creating a basic domain object.</p>
+</br>
+<h3><a id="woversion" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling Without Version</h3>
+<p>This is the most common call you will make... which is without any particular version (to the default version in the IO State). This would look like the following:</p>
+<pre><code>http://localhost:8080/v0.1/person/create</code></pre>
 
+</br>
+<h3><a id="version" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling With Version</h3>
+<p>If you have a particular version you wish to call (and you know it is supported via documentation), simply call that version of the endpoint like so:</p>
+<pre><code>http://localhost:8080/v0.1-1/person/create</code></pre>
+
+</br>
+<h3><a id="appversion" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling With App Version</h3>
+<p>If you are running separate application versions and are properly routing based on app version, simply call the different app version like so:</p>
+<pre><code>http://localhost:8080/v0.5/person/create</code></pre>
+<p>... or like so...</p>
+<pre><code>http://localhost:8080/v0.5-1/person/create</code></pre>
 
 </section>
       <footer>
