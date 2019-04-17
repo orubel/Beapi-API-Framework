@@ -27,10 +27,8 @@
             <li><a href="http://orubel.github.io/Beapi-API-Framework/controller.html"><strong>Controller</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/iostate.html"><strong>IO State</strong></a></li>
             <ul>
-              <li><a href="iostate.html#what_is">What is IO State</a></li>
-              <li><a href="iostate.html#values">Defining Values</a></li>
-              <li><a href="iostate.html#rules">Defining URI Rules</a></li>
-	          <li><a href="iostate.html#FAQ">FAQ</a></li>
+              <li><a href="iostate.html#vars">Variables Declaration</a></li>
+              <li><a href="iostate.html#rules">Rules Declaration</a></li>
             </ul>
           </li>
             <li><a href="http://orubel.github.io/Beapi-API-Framework/version.html"><strong>Versioning</strong></a></li>
@@ -195,7 +193,7 @@
 }
 </code></pre>
 
-        <h3><a id="values" class="anchor" href="#values" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Variable Declaration</h3>
+        <h3><a id="vars" class="anchor" href="#values" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Variable Declaration</h3>
 
           <p>Lets break apart the pieces of an IOState file to see what they consist of and how they work; the first part of the file declares 'VALUES' for use by the endpoints:</p>
 <pre><code>    "NAME":"person",
@@ -234,10 +232,10 @@
           <li><b><span style="text-decoration: underline;">mockData</span> : 'string descriptor' - (optional)</b> Mock data for options and apidoc.</li>
         </ul>
         </p>
-          
+
 
 </br>
-<h3><a id="values" class="anchor" href="#values" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Rules Declaration</h3>
+<h3><a id="rules" class="anchor" href="#values" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Rules Declaration</h3>
 <p>Following this, we then define the 'rules' for our endpoints in the IOState like so:</p>
 <pre><code>    "CURRENTSTABLE": "1",
     "VERSION": {
