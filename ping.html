@@ -44,12 +44,16 @@
       </header>
       <section>
 
-        <h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The Model</h1>
+        <h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>PING Architecture</h1>
 
-        <p>Your <b>Model</b> requires no additional annotations added to it to make the api's function. You merely need to map the database tables like a normal model.</p>
+        <p>BeAPI gives you the ability to 'ping' all the api servers in your architecture to test for uptime. To configure this, add all servers to your 'beapi_api.yml' file under secondaryServer:</p>
+<pre><code>apitoolkit:
+    ...
+    secondaryServer: ['http://localhost:8080']
 
-          <p>Included is <a href="https://github.com/orubel/beapi_backend/blob/master/grails-app/domain/net/nosegrind/apiframework/Person.groovy">a link to an example class</a> to show you how one should look. There is nothing complex; just follow <a href="http://gorm.grails.org/latest/hibernate/manual/index.html">GORM principles</a> for creating a basic domain object.</p>
-
+    ...</code></pre>
+        <p>Once all server have been added properly, you can ping all server for uptime through a simple api call:​</p>
+<pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your-token>"  --request GET "http://localhost:8080/v0.1/server/pingServers/"</code></pre>
 
 </section>
       <footer>
