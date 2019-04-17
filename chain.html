@@ -31,13 +31,9 @@
           <li><a href="http://orubel.github.io/Beapi-API-Framework/batch.html"><strong>Batch Processing</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/chain.html"><strong>Api Chaining</strong></a></li>
             <ul>
-              <li><a>What is API Chaining</a></li>
-              <li><a>API Chain Examples</a></li>
-              <li><a>Creating A Chain</a></li>
-              <li><a>Chaining Api Chains</a></li>
-              <li><a>How Does It Work</a></li>
-              <li><a>Benefits</a></li>
-              <li><a>FAQ</a></li>
+              <li><a href="chain.html#what">What is API Chaining</a></li>
+              <li><a href="chain.html#example">API Chain Examples</a></li>
+              <li><a href="chain.html#create">Creating A Chain</a></li>
             </ul>
           </li>
             <li><a href="http://orubel.github.io/Beapi-API-Framework/hook.html"><strong>Web Hooks</strong></a></li>
@@ -51,7 +47,7 @@
           <h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>API Chaining</h1>
 
 </br>
-<h3><a id="chg" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What Is API Chaining(TM)?</h3>
+<h3><a id="what" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What Is API Chaining(TM)?</h3>
 <p>API Chaining is a process allowing one api call to return data into another api call which returns data into another api call , etc etc, <b>all within ONE REQUEST/RESPONSE</b>. This is allowed through the abstraction of communication logic from business logic through the New API Pattern. This is limited in the fact that you can only use GET method as the connectors in the chain and one other 'non-safe' method (ie PUT/POST/DELETE) at either the beginning or the end of the chain (as determined by the REQUEST method).</p>
 <p>NOTE: The API Chaining trademark can only be used by those properly implementing the process</b>. As a process, it is only considered successfully implemented if:
   <li>it MUST use ONLY ONE REQUEST/RESPONSE</li>
@@ -81,13 +77,11 @@
           </li>
         </ul>
         <p><b>NOTE:</b> Pre and Post chain example can happen with any method including DELETE; A Delete method can delete data or just render it 'inactive' so passing the ID to a GET method afterward can be useful to get related data or to confirm the state.</p>
-        </br>
-        <h3>API Chain Examples</h3>
 
-  <p><b>POST Post-Chain Example (minus the data)</b></p>
-
-  <p>The POST post-chain would be encoded as follows:</p>
-
+</br>
+<h3><a id="example" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>API Chain Examples</h3>
+<p><b>POST Post-Chain Example (minus the data)</b></p>
+<p>The POST post-chain would be encoded as follows:</p>
 <pre><code>{
     ...[your_data_being_sent]...
     chain:{
@@ -99,7 +93,6 @@
 }
 </code></pre>
 <p>And then call via Curl(or via javascript) as follows:</p>
-
 <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer [access token]" -X POST -d "{'chain':{'key':'dept_id','combine':'false','type':'postchain','order':{'dept/show':'company_id','company/update':'return'}}}" "http://localhost:8080/v0.1/person/show/1"
 </code></pre>
 <p>If you need to send Max/Offset variables, do so as follows:</p>
@@ -107,8 +100,27 @@
 </code></pre>
 
 
-
-
+</br>
+<h3><a id="create" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Creating A Chain</h3>
+<p>Now lets break down how this call work. Normally you could never pass more than one method but you can URL encode GET data with UNSAFE Methods (PUT, POST, DELETE); now by only using one unsafe method for the call and <b>only one unsafe endpoint</b>, we can send <b>AS MANY GETS in the chain as we want!</b></p>
+<p>So the rules of a chain are:
+<ul>
+          <li>only only PUT,POST or DELETE endpoint</li>
+          <li>as many GET endpoint as your hearts content</li>
+          <li>the unsafe method (PUT/POST/DELETE) must begin/end the chain</li>
+          <li>chains MUST be called using <b>c0.1</b> in the URL for routing purposes</li>
+</ul>
+</p>
+<p>Now lets examine how one of the above chain works:</p>
+<ul>
+    <li><b><span style="text-decoration: underline;">http://localhost:8080/c0.1/person/show/1</span></b> : initial endpoint that retrieves the initial dataset</li>
+    <li><b><span style="text-decoration: underline;">key : dept_id</span></b> : the key to return from the initial dataset to the next iteration in the chain</li>
+    <li><b><span style="text-decoration: underline;">combine:false</span></b> : whether to concatenate all data in the chain for return</li>
+    <li><b><span style="text-decoration: underline;">type:postchain</span></b> : tells us the location of the unsafe method in the chain for processing; 'postchain' tells us it is at the end, 'prechain' tells us it is at the beginning.</li>
+    <li><b><span style="text-decoration: underline;">dept/show : company_id</span></b> : second endpoint iteration; id is the key returned for the next iteration in the chain</li>
+    <li><b><span style="text-decoration: underline;">company/update : return</span></b> : As this is the final iteration (and this is a post chain), we return from the chain here</li>
+</ul>
+<p>So given the chain above, we can see that the unsafe method(PUT) is at the end of the chain (section/update). We also KNOW that it is there because it was DECLARED as a 'postchain' (rather than 'prechain')</p>
   </section>
       <footer>
         <p class="view"><a href="https://github.com/orubel/Beapi-API-Framework">View the Project on GitHub <small>orubel/Beapi-API-Framework</small></a></p>
