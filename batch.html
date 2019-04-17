@@ -49,7 +49,7 @@
 <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request POST -d "{'combine':true,'batch': [{'name': 'test1'},{'name': 'test2'},{'name': 'test3'},{'name': 'test4'},{'name': 'test5'},{'name': 'test6'}]}" http://localhost:8080/b0.1/test/create</code></pre>
 <p>In the example above, the 'combine' flag lets us know to concatenate the output into a single response. Otherwise it will only return the last 'element' for this response.</p>
 <p>This is important if you are doing batch INSERTS and don't care about the output (unless there is an EXCEPTION thrown).</p>
-        <p><b>NOTE ON VERSIONING:</b> Of importance to note is that the versioning used here is <b>b0.1</b> if you did not notice. We do this so that we can separate this functionality out to a separate server if we want so as not to affect main api calls. Same goes for API chaining calls which use 'c0.1'.</p>
+        <p><b>NOTE ON VERSIONING:</b> Of importance to note is that the versioning used here is <b>b0.1</b> (if you did not notice). We do this so that we can separate this functionality out to a separate server if we want so as not to affect main api calls. Same goes for API chaining calls which use 'c0.1'.</p>
 </br>
 <h3><a id="examples" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Batch Examples Using Curl</h3>
 <p>Below are example of batch calls taken directly from the integration tests in the framework to give you an example of how to write them:</p>

@@ -47,21 +47,23 @@
         </ul>
       </header>
       <section>
-        <h3>What is API Chaining(tm)</h3>
 
-        <p><b>Quick Definition</b> : API Chaining(tm) is a functional I/O Monad allowing one api call to return data into another api call which returns data into another api call , etc etc, all within ONE REQUEST/RESPONSE. This is allowed through the abstraction of communication logic from business logic through the New API Pattern. This is limited in the fact that you can only use GET as the connectors in the chain and one other 'non-safe' method (ie PUT/POST/DELETE) at either the beginning or the end of the chain (as determined by the REQUEST method).</p>
-        
-<p><b>API Chaining trademark can only be used by those properly implementing the process</b>. As a process, it is only considered successfully implemented if:
-  <li>it uses one REQUEST/RESPONSE</li>
-  <li>the client can dynamically create chains based on endpoints accessible by their ROLE/PRIVILEGE; no hardcoded chains</li>
-  <li>no more than ONE non-safe REQUEST method is used in a chain; chains CAN chain off each other however</li>
+          <h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>API Chaining</h1>
+
+</br>
+<h3><a id="chg" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What Is API Chaining(TM)?</h3>
+<p>API Chaining is a process allowing one api call to return data into another api call which returns data into another api call , etc etc, <b>all within ONE REQUEST/RESPONSE</b>. This is allowed through the abstraction of communication logic from business logic through the New API Pattern. This is limited in the fact that you can only use GET method as the connectors in the chain and one other 'non-safe' method (ie PUT/POST/DELETE) at either the beginning or the end of the chain (as determined by the REQUEST method).</p>
+<p>NOTE: The API Chaining trademark can only be used by those properly implementing the process</b>. As a process, it is only considered successfully implemented if:
+  <li>it MUST use ONLY ONE REQUEST/RESPONSE</li>
+  <li>client can create chains and they MUST be processed dynamically; there SHOULD BE NO hardcoded chains.</li>
+  <li>there MUST BE no more than ONE non-safe REQUEST method used in a chain during a single REQUEST/RESPONSE</li>
 </p>
         
 <p>We have all used encoded GET data when sending form data via a POST request. This is considered common practice. Why? Because GET is idempotent and SAFE. Because it is SAFE (meaning it doesn't change data), it is commonly used with other types of requests as a mixed request. This may not be RESTful but it is considered normal and not unsafe. This is what I like to refer to as a single link chain since it has only one link which is the same as it's destination request.</p>
 
 <p>API chaining extends upon this principle in the fact that you can encode GET data in the URL but pass a POST/PUT/DELETE request (much like post GET with a POST form) to chain the request TO or FROM the request method destination link. This can be used to imply GET requests chained TO a final request link (known as a post- chain) or FROM a request link to other implied GET links (known as a pre-chain).</p>
 
-<p>The reason why this is better than practives like HATEOAS/HAL is that it doesn't rely on the link for the relationship... it relies on a common API Object. By relying on a common API Object to handle and validate the request/response and apply rules, links only become a reference point for data.</p>
+<p>The reason why this is better than practices like HATEOAS/HAL is that it doesn't rely on the link for the relationship... it relies on a common API Object. By relying on a common API Object to handle and validate the request/response and apply rules, links only become a reference point for data.</p>
 
         <p>For example, when we make our PUT/POST/DELETE requests we can do :</p>
         <ul>
@@ -103,74 +105,10 @@
 <p>If you need to send Max/Offset variables, do so as follows:</p>
 <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer [access token]" -X POST -d "{'chain':{'key':'dept_id','combine':'false','type':'postchain','order':{'dept/show':'company_id','company/update':'return'}}}" "http://localhost:8080/v0.1/person/show/1?max=1,1,1&offset=0,0,0"
 </code></pre>
-  </br>
-<h3>How Does It Work?</h3>
-<img src="api_chaining_map.jpg" style="width:auto;height:auto;">
-  <p>Keeping in mind REST methodology, some methods won't return data but some will. In a chain, we want ALL methods to return data (at least the ID for the dataset/modelMap used). That way we can pass it to the next link in the chain.</p>
-<p>The developer can return the ID or a full dataset depending on the functionality they wish to implement and neither will break the API; one just returns additional data that will be irrelevant to the next link in the chain.</p>
-  <p><b>NOTE:</b> Keep in mind that no data or a NULL makes it unusable for webhooks/realtime notifications as well as api chains.</p>
-  </br>
-<h3>Benefits of API Chaining(tm)</h3>
-But why use API Chaining you may ask? Why not just make each individual request separately? Well API Chaining has benefits over traditional methodologies in the following ways
 
-<p><b>Reduces Data Being Sent</b>
-<ul>
-  <li><b>PROBLEM :</b> In HATEOAS/HAL, all link relations must be returned with each api call; this creates large data returns / processing overhead.</li>
-  <li><b>SOLUTION :</b> API chaining knows all possibilities; no additional data needs to be returned as it puts the burden upon the user to chain the calls. If chains need to be chown, they can be output and cached with the apidocs so users can view them through OPTIONS</li>
-</ul></p>
 
-<p><b>Unlimited Linking</b>
-<ul>
-  <li><b>PROBLEM :</b> HATEOAS/HAL link relations limit what can be called</li>
-  <li><b>SOLUTION :</b> API chaining knows all possibilities that can be chained and allows chains based upon ROLES/Authorities and predefined return data as defined in apidocs</li>
-</ul></p>
 
-<p><b>One Request Handles Multiple API Requests</b>
-  <ul>
-    <li><b>PROBLEM</b> : Multiple API requests can take up additional processing/overhead on your server.</li>
-    <li><b>SOLUTION</b> : Through API chaining, one api request call can handle multiple responses by forwarding additional calls internally, handling role checks and then returning data or handling processing. In regular usage, this can reduce API calls by at least 50%.</li>
-</ul></p>
 
-<p><b>Reduced Link Coding</b>
-  <ul>
-    <li><b>PROBLEM</b> : HATEOAS/HAL link relations require developer to code all possibilities</li>
-    <li><b>SOLUTION</b> : API chains are dynamic. No coding required by client or developer</li>
-</ul></p>
-
-<p><b>Reduced Client/Server Coding</b>
-  <ul>
-    <li><b>PROBLEM</b> : All api calls have to be coded, returned, processed by client</li>
-    <li><b>SOLUTION</b> : API chains handle all calls in a loop reducing client and server coding.</li>
-</ul></p>
-
-<p><b>Api Chain Branching</b>
-  <ul>
-  <li><b>PROBLEM :</b> Link relations do not allow for end user to branch off them</li>
-  <li><b>SOLUTION :</b> API chains can be branched or chained off of using the 'return' statement in the chain. Once the chain has stopped and return, the original chain can be restarted at the point it stopped and branch chains can be started with the returned data</li>
-</ul></p>
-
-<p><b>ID Security</b>
-  <ul>
-    <li><b>PROBLEM :</b> Do Not want to show IDs when passing data</li>
-    <li><b>SOLUTION :</b> Only the first ID is needed in the chain and chains CAN be dynamically created. If chains are dynamically created and secured through privileges/roles, this creates a process for accessing related data through the relationship without exposing the ID since the ID's are always exposed to the backend but will not be available to requesting services.</li>
-</ul></p>
-  </br>
-<h3>Questions about API Chaining(tm)</h3>
-<p>While API Chaining has received nearly 100% positive feedback, there has been reservation due to implementation</p>
-<ul>
-<li><b>Why can't we use unsafe methods in the middle of a chain?</b></br>
-<p>As only data for one method can be sent, we can only support one unsafe method. By allowing unsafe methods in the middle, it is possible for someone to double send an unsafe method by sending to the exact same method TWICE by looping back around to it. This is bad practice and is better handled by forking the chain.</p>
-</br></li>
-<li><b>Doesn't API Chaining exposes ID's allowing users to freely see all your data and data structure?</b></br>
-<p>API Objects allow you to define how a URI i accessed so you can define NO ID at all but still have it return data; this means that it cant be accessed DIRECTLY but can be accessed through a chain as the BACKEND handles the relationship if you have access the the API. Thus ID's/indexes are only required on the first link in he chain</p>
-</br></li>
-<li><b>Doesn't HATEOAS/HAL actually have the ability to link to other links?</b></br>
-<p>HATEOAS/HAL does urlmapping. URLMapping is not the same thing as you HAVE to send all ID's rather than relying on a relationship. This is effectively HARDCODING. API Objects, on the other hand, create relationships between the URI's themselves.</p>
-</br></li>
-<li><b>How can it access the following links in the chain? Only the first one is called as an API</b></br>
-<p>The first link is handled as the REQUEST and all other are looped in the communication layer until the end is reached, an error occurs or the chain returns on its own. As such, it always stays within that original REQUEST/RESPONSE. The matching REQUEST Method in the chain is what is looked for (which is why you can't have more than one UNSAFE method in the chain). Once it finds it, it will return.</p>
-</br></li>
-</ul>
   </section>
       <footer>
         <p class="view"><a href="https://github.com/orubel/Beapi-API-Framework">View the Project on GitHub <small>orubel/Beapi-API-Framework</small></a></p>
