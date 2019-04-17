@@ -28,7 +28,12 @@
           <li><a href="http://orubel.github.io/Beapi-API-Framework/iostate.html"><strong>IO State</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/version.html"><strong>Versioning</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/usage.html"><strong>API Usage</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/batch.html"><strong>Batch Processing</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/batch.html"><strong>Batch Processing</strong></a>
+            <ul>
+              <li><a href="batch.html#examples">Batch Examples</a></li>
+              <li><a href="batch.html#tools">CSV To JSON Tools</a></li>
+            </ul>
+          </li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/chain.html"><strong>Api Chaining</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/hook.html"><strong>Web Hooks</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/troubleshooting.html"><strong>Troubleshooting</strong></a></li>
@@ -46,7 +51,7 @@
 <p>This is important if you are doing batch INSERTS and don't care about the output (unless there is an EXCEPTION thrown).</p>
         <p><b>NOTE ON VERSIONING:</b> Of importance to note is that the versioning used here is <b>b0.1</b> if you did not notice. We do this so that we can separate this functionality out to a separate server if we want so as not to affect main api calls. Same goes for API chaining calls which use 'c0.1'.</p>
 </br>
-<h3><a id="authjs" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Batch Examples Using Curl</h3>
+<h3><a id="examples" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Batch Examples Using Curl</h3>
 <p>Below are example of batch calls taken directly from the integration tests in the framework to give you an example of how to write them:</p>
 <p><b><span style="text-decoration: underline;">POST Batch Call EXAMPLE (no concatenation)</span></b></p>
 <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request POST -d "{'batch': [{'name': 'test1'},{'name': 'test2'},{'name': 'test3'},{'name': 'test4'},{'name': 'test5'},{'name': 'test6'}]}" http://localhost:8080/b0.1/test/create</code></pre>
@@ -55,6 +60,13 @@
 <p><b><span style="text-decoration: underline;">DELETE Batch Call EXAMPLE (with concatenation)</span></b></p>
 <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request POST -d "{'combine':true,'batch': [{'id': '1'},{'id': '2'},{'id': '3'},{'id': '4'},{'id': '5'},{'id': '6'}]}" http://localhost:8080/b0.1/test/delete</code></pre>
 
+</br>
+<h3><a id="csvjson" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CSV To JSON Tools</h3>
+<p>Alot of people in your organization may will be asking for help with CSV to JSON conversion. So here are some links to CSV to JSON tools:</p>
+        <ul>
+          <li><a href="https://www.csvjson.com/csv2json">Online CSV to JSON Convertor</a></li>
+          <li><a href="http://www.convertcsv.com/csv-to-json.htm">Another Online CSV to JSON Convertor</a></li>
+        </ul>
 
 </section>
       <footer>
