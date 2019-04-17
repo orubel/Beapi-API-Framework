@@ -234,21 +234,7 @@
           <li><b><span style="text-decoration: underline;">mockData</span> : 'string descriptor' - (optional)</b> Mock data for options and apidoc.</li>
         </ul>
         </p>
-
-</br>
-<h3>
-<a id="rules" class="anchor" href="#rules" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Defining URI Rules</h3>
-
-<p>Underneath <b>URI</b>, you list out all the <b>'endpoints'</b> for this Controller. If you put endpoints for a separate controller in here, they will not map.</p>
-<p>Once you have mapped all your endpoints, you will need to assign then the following rules:</p>
-<ul>
-    <li><b><span style="text-decoration: underline;">METHOD:</span></b> GET/PUT/POST/DELETE</li>
-    <li><b><span style="text-decoration: underline;">DESCRIPTION:</span></b> <String> ; A String Describing API; This is used for API Doc generation".</li>
-    <li><b><span style="text-decoration: underline;">ROLES:</span></b> A List of Roles that have access to this endpoint this endpoint. Uses Spring-Security.</li>
-    <li><b><span style="text-decoration: underline;">BATCH:</span></b> A list of Roles that have access to send batch jobs on this endpoint. Uses Spring-Security.</li>
-    <li><b><span style="text-decoration: underline;">REQUEST:</span></b> A map of roles with <b>VALUES</b> expected to be sent at request.</li>
-    <li><b><span style="text-decoration: underline;">RESPONSE:</span></b> A map of roles with <b>VALUES</b> expected to be returned at response.</li>
-</ul>
+          
 
 </br>
 <h3><a id="values" class="anchor" href="#values" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Rules Declaration</h3>
