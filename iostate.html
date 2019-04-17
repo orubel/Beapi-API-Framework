@@ -33,6 +33,7 @@
 	          <li><a href="iostate.html#FAQ">FAQ</a></li>
             </ul>
           </li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/version.html"><strong>Versioning</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/usage.html"><strong>API Usage</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/batch.html"><strong>Batch Processing</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/chain.html"><strong>Api Chaining</strong></a></li>
@@ -43,13 +44,16 @@
         </ul>
       </header>
       <section>
-        <h3><a id="what_is" class="anchor" href="#what_is" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What Is IO State?</h3>
 
-          <p><b>[Patent Pending 2014 Owen Rubel]</b></p>
+        <h1><a id="what_is" class="anchor" href="#what_is" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>IO State</h1>
 
-          <p>The IO State File is a descriptor for your API for your entire architecture. It is a cacheable configuration file holding data directly associated with a specific API request/response grouping. This enables all URI's (and their associated data) to be easily cached and this data to be shared with services sharing in the IO Flow (ie Proxy, MQ, etc).</p>
+
+          <p>The IO State File is a descriptor for your API endpoints. It is a cacheable configuration file holding data directly associated with a specific group of API requests & responses. This enables all URI's (and their associated data) to be easily cached and this data to be shared with services in the architecture (ie Proxy, MQ, etc).
           <p>URI's call a common set of data as they are based on classes/method. As such, these URIs can be GROUPED and said to share a common dataset and set of config options. The IO State File is a set of rules for all URI's sharing a common data object.</p>
-          <p>A typical IO State File looks like this:</p>
+          <p>Examples of IO state files can be found in the example project here.</p>
+          <p>To bootstrap your IOState from your domains, simply go into the the root directory of your project and type the following command from the shell:</p>
+          <pre><code>./gradlew GenerateIostate</code></pre>
+          <p>This will generate IO state files based on all your domains/models. A typical IO State File looks like the following:</p>
 <pre><code>
 {
     "NAME":"hook",
@@ -191,14 +195,33 @@
 }
 </code></pre>
 
-        <h3><a id="values" class="anchor" href="#values" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Defining VALUES</h3>
+        <h3><a id="values" class="anchor" href="#values" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Variable Declaration</h3>
 
-        <p>The IO State File is all about defining IO state:</p>
-<pre><code>the I/O definitions and rules for a common set of values that are used by URI's associated with GET/POST/PUT/DELETE methods. In the API Object, The 'values' can have two different 'key/value' pair types : definitions and rules.
-</code></pre>
+          <p>Lets break apart the pieces of an IOState file to see what they consist of and how they work; the first part of the file declares 'VALUES' for use by the endpoints:</p>
+<pre><code>    "NAME":"person",
+    "VALUES": {
+        "id": {
+            "key": "PRIMARY",
+            "type": "Long",
+            "description":"ID for Event",
+        "mockData":"1"
+        },
+        "version": {
+            "type": "Long",
+            "description":"Version for Event",
+        "mockData":"0"
+        },
 
-        <p><b>'VALUES'</b> basically defines the variable names and their corresponding data types. These are then in turn used by the 'Rules' ( VERSION>URI ) that set limitations on the request/response. Below are the definitions and rules used in above API Object:</p>
+        ...</code></pre>
 
+        <p>We  start by declaring the NAME of the file and our 'values':
+        <ul>
+        <li><b><span style="text-decoration: underline;">NAME :</span></b> This corresponds directly with the name of the controller; the controller typically pulls in from the same domain name but does not have to. The controller can create a nested call, return a file, etc. So the name directly relates to the controller.</li>
+        <li><b><span style="text-decoration: underline;">VALUES :</span></b> These are the individual variables returned. These help us for automating testing, api docs and defining what needs to be sent and returned in each endpoint.</li>
+        </ul>
+        </p>
+
+        <p>Underneath values, then define each individual value to be sent/returned with the following stats:
         <ul>
           <li><b><span style="text-decoration: underline;">type</span> : PKEY, FKEY, INDEX, STRING, DATE, LONG, BOOLEAN, FLOAT, BIGDECIMAL, EMAIL, URL, ARRAY, COMPOSITE</b> - <b>(required)</b> Defines scope of variable; only used for apidocs/options or for reference.</li>
           <li><b><span style="text-decoration: underline;">description</span> : variable description</b> - <b>(required)</b> description of variable, how it is used. mainly for apidocs</li>
@@ -210,55 +233,80 @@
           </ul>
           <li><b><span style="text-decoration: underline;">mockData</span> : 'string descriptor' - (optional)</b> Mock data for options and apidoc.</li>
         </ul>
+        </p>
 
-
+</br>
 <h3>
 <a id="rules" class="anchor" href="#rules" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Defining URI Rules</h3>
 
 <p>Underneath <b>URI</b>, you list out all the <b>'endpoints'</b> for this Controller. If you put endpoints for a separate controller in here, they will not map.</p>
 <p>Once you have mapped all your endpoints, you will need to assign then the following rules:</p>
 <ul>
-<li><b>METHOD:</b> GET/PUT/POST/DELETE</li>
-<li><b>DESCRIPTION:</b> <String> ; A String Describing API; This is used for API Doc generation".</li>
-<li><b>ROLES:</b> A List of Roles that have access to this endpoint this endpoint. Uses Spring-Security.</li>
-<li><b>BATCH:</b> A list of Roles that have access to send batch jobs on this endpoint. Uses Spring-Security.</li>
-<li><b>REQUEST:</b> A map of roles with <b>VALUES</b> expected to be sent at request.</li>
-<li><b>RESPONSE:</b> A map of roles with <b>VALUES</b> expected to be returned at response.</li>
+    <li><b><span style="text-decoration: underline;">METHOD:</span></b> GET/PUT/POST/DELETE</li>
+    <li><b><span style="text-decoration: underline;">DESCRIPTION:</span></b> <String> ; A String Describing API; This is used for API Doc generation".</li>
+    <li><b><span style="text-decoration: underline;">ROLES:</span></b> A List of Roles that have access to this endpoint this endpoint. Uses Spring-Security.</li>
+    <li><b><span style="text-decoration: underline;">BATCH:</span></b> A list of Roles that have access to send batch jobs on this endpoint. Uses Spring-Security.</li>
+    <li><b><span style="text-decoration: underline;">REQUEST:</span></b> A map of roles with <b>VALUES</b> expected to be sent at request.</li>
+    <li><b><span style="text-decoration: underline;">RESPONSE:</span></b> A map of roles with <b>VALUES</b> expected to be returned at response.</li>
 </ul>
 
-<h3>
-<a id="FAQ" class="anchor" href="#FAQ" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>FAQ</h3>
+</br>
+<h3><a id="values" class="anchor" href="#values" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Rules Declaration</h3>
+<p>Following this, we then define the 'rules' for our endpoints in the IOState like so:</p>
+<pre><code>    "CURRENTSTABLE": "1",
+    "VERSION": {
+        "1": {
+            "DEFAULTACTION":"list",
+            "URI": {
+                "create": {
+                    "METHOD":"POST",
+                    "DESCRIPTION":"Create new Person",
+                    "ROLES":{
+                        "DEFAULT":["ROLE_ADMIN","ROLE_USER"],
+                        "BATCH":["ROLE_ADMIN"],
+                        "HOOK":["ROLE_ADMIN"]
+                    },
+                    "REQUEST": {
+                        "permitAll":["username","password","email"]
+                    },
+                    "RESPONSE": {
+                        "permitAll":["id","version"]
+                    }
+                },
+                ...</code></pre>
 
-        <p>
-        <b>Why can't we just move services like Security to the proxy or Gateway?</b></br>
-        Doing AUTH check (or other checks) at the proxy/gateway does not solve for forwards/redirects where the roles need to be checked again. This shows the issue with the architectural cross cutting concern. This data needs to be duplicated to avoid the dropped thread and roundtrip. But then, we can't synchronize it. In our system, we synchronize then duplicate and make sure that all duplicate are coming from one centralized source.
-        </p>
+<p>The above data has the following definitions:
+<ul>
+          <li><b><span style="text-decoration: underline;">CURRENTSTABLE :</span></b> This is the current stable version of IOState; if you you do not have multiple versions of this file, this number is the same as 'VERSION'</li>
+          <li><b><span style="text-decoration: underline;">VERSION :</span></b> This is the file version. This allows to API to have several versions of IOState if you are currently supported deprecated versions
+          <ul>
+              <li><b><span style="text-decoration: underline;">DEFAULTACTION :</span></b>​ This is the default endpoint action if if none given; commonly 'list'</li>
+              <li><b><span style="text-decoration: underline;">URI :</span></b>​​ This is the endpoint and the rules for the endpoint.</li>
+          </ul>
+          </li>
+</ul>
+</p>
 
-        <p>
-        <b>Is 'type' checking done on incoming response or outgoing request?</b></br>
-        Type Validation is an operation performed by the MODEL/Domain. Since no assignment is done at the API Layer, this isn't suggested as this slows down your api. What 'type' does is set a declaration on the variable so we can use it for OPTIONS and apidocs. It also is used for api chaining so objects can reference each other at the front controller by assigning a 'key'. Potentially we MAY autobuild this in the future based on Domain Objects
-        </p>
+<p>Then under 'URI', you define the endpoint for the controller. In this case for the NAME 'person' and URI 'create', the full endpoint would be:</p>
+<pre><code>http://<yourdomain>/v0.1/person/create</code></pre>
+<p>We will explain more about where the 'v0.1' comes under <a href="http://orubel.github.io/Beapi-API-Framework/version.html">'Versioning'</a> but for right now, lets finish explaining the rest of the IOState:</p>
+<ul>
+    <li><b><span style="text-decoration: underline;">METHOD :</span></b> One of [GET, PUT, POST,DELETE]. This defines how the endpoint should be called.</li>
+    <li><b><span style="text-decoration: underline;">DESCRIPTION :</span></b> A description of the endpoint for the API Docs</li>
+    <li><b><span style="text-decoration: underline;">ROLES :</span></b> a grouping for security rules</li>
+    <li><b><span style="text-decoration: underline;">DEFAULT​ :</span></b> Default security roles for endpoints</li>
+    <li><b><span style="text-decoration: underline;">BATCH :</span></b> Security roles for endpoints that have batching enabled</li>
+    <li><b><span style="text-decoration: underline;">HOOK :</span></b> Security roles for endpoints that have web hooks enabled</li>
+    <li><b><span style="text-decoration: underline;">REQUEST :</span></b>​ per role data for expected when sending the request; concatenates across roles</li>
+    <li><b><span style="text-decoration: underline;">RESPONSE :</span></b> per role data for expected when sending the request; concatenates across roles</li>
+</ul>
+<p><b>Of note on REQUEST/RESPONSE and ROLES</b>: one can set different access levels by concatenating privileges. Their is a default privilege level called 'permitAll' which will allow ALL privileges set in ROLES>DEFAULT access to this data. You can then allow more atomic access by setting additional values PER ROLE like so:
+<pre><code>"REQUEST": {
+    "permitAll":["name"],
 
-        <p>
-        <b>It stated that the IO State does data checking? Isn't data checking the same thing as validation?</b></br>
-        If one checks to see if a set of variables are being sent for the privilege the api expects, that is data checking. If one VALIDATEs that data for what it is stated to be set as, that is validation. This is the difference between what the API Layer does and what the MODEL layer does
-        </p>
-
-        <p>
-        <b>Does the IO State Object need to be called with every call?</b></br>
-        No. The IO State Object is loaded at runtime, processed and then the final object (not JS) is loaded into a cache (ideally). This gives us a language specific object that we can use for each individual method api call with the definitions,rules and roles.
-        </p>
-
-        <p>
-        <b>Can this work with external api's?</b></br>
-        Yes. To do this you would normally create a separate controller/action that calls the external api. This would give you an internal URI reference point. The api object checks the data before going to the external service and will check the data coming back.
-        </p>
-
-        <p>
-        <b>Why is the object in JSON when you are coding in Groovy/Java?</b></br>
-        JSON allows us to abstract the object so we can reload on the fly and recache if we need to. JSON also allows for definition of a base object in a form that can be used by any architectural point as well regardless of what language it is written in.
-        </p>
-
+    "ROLE_USER":["id"]
+},</code></pre>
+</p>
 </section>
       <footer>
         <p class="view"><a href="https://github.com/orubel/Beapi-API-Framework">View the Project on GitHub <small>orubel/Beapi-API-Framework</small></a></p>
