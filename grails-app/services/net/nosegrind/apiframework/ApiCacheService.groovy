@@ -202,7 +202,6 @@ class ApiCacheService{
 					doc['inputjson'] = processJson(doc['receives'])
 					doc['outputjson'] = processJson(doc['returns'])
 				}
-	
 			}
 			return doc
 		}catch(Exception e){
