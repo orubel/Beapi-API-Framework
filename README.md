@@ -45,24 +45,6 @@ Some features include:
 grails create-app <name of your app> --profile org.grails.profiles:beapi:1.0.0
 ```
 
-**Q: Why am I getting the error "DisconnectableInputStream source reader" when I build the example project?**  
-**A:** This is a known Gradle issue that does not affect the project and is nothing to worry about. The following error:
-```
-Exception in thread "DisconnectableInputStream source reader" org.gradle.api.UncheckedIOException: java.io.IOException: Resource temporarily unavailable
-        at org.gradle.internal.UncheckedException.throwAsUncheckedException(UncheckedException.java:43)
-        at org.gradle.util.DisconnectableInputStream$1.run(DisconnectableInputStream.java:125)
-        at java.lang.Thread.run(Thread.java:748)
-Caused by: java.io.IOException: Resource temporarily unavailable
-        at java.io.FileInputStream.readBytes(Native Method)
-        at java.io.FileInputStream.read(FileInputStream.java:255)
-        at java.io.BufferedInputStream.fill(BufferedInputStream.java:246)
-        at java.io.BufferedInputStream.read1(BufferedInputStream.java:286)
-        at java.io.BufferedInputStream.read(BufferedInputStream.java:345)
-        at org.gradle.util.DisconnectableInputStream$1.run(DisconnectableInputStream.java:96)
-        ... 1 more
-```
-... will be see on every build and is caused by a known Gradle bug. This is fixed in later versions of Gradle but not in the version built into Grails. It does not affect the build and is nothing to be concerned with.
-
 **Q: How do I implement the listener for IO state webhook on my proxy/Message queue?**  
 **A:** It merely requires an endpoint to send the data to. As a side project, I may actually supply a simple daemon in the future with ehCache to do this for people.
 
