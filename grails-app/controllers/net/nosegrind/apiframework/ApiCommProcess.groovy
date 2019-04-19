@@ -730,6 +730,9 @@ abstract class ApiCommProcess{
 
     protected String getContent(Object result, String contentType){
         String content
+        if(result=='{}') {
+            return null
+        }
         switch(contentType){
             case 'text/xml':
             case 'application/xml':
