@@ -70,12 +70,15 @@ abstract class ApiCommProcess{
     void setBatchParams(GrailsParameterMap params){
         try{
             if (batchEnabled) {
+                println("params:"+params)
                 Object batchVars = request.getAttribute(request.format.toUpperCase())
-                if(!request.getAttribute('batchLength')){
+                if(!request.getAttribute('batchLength') && request.JSON?.batch){
                     request.setAttribute('batchLength',request.JSON?.batch.size())
                 }
-                batchVars['batch'][request.getAttribute('batchInc').toInteger()].each() { k,v ->
-                    params."${k}" = v
+                if(batchVars['batch']) {
+                    batchVars['batch'][request.getAttribute('batchInc').toInteger()].each() { k, v ->
+                        params."${k}" = v
+                    }
                 }
             }
         }catch(Exception e) {
@@ -94,9 +97,13 @@ abstract class ApiCommProcess{
         if (chainEnabled) {
             if(!params.apiChain){ params.apiChain = [:] }
             LinkedHashMap chainVars = request.JSON
-            if(!request.getAttribute('chainLength')){ request.setAttribute('chainLength',chainVars['chain'].size()) }
-            chainVars['chain'].each() { k,v ->
-                params.apiChain[k] = v
+            if(!request.getAttribute('chainLength')){
+                request.setAttribute('chainLength',chainVars['chain'].size())
+            }
+            if(chainVars['chain']) {
+                chainVars['chain'].each() { k, v ->
+                    params.apiChain[k] = v
+                }
             }
         }
     }

@@ -18,6 +18,7 @@ import javax.servlet.http.HttpServletResponse
 import groovy.json.JsonSlurperClassic
 import grails.compiler.GrailsCompileStatic
 import groovy.transform.CompileStatic
+import java.util.stream.Collectors
 
 /**
  * Used to check proper format was sent for endpoint and to format
@@ -33,12 +34,14 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        // println("#### ContentTypeMarshallerFilter ####")
+        //println("#### ContentTypeMarshallerFilter ####")
+        String batchEntryPoint = "b${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
 
         String format = (request?.format)?request.format.toUpperCase():'JSON'
         HashSet formats = new HashSet()
         formats.add('XML')
         formats.add('JSON')
+
 
         if(!doesContentTypeMatch(request)){
                 response.status = 401
@@ -49,6 +52,7 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
 
         try {
             // Init params
+
             if (formats.contains(format)) {
                 LinkedHashMap dataParams = [:]
                 switch (format) {

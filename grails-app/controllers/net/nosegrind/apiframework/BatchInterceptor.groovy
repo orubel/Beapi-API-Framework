@@ -159,8 +159,11 @@ class BatchInterceptor extends ApiCommLayer{
 				}
 				Integer batchInc = (Integer) request.getAttribute('batchInc')
 
-
-				setBatchParams(params)
+				if(request.JSON) {
+					setBatchParams(params)
+				}else{
+					render(status: HttpStatus.BAD_REQUEST.value(), text: 'Batch variables cannot be url encoded. Please send variables as header data.')
+				}
 				// END HANDLE BATCH PARAMS
 
 				// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
