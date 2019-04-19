@@ -21,9 +21,7 @@ Some features include:
 
 - **JWT Tokens:** JWT Token handling for Javascript frontends to allow or better abstraction of the VIEW layer
 
-- **Web Hooks:** Enables secured Web Hooks for any endpoint so your developers/users can get push notification on updates.
-
-- **Architectural Web Hooks:** Notifys Services and synchronizes data for all your servers on the backend automatically
+- **Automated Web Hooks:** Enables secured Web Hooks for any endpoint so your developers/users can get push notification on updates.
 
 - **Throttling & Rate/Data Limits:** Data Limits/Rate limits and Throttling for all API's through easy to configure options
 
@@ -35,7 +33,7 @@ Some features include:
 
 - **Localized API Cache:** returned resources are cached,stored and updated with requesting ROLE/AUTH. Domains extend a base class that auto update this cache upon create/update/delete. This speeds up your api REQUEST/RESPONSE x10
 
-- **Built-In Profiler:** Profile your API's and have them deliver a metrics report of time it takes for every class/method to deliver so you can optimize queries, methods services
+- **Built-In Stats Reporting:** Statistics on all api calls (and errors) are stored and can be called up at any time for reporting tooling.
 
 ***
 
