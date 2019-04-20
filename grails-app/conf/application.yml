@@ -1,5 +1,7 @@
 ---
 grails:
+    cors:
+        enabled: false
     profile: web-plugin
     codegen:
         defaultPackage: grails.api.framework

@@ -99,6 +99,7 @@ dependencies {
 
     compile('org.grails.plugins:spring-security-core:3.2.0.M1') {
         exclude(module: 'org.springframework.security:spring-security-web')
+        exclude(module: 'org.grails.plugins:cors')
     }
     compile group: 'com.google.guava', name: 'guava', version: '14.0'
 
@@ -106,6 +107,7 @@ dependencies {
         exclude(module: 'com.google.guava:guava-io')
         exclude(module: 'org.springframework.security:spring-security-web')
         exclude(module: 'org.grails.plugins:spring-security-core')
+        exclude(module: 'org.grails.plugins:cors')
     }
 
     /**

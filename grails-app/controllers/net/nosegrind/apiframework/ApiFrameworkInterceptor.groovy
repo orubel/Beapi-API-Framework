@@ -169,7 +169,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				}
 
 				// RETRIEVE CACHED RESULT (only if using get method); DON'T CACHE LISTS
-				if (cachedEndpoint['cachedResult'] && mthdKey=='GET' ) {
+				if (cachedEndpoint.cachedResult && mthdKey=='GET' && cacheHash !=null) {
 					LinkedHashMap cachedResult = cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
 					if(cachedResult){
 						//String authority = getUserRole() as String

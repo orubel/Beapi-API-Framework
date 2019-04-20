@@ -62,7 +62,6 @@ class CorsSecurityFilter extends OncePerRequestFilter {
         request.getHeader('Access-Control-Request-Headers')
         String origin = request.getHeader('Origin')
         boolean options = 'OPTIONS'==request.method.toUpperCase()
-
         if (options) {
             response.addHeader('Allow', 'GET, HEAD, POST, PUT, DELETE, TRACE, PATCH, OPTIONS')
             if (origin != 'null') {

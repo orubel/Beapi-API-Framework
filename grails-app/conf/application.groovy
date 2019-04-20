@@ -8,6 +8,7 @@ String chainEntryPoint = "/c${apiVersion}".toString()
 String metricsEntryPoint = "/m${apiVersion}".toString()
 //String domainEntryPoint = "d${apiVersion}".toString()
 
+cors.headers = ['Access-Control-Allow-Headers': 'Content-Type, Authorization']
 
 // The ACCEPT header will not be used for content negotiation for user agents containing the following strings (defaults to the 4 major rendering engines)
 grails.mime.use.accept.header = false // Default value is true.

@@ -159,6 +159,7 @@ class BatchInterceptor extends ApiCommLayer{
 				}
 				Integer batchInc = (Integer) request.getAttribute('batchInc')
 
+				// TODO : support XML on batch jobs
 				if(request.JSON) {
 					setBatchParams(params)
 				}else{
