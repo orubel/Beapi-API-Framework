@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>BeAPI-API-Framework</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <img src="beapi_logo2.png" style="width:auto;height:auto;padding:0px;">
+        <p></p>
+
+        <ul>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/index.html"><strong>Installation</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/confserv.html"><strong>Configure Server</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/confdb.html"><strong>Configure Database</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/confapi.html"><strong>Configure API Application</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/model.html"><strong>Model/Domain Object</strong></a>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/controller.html"><strong>Controller</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/iostate.html"><strong>IO State</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/version.html"><strong>Versioning</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/usage.html"><strong>API Usage</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/batch.html"><strong>Batch Processing</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/chain.html"><strong>Api Chaining</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/hook.html"><strong>Web Hooks</strong></a></li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/ping.html"><strong>PING Architecture</strong></a></li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/rate.html"><strong>Rate Limiting</strong></a></li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/docs.html"><strong>API Docs</strong></a></li>
+          <li><a href="http://orubel.github.io/Beapi-API-Framework/troubleshooting.html"><strong>Troubleshooting</strong></a></li>
+          <li>&nbsp</li>
+
+        </ul>
+      </header>
+      <section>
+
+        <h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Rate Limiting</h1>
+
+          <p>Rate Limiting is optional and is not turned on by default. You can set this variable <b>PER ENVIRONMENT</b> in your 'beapi_server.yml' file by changing the variable 'apiThrottle' in your environment to 'true':</p>
+          <pre><code>apiThrottle: true</code></pre>
+
+          <p>Rate limiting needs to be configured on a <b>per ROLE basis</b>; that is to say; for each ROLE you want to apply rate limiting to, you need to create the rules for it in the 'beapi_api.yml' file. Lets take a look at that section:</p>
+        <pre><code>    throttle:
+        rateLimit: {'ROLE_USER':1000,'ROLE_ADMIN':10000}
+        dataLimit: {'ROLE_USER':1000000,'ROLE_ADMIN':1000000}
+        # in seconds (3600 = 60 minutes)
+        expires: 3600</code></pre>
+
+        <p>Lets examine the above settings and break them down:
+        <ul>
+          <li><b>rateLimit</b> : </li>This sets the 'count' for the number of requests that are allowed to be done within the day. After this is hit (or goes over the limit), a lock is put on the account until 'expires' clock runs out.
+          <li><b>dataLimit</b> :</li>This sets the 'count' for the number of requests that are allowed to be done within the day. After this is hit (or goes over the limit), a lock is put on the account until 'expires' clock runs out.
+          <li><b>expiresLimit</b> :</li>This sets the number of seconds until a rateLimit lock is released. Ideally this should be a day but we have it currently set low.
+        </ul>
+        </p>
+
+
+</section>
+      <footer>
+        <p class="view"><a href="https://github.com/orubel/Boomstick-API-Framework">View the Project on GitHub <small>orubel/Beapi-API-Framework</small></a></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
