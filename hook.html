@@ -37,6 +37,7 @@
             </ul>
           </li>
             <li><a href="http://orubel.github.io/Beapi-API-Framework/ping.html"><strong>PING Architecture</strong></a></li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/rate.html"><strong>Rate Limiting</strong></a></li>
             <li><a href="http://orubel.github.io/Beapi-API-Framework/docs.html"><strong>API Docs</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/troubleshooting.html"><strong>Troubleshooting</strong></a></li>
           <li>&nbsp</li>
@@ -49,7 +50,10 @@
         <p>A <b>Web Hook</b> is a way to notify a user of a change to data whenevr it occurs. So they can update 'their' systems/application whenever your system/application makes a change to its data. Of course, you don't always WANT users to see all the changes to all your data so you want to <b>be very careful who you expose your web hooks to</b>!</p>
         <p>Every endpoint in the framework has the ability to be hookable via your <b>IO State files</b> which can be found in your:
         <pre><code>&lt;homedir&gt;/.beapi/.iostate/' directory.</code></pre>
-        </p>
+
+          <p>Webhooks are optional and are not turned on by default. You can set this variable <b>PER ENVIRONMENT</b> in your 'beapi_server.yml' file by changing the variable 'webhookActive' in your environment to 'true':</p>
+          <pre><code>webhookActive: false</code></pre>
+
         <p>Simply modify the <b>ROLES</b> section of the <b>URI</b> for the endpoint of the controller you want to add a hook to in the iostate file by adding a new role. For example, if I wanted to add a new role to the 'person/create' endpoint which looks like the following:
         <pre><code>
  ...
