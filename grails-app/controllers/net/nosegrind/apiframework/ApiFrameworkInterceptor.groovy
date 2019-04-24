@@ -141,12 +141,22 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 				//CHECK REQUEST METHOD FOR ENDPOINT
 				// NOTE: expectedMethod must be capitolized in IO State file
-				String expectedMethod = cachedEndpoint['method'] as String
-				checkRequestMethod(mthd,expectedMethod, restAlt)
+				String expectedMethod = cache[apiObject][action]['method'] as String
+				if(!checkRequestMethod(mthd,expectedMethod, restAlt)){
+					response.status = 400
+					response.setHeader('ERROR', 'Expected request method for endpoint does not match sent method')
+					response.writer.flush()
+					return false
+				}
 
 				LinkedHashMap receives = cachedEndpoint['receives'] as LinkedHashMap
 				cacheHash = createCacheHash(params, receives)
-				checkURIDefinitions(params, receives)
+				if(!checkURIDefinitions(params, receives)){
+					response.status = 400
+					response.setHeader('ERROR', 'Expected request variables for endpoint do not match sent variables')
+					response.writer.flush()
+					return false
+				}
 
 				// CHECK FOR REST ALTERNATIVES
 				if (restAlt) {

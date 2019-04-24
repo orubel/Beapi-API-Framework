@@ -160,7 +160,8 @@ abstract class ApiCommProcess{
             if(mthd.getKey() == method){
                 return true
             }else{
-                errorResponse([400,'Expected request method for endpoint does not match sent method'])
+                //errorResponse([400,'Expected request method for endpoint does not match sent method'])
+                return false
             }
         }
         return true
@@ -197,16 +198,13 @@ abstract class ApiCommProcess{
                 // remove reservedNames from List
 
                 reservedNames.each() { paramsList.remove(it) }
-
-                //println("paramslist:" + paramsList)
-                //println("requestlist:" + requestList)
-
+                
                 if (paramsList.size() == requestList.intersect(paramsList).size()) {
                     return true
                 }
             }
 
-            errorResponse([400,'Expected request variables for endpoint do not match sent variables'])
+            //errorResponse([400,'Expected request variables for endpoint do not match sent variables'])
             return false
         }catch(Exception e) {
            throw new Exception("[ApiCommProcess :: checkURIDefinitions] : Exception - full stack trace follows:",e)
@@ -763,6 +761,7 @@ abstract class ApiCommProcess{
         response.status = status
         response.setHeader('ERROR', msg)
         response.writer.flush()
+
     }
 
 
