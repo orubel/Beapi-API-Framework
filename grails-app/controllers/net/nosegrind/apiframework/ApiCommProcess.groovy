@@ -690,7 +690,7 @@ abstract class ApiCommProcess{
                 //println("NOT LOGGED IN!!!")
             }
             if(hasAuth==false){
-                errorResponse([400, 'Unauthorized Access attempted'])
+                //errorResponse([400, 'Unauthorized Access attempted'])
                 return false
             }else{
                 return hasAuth

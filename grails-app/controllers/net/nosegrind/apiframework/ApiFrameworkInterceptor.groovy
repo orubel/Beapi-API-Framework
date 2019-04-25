@@ -143,6 +143,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				// NOTE: expectedMethod must be capitolized in IO State file
 				String expectedMethod = cache[apiObject][action]['method'] as String
 				if(!checkRequestMethod(mthd,expectedMethod, restAlt)){
+					statsService.setStatsCache(springSecurityService.principal['id'], 400, request.requestURI)
 					response.status = 400
 					response.setHeader('ERROR', 'Expected request method for endpoint does not match sent method')
 					response.writer.flush()
@@ -152,6 +153,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				LinkedHashMap receives = cachedEndpoint['receives'] as LinkedHashMap
 				cacheHash = createCacheHash(params, receives)
 				if(!checkURIDefinitions(params, receives)){
+					statsService.setStatsCache(springSecurityService.principal['id'], 400, request.requestURI)
 					response.status = 400
 					response.setHeader('ERROR', 'Expected request variables for endpoint do not match sent variables')
 					response.writer.flush()
@@ -246,7 +248,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							}
 						}
 					}else{
-						statsService.setStatsCache(userId, response.status, request.requestURI)
+						statsService.setStatsCache(userId, 404, request.requestURI)
 						response.status = 404
 						response.setHeader('ERROR', 'No Content found')
 						response.writer.flush()
@@ -272,7 +274,13 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 					//List roles = cache['roles'] as List
 					List roles = cachedEndpoint['roles'] as List
-					checkAuth(roles)
+					if(!checkAuth(roles)){
+						statsService.setStatsCache(springSecurityService.principal['id'], 400, request.requestURI)
+						response.status = 400
+						response.setHeader('ERROR', 'Unauthorized Access attempted')
+						response.writer.flush()
+						return false
+					}
 
 					boolean result = handleRequest(cachedEndpoint['deprecated'] as List)
 					return result
