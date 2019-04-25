@@ -25,10 +25,6 @@
           <li><a href="http://orubel.github.io/Beapi-API-Framework/confapi.html"><strong>Configure API Application</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/model.html"><strong>Model/Domain Object</strong></a>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/controller.html"><strong>Controller</strong></a></li>
-          <ul>
-            <li><a href="controller.html#req">How To Create Your Controller</a></li>
-          </ul>
-          </li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/iostate.html"><strong>IO State</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/version.html"><strong>Versioning</strong></a></li>
             <li><a href="http://orubel.github.io/Beapi-API-Framework/user.html"><strong>User Management</strong></a></li>
@@ -46,41 +42,50 @@
       </header>
       <section>
 
-        <h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The Controller</h1>
+        <h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>User Management</h1>
 
-        <p>Your <b>Controller</b> requires no additional annotations added to it to make the api's function. You merely need to gather the resource in your methods like so:</p>
-        <pre><code>LinkedHashMap show(){
-		try{
-			Person user = new Person()
-			if(isSuperuser()){
-				user = Person.get(params?.id?.toLong())
-			}else{
-				user = Person.get(springSecurityService.principal.id)
-			}
-			if(user){
-				return [person: user]
-			}else{
-				render(status: 500,text:"Id does not match record in database.")
-			}
-
-		}catch(Exception e){
-			throw new Exception("[PersonController : get] : Exception - full stack trace follows:",e)
-		}
-}</code></pre>
-
-        <p>There ARE two caveats to your methods however:
-        <ul>
-          <li>They have to be declared as returning 'LinkedHashMap'. For example (as in above):
-            <pre><code>LinkedHashMap show(){ ... }</code></pre>
-          </li>
-          <li>There can only be one key/value pair with the KEY ALWAYS being the name of the domain/controller class (<a href="https://en.wikipedia.org/wiki/Camel_case">in camelCase</a>). For example (as in above for the 'Person' controller):
-            <pre><code>return [person: user]</code></pre>
-          </li>
-        </ul>
-        </p>
-        <p>Included is <a href="https://github.com/orubel/beapi_backend/blob/master/grails-app/domain/net/nosegrind/apiframework/Person.groovy">a link to an example class</a> to show you how one should look. There is nothing complex; just follow <a href="http://gorm.grails.org/latest/hibernate/manual/index.html">GORM principles</a> for creating a basic domain object.</p>
+        <p>Once you have most of your application setup, you will want to add/edit users & user roles. This can be done very easily through the API's.</p>
 
 
+      <h3><a id="vars" class="anchor" href="#values" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>User API's</h3>
+      <p><b>Create User</b>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v0.1/person/create"</code></pre>
+      </p>
+
+      <p><b>Show User (SuperUser)</b>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request GET "http://localhost:8080/v0.1/person/show/1"</code></pre>
+      </p>
+
+      <p><b>Show User</b>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request GET "http://localhost:8080/v0.1/person/show</code></pre>
+      </p>
+
+      <p><b>Delete User (SuperUser)</b>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request DELETE "http://localhost:8080/v0.1/person/delete/1"</code></pre>
+      </p>
+
+
+
+      <h3><a id="vars" class="anchor" href="#values" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>User Role API's</h3>
+
+          <p>Even though you created a user, they can't access anything until you assign them a 'ROLE' and this ROLE is assigned to an endpoint. Think of a 'ROLE' like a SECURITY GROUP that users belong to that grants them access.</p>
+      <p><b>Create User Role</b>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request POST -d "{'personId': '56','roleId':'1'}" "http://localhost:8080/v0.1/role/create"</code></pre>
+      </p>
+
+      <p><b>Show User (SuperUser)</b>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request GET "http://localhost:8080/v0.1/person/show/1"</code></pre>
+      </p>
+
+      <p><b>Show User</b>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request GET "http://localhost:8080/v0.1/person/show</code></pre>
+      </p>
+
+      <p><b>Delete User (SuperUser)</b>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request DELETE "http://localhost:8080/v0.1/person/delete/1"</code></pre>
+      </p>
+
+          <p><b>* NOTE:</b>You will ALWAYS have to delete THE USER ROLE prior to deleting PERSON due to the foreign key dependency</p>
 </section>
       <footer>
         <p class="view"><a href="https://github.com/orubel/Boomstick-API-Framework">View the Project on GitHub <small>orubel/Beapi-API-Framework</small></a></p>
