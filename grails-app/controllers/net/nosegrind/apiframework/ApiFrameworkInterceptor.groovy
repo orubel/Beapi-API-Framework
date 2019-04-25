@@ -237,6 +237,12 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 												statsService.setStatsCache(userId, response.status, request.requestURI)
 												render(text: output, contentType: contentType)
 												return false
+											}else{
+												statsService.setStatsCache(userId, 404, request.requestURI)
+												response.status = 404
+												response.setHeader('ERROR', 'Rate Limit exceeded. Please wait')
+												response.writer.flush()
+												return false
 											}
 										} else {
 											statsService.setStatsCache(userId, response.status, request.requestURI)
@@ -380,6 +386,12 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							if(checkLimit(contentLength.length)) {
 								statsService.setStatsCache(userId, response.status, request.requestURI)
 								render(text: getContent(content, contentType), contentType: contentType)
+								return false
+							}else{
+								statsService.setStatsCache(userId, 404, request.requestURI)
+								response.status = 404
+								response.setHeader('ERROR', 'Rate Limit exceeded. Please wait')
+								response.writer.flush()
 								return false
 							}
 						} else {
