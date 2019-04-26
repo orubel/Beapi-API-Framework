@@ -720,6 +720,7 @@ abstract class ApiCommProcess{
         }
 
         ArrayList receivesList = (temp != null)?temp.collect(){ it.name }:[]
+
         receivesList.each(){ it ->
             hashString.append(params[it])
             hashString.append("/")
