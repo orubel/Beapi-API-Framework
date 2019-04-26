@@ -29,6 +29,7 @@
             <ul>
               <li><a href="iostate.html#vars">Variables Declaration</a></li>
               <li><a href="iostate.html#rules">Rules Declaration</a></li>
+                <li><a href="iostate.html#empty">Empty PermitAll</a></li>
             </ul>
           </li>
             <li><a href="http://orubel.github.io/Beapi-API-Framework/version.html"><strong>Versioning</strong></a></li>
@@ -291,9 +292,19 @@
 <p><b>Of note on REQUEST/RESPONSE and ROLES</b>: one can set different access levels by concatenating privileges. Their is a default privilege level called 'permitAll' which will allow ALL privileges set in ROLES>DEFAULT access to this data. You can then allow more atomic access by setting additional values PER ROLE like so:
 <pre><code>"REQUEST": {
     "permitAll":["name"],
-
     "ROLE_USER":["id"]
 },</code></pre>
+
+
+
+</br>
+<h3><a id="empty" class="anchor" href="#values" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Empty PermitAll</h3>
+<p>If you are sending no values (such as a 'list' call) or returning no values, you weill often have an empty 'permitAll' such as the following:</p>
+<pre><code>			        "REQUEST": {
+			            "permitAll":[]
+			        },</code></pre>
+<p>An empty 'permitAll' should NEVER be declared with quotes as this sends an empty string. Always leave the brackets empty like above to declare that nothing needs to be sent.</p>
+
 </p>
 </section>
       <footer>
