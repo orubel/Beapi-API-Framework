@@ -70,7 +70,6 @@ abstract class ApiCommProcess{
     void setBatchParams(GrailsParameterMap params){
         try{
             if (batchEnabled) {
-                println("params:"+params)
                 Object batchVars = request.getAttribute(request.format.toUpperCase())
                 if(!request.getAttribute('batchLength') && request.JSON?.batch){
                     request.setAttribute('batchLength',request.JSON?.batch.size())
