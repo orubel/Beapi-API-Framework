@@ -3,6 +3,15 @@ package net.nosegrind.apiframework;
 import grails.validation.Validateable
 import grails.compiler.GrailsCompileStatic
 
+/**
+ *
+ * Used in conjunction with ApiParams in created params for use by ApiDescriptor
+ * @author Owen Rubel
+ *
+ * @see ApiParams
+ * @see ApiDescriptor
+ *
+ */
 @GrailsCompileStatic
 class ParamsDescriptor implements Validateable {
 

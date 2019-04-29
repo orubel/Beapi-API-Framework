@@ -4,8 +4,16 @@ package net.nosegrind.apiframework
 import grails.validation.Validateable
 import grails.compiler.GrailsCompileStatic
 
-// name is name of the object used
-
+/**
+ *
+ * Api Object used for caching all data associated with endpoint
+ * @author Owen Rubel
+ *
+ * @see ApiCommLayer
+ * @see BatchInterceptor
+ * @see ChainInterceptor
+ *
+ */
 //@GrailsCompileStatic
 class ApiDescriptor implements Validateable {
 

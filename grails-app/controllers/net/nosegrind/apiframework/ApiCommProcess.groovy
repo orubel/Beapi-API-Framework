@@ -113,7 +113,7 @@ abstract class ApiCommProcess{
      * @see #checkURIDefinitions(GrailsParameterMap,LinkedHashMap)
      * @see #checkLimit(int)
      * @see ApiCommLayer#handleApiResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, HashMap, GrailsParameterMap)
-     * @return a String of the Role of current principal (logged in user)
+     * @return String Role of current principal (logged in user)
      */
     String getUserRole() {
         String authority = 'permitAll'
@@ -130,7 +130,7 @@ abstract class ApiCommProcess{
      * @see ApiCommLayer#handleBatchRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
      * @see ApiCommLayer#handleChainRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
      * @param String deprecationDate
-     * @return a boolean
+     * @return boolean returns false if deprecation date is equal or later than today
      */
     boolean checkDeprecationDate(String deprecationDate){
         try{
@@ -152,7 +152,7 @@ abstract class ApiCommProcess{
      * @param RequestMethod request method for httprequest
      * @param String method associated with endpoint
      * @param boolean a boolean value determining if endpoint is 'restAlt' (OPTIONS,TRACE,etc)
-     * @return returns true if not endpoint method matches request method
+     * @return Boolean returns true if not endpoint method matches request method
      */
     boolean checkRequestMethod(RequestMethod mthd,String method, boolean restAlt){
         if(!restAlt) {
@@ -174,7 +174,7 @@ abstract class ApiCommProcess{
      * @see ChainInterceptor#before()
      * @param GrailsParameterMap Map of params created from the request data
      * @param LinkedHashMap map of variables defining endpoint request variables
-     * @return returns false if request variable keys do not match expected endpoint keys
+     * @return Boolean returns false if request variable keys do not match expected endpoint keys
      */
     boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions){
         ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','apiResult','combine','_','batch','max','offset','apiObjectVersion']
@@ -203,7 +203,7 @@ abstract class ApiCommProcess{
                 }
             }
 
-            //errorResponse([400,'Expected request variables for endpoint do not match sent variables'])
+            errorResponse([400,'Expected request variables for endpoint do not match sent variables'])
             return false
         }catch(Exception e) {
            throw new Exception("[ApiCommProcess :: checkURIDefinitions] : Exception - full stack trace follows:",e)
@@ -278,6 +278,7 @@ abstract class ApiCommProcess{
      * @see ChainInterceptor#before()
      * @param RequestMethod mthd
      * @param GrailsParameterMap Map of params created from the request data
+     * @deprecated
      * @return
      */
     String parseRequestMethod(RequestMethod mthd, GrailsParameterMap params){
@@ -307,7 +308,7 @@ abstract class ApiCommProcess{
      * @see ApiCommLayer#handleChainResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, HashMap, GrailsParameterMap)
      * @param HashMap model
      * @param ArrayList responseList
-     * @return
+     * @return LinkedHashMap parses all data for expected response params for users ROLE
      */
     LinkedHashMap parseURIDefinitions(LinkedHashMap model,ArrayList responseList){
         if(model[0].getClass().getName()=='java.util.LinkedHashMap') {
@@ -352,7 +353,7 @@ abstract class ApiCommProcess{
      * @see ApiCommLayer#handleChainRequest(List, String, RequestMethod, HttpServletResponse, GrailsParameterMap)
      * @param String method
      * @param RequestMethod mthd
-     * @return
+     * @return Boolean returns false if SENT request method and EXPECTED request method do not match
      */
     boolean isRequestMatch(String method,RequestMethod mthd){
         if(RequestMethod.isRestAlt(mthd.getKey())){
@@ -380,7 +381,7 @@ abstract class ApiCommProcess{
      * Given the request params, returns a parsed HashMap of all request params NOT found in optionalParams List
      * @see checkURIDefinitions(GrailsParameterMap,HashMap)
      * @param GrailsParameterMap Map of params created from the request data
-     * @return
+     * @return LinkedHashMap map of all params associated with request for use with api call
      */
     LinkedHashMap getMethodParams(GrailsParameterMap params){
         try{
@@ -397,7 +398,7 @@ abstract class ApiCommProcess{
      * Given an ArrayList of authorities associated with endpoint, determines if User authorities match; returns boolean
      * @see #getApiDoc(GrailsParameterMap)
      * @param ArrayList list
-     * @return
+     * @return Boolean returns false if users roles are not contained in list of provided roles
      */
     Boolean hasRoles(ArrayList list) {
         if(springSecurityService.principal.authorities*.authority.any { list.contains(it) }){
@@ -414,7 +415,7 @@ abstract class ApiCommProcess{
      * @see BatchInterceptor#after()
      * @see ChainInterceptor#after()
      * @param Map map
-     * @return
+     * @return LinkedHashMap commonly formatted linkedhashmap
      */
     LinkedHashMap convertModel(Map map){
         try{
@@ -445,7 +446,7 @@ abstract class ApiCommProcess{
      * Used by convertModel and called by the PostHandler
      * @see #convertModel(Map)
      * @param Object data
-     * @return
+     * @return LinkedHashMap commonly formatted linkedhashmap
      */
     LinkedHashMap formatDomainObject(Object data){
         try {
@@ -484,7 +485,7 @@ abstract class ApiCommProcess{
      * Used by convertModel and called by the PostHandler
      * @see #convertModel(Map)
      * @param LinkedHashMap map
-     * @return
+     * @return LinkedHashMap commonly formatted linkedhashmap
      */
     LinkedHashMap formatMap(HashMap map){
         LinkedHashMap newMap = [:]
@@ -512,7 +513,7 @@ abstract class ApiCommProcess{
      * Used by convertModel and called by the PostHandler
      * @see #convertModel(Map)
      * @param ArrayList list
-     * @return
+     * @return commonly formatted linkedhashmap
      */
     LinkedHashMap formatList(List list){
         LinkedHashMap newMap = [:]
@@ -688,7 +689,7 @@ abstract class ApiCommProcess{
                 //println("NOT LOGGED IN!!!")
             }
             if(hasAuth==false){
-                //errorResponse([400, 'Unauthorized Access attempted'])
+                errorResponse([400, 'Unauthorized Access attempted'])
                 return false
             }else{
                 return hasAuth
@@ -751,6 +752,11 @@ abstract class ApiCommProcess{
         return content
     }
 
+    /**
+     * Allows loading of response data and sets stat data at same time.
+     * This then is 'flushed' in main classes; saves on having to call service in every method
+     * @param List error ; error code, error message
+     */
     protected void errorResponse(List error){
         Integer status = error[0]
         String msg = error[1]
@@ -759,8 +765,7 @@ abstract class ApiCommProcess{
 
         response.status = status
         response.setHeader('ERROR', msg)
-        response.writer.flush()
-
+        //response.writer.flush()
     }
 
 

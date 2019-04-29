@@ -153,9 +153,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				LinkedHashMap receives = cachedEndpoint['receives'] as LinkedHashMap
 				cacheHash = createCacheHash(params, receives)
 				if(!checkURIDefinitions(params, receives)){
-					statsService.setStatsCache(userId, 400, request.requestURI)
-					response.status = 400
-					response.setHeader('ERROR', 'Expected request variables for endpoint do not match sent variables')
+					//statsService.setStatsCache(userId, 400, request.requestURI)
+					//response.status = 400
+					//response.setHeader('ERROR', 'Expected request variables for endpoint do not match sent variables')
 					response.writer.flush()
 					return false
 				}
@@ -280,16 +280,23 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 					//List roles = cache['roles'] as List
 					List roles = cachedEndpoint['roles'] as List
-					if(!checkAuth(roles)){
-						statsService.setStatsCache(userId, 400, request.requestURI)
-						response.status = 400
-						response.setHeader('ERROR', 'Unauthorized Access attempted')
+					boolean checkAuth = checkAuth(roles)
+					if(!checkAuth){
+						//statsService.setStatsCache(userId, 400, request.requestURI)
+						//response.status = 400
+						//response.setHeader('ERROR', 'Unauthorized Access attempted')
 						response.writer.flush()
 						return false
 					}
 
 					boolean result = handleRequest(cachedEndpoint['deprecated'] as List)
-					return result
+					if(result){
+						return result
+					}else{
+						return result
+						response.writer.flush()
+					}
+
 				}
 			}
 

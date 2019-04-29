@@ -7,6 +7,15 @@ import java.beans.Introspector
 import java.lang.reflect.InvocationTargetException
 import groovy.transform.CompileStatic
 
+/**
+ *
+ * Params Object. Used in conjunction with ParamsDescriptor in creating params object for use by ApiDescriptor
+ * @author Owen Rubel
+ *
+ * @see ParamsDescriptor
+ * @see ApiDescriptor
+ *
+ */
 @CompileStatic
 class ApiParams{
 
@@ -15,7 +24,10 @@ class ApiParams{
 	private static final INSTANCE = new ApiParams()
 	
 	static getInstance(){ return INSTANCE }
-	
+
+	/**
+	 * Empty Constructor
+	 */
 	private ApiParams() {}
 
 	
@@ -41,7 +53,12 @@ class ApiParams{
 		
 		return result
 	}
-	
+
+	/**
+	 *
+	 * @param data
+	 * @return
+	 */
 	ApiParams setMockData(String data){
 		this.param.mockData = data
 		return this

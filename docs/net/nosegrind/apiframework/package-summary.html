@@ -121,7 +121,7 @@ function windowTitle()
                                     ApiDescriptor
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Api Object used for caching all data associated with endpoint</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -145,7 +145,7 @@ function windowTitle()
                                     ApiParams
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Params Object. </td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -161,7 +161,7 @@ function windowTitle()
                                     BatchInterceptor
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>HandlerInterceptor for Batch API Calls. </td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -169,7 +169,7 @@ function windowTitle()
                                     ChainInterceptor
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>HandlerInterceptor for Chained API Calls. </td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -185,6 +185,14 @@ function windowTitle()
                                     HookService
                                 </a></strong>
                             </td>
+                            <td>A class for automating webhooks through the handlerinterceptors</td>
+                        </tr>
+<tr class="altColor">
+                            <td class="colOne">
+                                <strong><a href="IostateController.html" title="class in net/nosegrind/apiframework">
+                                    IostateController
+                                </a></strong>
+                            </td>
                             <td></td>
                         </tr>
 <tr class="altColor">
@@ -193,31 +201,24 @@ function windowTitle()
                                     ParamsDescriptor
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>Used in conjunction with ApiParams in created params for use by ApiDescriptor</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="ProfilerCommLayer.html" title="class in net/nosegrind/apiframework">
-                                    ProfilerCommLayer
+                                <strong><a href="PingService.html" title="class in net/nosegrind/apiframework">
+                                    PingService
                                 </a></strong>
                             </td>
-                            <td></td>
+                            <td>A class for 'pinging' all the other API servers in your architecture to test for uptime</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
-                                <strong><a href="ProfilerCommProcess.html" title="class in net/nosegrind/apiframework">
-                                    ProfilerCommProcess
+                                <strong><a href="ServerController.html" title="class in net/nosegrind/apiframework">
+                                    ServerController
                                 </a></strong>
                             </td>
-                            <td></td>
-                        </tr>
-<tr class="altColor">
-                            <td class="colOne">
-                                <strong><a href="ProfilerInterceptor.html" title="class in net/nosegrind/apiframework">
-                                    ProfilerInterceptor
-                                </a></strong>
-                            </td>
-                            <td></td>
+                            <td>Provides callbacks for the server; mainly used for webhooks
+ the request/response.</td>
                         </tr>
 <tr class="altColor">
                             <td class="colOne">
@@ -233,23 +234,7 @@ function windowTitle()
                                     ThrottleCacheService
                                 </a></strong>
                             </td>
-                            <td></td>
-                        </tr>
-<tr class="altColor">
-                            <td class="colOne">
-                                <strong><a href="TraceCacheService.html" title="class in net/nosegrind/apiframework">
-                                    TraceCacheService
-                                </a></strong>
-                            </td>
-                            <td></td>
-                        </tr>
-<tr class="altColor">
-                            <td class="colOne">
-                                <strong><a href="TraceService.html" title="class in net/nosegrind/apiframework">
-                                    TraceService
-                                </a></strong>
-                            </td>
-                            <td></td>
+                            <td>A class for caching rate limiting data; used by handler interceptors.</td>
                         </tr>
 
                     </tbody>

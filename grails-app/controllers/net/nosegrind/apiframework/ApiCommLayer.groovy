@@ -29,7 +29,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
      * @param mthd
      * @param response
      * @param params
-     * @return
+     * @return boolean returns false if past deprecation date
      */
     boolean handleRequest(List deprecated){
         try{
