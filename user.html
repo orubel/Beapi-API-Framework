@@ -85,7 +85,7 @@
       <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request DELETE "http://localhost:8080/v0.1/personRole/delete/56"</code></pre>
       </p>
 
-          <p><b>* NOTE:</b>You will ALWAYS have to delete THE USER ROLE prior to deleting PERSON due to the foreign key dependency</p>
+          <p><b>* NOTE:</b>While you will ALWAYS have to delete dependencies (such as THE USER ROLE) prior to deleting PERSON due to the foreign key dependency, this is taken care of for you in the current implamentation. All you have to do is 'delete person' and the related 'person role' record is automatically deleted as well.</p>
 </section>
       <footer>
         <p class="view"><a href="https://github.com/orubel/Boomstick-API-Framework">View the Project on GitHub <small>orubel/Beapi-API-Framework</small></a></p>
