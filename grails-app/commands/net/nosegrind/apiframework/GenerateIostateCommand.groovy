@@ -82,7 +82,6 @@ class GenerateIostateCommand implements ApplicationCommand {
             def controller = Holders.grailsApplication.getArtefactByLogicalPropertyName('Controller', logicalName)
             def domain = Holders.grailsApplication.getArtefactByLogicalPropertyName('Domain', logicalName)
             String packageName = domain.getPackageName()
-            println(packageName)
 
             ClassMetadata hibernateMetaClass = sessionFactory.getClassMetadata(domain.clazz)
 
@@ -166,10 +165,10 @@ class GenerateIostateCommand implements ApplicationCommand {
                     List req = []
                     List resp = []
                     Pattern listPattern = Pattern.compile("list")
-                    Pattern getPattern = Pattern.compile("get|getBy|show|listBy")
+                    Pattern getPattern = Pattern.compile("get|getBy|show|listBy|enable")
                     Pattern postPattern = Pattern.compile("create|make|generate|build|save")
-                    Pattern putPattern = Pattern.compile("edit|update|")
-                    Pattern deletePattern = Pattern.compile("delete|destroy|kill|reset")
+                    Pattern putPattern = Pattern.compile("edit|update")
+                    Pattern deletePattern = Pattern.compile("delete|disable|destroy|kill|reset")
 
 
                     Matcher getm = getPattern.matcher(it4)
@@ -195,7 +194,7 @@ class GenerateIostateCommand implements ApplicationCommand {
                     }
 
                     if (method.isEmpty()) {
-                        Matcher putm = putPattern.matcher(it4);
+                        Matcher putm = putPattern.matcher(it4)
                         if (putm.find()) {
                             method = 'PUT'
                             req = variables
@@ -266,8 +265,7 @@ class GenerateIostateCommand implements ApplicationCommand {
                 def controller = Holders.grailsApplication.getArtefactByLogicalPropertyName('Controller', logicalName)
                 def domain = Holders.grailsApplication.getArtefactByLogicalPropertyName('Domain', logicalName)
                 String packageName = domain.getPackageName()
-                println(packageName)
-
+                //println(packageName)
                 //println("[" + logicalName + "]:" + domain.getConstrainedProperties())
                 def constraints = domain.getConstrainedProperties()
                 if (controller && !reservedNames.contains(logicalName)) {
@@ -337,10 +335,10 @@ class GenerateIostateCommand implements ApplicationCommand {
                         List req = []
                         List resp = []
                         Pattern listPattern = Pattern.compile("list")
-                        Pattern getPattern = Pattern.compile("get|getBy|show|listBy")
+                        Pattern getPattern = Pattern.compile("get|getBy|show|listBy|enable")
                         Pattern postPattern = Pattern.compile("create|make|generate|build|save")
-                        Pattern putPattern = Pattern.compile("edit|update|")
-                        Pattern deletePattern = Pattern.compile("delete|destroy|kill|reset")
+                        Pattern putPattern = Pattern.compile("edit|update")
+                        Pattern deletePattern = Pattern.compile("delete|disable|destroy|kill|reset")
 
 
                         Matcher getm = getPattern.matcher(it4)
@@ -366,8 +364,9 @@ class GenerateIostateCommand implements ApplicationCommand {
                         }
 
                         if (method.isEmpty()) {
-                            Matcher putm = putPattern.matcher(it4);
+                            Matcher putm = putPattern.matcher(it4)
                             if (putm.find()) {
+                                println(it4+"is PUT")
                                 method = 'PUT'
                                 req = variables
                                 resp.add('\"id\"')
@@ -375,7 +374,7 @@ class GenerateIostateCommand implements ApplicationCommand {
                         }
 
                         if (method.isEmpty()) {
-                            Matcher delm = deletePattern.matcher(it4);
+                            Matcher delm = deletePattern.matcher(it4)
                             if (delm.find()) {
                                 method = 'DELETE'
                                 req.add('\"id\"')
@@ -507,6 +506,8 @@ class GenerateIostateCommand implements ApplicationCommand {
                     Writer w = new BufferedWriter(osw)
                     w.write(template)
                     w.close()
+                }else{
+                    println(iostateDir + "/${realName}.json exists. Continuing...")
                 }
             } catch (IOException e) {
                 println("Problem writing to the file ${path}")
