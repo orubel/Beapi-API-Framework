@@ -232,35 +232,21 @@ class GenerateControllerCommand implements ApplicationCommand {
 		try {
 			if (plugin.isFile() && plugin.name.endsWith("jar")) {
 				JarFile jar = new JarFile(plugin)
-
 				JarEntry entry = jar.getEntry(inPath)
-
-				//String name = entry.getName();
-				//File file = new File(absPath, entry.getName());
-				//def engine = new groovy.text.GStringTemplateEngine()
-				//def template = engine.createTemplate(file).make(attribs)
-
-				//println("name:"+name)
-				//println template.toString()
-
 				InputStream inStream = jar.getInputStream(entry)
-				StringWriter writer = new StringWriter()
-				IOUtils.copy(inStream, writer, "UTF-8")
-				String theString = writer.toString()
-				
-println(theString)
-
-				/*
-				OutputStream out = new FileOutputStream(outPath);
+				OutputStream out = new FileOutputStream(outPath)
 				int c;
 				while ((c = inStream.read()) != -1) {
-					out.write(c);
+					out.write(c)
 				}
-				inStream.close();
-				out.close();
+				inStream.close()
+				out.close()
+				jar.close()
 
-				jar.close();
-				*/
+				def templateFile = new File(outPath)
+				def engine = new groovy.text.GStringTemplateEngine()
+				def template = engine.createTemplate(templateFile).make(attribs)
+
 
 			}
 		}catch(Exception e){
