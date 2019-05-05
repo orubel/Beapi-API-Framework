@@ -312,11 +312,9 @@ abstract class ApiCommProcess{
      */
     LinkedHashMap parseURIDefinitions(LinkedHashMap model,ArrayList responseList){
         if(model[0].getClass().getName()=='java.util.LinkedHashMap') {
-            GParsPool.withPool(this.cores, {
-                model.eachParallel() { key, val ->
-                    model[key] = parseURIDefinitions(val, responseList)
-                }
-            })
+            model.each() { key, val ->
+                model[key] = parseURIDefinitions(val, responseList)
+            }
             return model
         }else{
             try {

@@ -125,67 +125,107 @@ class GenerateControllerCommand implements ApplicationCommand {
 
 		}
 
+
+
 		LinkedHashMap params = [:]
 
 		this.data.each { k, v ->
-			try {
+
 				String importedClasses
 
 				v.each { k2, v2 ->
 					//add params to list for 'create/update'
 					if (k2 != 'packageName') {
-						v2.each { k3, v3 ->
-							//params[k2] = "\$\{params.${k2}\}"
-							if (!['id', 'version'].contains(k2)) {
-								if (!this.createData[k]) {
-									this.createData[k] = [:]
-								}
-								if (!this.createData[k][k2]) {
-									this.createData[k][k2] = "\"\${params.${k2}}\""
-								}
-							}
-							if (!['version'].contains(k2)) {
-								if (!this.updateData[k]) {
-									this.updateData[k] = [:]
-								}
-								if (!this.updateData[k][k2]) {
-									this.updateData[k][k2] = "\"\${params.${k2}}\""
-								}
-							}
-							// enforce type may be optional; no enforcement on first pass but save this for future implementation
-							/*
-							params[k2] = "\$\{params.${k2}\} as ${k3}"
-							def grp = (v3 =~ /java.lang\.(.*)/)
-							if(!grp.hasGroup()){
-								importedClasses += "${v3}\n"
-							}
-							*/
+						println("DOES NOT EQUAL PACKAGENAME: ")
 
-						}
+							//v2.each { k3, v3 ->
+
+								try {
+									if (!['id', 'version'].contains(k2)) {
+										if (!this.createData[k]) {
+											println("CreateData:" + k)
+											this.createData[k] = []
+										}
+
+										this.createData[k].add("${k2} : \"\${params.${k2}}\"")
+
+									}else{
+										println("NOT CREATING DATA")
+									}
+								}catch(Exception e){
+									println("FAILED at createdata: "+e)
+								}
+
+								try {
+									if (!['version'].contains(k2)) {
+										if (!this.updateData[k]) {
+											this.updateData[k] = []
+										}
+
+										this.updateData[k].add("${k2} : \"\${params.${k2}}\"")
+
+									}
+								}catch(Exception e){
+									println("FAILED at updatedata: "+e)
+								}
+								// enforce type may be optional; no enforcement on first pass but save this for future implementation
+								/*
+								params[k2] = "\$\{params.${k2}\} as ${k3}"
+								def grp = (v3 =~ /java.lang\.(.*)/)
+								if(!grp.hasGroup()){
+									importedClasses += "${v3}\n"
+								}
+								*/
+
+							//}
+
 					}
 
 				}
-			}catch(Exception e){
-				println("FAILED at data: "+e)
-			}
+
 
 		}
+
+		//this.createData.each{
+		//	println("createData: "+it)
+		//}
 
 		String basedir = BuildSettings.BASE_DIR
 
 		Map templateAttributes = [:]
 		this.data.each { k, v ->
 
-			try {
+
 				def projectDir = "${basedir}/grails-app/controllers/${this.data[k]['packageName']}"
-				println(k + "/" + this.createData[k])
+
+				String createData = ""
+				int i = 1
+				this.createData[k].each{
+					createData += it
+					if(i!=this.createData[k].size()) {
+						createData += ","
+					}
+					i++
+				}
+
+				String updateData = ""
+				i = 1
+				this.updateData[k].each{
+					updateData += it
+					if(i!=this.updateData[k].size()) {
+						updateData += ","
+					}
+					i++
+				}
+
+			try{
 				templateAttributes = [
 						packageName     : "${this.data[k]['realPackageName']}",
 						realClassName   : "${k}",
 						importedClasses : "",
 						logicalClassName: "${k[0].toLowerCase() + k.substring(1)}",
-						createData      : "${this.createData[k]}",
-						updateData      : "${this.updateData[k]}",
+						createData      : "${createData}",
+						updateData      : "${updateData}",
 				]
 				writeFile('templates/controllers/Controller.groovy.template', "${projectDir}/${k}Controller.groovy", templateAttributes, absPath)
 				//generateFile(this.data[k]['packageName'], k, 'grails-app/controllers', templateAttributes)
