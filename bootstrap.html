@@ -15,19 +15,20 @@
   <body>
     <div class="wrapper">
       <header>
-        <img src="beapi_logo2.png" style="width:auto;height:auto;padding:0px;">
+        <img src="beapi_logo2.png" style="width:auto;height:auto;">
         <p></p>
 
         <ul>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/index.html"><strong>Installation</strong></a></li>
             <li><a href="http://orubel.github.io/Beapi-API-Framework/confserv.html"><strong>Configure Server</strong></a></li>
             <li><a href="http://orubel.github.io/Beapi-API-Framework/confdb.html"><strong>Configure Database</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/confapi.html"><strong>Configure API Application</strong></a>
-              <ul>
-                <li><a href="confapi.html#chg">Things You Have To Change</a></li>
-              </ul>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/confapi.html"><strong>Configure API Application</strong></a></li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/bootstrap.html"><strong>Bootstrapping</strong></a>
+                <ul>
+                    <li><a href="bootstrap.html#contr">Bootstrap Your Controllers</a></li>
+                    <li><a href="bootstrap.html#iostate">Bootstrap Your IO State</a></li>
+                </ul>
             </li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/bootstrap.html"><strong>Bootstrapping</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/model.html"><strong>Model/Domain Object</strong></a></li>
             <li><a href="http://orubel.github.io/Beapi-API-Framework/controller.html"><strong>Controller</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/iostate.html"><strong>IO State</strong></a></li>
@@ -47,60 +48,23 @@
       </header>
       <section>
 
-        <h1><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configuring The API Server</h1>
-        <p>Now that you have configured everything else, the last step is to put the finishing touches on the API server. The config file for which looks like this:</p>
-        <pre><code>apitoolkit:
-    apiName: api
-    attempts: 5
-    procCores: 8
-    roles: ['ROLE_USER','ROLE_ROOT','ROLE_ADMIN','ROLE_ARCH']
-    views: ['admin','apidoc','api','login','logout']
-    apiServer: ['http://localhost:8080']
-    apichain:
-        limit: 3
-    rest:
-        postcrement: false
-    chaining:
-        enabled: true
-    batching:
-        enabled: true
-    encoding: UTF-8
-    throttle:
-        rateLimit: {'ROLE_USER':1000,'ROLE_ADMIN':10000}
-        dataLimit: {'ROLE_USER':1000000,'ROLE_ADMIN':1000000}
-        # in seconds (3600 = 60 minutes)
-        expires: 3600
-    user:
-        roles: ['ROLE_USER']
-    admin:
-        roles: ['ROLE_ROOT','ROLE_ADMIN','ROLE_ARCH']
-    serverType: master
-    webhook:
-        services: ['iostate']
-    corsInterceptor:
-        includeEnvironments: ['development','test','production']
-        excludeEnvironments: []
-        allowedOrigins: ['http://localhost','http://localhost:8080','http://127.0.0.1','http://localhost/','http://localhost:8080/','http://127.0.0.1/']
+          <h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Bootstrapping</h1>
 
----
-root:
-    login: admin
-    password: admin_password
-    email: youremail@yourdomain.com</code></pre>
+</br>
+<h3><a id="cont" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Bootstrap Your Controllers</h3>
+<p>Once you have your domains built, you can then 'autogenerate' your controllers using the following command:</p>
+<pre><code>./gradlew GenerateController</code></pre>
+<p>This will generate the controllers for all your domains using basic CRUD functionality. <b>NOTE:</b>There is no need to add annotations or anything to them as this is all handled by the BeAPI framework.</p>
 
+</br>
+<h3><a id="iostate" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Bootstrap Your IO State</h3>
+<p>After you have built your domains AND controllers, you can then 'autogenerate your IO State files using the following command:</p>
+<pre><code>./gradlew GenerateIostate</code></pre>
+<p>This will then create all the necessary state files for your endpoints used by the framework.</p>
 
-        </br>
-        <h3><a id="chg" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>The Only Things You Have To Change...</h3>
-
-        <p>Don't be intimidated! There are only a couple of things that have to be changed and configured here:
-        <ul>
-          <li><strong>login/password/email</strong>: This login and password will be used in testing and will provide a default user for you to login to the application with.</li>
-        </ul>
-        </p>
-
-
-</section>
+      </section>
       <footer>
+        <p class="view"><a href="https://github.com/orubel/Beapi-API-Framework">View the Project on GitHub <small>orubel/Beapi-API-Framework</small></a></p>
       </footer>
     </div>
     <script src="javascripts/scale.fix.js"></script>
