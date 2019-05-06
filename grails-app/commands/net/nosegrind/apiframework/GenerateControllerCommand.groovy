@@ -43,16 +43,11 @@ import groovy.text.GStringTemplateEngine
  */
 class GenerateControllerCommand implements ApplicationCommand {
 
-
-	String iostateDir = ""
 	LinkedHashMap createData = [:]
 	LinkedHashMap updateData = [:]
 	LinkedHashMap data = [:]
 
 	boolean handle(ExecutionContext ctx) {
-		File baseDirFile = ctx.baseDir
-		String absPath = baseDirFile.getAbsolutePath()
-
 		println "### Bootstrapping Controller Files ..."
 
 		String logicalName
@@ -61,7 +56,6 @@ class GenerateControllerCommand implements ApplicationCommand {
 
 		// create data based on domains
 		def domains = Holders.grailsApplication.getArtefacts("Domain")
-
 
 		domains.each() { it ->
 			try {
@@ -74,17 +68,10 @@ class GenerateControllerCommand implements ApplicationCommand {
 
 				if (!controllerExists("grails-app/controllers/${packageName}/${realName}Controller.groovy")) {
 					this.data[realName] = [:]
-
 					this.data[realName]['packageName'] = packageName
-
 					this.data[realName]['realPackageName'] = domain.getPackageName()
 
-					String contDir = "${absPath}/grails-app/controllers/${packageName}"
-
 					checkDirectory("grails-app/controllers/${packageName}")
-
-					LinkedHashMap controllerList = getControllers(contDir, packageName)
-
 
 					def sessionFactory = Holders.grailsApplication.mainContext.sessionFactory
 					ClassMetadata hibernateMetaClass = sessionFactory.getClassMetadata(it.clazz)
@@ -101,9 +88,7 @@ class GenerateControllerCommand implements ApplicationCommand {
 						}
 					}
 
-
 					def domainProperties = hibernateMetaClass.getPropertyNames()
-
 					domainProperties.each() { it2 ->
 
 						List ignoreList = ['constrainedProperties', 'gormPersistentEntity', 'properties', 'async', 'gormDynamicFinders', 'all', 'attached', 'class', 'constraints', 'reports', 'dirtyPropertyNames', 'errors', 'dirty', 'transients', 'count']
@@ -111,130 +96,93 @@ class GenerateControllerCommand implements ApplicationCommand {
 
 						// create data and type map
 						if (!ignoreList.contains(it2)) {
-
 							if (name != 'null') {
 								this.data[realName][name] = hibernateTypeConverter((String) hibernateMetaClass.getPropertyType(it2).getClass())
 							}
-
 						}
 					}
 				}
 			}catch(Exception e){
-				println("FAILED at domains: "+e)
+				println("Exception. Please submit error report :"+e)
 			}
-
 		}
 
-
-
-		LinkedHashMap params = [:]
 
 		this.data.each { k, v ->
+			//String importedClasses
 
-				String importedClasses
+			String logicalClassName = "${k[0].toLowerCase() + k.substring(1)}"
 
-				v.each { k2, v2 ->
-					//add params to list for 'create/update'
-					if (k2 != 'packageName') {
-						println("DOES NOT EQUAL PACKAGENAME: ")
+			v.each { k2, v2 ->
+				//add params to list for 'create/update'
+				if (k2 != 'packageName') {
 
-							//v2.each { k3, v3 ->
-
-								try {
-									if (!['id', 'version'].contains(k2)) {
-										if (!this.createData[k]) {
-											println("CreateData:" + k)
-											this.createData[k] = []
-										}
-
-										this.createData[k].add("${k2} : \"\${params.${k2}}\"")
-
-									}else{
-										println("NOT CREATING DATA")
-									}
-								}catch(Exception e){
-									println("FAILED at createdata: "+e)
-								}
-
-								try {
-									if (!['version'].contains(k2)) {
-										if (!this.updateData[k]) {
-											this.updateData[k] = []
-										}
-
-										this.updateData[k].add("${k2} : \"\${params.${k2}}\"")
-
-									}
-								}catch(Exception e){
-									println("FAILED at updatedata: "+e)
-								}
-								// enforce type may be optional; no enforcement on first pass but save this for future implementation
-								/*
-								params[k2] = "\$\{params.${k2}\} as ${k3}"
-								def grp = (v3 =~ /java.lang\.(.*)/)
-								if(!grp.hasGroup()){
-									importedClasses += "${v3}\n"
-								}
-								*/
-
-							//}
-
+					if (!['id', 'version'].contains(k2)) {
+						if (!this.createData[k]) {
+							this.createData[k] = []
+						}
+						this.createData[k].add("${k2} : \"\${params.${k2}}\"")
 					}
 
+
+					if (!['version'].contains(k2)) {
+						if (!this.updateData[k]) {
+							this.updateData[k] = []
+						}
+						this.updateData[k].add(logicalClassName+"."+k2+" = params."+k2)
+					}
+
+					// enforce type may be optional; no enforcement on first pass but save this for future implementation
+					/*
+					params[k2] = "\$\{params.${k2}\} as ${k3}"
+					def grp = (v3 =~ /java.lang\.(.*)/)
+					if(!grp.hasGroup()){
+						importedClasses += "${v3}\n"
+					}
+					*/
 				}
-
-
+			}
 		}
 
-		//this.createData.each{
-		//	println("createData: "+it)
-		//}
 
 		String basedir = BuildSettings.BASE_DIR
 
 		Map templateAttributes = [:]
 		this.data.each { k, v ->
 
+			def projectDir = "${basedir}/grails-app/controllers/${this.data[k]['packageName']}"
 
-				def projectDir = "${basedir}/grails-app/controllers/${this.data[k]['packageName']}"
-
-				String createData = ""
-				int i = 1
-				this.createData[k].each{
-					createData += it
-					if(i!=this.createData[k].size()) {
-						createData += ","
-					}
-					i++
+			String createData = ""
+			int i = 1
+			this.createData[k].each{
+				createData += it
+				if(i!=this.createData[k].size()) {
+					createData += ","
 				}
-
-				String updateData = ""
-				i = 1
-				this.updateData[k].each{
-					updateData += it
-					if(i!=this.updateData[k].size()) {
-						updateData += ","
-					}
-					i++
-				}
-
-			try{
-				templateAttributes = [
-						packageName     : "${this.data[k]['realPackageName']}",
-						realClassName   : "${k}",
-						importedClasses : "",
-						logicalClassName: "${k[0].toLowerCase() + k.substring(1)}",
-						createData      : "${createData}",
-						updateData      : "${updateData}",
-				]
-				writeFile('templates/controllers/Controller.groovy.template', "${projectDir}/${k}Controller.groovy", templateAttributes, absPath)
-				//generateFile(this.data[k]['packageName'], k, 'grails-app/controllers', templateAttributes)
-			}catch(Exception e){
-				println("FAILED at formatting data: "+e)
+				i++
 			}
-		}
 
-		//println("data:" + data)
+			String updateData = "\t\t\t    \n"
+			i = 1
+			this.updateData[k].each{
+				updateData += "\t\t\t    ${it}"
+				if(i!=this.updateData[k].size()) {
+					updateData += "\n"
+				}
+				i++
+			}
+
+			templateAttributes = [
+					packageName     : "${this.data[k]['realPackageName']}",
+					realClassName   : "${k}",
+					importedClasses : "",
+					logicalClassName: "${k[0].toLowerCase() + k.substring(1)}",
+					createData      : "${createData}",
+					updateData      : "${updateData}",
+			]
+			writeFile('templates/controllers/Controller.groovy.template', "${projectDir}/${k}Controller.groovy", templateAttributes)
+			
+		}
 
 		return true
 	}
@@ -281,7 +229,7 @@ class GenerateControllerCommand implements ApplicationCommand {
 		return false
 	}
 
-	void writeFile(String inPath, String outPath, LinkedHashMap attribs, String absPath){
+	void writeFile(String inPath, String outPath, LinkedHashMap attribs){
 		String pluginDir = new File(getClass().protectionDomain.codeSource.location.path).path
 		def plugin = new File(pluginDir)
 		try {
@@ -290,7 +238,7 @@ class GenerateControllerCommand implements ApplicationCommand {
 				JarEntry entry = jar.getEntry(inPath)
 				InputStream inStream = jar.getInputStream(entry)
 				OutputStream out = new FileOutputStream(outPath)
-				int c;
+				int c
 				while ((c = inStream.read()) != -1) {
 					out.write(c)
 				}
@@ -301,11 +249,15 @@ class GenerateControllerCommand implements ApplicationCommand {
 				def templateFile = new File(outPath)
 				def engine = new groovy.text.GStringTemplateEngine()
 				def template = engine.createTemplate(templateFile).make(attribs)
-				println template.toString()
 
+				String controller = template.toString()
+
+				BufferedWriter writer = new BufferedWriter(new FileWriter(outPath))
+				writer.write(controller)
+				writer.close()
 			}
 		}catch(Exception e){
-			println("FAILED at writefile :"+e)
+			println("Exception. Please submit error report :"+e)
 		}
 	}
 
