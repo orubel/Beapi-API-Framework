@@ -7,7 +7,7 @@
 ## Forums - http://beapi.freeforums.net/
 
 <!-- ### Backend Implementation - https://github.com/orubel/beapi_backend -->
-\\ ### Frontend Implementation - https://github.com/orubel/beapi_frontend
+### Frontend Implementation - https://github.com/orubel/beapi_frontend
 
 ***
 ### Description
