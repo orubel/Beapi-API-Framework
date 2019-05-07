@@ -6,8 +6,8 @@
 ## Documentation/Installation - http://orubel.github.io/Beapi-API-Framework/
 ## Forums - http://beapi.freeforums.net/
 
-### Backend Implementation - https://github.com/orubel/beapi_backend
-### Frontend Implementation - https://github.com/orubel/beapi_frontend
+<!-- ### Backend Implementation - https://github.com/orubel/beapi_backend -->
+\\ ### Frontend Implementation - https://github.com/orubel/beapi_frontend
 
 ***
 ### Description
