@@ -3,6 +3,9 @@ package net.nosegrind.apiframework;
 import grails.validation.Validateable
 import grails.compiler.GrailsCompileStatic
 
+/**
+ * @author Owen Rubel
+ */
 //@Validateable
 //@GrailsCompileStatic
 class ErrorCodeDescriptor implements Validateable{

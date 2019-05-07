@@ -13,6 +13,9 @@ package net.nosegrind.apiframework;
  * TRACE		no			yes
  */
 
+/**
+ * @author Owen Rubel
+ */
 public enum RequestMethod {
 	 GET("get"),
 	 PUT("put"),

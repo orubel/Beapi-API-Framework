@@ -36,7 +36,6 @@ import org.springframework.validation.DataBinder
  * @author Graeme Rocher
  * @since 3.0
  */
-
 @CompileStatic
 trait RequestForwarder implements WebAttributes {
     private UrlConverter urlConverter

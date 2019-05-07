@@ -53,7 +53,6 @@ import grails.compiler.GrailsCompileStatic
  *
  * @author Owen Rubel
  */
-
 @GrailsCompileStatic
 class TokenCacheValidationFilter extends GenericFilterBean {
 
