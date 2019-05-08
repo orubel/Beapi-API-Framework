@@ -64,9 +64,9 @@
 <h3><a id="what" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>What Is API Chaining&reg;?</h3>
 <p>API Chaining is a process allowing one api call to return data into another api call which returns data into another api call , etc etc, <b>all within ONE REQUEST/RESPONSE</b>. This is allowed through the abstraction of communication logic from business logic through the New API Pattern. This is limited in the fact that you can only use GET method as the connectors in the chain and one other 'non-safe' method (ie PUT/POST/DELETE) at either the beginning or the end of the chain (as determined by the REQUEST method).</p>
 <p>NOTE: The API Chaining trademark can only be used by those properly implementing the process</b>. As a process, it is only considered successfully implemented if:
-  <li>it MUST use ONLY ONE REQUEST/RESPONSE</li>
+  <li>it MUST use ONLY ONE REQUEST/RESPONSE (ie <a href="https://www.baeldung.com/servlet-redirect-forward">no redirects</a>)</li>
   <li>client can create chains and they MUST be processed dynamically; there SHOULD BE NO hardcoded chains.</li>
-  <li>there MUST BE no more than ONE non-safe REQUEST method used in a chain during a single REQUEST/RESPONSE</li>
+  <li>there MUST BE no more than ONE <a href="http://restcookbook.com/HTTP%20Methods/idempotency/">non-safe REQUEST method</a> used in a chain during a single REQUEST/RESPONSE</li>
 </p>
         
 <p>We have all used encoded GET data when sending form data via a POST request. This is considered common practice. Why? Because GET is idempotent and SAFE. Because it is SAFE (meaning it doesn't change data), it is commonly used with other types of requests as a mixed request. This may not be RESTful but it is considered normal and not unsafe. This is what I like to refer to as a single link chain since it has only one link which is the same as it's destination request.</p>
