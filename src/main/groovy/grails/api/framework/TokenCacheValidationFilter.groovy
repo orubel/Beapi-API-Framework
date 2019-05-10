@@ -117,7 +117,6 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 return
             }
 
-
         } catch (AuthenticationException ae) {
             // NOTE: This will happen if token not found in database
             //log.debug('Token not found in database.')
@@ -149,64 +148,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                 //log.debug 'Validation endpoint called. Generating response.'
                 authenticationSuccessHandler.onAuthenticationSuccess(request, response, authenticationResult)
             } else {
-                String entryPoint = Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)
-                String controller
-                String action
-                String version
-
-                switch(actualUri) {
-                    case ~/\/.{0}[a-z]${entryPoint}(-[0-9])*\/(.*)/:
-                        List params = actualUri.split('/')
-                        List temp = ((String)params[1]).split('-')
-                        version = (temp.size()>1) ? temp[1].toString() : ''
-                        controller = params[2]
-                        action = params[3]
-                        break
-                    default :
-                        response.status = 401
-                        response.setHeader('ERROR', 'BAD Access attempted')
-                        //response.writer.flush()
-                        return
-                }
-
-                ApplicationContext ctx = Holders.grailsApplication.mainContext
-                if(ctx) {
-                    GrailsCacheManager grailsCacheManager = ctx.getBean('grailsCacheManager')
-                    LinkedHashMap cache = [:]
-                    def temp = grailsCacheManager?.getCache('ApiCache')
-                    List cacheNames = temp.getAllKeys() as List
-                    def tempCache
-                    for (it in cacheNames) {
-                        String cKey = it.simpleKey.toString()
-                        if (cKey == controller) {
-                            tempCache = temp.get(it)
-                            break
-                        }
-                    }
-
-                    def cache2
-                    if (tempCache) {
-                        cache2 = tempCache.get() as LinkedHashMap
-                        version = (version.isEmpty()) ? cache2['cacheversion'] : version
-
-                        if (!cache2?."${version}"?."${action}") {
-                            response.status = 401
-                            response.setHeader('ERROR', 'IO State Not properly Formatted for this URI. Please contact the Administrator.')
-                            //response.writer.flush()
-                            return
-                        } else {
-                            def session = RCH.currentRequestAttributes().getSession()
-                            session['cache'] = cache2
-                            //HttpSession session = request.getSession()
-                            //session['cache'] = cache2
-                        }
-                    } else {
-                        //println("no cache found")
-                    }
-
-                }else{
-                    //log.debug('no ctx found')
-                }
+                // continue..
             }
         } else {
             //log.debug 'Request does not contain any token. Letting it continue through the filter chain'
@@ -215,21 +157,4 @@ class TokenCacheValidationFilter extends GenericFilterBean {
         chain.doFilter(request, response)
     }
 
-
-    boolean checkAuth(HashSet roles, AccessToken accessToken){
-        HashSet tokenRoles = []
-        accessToken.getAuthorities()*.authority.each() { tokenRoles.add(it) }
-        try {
-            if (roles!=null){
-                if(roles.size()==1 && roles[0] == 'permitAll') {
-                    return true
-                } else if(roles.intersect(tokenRoles).size()>0) {
-                    return true
-                }
-                return false
-            }
-        }catch(Exception e) {
-            throw new Exception('[TokenCacheValidationFilter :: checkAuth] : Exception - full stack trace follows:',e)
-        }
-    }
 }

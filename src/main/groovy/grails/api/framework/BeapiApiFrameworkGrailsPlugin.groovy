@@ -306,6 +306,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
         LinkedHashMap methods = [:]
 
+        String networkGrp = json.NETWORKGRP
         json.VERSION.each() { vers ->
             def versKey = vers.key
             String defaultAction = (vers.value['DEFAULTACTION'])?vers.value.DEFAULTACTION:'index'
@@ -336,7 +337,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 Set hookRoles = it.value.ROLES.HOOK
 
                 String uri = it.key
-                apiDescriptor = createApiDescriptor(apiName, apiMethod, apiDescription, apiRoles, batchRoles, hookRoles, uri, json.get('VALUES'), apiVersion)
+                apiDescriptor = createApiDescriptor(networkGrp, apiName, apiMethod, apiDescription, apiRoles, batchRoles, hookRoles, uri, json.get('VALUES'), apiVersion)
                 if(!methods[vers.key]){
                     methods[vers.key] = [:]
                 }
@@ -375,7 +376,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         return methods
     }
 
-    private ApiDescriptor createApiDescriptor(String apiname,String apiMethod, String apiDescription, Set apiRoles, Set batchRoles, Set hookRoles, String uri, JSONObject values, JSONObject json){
+    private ApiDescriptor createApiDescriptor(String networkGrp, String apiname,String apiMethod, String apiDescription, Set apiRoles, Set batchRoles, Set hookRoles, String uri, JSONObject values, JSONObject json){
         LinkedHashMap<String,ParamsDescriptor> apiObject = [:]
         ApiParams param = new ApiParams()
 
@@ -423,9 +424,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                         param.setMockData(v.mockData.toString())
                     }
                 } else {
-                    try{}catch(Exception e) {
-                        throw new Exception("[Runtime :: createApiDescriptor] : MockData Required for type '" + k + "' in IO State[" + apiname + "]")
-                    }
+                    throw new Exception("[Runtime :: createApiDescriptor] : MockData Required for type '" + k + "' in IO State[" + apiname + "]")
                 }
 
                 // collect api vars into list to use in apiDescriptor
@@ -441,6 +440,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         ApiDescriptor service = new ApiDescriptor(
                 'empty':false,
                 'method':"$apiMethod",
+                'networkGrp': "$networkGrp",
                 'pkey':pkeys,
                 'fkeys':fkeys,
                 'description':"$apiDescription",

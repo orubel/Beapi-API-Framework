@@ -20,6 +20,7 @@ class ApiDescriptor implements Validateable {
 	boolean empty = false
 	String defaultAction
 	List deprecated
+	String networkGrp
 	String method
 	Set pkey
 	Set fkeys
@@ -37,6 +38,7 @@ class ApiDescriptor implements Validateable {
 
 	static constraints = { 
 		method(nullable:false,inList: ["GET","POST","PUT","DELETE"])
+		networkGrp(nullable:false)
 		pkey(nullable:true)
 		fkeys(nullable:true)
 		roles(nullable:true)
