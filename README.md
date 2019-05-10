@@ -6,7 +6,7 @@
 ## Documentation/Installation - http://orubel.github.io/Beapi-API-Framework/
 ## Forums - http://beapi.freeforums.net/
 
-### Backend Implementation - https://github.com/orubel/beapi_backend
+<!-- ### Backend Implementation - https://github.com/orubel/beapi_backend -->
 ### Frontend Implementation - https://github.com/orubel/beapi_frontend
 
 ***
@@ -42,7 +42,7 @@ Some features include:
 **Q: How hard is this to implement?**  
 **A:** BeApi is 'Plug-N-Play'. Merely install the plugin and it takes care of the 'REST'. Implementing in your project is as simple as a one line command:
 ```
-grails create-app <name of your app> --profile org.grails.profiles:beapi:1.0.0
+grails create-app name_of_your_app --profile org.grails.profiles:beapi:1.1.2
 ```
 
 **Q: How do I implement the listener for IO state webhook on my proxy/Message queue?**  
