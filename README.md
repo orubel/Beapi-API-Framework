@@ -17,7 +17,7 @@ Some features include:
 
 - **Automated Batching:** all endpoints are batchable by default with AUTH ROLES assignable to restrict access. Batching can also be TOGGLED to turn this feature ON/OFF per endpoint.
 
-- **Built-in CORS:** Cross Origin Request handling secures all endpoints from domains that you don't want.
+- **Built-in CORS:** Cross Origin Request handling secures all endpoints from domains that you don't want. Added capability for securing different network groups
 
 - **JWT Tokens:** JWT Token handling for Javascript frontends to allow or better abstraction of the VIEW layer
 
