@@ -489,6 +489,7 @@ class GenerateIostateCommand implements ApplicationCommand {
 
             String template = """{
 \t\"NAME\": \"${logicalName}\",
+\t\"NETWORKGRP\\": \"public\",
 \t\"VALUES\": { ${values}
 \t},
 \t\"CURRENTSTABLE\": \"1\",
