@@ -40,7 +40,7 @@ Some features include:
 ### FAQ
 
 **Q: How hard is this to implement?**  
-**A:** BeApi is 'Plug-N-Play'. Merely install the plugin and it takes care of the 'REST'. Implementing in your project is as simple as a one line command:
+**A:** BeApi is 'Plug-N-Play'. You dont even have to install the plugin. Implementing for your project is as simple as a one line command:
 ```
 grails create-app name_of_your_app --profile org.grails.profiles:beapi:1.1.2
 ```
