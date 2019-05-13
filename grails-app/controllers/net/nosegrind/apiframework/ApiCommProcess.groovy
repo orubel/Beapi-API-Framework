@@ -128,13 +128,19 @@ abstract class ApiCommProcess{
      * @see ApiCommLayer#handleApiResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, HashMap, GrailsParameterMap)
      * @return String Role of current principal (logged in user)
      */
-    String getUserRole() {
+    String getUserRole(String networkGrp) {
         String authority = 'permitAll'
         if (springSecurityService.loggedIn){
-            authority = springSecurityService.principal.authorities*.authority[0]
+            List networkRoles = Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGrp}"
+            springSecurityService.principal.authorities*.authority.each{
+                if(networkRoles.contains(it)){
+                    authority = it
+                }
+            }
         }
         return authority
     }
+
 
     /**
      * Given a deprecationDate, checks the deprecation date against todays date; returns boolean
@@ -172,7 +178,7 @@ abstract class ApiCommProcess{
             if(mthd.getKey() == method){
                 return true
             }else{
-                //errorResponse([400,'Expected request method for endpoint does not match sent method'])
+                errorResponse([400,'Expected request method for endpoint does not match sent method'])
                 return false
             }
         }
@@ -189,10 +195,9 @@ abstract class ApiCommProcess{
      * @param LinkedHashMap map of variables defining endpoint request variables
      * @return Boolean returns false if request variable keys do not match expected endpoint keys
      */
-    boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions){
+    boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions, String authority){
         ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','apiResult','combine','_','batch','max','offset','apiObjectVersion']
         try {
-            String authority = getUserRole() as String
             ArrayList temp = []
             if (requestDefinitions["${authority}"]) {
                 temp = requestDefinitions["${authority}"] as ArrayList
@@ -472,17 +477,15 @@ abstract class ApiCommProcess{
 
             if (d!=null) {
                 // println("PP:"+d.persistentProperties)
-                GParsPool.withPool(this.cores, {
-                    d?.persistentProperties?.eachParallel() { it2 ->
-                        if (it2?.name) {
-                            if (DomainClassArtefactHandler.isDomainClass(data[it2.name].getClass())) {
-                                newMap["${it2.name}Id"] = data[it2.name].id
-                            } else {
-                                newMap[it2.name] = data[it2.name]
-                            }
+                d?.persistentProperties?.each() { it2 ->
+                    if (it2?.name) {
+                        if (DomainClassArtefactHandler.isDomainClass(data[it2.name].getClass())) {
+                            newMap["${it2.name}Id"] = data[it2.name].id
+                        } else {
+                            newMap[it2.name] = data[it2.name]
                         }
                     }
-                })
+                }
             }
             return newMap
         }catch(Exception e){
@@ -620,12 +623,12 @@ abstract class ApiCommProcess{
      * @param int contentLength
      * @return
      */
-    boolean checkLimit(int contentLength){
+    boolean checkLimit(int contentLength,String auth){
         HashMap throttle = Holders.grailsApplication.config.apitoolkit.throttle as HashMap
         HashMap rateLimit = throttle.rateLimit as HashMap
         HashMap dataLimit = throttle.dataLimit as HashMap
+        Integer expire = throttle.expires as Integer
         ArrayList roles = rateLimit.keySet() as ArrayList
-        String auth = getUserRole()
 
         if(roles.contains(auth)){
             String userId = springSecurityService.loggedIn?springSecurityService.principal.id : null
@@ -633,7 +636,7 @@ abstract class ApiCommProcess{
 
             if(lcache['timestamp']==null) {
                 int currentTime= System.currentTimeMillis() / 1000
-                int expires = currentTime+((Integer)Holders.grailsApplication.config.apitoolkit.throttle.expires)
+                int expires = currentTime+expire
                 LinkedHashMap cache = ['timestamp': currentTime, 'currentRate': 1, 'currentData':contentLength,'locked': false, 'expires': expires]
                 response.setHeader("Content-Length", "${contentLength}")
                 throttleCacheService.setThrottleCache(userId, cache)
@@ -648,7 +651,7 @@ abstract class ApiCommProcess{
                         int now = System.currentTimeMillis() / 1000
                         if(lcache['expires']<=now){
                             currentTime= System.currentTimeMillis() / 1000
-                            expires = currentTime+((Integer)Holders.grailsApplication.config.apitoolkit.throttle.expires)
+                            expires = currentTime+expires
                             cache = ['timestamp': currentTime, 'currentRate': 1, 'currentData':contentLength,'locked': false, 'expires': expires]
                             response.setHeader('Content-Length', "${contentLength}")
                             throttleCacheService.setThrottleCache(userId, cache)
@@ -720,9 +723,8 @@ abstract class ApiCommProcess{
      * @param LinkedHashMap List of ids required when making request to endpoint
      * @return a hash from all id's needed when making request to endpoint
      */
-    String createCacheHash(GrailsParameterMap params, LinkedHashMap receives){
+    String createCacheHash(GrailsParameterMap params, LinkedHashMap receives, String authority){
         StringBuilder hashString = new StringBuilder('')
-        String authority = getUserRole() as String
         ArrayList temp = []
         if (receives["${authority}"]) {
             temp = receives["${authority}"] as ArrayList
@@ -772,7 +774,7 @@ abstract class ApiCommProcess{
         Integer status = error[0]
         String msg = error[1]
 
-        statsService.setStatsCache(springSecurityService.principal['id'], response.status, request.requestURI)
+        //statsService.setStatsCache(springSecurityService.principal['id'], response.status, request.requestURI)
 
         response.status = status
         response.setHeader('ERROR', msg)

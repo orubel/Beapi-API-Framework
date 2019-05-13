@@ -1,0 +1,83 @@
+package $packageName
+
+$importedClasses
+
+class ${realClassName}Controller {
+
+	SpringSecurityService springSecurityService
+
+	LinkedHashMap list() {
+		def ${logicalClassName} = ${realClassName}.list()
+		return [${logicalClassName}:${logicalClassName}]
+	}
+
+	LinkedHashMap show(){
+		try{
+			${realClassName} ${logicalClassName} = ${realClassName}.get(params.id)
+			if(${logicalClassName}){
+				return [${logicalClassName}: ${logicalClassName}]
+			}else{
+				render(status: 500,text:"Id does not match record in database.")
+			}
+
+		}catch(Exception e){
+			throw new Exception("[${realClassName}Controller : get] : Exception - full stack trace follows:",e)
+		}
+    }
+
+	LinkedHashMap create(){
+		try{
+			${realClassName} ${logicalClassName} = new ${realClassName}(${createData})
+
+			if(${logicalClassName}){
+				if(!${logicalClassName}.save(flush:true,failOnError:true)){
+					${logicalClassName}.errors.allErrors.each { println(it) }
+				}
+				return [${logicalClassName}: ${logicalClassName}]
+			}else{
+				render(status: 500,text:"Id does not match record in database.")
+			}
+		}catch(Exception e){
+			throw new Exception("[${realClassName}Controller : create] : Exception - full stack trace follows:",e)
+		}
+	}
+
+	LinkedHashMap update(){
+		try{
+			${realClassName} ${logicalClassName} = new ${realClassName}()
+
+			if(${logicalClassName}){
+			    ${updateData}
+
+
+				if(!${logicalClassName}.save(flush:true,failOnError:true)){
+					${logicalClassName}.errors.allErrors.each { println(it) }
+				}
+				return [${logicalClassName}: ${logicalClassName}]
+			}else{
+				render(status: 500,text:"Id does not match record in database.")
+			}
+		}catch(Exception e){
+			throw new Exception("[${realClassName}Controller : update] : Exception - full stack trace follows:",e)
+		}
+	}
+
+    LinkedHashMap delete() {
+        ${realClassName} ${logicalClassName}
+        try {
+            ${logicalClassName} = ${realClassName}.get(params.id)
+            if(${logicalClassName}){
+                    ${logicalClassName}.delete(flush: true, failOnError: true)
+                    return [${logicalClassName}: [id: params.id.toLong()]]
+            }else{
+                render(status: 500,text:"Id " + params.id + " does not match record in database.")
+            }
+        }catch(Exception e){
+            throw new Exception("[${realClassName}Controller : delete] : Exception - full stack trace follows:",e)
+        }
+    }
+
+    protected boolean isSuperuser() {
+        springSecurityService.principal.authorities*.authority.any { grailsApplication.config.apitoolkit.admin.roles.contains(it) }
+    }
+}

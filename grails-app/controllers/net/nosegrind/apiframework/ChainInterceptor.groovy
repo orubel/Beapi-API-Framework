@@ -65,6 +65,12 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 	List unacceptableMethod = []
 	String cacheHash
 	String contentType
+	String apiObject
+	String controller
+	String action
+	String networkGrp
+	String authority
+	Long userId
 
 	ChainInterceptor(){
 		match(uri:"/${entryPoint}/**")
@@ -144,9 +150,13 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 		if(cache) {
 			params.apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
+			apiObject = params.apiObject
 			params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
+			action = params.action
 		}
 
+		this.networkGrp = cache[apiObject][action]['networkGrp']
+		this.authority = getUserRole(this.networkGrp) as String
 
 		// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
 		//String path = "${params.controller}/${params.action}".toString()
@@ -167,7 +177,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 				// CHECK REQUEST METHOD FOR ENDPOINT
 				// NOTE: expectedMethod must be capitolized in IO State file
-				String expectedMethod = cache[params.apiObject][params.action.toString()]['method'] as String
+				String expectedMethod = cache[apiObject][action.toString()]['method'] as String
 
 				if (!acceptableMethod.contains(mthdKey) || !acceptableMethod.contains(mthdKey)){
 					if (!unacceptableMethod.contains(mthdKey)) {
@@ -184,7 +194,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 					if (result) {
 						byte[] contentLength = result.getBytes("ISO-8859-1")
 						if (apiThrottle) {
-							if (checkLimit(contentLength.length)) {
+							if (checkLimit(contentLength.length, this.authority)) {
 								render(text: result, contentType: contentType)
 								return false
 							} else {
@@ -205,7 +215,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 					Integer newBI = (Integer) request?.getAttribute('chainInc')
 					request.setAttribute('chainInc', newBI + 1)
 
-                    List roles = cache[params.apiObject.toString()][params.action.toString()]['roles'] as List
+                    List roles = cache[apiObject][action]['roles'] as List
                     if(!checkAuth(roles)){
                     	response.status = 401
                     	response.setHeader('ERROR',"Unauthorized Access attempted at '${entryPoint}/${params.controller}/${params.action}'. This user does not have proper permissions or URL does not exist.")
@@ -218,31 +228,30 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 				// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
 				LinkedHashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as LinkedHashMap
-				cacheHash = createCacheHash(params, receives)
+				cacheHash = createCacheHash(params, receives, this.authority)
 
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
-				if (!checkURIDefinitions(params, receives)) {
+				if (!checkURIDefinitions(params, receives, this.authority)) {
 					render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Expected request variables for endpoint do not match sent variables')
 					return false
 				}
 
 				// RETRIEVE CACHED RESULT; DON'T CACHE LISTS
-				if (cache[params.apiObject][params.action.toString()]['cachedResult'] && request.method.toUpperCase()=='GET' ) {
-					if (cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash]) {
+				if (cache[apiObject][action]['cachedResult'] && request.method.toUpperCase()=='GET' ) {
+					if (cache[apiObject][action]['cachedResult'][cacheHash]) {
 
-						String authority = getUserRole() as String
 						String domain = ((String) params.controller).capitalize()
 
-						JSONObject json = (JSONObject) cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash][authority][request.format.toUpperCase()]
+						JSONObject json = (JSONObject) cache[apiObject][action]['cachedResult'][cacheHash][this.authority][request.format.toUpperCase()]
 						if (!json) {
 							return false
 						} else {
 							if (isCachedResult((Integer) json.get('version'), domain)) {
 
-								String result = cache[params.apiObject][params.action.toString()]['cachedResult'][cacheHash][authority][request.format.toUpperCase()] as String
+								String result = cache[apiObject][action]['cachedResult'][cacheHash][this.authority][request.format.toUpperCase()] as String
 								byte[] contentLength = result.getBytes("ISO-8859-1")
 								if (apiThrottle) {
-									if (checkLimit(contentLength.length)) {
+									if (checkLimit(contentLength.length, this.authority)) {
 										render(text: result, contentType: contentType)
 										return false
 									} else {
@@ -258,7 +267,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 						}
 					} else {
 						// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
-						ApiDescriptor cachedEndpoint = cache[(String) params.apiObject][(String) params.action] as ApiDescriptor
+						ApiDescriptor cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 						boolean result = handleRequest(cachedEndpoint['deprecated'] as List)
 						return result
 					}
@@ -296,7 +305,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 			//LinkedHashMap cache = apiCacheService.getApiCache(params.controller.toString())
 			//LinkedHashMap content
 
-			ApiDescriptor cachedEndpoint = cache[params.apiObject][(String)params.action] as ApiDescriptor
+			ApiDescriptor cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 
 			// TEST FOR NESTED MAP; WE DON'T CACHE NESTED MAPS
 			boolean isNested = false
@@ -314,24 +323,23 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 					WebUtils.exposeRequestAttributes(request, params);
 					// this will work fine when we upgrade to newer version that has fix in it
 					String forwardUri = "/${entryPoint}/${chainUris[chainInc + 1]}/${newModel.get(params.id)}"
-					forward(URI: forwardUri, params: [apiObject: params.apiObject, apiChain: params.apiChain])
+					forward(URI: forwardUri, params: [apiObject: apiObject, apiChain: params.apiChain])
 					return false
 				} else {
-					String content = handleChainResponse(cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, response, newModel, params)
+					String content = handleChainResponse(this.authority, cachedEndpoint['returns'] as LinkedHashMap, cachedEndpoint['roles'] as List, mthd, format, response, newModel, params)
 
 					byte[] contentLength = content.getBytes( "ISO-8859-1" )
 					if(content) {
 
 						// STORE CACHED RESULT
 						String format = request.format.toUpperCase()
-						String authority = getUserRole() as String
 
 						//if (!newModel && request.method.toUpperCase()=='GET') {
 						//	apiCacheService.setApiCachedResult(cacheHash,(String) params.controller, (String) params.apiObject, (String) params.action, authority, format, content)
 						//}
 
 						if (apiThrottle) {
-							if (checkLimit(contentLength.length)) {
+							if (checkLimit(contentLength.length, this.authority)) {
 								render(text: content, contentType: contentType)
 								return false
 							} else {

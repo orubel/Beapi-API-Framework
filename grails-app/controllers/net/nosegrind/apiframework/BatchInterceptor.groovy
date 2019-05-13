@@ -70,6 +70,9 @@ class BatchInterceptor extends ApiCommLayer{
 	String controller
 	String action
 	ApiDescriptor cachedEndpoint
+	String networkGrp
+	String authority
+	Long userId
 
 	BatchInterceptor(){
 		match(uri:"/${entryPoint}/**")
@@ -117,6 +120,8 @@ class BatchInterceptor extends ApiCommLayer{
 		}
 
 		cachedEndpoint = cache[apiObject][action] as ApiDescriptor
+		this.networkGrp = cache[apiObject][action]['networkGrp']
+		this.authority = getUserRole(this.networkGrp) as String
 
 		try{
 			//Test For APIDoc
@@ -151,7 +156,7 @@ class BatchInterceptor extends ApiCommLayer{
 						byte[] contentLength = result.getBytes('ISO-8859-1')
 
 						if (apiThrottle) {
-							if (checkLimit(contentLength.length)) {
+							if (checkLimit(contentLength.length,this.authority)) {
 								render(text: result, contentType: request.getContentType())
 							} else {
 								render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
@@ -184,10 +189,10 @@ class BatchInterceptor extends ApiCommLayer{
 
 				// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
 				LinkedHashMap receives = cachedEndpoint['receives'] as LinkedHashMap
-				cacheHash = createCacheHash(params, receives)
+				cacheHash = createCacheHash(params, receives, this.authority)
 
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
-				if (!checkURIDefinitions(params, receives)) {
+				if (!checkURIDefinitions(params, receives,this.authority)) {
 					render(status: HttpStatus.BAD_REQUEST.value(), text: 'Expected request variables for endpoint do not match sent variables')
 					response.flushBuffer()
 					return false
@@ -196,9 +201,8 @@ class BatchInterceptor extends ApiCommLayer{
 				// RETRIEVE CACHED RESULT
 				if (cachedEndpoint['cachedResult']) {
 					if(cachedEndpoint['cachedResult'][cacheHash]){
-						String authority = getUserRole() as String
 						String domain = (controller).capitalize()
-						JSONObject json = (JSONObject) cachedEndpoint['cachedResult'][cacheHash][authority][format]
+						JSONObject json = (JSONObject) cachedEndpoint['cachedResult'][cacheHash][this.authority][format]
 						if (!json || json == null) {
 							return false
 						} else {
@@ -213,11 +217,11 @@ class BatchInterceptor extends ApiCommLayer{
 								int version = jsonObj.get('version') as Integer
 
 								if (isCachedResult((Integer) version, domain)) {
-									LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][authority][format] as LinkedHashMap
+									LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
 									String content = new groovy.json.JsonBuilder(result).toString()
 									byte[] contentLength = content.getBytes('ISO-8859-1')
 									if (apiThrottle) {
-										if (checkLimit(contentLength.length)) {
+										if (checkLimit(contentLength.length, this.authority)) {
 											//statsService.setStatsCache(getUserId(), response.status)
 											render(text: result as JSON, contentType: contentType)
 											return false
@@ -236,11 +240,11 @@ class BatchInterceptor extends ApiCommLayer{
 							} else {
 								if (json.version != null) {
 									if (isCachedResult((Integer) json.get('version'), domain)) {
-										LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][authority][format] as LinkedHashMap
+										LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
 										String content = new groovy.json.JsonBuilder(result).toString()
 										byte[] contentLength = content.getBytes('ISO-8859-1')
 										if (apiThrottle) {
-											if (checkLimit(contentLength.length)) {
+											if (checkLimit(contentLength.length,this.authority)) {
 												//statsService.setStatsCache(getUserId(), response.status)
 												render(text: result as JSON, contentType: contentType)
 												return false
@@ -317,7 +321,7 @@ class BatchInterceptor extends ApiCommLayer{
 				cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 			}
 
-			LinkedHashMap content = handleBatchResponse(cachedEndpoint['returns'] as LinkedHashMap,cachedEndpoint['roles'] as List,mthd,format,response,newModel) as LinkedHashMap
+			LinkedHashMap content = handleBatchResponse(this.authority, cachedEndpoint['returns'] as LinkedHashMap,cachedEndpoint['roles'] as List,mthd,format,response,newModel) as LinkedHashMap
 
 			int batchLength = (int) request.getAttribute('batchLength')
 			int batchInc = (int) request.getAttribute('batchInc')
@@ -351,7 +355,7 @@ class BatchInterceptor extends ApiCommLayer{
 			byte[] contentLength = output.getBytes( 'ISO-8859-1' )
 			if(output){
 				if(apiThrottle) {
-					if (checkLimit(contentLength.length)) {
+					if (checkLimit(contentLength.length, this.authority)) {
 						render(text: output, contentType: request.getContentType())
 						if(cachedEndpoint['hookRoles']) {
 							List hookRoles = cachedEndpoint['hookRoles'] as List

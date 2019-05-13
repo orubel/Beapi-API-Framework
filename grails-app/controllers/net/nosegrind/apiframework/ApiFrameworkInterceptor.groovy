@@ -69,6 +69,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	String controller
 	String action
 	ApiDescriptor cachedEndpoint
+	String networkGrp
 	String authority
 	Long userId
 
@@ -101,7 +102,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
 		//println("FILTERCHAIN : "+filterChain)
 
-		authority = getUserRole() as String
+
 		format = (request?.format)?request.format.toUpperCase():'JSON'
 		mthdKey = request.method.toUpperCase()
 		mthd = (RequestMethod) RequestMethod[mthdKey]
@@ -141,6 +142,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		}
 
 		cachedEndpoint = cache[apiObject][action] as ApiDescriptor
+		this.networkGrp = cache[apiObject][action]['networkGrp']
+		this.authority = getUserRole(this.networkGrp) as String
 
 		try{
 			//Test For APIDoc
@@ -156,19 +159,13 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				// NOTE: expectedMethod must be capitolized in IO State file
 				String expectedMethod = cache[apiObject][action]['method'] as String
 				if(!checkRequestMethod(mthd,expectedMethod, restAlt)){
-					statsService.setStatsCache(userId, 400, request.requestURI)
-					response.status = 400
-					response.setHeader('ERROR', 'Expected request method for endpoint does not match sent method')
 					response.writer.flush()
 					return false
 				}
 
 				LinkedHashMap receives = cachedEndpoint['receives'] as LinkedHashMap
-				cacheHash = createCacheHash(params, receives)
-				if(!checkURIDefinitions(params, receives)){
-					//statsService.setStatsCache(userId, 400, request.requestURI)
-					//response.status = 400
-					//response.setHeader('ERROR', 'Expected request variables for endpoint do not match sent variables')
+				cacheHash = createCacheHash(params, receives, this.authority)
+				if(!checkURIDefinitions(params, receives, this.authority)){
 					response.writer.flush()
 					return false
 				}
@@ -181,12 +178,12 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					if (result) {
 						byte[] contentLength = result.getBytes('ISO-8859-1')
 						if (apiThrottle) {
-							if (checkLimit(contentLength.length)) {
-								statsService.setStatsCache(userId, response.status, request.requestURI)
+							if (checkLimit(contentLength.length, this.authority)) {
+								//statsService.setStatsCache(userId, response.status, request.requestURI)
 								render(text: getContent(result, contentType), contentType: contentType)
 							}
 						}else{
-							statsService.setStatsCache(userId, response.status, request.requestURI)
+							//statsService.setStatsCache(userId, response.status, request.requestURI)
 							render(text: getContent(result, contentType), contentType: contentType)
 						}
 						return false
@@ -197,7 +194,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				if (cachedEndpoint.cachedResult && mthdKey=='GET' && cacheHash !=null) {
 					LinkedHashMap cachedResult = cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
 					if(cachedResult){
-						//String authority = getUserRole() as String
+
 						String domain = ((String) controller).capitalize()
 
 
@@ -220,13 +217,13 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 									}
 									byte[] contentLength = output.getBytes('ISO-8859-1')
 									if (apiThrottle) {
-										if (checkLimit(contentLength.length)) {
-											statsService.setStatsCache(userId, response.status, request.requestURI)
+										if (checkLimit(contentLength.length, this.authority)) {
+											//statsService.setStatsCache(userId, response.status, request.requestURI)
 											render(text: output, contentType: contentType)
 											return false
 										}
 									} else {
-										statsService.setStatsCache(userId, response.status, request.requestURI)
+										//statsService.setStatsCache(userId, response.status, request.requestURI)
 										render(text: output, contentType: contentType)
 										return false
 									}
@@ -246,19 +243,19 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 										}
 										byte[] contentLength = output.getBytes('ISO-8859-1')
 										if (apiThrottle) {
-											if (checkLimit(contentLength.length)) {
-												statsService.setStatsCache(userId, response.status, request.requestURI)
+											if (checkLimit(contentLength.length, this.authority)) {
+												//statsService.setStatsCache(userId, response.status, request.requestURI)
 												render(text: output, contentType: contentType)
 												return false
 											}else{
-												statsService.setStatsCache(userId, 404, request.requestURI)
+												//statsService.setStatsCache(userId, 404, request.requestURI)
 												response.status = 404
 												response.setHeader('ERROR', 'Rate Limit exceeded. Please wait')
 												response.writer.flush()
 												return false
 											}
 										} else {
-											statsService.setStatsCache(userId, response.status, request.requestURI)
+											//statsService.setStatsCache(userId, response.status, request.requestURI)
 											render(text: output, contentType: contentType)
 											return false
 										}
@@ -267,7 +264,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							}
 						}
 					}else{
-						statsService.setStatsCache(userId, 404, request.requestURI)
+						//statsService.setStatsCache(userId, 404, request.requestURI)
 						response.status = 404
 						response.setHeader('ERROR', 'No Content found')
 						response.writer.flush()
@@ -337,7 +334,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
-						statsService.setStatsCache(userId, 400, request.requestURI)
+						//statsService.setStatsCache(userId, 400, request.requestURI)
 						response.status = 400
 						response.setHeader('ERROR', 'No resource returned; query was empty')
 						response.writer.flush()
@@ -366,12 +363,11 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					}else{
 						List roles = cachedEndpoint['roles'] as List
 						LinkedHashMap requestDefinitions = cachedEndpoint['returns'] as LinkedHashMap
-						String authority = getUserRole() as String
 						response.setHeader('Authorization', roles.join(', '))
 
 						ArrayList<LinkedHashMap> temp = new ArrayList()
-						if(requestDefinitions[authority.toString()]) {
-							ArrayList<LinkedHashMap> temp1 = requestDefinitions[authority.toString()] as ArrayList<LinkedHashMap>
+						if(requestDefinitions[this.authority]) {
+							ArrayList<LinkedHashMap> temp1 = requestDefinitions[this.authority] as ArrayList<LinkedHashMap>
 							temp.addAll(temp1)
 						}else{
 							ArrayList<LinkedHashMap> temp2 = requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
@@ -392,7 +388,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					if (content) {
 
 						// STORE CACHED RESULT
-						//String authority = getUserRole() as String
+						//String authority = getUserRole(this.networkGrp) as String
 						String role
 						if(request.method.toUpperCase()=='GET') {
 
@@ -403,12 +399,12 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						}
 
 						if (apiThrottle) {
-							if(checkLimit(contentLength.length)) {
-								statsService.setStatsCache(userId, response.status, request.requestURI)
+							if(checkLimit(contentLength.length,this.authority)) {
+								//statsService.setStatsCache(userId, response.status, request.requestURI)
 								render(text: getContent(content, contentType), contentType: contentType)
 								return false
 							}else{
-								statsService.setStatsCache(userId, 404, request.requestURI)
+								//statsService.setStatsCache(userId, 404, request.requestURI)
 								response.status = 404
 								response.setHeader('ERROR', 'Rate Limit exceeded. Please wait')
 								response.writer.flush()
@@ -430,7 +426,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				} else {
 					String content = parseResponseMethod(mthd, format, params, newModel)
 
-					statsService.setStatsCache(userId, response.status, request.requestURI)
+					//statsService.setStatsCache(userId, response.status, request.requestURI)
 					render(text: getContent(content, contentType), contentType: contentType)
 					if(cachedEndpoint['hookRoles']) {
 						List hookRoles = cachedEndpoint['hookRoles'] as List
