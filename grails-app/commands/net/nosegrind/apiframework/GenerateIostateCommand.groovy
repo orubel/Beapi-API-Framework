@@ -403,7 +403,6 @@ class GenerateIostateCommand implements ApplicationCommand {
 \t\t\t\t\t\"METHOD\": "${method}",
 \t\t\t\t\t\"DESCRIPTION\": \"Description for ${it4}\",
 \t\t\t\t    \t\"ROLES\": {
-\t\t\t\t\t    \"DEFAULT\": [\"permitAll\"],
 \t\t\t\t\t    \"BATCH\": [\"ROLE_ADMIN\"]
 \t\t\t\t\t},
 \t\t\t\t\t\"REQUEST\": {
