@@ -70,7 +70,8 @@ class BatchInterceptor extends ApiCommLayer{
 	String controller
 	String action
 	ApiDescriptor cachedEndpoint
-	String networkGrp
+
+	List roles
 	String authority
 	Long userId
 
@@ -120,8 +121,9 @@ class BatchInterceptor extends ApiCommLayer{
 		}
 
 		cachedEndpoint = cache[apiObject][action] as ApiDescriptor
-		this.networkGrp = cache[apiObject][action]['networkGrp']
-		this.authority = getUserRole(this.networkGrp) as String
+
+		this.roles = cache[apiObject][action]['roles'] as List
+		this.authority = getUserRole(this.roles) as String
 
 		try{
 			//Test For APIDoc

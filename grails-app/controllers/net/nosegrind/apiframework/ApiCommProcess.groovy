@@ -128,14 +128,11 @@ abstract class ApiCommProcess{
      * @see ApiCommLayer#handleApiResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, HashMap, GrailsParameterMap)
      * @return String Role of current principal (logged in user)
      */
-    String getUserRole(String networkGrp) {
+    String getUserRole(List roles) {
         String authority = 'permitAll'
-        if (springSecurityService.loggedIn){
-            List networkRoles = Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGrp}"
-            springSecurityService.principal.authorities*.authority.each{
-                if(networkRoles.contains(it)){
-                    authority = it
-                }
+        springSecurityService.principal.authorities*.authority.each{
+            if(roles.contains(it)){
+                authority = it
             }
         }
         return authority

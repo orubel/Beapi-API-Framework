@@ -68,7 +68,8 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 	String apiObject
 	String controller
 	String action
-	String networkGrp
+
+	List roles
 	String authority
 	Long userId
 
@@ -155,8 +156,9 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 			action = params.action
 		}
 
-		this.networkGrp = cache[apiObject][action]['networkGrp']
-		this.authority = getUserRole(this.networkGrp) as String
+
+		this.roles = cache[apiObject][action]['roles'] as List
+		this.authority = getUserRole(this.roles) as String
 
 		// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
 		//String path = "${params.controller}/${params.action}".toString()
