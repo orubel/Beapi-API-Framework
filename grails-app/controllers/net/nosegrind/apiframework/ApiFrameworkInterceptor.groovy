@@ -106,7 +106,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		format = (request?.format)?request.format.toUpperCase():'JSON'
 		mthdKey = request.method.toUpperCase()
 		mthd = (RequestMethod) RequestMethod[mthdKey]
-		apiThrottle = Holders.grailsApplication.config.apiThrottle as boolean
+		apiThrottle = grailsApplication.config.apiThrottle as boolean
 		contentType = request.getContentType()
 		userId = springSecurityService.principal['id'] as Long
 
@@ -141,7 +141,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 			action = params?.action
 		}
 
-		cachedEndpoint = cache[apiObject][action] as ApiDescriptor
+		this.cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 		this.networkGrp = cache[apiObject][action]['networkGrp']
 		this.authority = getUserRole(this.networkGrp) as String
 
@@ -157,13 +157,13 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 				//CHECK REQUEST METHOD FOR ENDPOINT
 				// NOTE: expectedMethod must be capitolized in IO State file
-				String expectedMethod = cache[apiObject][action]['method'] as String
+				String expectedMethod = this.cachedEndpoint['method'] as String
 				if(!checkRequestMethod(mthd,expectedMethod, restAlt)){
 					response.writer.flush()
 					return false
 				}
 
-				LinkedHashMap receives = cachedEndpoint['receives'] as LinkedHashMap
+				LinkedHashMap receives = this.cachedEndpoint['receives'] as LinkedHashMap
 				cacheHash = createCacheHash(params, receives, this.authority)
 				if(!checkURIDefinitions(params, receives, this.authority)){
 					response.writer.flush()
@@ -191,8 +191,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				}
 
 				// RETRIEVE CACHED RESULT (only if using get method); DON'T CACHE LISTS
-				if (cachedEndpoint.cachedResult && mthdKey=='GET' && cacheHash !=null) {
-					LinkedHashMap cachedResult = cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
+				if (this.cachedEndpoint.cachedResult && mthdKey=='GET' && cacheHash !=null) {
+					LinkedHashMap cachedResult = this.cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
 					if(cachedResult){
 
 						String domain = ((String) controller).capitalize()
@@ -289,7 +289,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					}
 
 					//List roles = cache['roles'] as List
-					List roles = cachedEndpoint['roles'] as List
+					List roles = this.cachedEndpoint['roles'] as List
 					boolean checkAuth = checkAuth(roles)
 					if(!checkAuth){
 						//statsService.setStatsCache(userId, 400, request.requestURI)
@@ -299,7 +299,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						return false
 					}
 
-					boolean result = handleRequest(cachedEndpoint['deprecated'] as List)
+					boolean result = handleRequest(this.cachedEndpoint['deprecated'] as List)
 					if(result){
 						return result
 					}else{
@@ -347,9 +347,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				}
 
 				//ApiDescriptor cachedEndpoint
-				if(cache) {
-					cachedEndpoint = cache[apiObject][action] as ApiDescriptor
-				}
+				//if(cache) {
+				//	cachedEndpoint = cache[apiObject][action] as ApiDescriptor
+				//}
 
 				// TEST FOR NESTED MAP; WE DON'T CACHE NESTED MAPS
 				//boolean isNested = false
@@ -361,8 +361,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					if(controller=='apidoc') {
 						content = newModel
 					}else{
-						List roles = cachedEndpoint['roles'] as List
-						LinkedHashMap requestDefinitions = cachedEndpoint['returns'] as LinkedHashMap
+						List roles = this.cachedEndpoint['roles'] as List
+						LinkedHashMap requestDefinitions = this.cachedEndpoint['returns'] as LinkedHashMap
 						response.setHeader('Authorization', roles.join(', '))
 
 						ArrayList<LinkedHashMap> temp = new ArrayList()
@@ -391,10 +391,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						//String authority = getUserRole(this.networkGrp) as String
 						String role
 						if(request.method.toUpperCase()=='GET') {
-
 							role = (controller == 'apidoc')? 'permitAll' : this.authority
-
-
 							apiCacheService.setApiCachedResult(cacheHash, controller, apiObject, action, role, this.format, result)
 						}
 
@@ -425,11 +422,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					}
 				} else {
 					String content = parseResponseMethod(mthd, format, params, newModel)
-
 					//statsService.setStatsCache(userId, response.status, request.requestURI)
 					render(text: getContent(content, contentType), contentType: contentType)
-					if(cachedEndpoint['hookRoles']) {
-						List hookRoles = cachedEndpoint['hookRoles'] as List
+					if(this.cachedEndpoint['hookRoles']) {
+						List hookRoles = this.cachedEndpoint['hookRoles'] as List
 						String service = "${controller}/${action}"
 						hookService.postData(service, content, hookRoles, this.mthdKey)
 					}

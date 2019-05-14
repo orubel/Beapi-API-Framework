@@ -108,7 +108,6 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
                     }
                     return false
                     break
-
             }
             return false
         }catch(Exception e){

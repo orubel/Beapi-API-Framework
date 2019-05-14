@@ -34,6 +34,7 @@ class CorsSecurityFilter extends OncePerRequestFilter {
     //@Autowired
     //private ApplicationContext context
 
+    String loginUri
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         //println("#### CorsSecurityFilter ####")
@@ -58,7 +59,7 @@ class CorsSecurityFilter extends OncePerRequestFilter {
          * First get CORS Network grps, then test the domains listed in the users network group
          * against sent origin
          */
-        String loginUri = getLoginUrl()
+        this.loginUri = getLoginUrl()
         String actualUri = request.requestURI - request.contextPath
         String entryPoint = Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)
         String controller
@@ -154,10 +155,9 @@ class CorsSecurityFilter extends OncePerRequestFilter {
 
     @CompileDynamic
     String getNetworkGrp(String version, String controller, String action, HttpServletRequest request, HttpServletResponse response){
-
         // login URI is always public; this is also handled by 3rd party plugin
-        String loginUrl = getLoginUrl()
-        if("/${controller}/${action}" == loginUrl){
+        //String loginUrl = getLoginUrl()
+        if("/${controller}/${action}" == this.loginUri){
             return 'public'
         }
 

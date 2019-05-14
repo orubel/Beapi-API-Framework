@@ -376,10 +376,12 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         return methods
     }
 
+
+
     private ApiDescriptor createApiDescriptor(String networkGrp, String apiname,String apiMethod, String apiDescription, Set apiRoles, Set batchRoles, Set hookRoles, String uri, JSONObject values, JSONObject json){
         LinkedHashMap<String,ParamsDescriptor> apiObject = [:]
         ApiParams param = new ApiParams()
-
+        List networkRoles = grails.util.Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGrp}"
         Set fkeys = []
         Set pkeys= []
         try {
@@ -444,7 +446,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 'pkey':pkeys,
                 'fkeys':fkeys,
                 'description':"$apiDescription",
-                'roles':[],
+                'roles':networkRoles,
                 'batchRoles':[],
                 'hookRoles':[],
                 'doc':[:],
@@ -452,8 +454,19 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 'returns':returns
         )
 
-        service['roles'] = apiRoles
+        //service['roles'] = apiRoles
+        batchRoles.each{
+            if(!networkRoles.contains(it)){
+                throw new Exception("[Runtime :: createApiDescriptor] : BatchRoles in IO State[" + apiname + "] do not match networkRoles")
+            }
+        }
         service['batchRoles'] = batchRoles
+
+        hookRoles.each{
+            if(!networkRoles.contains(it)){
+                throw new Exception("[Runtime :: createApiDescriptor] : HookRoles in IO State[" + apiname + "] do not match networkRoles")
+            }
+        }
         service['hookRoles'] = hookRoles
 
         return service
