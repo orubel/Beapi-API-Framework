@@ -49,7 +49,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 	ApiCacheService apiCacheService = new ApiCacheService()
 	SpringSecurityService springSecurityService
 	StatsService statsService
-	
+
 	// TODO: detect and assign apiObjectVersion from uri
 	String entryPoint = "c${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
 	String format
