@@ -474,15 +474,17 @@ abstract class ApiCommProcess{
 
             if (d!=null) {
                 // println("PP:"+d.persistentProperties)
-                d?.persistentProperties?.each() { it2 ->
-                    if (it2?.name) {
-                        if (DomainClassArtefactHandler.isDomainClass(data[it2.name].getClass())) {
-                            newMap["${it2.name}Id"] = data[it2.name].id
-                        } else {
-                            newMap[it2.name] = data[it2.name]
+                //GParsPool.withPool(this.cores, {
+                    d?.persistentProperties?.each() { it2 ->
+                        if (it2?.name) {
+                            if (DomainClassArtefactHandler.isDomainClass(data[it2.name].getClass())) {
+                                newMap["${it2.name}Id"] = data[it2.name].id
+                            } else {
+                                newMap[it2.name] = data[it2.name]
+                            }
                         }
                     }
-                }
+                //})
             }
             return newMap
         }catch(Exception e){

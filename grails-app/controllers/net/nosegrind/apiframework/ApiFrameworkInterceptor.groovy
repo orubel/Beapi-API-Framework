@@ -109,7 +109,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		mthd = (RequestMethod) RequestMethod[mthdKey]
 		apiThrottle = grailsApplication.config.apiThrottle as boolean
 		contentType = request.getContentType()
-		userId = springSecurityService.principal['id'] as Long
+		this.userId = springSecurityService.principal['id'] as Long
 
 		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
 
@@ -180,11 +180,11 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						byte[] contentLength = result.getBytes('ISO-8859-1')
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length, this.authority)) {
-								//statsService.setStatsCache(userId, response.status, request.requestURI)
+								statsService.setStatsCache(userId, response.status, request.requestURI)
 								render(text: getContent(result, contentType), contentType: contentType)
 							}
 						}else{
-							//statsService.setStatsCache(userId, response.status, request.requestURI)
+							statsService.setStatsCache(userId, response.status, request.requestURI)
 							render(text: getContent(result, contentType), contentType: contentType)
 						}
 						return false
@@ -219,12 +219,12 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 									byte[] contentLength = output.getBytes('ISO-8859-1')
 									if (apiThrottle) {
 										if (checkLimit(contentLength.length, this.authority)) {
-											//statsService.setStatsCache(userId, response.status, request.requestURI)
+											statsService.setStatsCache(userId, response.status, request.requestURI)
 											render(text: output, contentType: contentType)
 											return false
 										}
 									} else {
-										//statsService.setStatsCache(userId, response.status, request.requestURI)
+										statsService.setStatsCache(userId, response.status, request.requestURI)
 										render(text: output, contentType: contentType)
 										return false
 									}
@@ -245,18 +245,18 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 										byte[] contentLength = output.getBytes('ISO-8859-1')
 										if (apiThrottle) {
 											if (checkLimit(contentLength.length, this.authority)) {
-												//statsService.setStatsCache(userId, response.status, request.requestURI)
+												statsService.setStatsCache(userId, response.status, request.requestURI)
 												render(text: output, contentType: contentType)
 												return false
 											}else{
-												//statsService.setStatsCache(userId, 404, request.requestURI)
+												statsService.setStatsCache(userId, 404, request.requestURI)
 												response.status = 404
 												response.setHeader('ERROR', 'Rate Limit exceeded. Please wait')
 												response.writer.flush()
 												return false
 											}
 										} else {
-											//statsService.setStatsCache(userId, response.status, request.requestURI)
+											statsService.setStatsCache(userId, response.status, request.requestURI)
 											render(text: output, contentType: contentType)
 											return false
 										}
@@ -265,7 +265,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							}
 						}
 					}else{
-						//statsService.setStatsCache(userId, 404, request.requestURI)
+						statsService.setStatsCache(userId, 404, request.requestURI)
 						response.status = 404
 						response.setHeader('ERROR', 'No Content found')
 						response.writer.flush()
@@ -293,7 +293,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					List roles = this.cachedEndpoint['roles'] as List
 					boolean checkAuth = checkAuth(roles)
 					if(!checkAuth){
-						//statsService.setStatsCache(userId, 400, request.requestURI)
+						statsService.setStatsCache(userId, 400, request.requestURI)
 						//response.status = 400
 						//response.setHeader('ERROR', 'Unauthorized Access attempted')
 						response.writer.flush()
@@ -335,7 +335,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
-						//statsService.setStatsCache(userId, 400, request.requestURI)
+						statsService.setStatsCache(userId, 400, request.requestURI)
 						response.status = 400
 						response.setHeader('ERROR', 'No resource returned; query was empty')
 						response.writer.flush()
@@ -398,11 +398,11 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 						if (apiThrottle) {
 							if(checkLimit(contentLength.length,this.authority)) {
-								//statsService.setStatsCache(userId, response.status, request.requestURI)
+								statsService.setStatsCache(userId, response.status, request.requestURI)
 								render(text: getContent(content, contentType), contentType: contentType)
 								return false
 							}else{
-								//statsService.setStatsCache(userId, 404, request.requestURI)
+								statsService.setStatsCache(userId, 404, request.requestURI)
 								response.status = 404
 								response.setHeader('ERROR', 'Rate Limit exceeded. Please wait')
 								response.writer.flush()
@@ -423,7 +423,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					}
 				} else {
 					String content = parseResponseMethod(mthd, format, params, newModel)
-					//statsService.setStatsCache(userId, response.status, request.requestURI)
+					statsService.setStatsCache(userId, response.status, request.requestURI)
 					render(text: getContent(content, contentType), contentType: contentType)
 					if(this.cachedEndpoint['hookRoles']) {
 						List hookRoles = this.cachedEndpoint['hookRoles'] as List

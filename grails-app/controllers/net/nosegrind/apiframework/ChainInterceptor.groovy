@@ -13,6 +13,7 @@
  */
 package net.nosegrind.apiframework
 
+import net.nosegrind.apiframework.StatsService
 import org.grails.web.json.JSONObject
 import javax.annotation.Resource
 import grails.core.GrailsApplication
@@ -47,7 +48,8 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 	ApiCacheService apiCacheService = new ApiCacheService()
 	SpringSecurityService springSecurityService
-
+	StatsService statsService
+	
 	// TODO: detect and assign apiObjectVersion from uri
 	String entryPoint = "c${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
 	String format
@@ -128,6 +130,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 		// INIT local Chain Variables
 		if(chain==null){
+			statsService.setStatsCache(this.userId, 400, request.requestURI)
 			render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Expected chain variables not sent')
 			return false
 		}
@@ -145,6 +148,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 		// TODO : test for where chain data was sent
 		if(!isChain(contentType)){
+			statsService.setStatsCache(this.userId, 400, request.requestURI)
 			render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Expected request variables for endpoint do not match sent variables')
 			return false
 		}
@@ -167,6 +171,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 		try{
 			if (params.controller == 'apidoc') {
+				statsService.setStatsCache(this.userId, 400, request.requestURI)
 				render(status: 400, text: "API Docs cannot be Chained. Pleased called via the normal method (ie v0.1)")
 				return false
 			}
@@ -184,6 +189,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 				if (!acceptableMethod.contains(mthdKey) || !acceptableMethod.contains(mthdKey)){
 					if (!unacceptableMethod.contains(mthdKey)) {
 						unacceptableMethod.add(mthdKey)
+						statsService.setStatsCache(this.userId, 400, request.requestURI)
 						render(status: HttpServletResponse.SC_BAD_REQUEST, text: "Sent request method '${mthdKey}' does not match expected keys : '${acceptableMethod}'")
 						return false
 					}
@@ -197,13 +203,16 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 						byte[] contentLength = result.getBytes("ISO-8859-1")
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length, this.authority)) {
+								statsService.setStatsCache(this.userId, response.status, request.requestURI)
 								render(text: result, contentType: contentType)
 								return false
 							} else {
+								statsService.setStatsCache(this.userId, 400, request.requestURI)
 								render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 								return false
 							}
 						}else{
+							statsService.setStatsCache(this.userId, response.status, request.requestURI)
 							render(text: result, contentType: contentType)
 							return false
 						}
@@ -219,6 +228,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
                     List roles = cache[apiObject][action]['roles'] as List
                     if(!checkAuth(roles)){
+						statsService.setStatsCache(this.userId, 401, request.requestURI)
                     	response.status = 401
                     	response.setHeader('ERROR',"Unauthorized Access attempted at '${entryPoint}/${params.controller}/${params.action}'. This user does not have proper permissions or URL does not exist.")
                     	return false
@@ -234,6 +244,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
 				if (!checkURIDefinitions(params, receives, this.authority)) {
+					statsService.setStatsCache(this.userId, 400, request.requestURI)
 					render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Expected request variables for endpoint do not match sent variables')
 					return false
 				}
@@ -254,14 +265,17 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 								byte[] contentLength = result.getBytes("ISO-8859-1")
 								if (apiThrottle) {
 									if (checkLimit(contentLength.length, this.authority)) {
+										statsService.setStatsCache(this.userId, response.status, request.requestURI)
 										render(text: result, contentType: contentType)
 										return false
 									} else {
+										statsService.setStatsCache(this.userId, 400, request.requestURI)
 										render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 										response.flushBuffer()
 										return false
 									}
 								} else {
+									statsService.setStatsCache(this.userId, response.status, request.requestURI)
 									render(text: result, contentType: contentType)
 									return false
 								}
@@ -298,6 +312,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 			LinkedHashMap newModel = [:]
 
 			if (!model) {
+				statsService.setStatsCache(this.userId, 404, request.requestURI)
 				render(status:HttpServletResponse.SC_NOT_FOUND , text: 'No resource returned')
 				return false
 			} else {
@@ -325,6 +340,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 					WebUtils.exposeRequestAttributes(request, params);
 					// this will work fine when we upgrade to newer version that has fix in it
 					String forwardUri = "/${entryPoint}/${chainUris[chainInc + 1]}/${newModel.get(params.id)}"
+					statsService.setStatsCache(this.userId, response.status, request.requestURI)
 					forward(URI: forwardUri, params: [apiObject: apiObject, apiChain: params.apiChain])
 					return false
 				} else {
@@ -342,13 +358,16 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length, this.authority)) {
+								statsService.setStatsCache(this.userId, response.status, request.requestURI)
 								render(text: content, contentType: contentType)
 								return false
 							} else {
+								statsService.setStatsCache(this.userId, 400, request.requestURI)
 								render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 								return false
 							}
 						} else {
+							statsService.setStatsCache(this.userId, response.status, request.requestURI)
 							render(text: content, contentType: contentType)
 							return false
 						}

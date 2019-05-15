@@ -14,6 +14,7 @@
 package net.nosegrind.apiframework
 
 import net.nosegrind.apiframework.HookService
+import net.nosegrind.apiframework.StatsService
 import org.grails.web.json.JSONObject
 
 import javax.annotation.Resource
@@ -54,6 +55,7 @@ class BatchInterceptor extends ApiCommLayer{
 	ApiCacheService apiCacheService = new ApiCacheService()
 	SpringSecurityService springSecurityService
 	HookService hookService
+	StatsService statsService
 	boolean apiThrottle
 	String cacheHash
 
@@ -224,17 +226,17 @@ class BatchInterceptor extends ApiCommLayer{
 									byte[] contentLength = content.getBytes('ISO-8859-1')
 									if (apiThrottle) {
 										if (checkLimit(contentLength.length, this.authority)) {
-											//statsService.setStatsCache(getUserId(), response.status)
+											statsService.setStatsCache(this.userId, response.status, request.requestURI)
 											render(text: result as JSON, contentType: contentType)
 											return false
 										} else {
-											//statsService.setStatsCache(getUserId(), 400)
+											statsService.setStatsCache(this.userId, 400, request.requestURI)
 											render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 											response.flushBuffer()
 											return false
 										}
 									} else {
-										//statsService.setStatsCache(getUserId(), response.status)
+										statsService.setStatsCache(this.userId, response.status, request.requestURI)
 										render(text: result as JSON, contentType: contentType)
 										return false
 									}
@@ -247,17 +249,17 @@ class BatchInterceptor extends ApiCommLayer{
 										byte[] contentLength = content.getBytes('ISO-8859-1')
 										if (apiThrottle) {
 											if (checkLimit(contentLength.length,this.authority)) {
-												//statsService.setStatsCache(getUserId(), response.status)
+												statsService.setStatsCache(this.userId, response.status, request.requestURI)
 												render(text: result as JSON, contentType: contentType)
 												return false
 											} else {
-												//statsService.setStatsCache(getUserId(), 400)
+												statsService.setStatsCache(this.userId, 400, request.requestURI)
 												render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 												response.flushBuffer()
 												return false
 											}
 										} else {
-											//statsService.setStatsCache(getUserId(), response.status)
+											statsService.setStatsCache(this.userId, response.status, request.requestURI)
 											render(text: result as JSON, contentType: contentType)
 											return false
 										}
@@ -266,6 +268,7 @@ class BatchInterceptor extends ApiCommLayer{
 							}
 						}
 					}else{
+							statsService.setStatsCache(this.userId, 404, request.requestURI)
 							render(status: 404, text: 'No content found')
 							response.flushBuffer()
 							return false
@@ -312,6 +315,7 @@ class BatchInterceptor extends ApiCommLayer{
 			LinkedHashMap newModel = [:]
 
 			if (!model) {
+				statsService.setStatsCache(this.userId, 400, request.requestURI)
 				render(status:HttpServletResponse.SC_NOT_FOUND , text: 'No resource returned')
 				return false
 			} else {
@@ -342,6 +346,7 @@ class BatchInterceptor extends ApiCommLayer{
 				String data = ((format=='XML')? (content as XML) as String:(content as JSON) as String)
 				temp.add(data)
 				session['apiResult'] = temp
+				statsService.setStatsCache(this.userId, response.status, request.requestURI)
 				forward('uri':request.forwardURI.toString(),'params':params)
 				return false
 			}else{
@@ -358,6 +363,7 @@ class BatchInterceptor extends ApiCommLayer{
 			if(output){
 				if(apiThrottle) {
 					if (checkLimit(contentLength.length, this.authority)) {
+						statsService.setStatsCache(this.userId, response.status, request.requestURI)
 						render(text: output, contentType: request.getContentType())
 						if(cachedEndpoint['hookRoles']) {
 							List hookRoles = cachedEndpoint['hookRoles'] as List
@@ -365,9 +371,11 @@ class BatchInterceptor extends ApiCommLayer{
 							hookService.postData(service, output, hookRoles, this.mthdKey)
 						}
 					} else {
+						statsService.setStatsCache(this.userId, 400, request.requestURI)
 						render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
 					}
 				}else{
+					statsService.setStatsCache(this.userId, response.status, request.requestURI)
 					render(text: output, contentType: request.getContentType())
 					if(cachedEndpoint['hookRoles']) {
 						List hookRoles = cachedEndpoint['hookRoles'] as List
