@@ -91,12 +91,19 @@
 
 </br>
 <h3><a id="authjs" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Roles / NetworkRoles</h3>
-<p></p>
+<p>'networkRoles' are very similar to 'networkGroups' in that you are assigning ROLES to your 'networkGroups' as a set of ROLES to be pulled from for assignment:</p>
 
-<pre><code> </code></pre>
+<pre><code>apitoolkit:
+    apiName: api
+    attempts: 5
+    procCores: 8
+    networkGroups: ['private','public']
+    networkRoles:
+        public: ['ROLE_USER','ROLE_ADMIN']
+        private: ['ROLE_ADMIN']</code></pre>
 
-
-<pre><code></code></pre>
+<p>So above in 'public', those are the ok'd roles to use for making API calls and they will be checked against all incoming calls using 'public'</p>
+<p>So if your IO State is declared as public, you will want your users to have ROLES listed in networkRoles.public. Pretty easy!</p>
 
       </section>
       <footer>
