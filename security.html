@@ -91,95 +91,12 @@
 
 </br>
 <h3><a id="authjs" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Roles / NetworkRoles</h3>
-<p>To do the same thing and get your token in Javascript for your frontend, you can do something similar to the following and store it in a token for use on following calls:</p>
+<p></p>
 
-<pre><code>    $.ajax({
-    type: 'POST',
-    url: window.url + "/api/login",
-    cache:false,
-    async:true,
-    contentType: 'application/json',
-    data: JSON.stringify(jsonData),
-    //dataType:'json',
-    headers: {
-        'Access-Control-Allow-Origin': '*'
-    },
-    xhrFields:{
-        withCredentials: true
-    },
-    crossDomain: true,
-    success: function (data, textStatus, xhr){
-    ...
-    },
-    complete: function (xhr, textStatus) {
-    ...
-    }
-}).done(function(data, textStatus, jqXHR) {
-...
-}).fail(function(jqXHR, textStatus, errorThrown) {
-...
-})</code></pre>
+<pre><code> </code></pre>
 
-</br>
-<h3><a id="data_shell" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling API Via Shell</h3>
-<p><b><span style="text-decoration: underline;">GET Example</span></b></p>
-<pre><code>curl -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request GET "http://localhost:8080/v0.1/person/show/1"</code></pre>
-<p><b><span style="text-decoration: underline;">PUT Example</span></b></p>
-<pre><code>curl -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request PUT -d "{'title':'testamundo'"} "http://localhost:8080/v0.1/post/update/1"</code></pre>
 
-</br>
-<h3><a id="data_js" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling API Via Javascript</h3>
-<p><b><span style="text-decoration: underline;">GET Example</span></b></p>
-<pre><code>$.ajax({
-    type: 'GET',
-    url: window.url+"/v0.1/"+path+"?"+string,
-    crossDomain: true,
-    cache:false,
-    xhrFields: {
-        withCredentials: false
-    },
-    beforeSend: function(request){
-        request.setRequestHeader('Authorization','Bearer '+window.token.access_token);
-    },
-    headers:{
-        'Content-Type': contenttype
-    },
-    dataType: datatype,
-    success: function(data) {
-        if(data){
-        ...
-        }
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-            document.getElementById("output_"+count).innerHTML = jqXHR.status+" : "+jqXHR.statusText;
-    },
-});</code></pre>
-<p><b><span style="text-decoration: underline;">PUT Example</span></b></p>
-<pre><code>$.ajax({
-    type: 'PUT',
-    url: window.url+"/v0.1/"+path,
-    data: JSON.stringify(jsonData),
-    crossDomain: true,
-    cache:false,
-    xhrFields: {
-        withCredentials: false
-    },
-    beforeSend: function(request){
-        request.setRequestHeader('Authorization','Bearer '+window.token.access_token);
-    },
-    headers:{
-        'Content-Type': contenttype
-    },
-    dataType: datatype,
-    success: function(data) {
-        if(data){
-        ...
-        }
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-            document.getElementById("output_"+count).innerHTML = jqXHR.status+" : "+jqXHR.statusText;
-    },
-});</code></pre>
+<pre><code></code></pre>
 
       </section>
       <footer>
