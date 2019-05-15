@@ -38,15 +38,13 @@
           <li><a href="http://orubel.github.io/Beapi-API-Framework/iostate.html"><strong>IO State</strong></a></li>
             <li><a href="http://orubel.github.io/Beapi-API-Framework/version.html"><strong>Versioning</strong></a></li>
             <li><a href="http://orubel.github.io/Beapi-API-Framework/user.html"><strong>User Management</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/security.html"><strong>Security</strong></a></li>
+            <li><a href="http://orubel.github.io/Beapi-API-Framework/security.html"><strong>Security</strong></a>
+                <ul>
+                    <li><a href="security.html#cors">CORS / NetworkGroups</a></li>
+                    <li><a href="security.html#roles">Roles / NetworkRoles</a></li>
+                </ul>
+            </li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/usage.html"><strong>API Usage</strong></a>
-            <ul>
-              <li><a href="usage.html#authshell">Authorizing From A Shell</a></li>
-              <li><a href="usage.html#authjs">Authorizing From Javascript</a></li>
-              <li><a href="usage.html#data_shell">Calling API via Shell</a></li>
-              <li><a href="usage.html#data_js">Calling API via Javascript</a></li>
-            </ul>
-          </li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/batch.html"><strong>Batch Processing</strong></a></li>
           <li><a href="http://orubel.github.io/Beapi-API-Framework/chain.html"><strong>Api Chaining</strong></a></li>
             <li><a href="http://orubel.github.io/Beapi-API-Framework/hook.html"><strong>Web Hooks</strong></a></li>
@@ -60,20 +58,39 @@
       </header>
       <section>
 
-  <h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>API Usage</h1>
-  <p>Below we show you several different ways to access and test your API using CURL and Javascript including getting your token, passing your token and doing basic GET and PUT.</p>
+  <h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Security</h1>
+  <p>When adding security to your endpoints, there are two levels that we take into consideration: CORS for securing application access and ROLES for securing user access. Below we will go over how you can better configure these two in your implementation.</p>
 
   </br>
-  <h3><a id="authshell" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authorizing From A Shell</h3>
-  <p>The first thing you will need to do before you make any API calls is you will need to AUTHORIZE and get a token that you can then pass to the API's. To do this, you will pass the 'root' login/password that you entered in your 'beapi_api.yml' file when initially doing your setup in the following command:</p>
-  <pre><code>curl -v -H "Content-Type: application/json" -X POST -d '{"username":"login","password":"password"}' http://localhost:8080/api/login</code></pre>
+  <h3><a id="cors" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CORS / NetworkGroups</h3>
+  <p>At the top of your 'beapi_api.yml' config file, you will see a group of lines that look like this:</p>
+  <pre><code>apitoolkit:
+    apiName: api
+    attempts: 5
+    procCores: 8
+    networkGroups: ['private','public']
+    ...</code></pre>
 
-  <p>If everything ran right, you should see output similar to this:</p>
-  <pre><code>{"username":"admin","authorities":["ROLE_ADMIN"],"token_type":"Bearer","access_token":"q3s2ov25h8jll757ff5baqhf8nscbjf9"}</code></pre>
-<p>That weird 'access_token' value is what you pass to ALL API calls to validate who you are and your security ROLES.</p>
+  <p>Right now we are only interested in <b>networkGroups</b>. 'networkGroups' defines groups of 'allowedOrigins' for CORS (Cross Origin Resource Sharing) which we can then associate with each group of endpoints in our IO state files. We associate the 'allowedOrigins' further down in the 'beapi_api.yml' file  under corsInterceptor:</p>
+          <pre><code>    corsInterceptor:
+        includeEnvironments: ['development','test','production']
+        excludeEnvironments: []
+        networkGroups:
+            public: ['http://localhost','http://localhost:8080','http://127.0.0.1','http://test.nosegrind.net']
+            private: ['http://localhost','http://localhost:8080','http://127.0.0.1']  </code></pre>
+
+
+
+  <p>Once we have the Network groups named and defined, we can then assign them in our IO State. Below is the top of our 'Person' IO State file as an example of how we do the assignment:</p>
+  <pre><code>{
+    "NAME":"person",
+    "NETWORKGRP": "public",
+    "VALUES": {
+        ...</code></pre>
+<p>As you can see, we use the 'public' networkGrp so it upon lookup of the endpoint, we immediately know which 'allowedOrigins' to use. Others might use 'private so that we can use INTERNAL networks rather than EXTERNAL networks. This makes it easier for us to use one backend for internal and external endpoints.</p>
 
 </br>
-<h3><a id="authjs" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authorizing From Javascript</h3>
+<h3><a id="authjs" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Roles / NetworkRoles</h3>
 <p>To do the same thing and get your token in Javascript for your frontend, you can do something similar to the following and store it in a token for use on following calls:</p>
 
 <pre><code>    $.ajax({
