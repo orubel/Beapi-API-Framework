@@ -59,7 +59,7 @@
       <section>
 
         <h1><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configuring The Database</h1>
-        <p>First the project needs MariaDB/MySQL installed. You can change this in your build.gradle file and your ~/.beapi/beapi_db.yml files if you know what you are doing but for now we will stick with a default install for the project.</p>
+          <p>First the project needs MariaDB/MySQL installed. You can change this in your build.gradle file and your <b>~/.beapi/beapi_db.yml</b> files if you know what you are doing but for now we will stick with a default install for the project.</p>
         <p>To begin, we will be editing the your beapi_db.yml which looks like the following:</p>
         <pre><code>hibernate:
     flush:
@@ -81,7 +81,7 @@ environments:
             username: "root"
             password: "db_password"
             # dbCreate: "create-drop"
-            url: "jdbc:mysql://localhost:3306/testdb" #changeit
+            url: "jdbc:mysql://localhost:3306/your_database_name" #changeit
             dbCreate: update
             properties:
                    jmxEnabled: true
@@ -110,7 +110,7 @@ environments:
             username: "root"
             password: "db_password"
             # dbCreate: "create-drop"
-            url: "jdbc:mysql://localhost:3306/testdb" #changeit
+            url: "jdbc:mysql://localhost:3306/your_database_name" #changeit
             dbCreate: update
             properties:
                    jmxEnabled: true
@@ -139,7 +139,7 @@ environments:
             username: "root"
             password: "db_password"
             # dbCreate: "create-drop"
-            url: "jdbc:mysql://localhost:3306/testdb" #changeit
+            url: "jdbc:mysql://localhost:3306/your_database_name" #changeit
             dbCreate: update
             properties:
                    jmxEnabled: true
@@ -182,6 +182,8 @@ environments:
         </p>
         <p>Then login to your mysql instance:</p>
         <pre><code>mysql -uroot -p</code></pre>
+          <p>Don't forget that you have to create your database in order to assign privileges to it:</p>
+          <pre><code>create your_database_name;</code></pre>
         <p>Then while in the mysql shell, create user and grant privileges using the login/password you just created:</p>
         <pre><code>GRANT ALL PRIVILEGES ON your_database_name.* to application_login@'localhost' IDENTIFIED BY 'application_password';
 flush privileges;</code></pre>

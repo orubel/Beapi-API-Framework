@@ -59,7 +59,7 @@
       <section>
 
 <h1><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Configuring The Server</h1>
-<p>The project has an embedded and configured Tomcat server available so all you have to do is change the settings to fit what you need. This config can be found in &lt;your_directory&gt;/.beapi/beapi_server.yml and looks like the following:</p>
+          <p>The project has an embedded and configured Tomcat server available so all you have to do is change the settings to fit what you need. This config can be found in <b>&lt;your_directory&gt;/.beapi/beapi_server.yml</b> and looks like the following:</p>
 <pre><code>grails:
     tomcat:
         jvmArgs:
@@ -151,7 +151,7 @@ server:
 
 <p>Don't be intimidated! There are only a couple of things that have to be changed and configured here:
 <ul>
-<li><strong>serverURL</strong>: There will be three instances of this variable (marked with #changeit): one for your test, development and production environments. You will need to enter a url for each.  If you do not have a URL for your test/development, you can fake it by adding a fake FQDN in your /etc/hosts file (see below)</li>
+<li><strong>serverURL</strong>: <b>You MUST add the PORT number or this will cause failures!</b> There will be three instances of this variable (marked with #changeit): one for your test, development and production environments. You will need to enter a url for each.  If you do not have a URL for your test/development, you can fake it by adding a fake FQDN in your /etc/hosts file (see below)</li>
 <li><strong>SSL</strong>: For test and development, you will need a self-signed keystore (for production you need a real SSL cert). To generate a self-signed keystore, use the following:
   <pre><code>tool -genkey -keyalg RSA -alias selfsigned -keystore keystore.jks -storepass yabbadabbadoo -validity 360 -keysize 2048</code></pre>
   This will create a 'keystore.jks' which you can store in 'yourhomedirectory/.ssh' to use with 'ssl/keyStore' in the config. If you have additional questions on created a keystore, they can be <a href="https://www.sslshopper.com/article-how-to-create-a-self-signed-certificate-using-java-keytool.html">answered here</a>.
