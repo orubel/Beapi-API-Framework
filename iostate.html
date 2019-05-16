@@ -71,6 +71,7 @@
 <pre><code>
 {
     "NAME":"hook",
+    "NETWORKGRP": "public",
     "VALUES": {
         "id": {
             "type": "PKEY",
@@ -213,6 +214,7 @@
 
           <p>Lets break apart the pieces of an IOState file to see what they consist of and how they work; the first part of the file declares 'VALUES' for use by the endpoints:</p>
 <pre><code>    "NAME":"person",
+    "NETWORKGRP": "public",
     "VALUES": {
         "id": {
             "key": "PRIMARY",
@@ -231,7 +233,8 @@
         <p>We  start by declaring the NAME of the file and our 'values':
         <ul>
         <li><b><span style="text-decoration: underline;">NAME :</span></b> This corresponds directly with the name of the controller; the controller typically pulls in from the same domain name but does not have to. The controller can create a nested call, return a file, etc. So the name directly relates to the controller.</li>
-        <li><b><span style="text-decoration: underline;">VALUES :</span></b> These are the individual variables returned. These help us for automating testing, api docs and defining what needs to be sent and returned in each endpoint.</li>
+          <li><b><span style="text-decoration: underline;">NETWORKGRP :</span></b> This defines the 'networkGroup' that this group of endpoints can be accessed through thus defining the CORS allowed origins and the ROLES that can access it. See <a href="http://orubel.github.io/Beapi-API-Framework/security.html">Security section</a> for more</li>
+          <li><b><span style="text-decoration: underline;">VALUES :</span></b> These are the individual variables returned. These help us for automating testing, api docs and defining what needs to be sent and returned in each endpoint.</li>
         </ul>
         </p>
 
