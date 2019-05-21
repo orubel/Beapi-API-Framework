@@ -17,16 +17,13 @@ class TestService {
     String action
     LinkedHashMap cache
 
-    String token
-
+    String adminToken
     LinkedHashMap user
-
     String testDomain
     String appVersion = "v${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
     String loginUri
-
     String login
-    String password = 'testamundo'
+
 
     GrailsCacheManager grailsCacheManager
 
@@ -41,19 +38,26 @@ class TestService {
         this.cache = getApiCache(controller)
         adminLogin()
         List userRoles = getUserRoles(controller)
-
-
         String username = "${controller}test"
+        String password = 'testamundo'
         String email = "${controller}test@${controller}test.com"
-        String id = createUser(username, 'testamundo', email, roles)
+        String id = createUser(username, password, email, roles)
         String token = loginUser(username,password)
         this.user = ['id':id,'token':token]
+    }
+
+    boolean cleanupTest(){
+        String id = deleteUser(this.user.id as String)
+        if(id==this.user.id){
+            return true
+        }
+        return false
     }
 
     private void adminLogin(){
         this.testDomain = Holders.grailsApplication.config.environments.test.grails.serverURL
         this.loginUri = Holders.grailsApplication.config.grails.plugin.springsecurity.rest.login.endpointUrl
-        this.token = loginUser(login, password)
+        this.adminToken = loginUser(login, password)
     }
 
 
@@ -71,15 +75,28 @@ class TestService {
         return networkRoles
     }
 
-    private void getRoleList(){
+    // api call to get all roles
+    private List getRoleList(){
+        def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.adminToken}","--request","GET", "--verbose",  "${this.testDomain}/${this.appVersion}/role/list"].execute()
+        proc.waitFor()
+        def outputStream = new StringBuffer()
+        def error = new StringWriter()
+        proc.waitForProcessOutput(outputStream, error)
+        String output = outputStream.toString()
+        if(output){
+            def info = new JsonSlurper().parseText(output)
+            println("### GETrOLElIST: "+info)
+        }else{
+            println(error)
+            throw new Exception("[TestService : createUser] : Problem creating user:",e)
+        }
 
     }
 
 
-
     private String createUser(String username, String password, String email, List roles) {
         String guestdata = "{'username': '${username}','password':'${password}','email':'${email}'}"
-        def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.token}","--request","POST", "--verbose", "-d", "${guestdata}", "${this.testDomain}/${this.appVersion}/person/create"].execute()
+        def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.adminToken}","--request","POST", "--verbose", "-d", "${guestdata}", "${this.testDomain}/${this.appVersion}/person/create"].execute()
         proc.waitFor()
         def outputStream = new StringBuffer()
         def error = new StringWriter()
@@ -105,7 +122,7 @@ class TestService {
     private boolean createUserRoles(String personId, List roles) {
         roles.each { it ->
             String data = "{'personId': '${personId}','roleId':'${it}'}"
-            def proc = ["curl", "-H", "Origin: http://localhost", "-H", "Access-Control-Request-Headers: Origin,X-Requested-With", "--request", "POST", "-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.token}", "-d", "${data}", "${this.testDomain}/${this.appVersion}/personRole/create"].execute()
+            def proc = ["curl", "-H", "Origin: http://localhost", "-H", "Access-Control-Request-Headers: Origin,X-Requested-With", "--request", "POST", "-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.adminToken}", "-d", "${data}", "${this.testDomain}/${this.appVersion}/personRole/create"].execute()
             proc.waitFor()
             def outputStream = new StringBuffer()
             def error = new StringWriter()
@@ -132,7 +149,7 @@ class TestService {
     }
 
     private String deleteUser(String personId) {
-        def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","--request","DELETE", "-H","Content-Type: application/json","-H","Authorization: Bearer ${this.token}","${this.testDomain}/${this.appVersion}/person/delete?id=${personId}"].execute()
+        def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","--request","DELETE", "-H","Content-Type: application/json","-H","Authorization: Bearer ${this.adminToken}","${this.testDomain}/${this.appVersion}/person/delete?id=${personId}"].execute()
         proc.waitFor()
         def outputStream = new StringBuffer()
         def error = new StringWriter()
@@ -152,9 +169,7 @@ class TestService {
         assert this.guestId == info.id
     }
 
-    boolean getApiCall(){
 
-    }
 
     private List getUserRoles(String controller){
         // get list of roles we can install with testUser
@@ -169,11 +184,13 @@ class TestService {
         return userRoles
     }
 
-    void putApiCall(){}
+    boolean getApiCall(){}
 
-    void postApiCall(){}
+    boolean  putApiCall(){}
 
-    void deleteApiCall(){}
+    boolean  postApiCall(){}
+
+    boolean deleteApiCall(){}
 
     LinkedHashMap getApiCache(String controllername){
         try{
