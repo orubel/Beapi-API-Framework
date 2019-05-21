@@ -1,14 +1,25 @@
 package net.nosegrind.apiframework
 
+import javax.servlet.http.HttpServletRequest
+import org.springframework.web.context.request.ServletRequestAttributes
+
+import org.grails.plugin.cache.GrailsCacheManager
+import grails.plugin.cache.GrailsConcurrentMapCache
+import grails.plugin.cache.GrailsValueWrapper
 
 import grails.util.Metadata
 import groovy.json.JsonSlurper
 
 class TestService {
 
+    String version
+    String controller
+    String action
+    LinkedHashMap cache
+
     String token
-    List authorities
-    String currentId
+
+    LinkedHashMap user
 
     String testDomain
     String appVersion = "v${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
@@ -17,32 +28,56 @@ class TestService {
     String login
     String password = 'testamundo'
 
+    GrailsCacheManager grailsCacheManager
 
-    void adminLogin(){
+    private HttpServletRequest getRequest(){
+        HttpServletRequest request = ((ServletRequestAttributes) RCH.currentRequestAttributes()).getRequest()
+        return request
+    }
+
+
+    void initTest(String controller){
+        this.controller = controller
+        this.cache = getApiCache(controller)
+        adminLogin()
+        List userRoles = getUserRoles(controller)
+
+
+        String username = "${controller}test"
+        String email = "${controller}test@${controller}test.com"
+        String id = createUser(username, 'testamundo', email, roles)
+        String token = loginUser(username,password)
+        this.user = ['id':id,'token':token]
+    }
+
+    private void adminLogin(){
         this.testDomain = Holders.grailsApplication.config.environments.test.grails.serverURL
         this.loginUri = Holders.grailsApplication.config.grails.plugin.springsecurity.rest.login.endpointUrl
         this.token = loginUser(login, password)
     }
 
 
-    /**
-     * Given the IO State name, returns 'NETWORKGRP'
-     */
-    private void getNetworkGrp(String controller){
+
+    private List getNetworkRoles(String controller){
+        HttpServletRequest request = getRequest()
+        String actualUri = request.requestURI - request.contextPath
+        String[] params = actualUri.split('/')
+        String[] temp = ((String)params[1]).split('-')
+        this.version = (temp.size()>1) ? temp[1].toString() : '1'
+        this.action = params[3]
+
+        String networkGrp = this.cache[this.version][this.action]['networkGrp']
+        List networkRoles = Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGrp}"
+        return networkRoles
+    }
+
+    private void getRoleList(){
 
     }
 
-    LinkedHashMap getTestUser(String controller){
-        adminLogin()
-        getNetworkGrp(controller)
-        String username = "${controller}test"
-        String email = "${controller}test@${controller}test.com"
-        String id = createUser(username, 'testamundo', email)
-        String token = loginUser(username,password)
-        return ['id':id,'token':token]
-    }
 
-    private String createUser(String username, String password, String email) {
+
+    private String createUser(String username, String password, String email, List roles) {
         String guestdata = "{'username': '${username}','password':'${password}','email':'${email}'}"
         def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.token}","--request","POST", "--verbose", "-d", "${guestdata}", "${this.testDomain}/${this.appVersion}/person/create"].execute()
         proc.waitFor()
@@ -52,7 +87,7 @@ class TestService {
         String output = outputStream.toString()
         if(output){
             def info = new JsonSlurper().parseText(output)
-            if(createUserRole(info['id'])){
+            if(createUserRoles(info['id'], roles)){
                 return info['id']
             }else{
                 deleteUser(info['id'])
@@ -67,25 +102,28 @@ class TestService {
     }
 
 
-    private boolean createUserRole(String personId) {
-
-        String data = "{'personId': '${personId}','roleId':'1'}"
-        def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","--request","POST","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.token}", "-d", "${data}", "${this.testDomain}/${this.appVersion}/personRole/create"].execute()
-        proc.waitFor()
-        def outputStream = new StringBuffer()
-        def error = new StringWriter()
-        proc.waitForProcessOutput(outputStream, error)
-        String output = outputStream.toString()
-        if(output){
-            def info = new JsonSlurper().parseText(output)
-            if(info['roleId']){
-                return true
+    private boolean createUserRoles(String personId, List roles) {
+        roles.each { it ->
+            String data = "{'personId': '${personId}','roleId':'${it}'}"
+            def proc = ["curl", "-H", "Origin: http://localhost", "-H", "Access-Control-Request-Headers: Origin,X-Requested-With", "--request", "POST", "-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.token}", "-d", "${data}", "${this.testDomain}/${this.appVersion}/personRole/create"].execute()
+            proc.waitFor()
+            def outputStream = new StringBuffer()
+            def error = new StringWriter()
+            proc.waitForProcessOutput(outputStream, error)
+            String output = outputStream.toString()
+            if(output) {
+                def info = new JsonSlurper().parseText(output)
+                if (!info['roleId']) {
+                  return false
+                }
+            }else{
+                return false
             }
         }
-        return false
+        return true
     }
 
-    String loginUser(String username, String password){
+    private String loginUser(String username, String password){
         String url = "curl -H 'Content-Type: application/json' -X POST -d '{\"username\":\"${username}\",\"password\":\"${password}\"}' ${this.testDomain}${this.loginUri}"
         def proc = ['bash','-c',url].execute()
         proc.waitFor()
@@ -114,12 +152,50 @@ class TestService {
         assert this.guestId == info.id
     }
 
-    void getEndPointCall(){}
+    boolean getApiCall(){
 
-    void putEndPointCall(){}
+    }
 
-    void postEndPointCall(){}
+    private List getUserRoles(String controller){
+        // get list of roles we can install with testUser
+        List userRoles = []
+        List roles = getNetworkRoles(controller)
+        LinkedHashMap allRoles = getRoleList()
+        allRoles.each() { k,v ->
+            if(roles.contains(v)){
+                userRoles.add(k)
+            }
+        }
+        return userRoles
+    }
 
-    void deleteEndPointCall(){}
+    void putApiCall(){}
+
+    void postApiCall(){}
+
+    void deleteApiCall(){}
+
+    LinkedHashMap getApiCache(String controllername){
+        try{
+            GrailsConcurrentMapCache temp = grailsCacheManager?.getCache('ApiCache')
+            List cacheNames=temp.getAllKeys() as List
+            GrailsValueWrapper cache
+            cacheNames.each() { it2 ->
+                if (it2.simpleKey == controllername) {
+                    cache = temp.get(it2)
+                }
+            }
+
+
+            if(cache?.get()){
+                return cache.get() as LinkedHashMap
+            }else{
+                return [:]
+            }
+
+        }catch(Exception e){
+            throw new Exception("[TestService :: getApiCache] : Exception - full stack trace follows:",e)
+        }
+    }
 
 }
