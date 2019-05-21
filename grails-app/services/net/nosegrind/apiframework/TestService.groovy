@@ -2,11 +2,11 @@ package net.nosegrind.apiframework
 
 import javax.servlet.http.HttpServletRequest
 import org.springframework.web.context.request.ServletRequestAttributes
-
+import org.springframework.web.context.request.RequestContextHolder as RCH
 import org.grails.plugin.cache.GrailsCacheManager
 import grails.plugin.cache.GrailsConcurrentMapCache
 import grails.plugin.cache.GrailsValueWrapper
-
+import grails.util.Holders
 import grails.util.Metadata
 import groovy.json.JsonSlurper
 
@@ -22,15 +22,10 @@ class TestService {
     String testDomain
     String appVersion = "v${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
     String loginUri
-    String login
+
 
 
     GrailsCacheManager grailsCacheManager
-
-    private HttpServletRequest getRequest(){
-        HttpServletRequest request = ((ServletRequestAttributes) RCH.currentRequestAttributes()).getRequest()
-        return request
-    }
 
 
     void initTest(String controller){
@@ -41,7 +36,7 @@ class TestService {
         String username = "${controller}test"
         String password = 'testamundo'
         String email = "${controller}test@${controller}test.com"
-        String id = createUser(username, password, email, roles)
+        String id = createUser(username, password, email, userRoles)
         String token = loginUser(username,password)
         this.user = ['id':id,'token':token]
     }
@@ -55,6 +50,8 @@ class TestService {
     }
 
     private void adminLogin(){
+        String login = Holders.grailsApplication.config.root.login
+        String password = Holders.grailsApplication.config.root.password
         this.testDomain = Holders.grailsApplication.config.environments.test.grails.serverURL
         this.loginUri = Holders.grailsApplication.config.grails.plugin.springsecurity.rest.login.endpointUrl
         this.adminToken = loginUser(login, password)
@@ -63,20 +60,16 @@ class TestService {
 
 
     private List getNetworkRoles(String controller){
-        HttpServletRequest request = getRequest()
-        String actualUri = request.requestURI - request.contextPath
-        String[] params = actualUri.split('/')
-        String[] temp = ((String)params[1]).split('-')
-        this.version = (temp.size()>1) ? temp[1].toString() : '1'
-        this.action = params[3]
-
-        String networkGrp = this.cache[this.version][this.action]['networkGrp']
+        String version = 1
+        String action = this.cache[version]['defaultAction']
+        String networkGrp = this.cache[version][action]['networkGrp']
         List networkRoles = Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGrp}"
         return networkRoles
     }
 
     // api call to get all roles
     private List getRoleList(){
+        List roles = []
         def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.adminToken}","--request","GET", "--verbose",  "${this.testDomain}/${this.appVersion}/role/list"].execute()
         proc.waitFor()
         def outputStream = new StringBuffer()
@@ -85,9 +78,13 @@ class TestService {
         String output = outputStream.toString()
         if(output){
             def info = new JsonSlurper().parseText(output)
-            println("### GETrOLElIST: "+info)
+            info.each(){ k, v ->
+                if(v['id']){
+                    roles.add(['id':v.id,'name':v.authority])
+                }
+            }
+            return roles
         }else{
-            println(error)
             throw new Exception("[TestService : createUser] : Problem creating user:",e)
         }
 
@@ -104,14 +101,13 @@ class TestService {
         String output = outputStream.toString()
         if(output){
             def info = new JsonSlurper().parseText(output)
-            if(createUserRoles(info['id'], roles)){
+            if(createUserRoles(info['id'] as String, roles)){
                 return info['id']
             }else{
                 deleteUser(info['id'])
                 throw new Exception("[TestService : createUser] : Problem creating user role:",e)
             }
         }else{
-            println(error)
             throw new Exception("[TestService : createUser] : Problem creating user:",e)
         }
 
@@ -175,10 +171,10 @@ class TestService {
         // get list of roles we can install with testUser
         List userRoles = []
         List roles = getNetworkRoles(controller)
-        LinkedHashMap allRoles = getRoleList()
-        allRoles.each() { k,v ->
-            if(roles.contains(v)){
-                userRoles.add(k)
+        List allRoles = getRoleList()
+        allRoles.each() { it ->
+            if(roles.contains(it.name)){
+                userRoles.add(it.id)
             }
         }
         return userRoles
