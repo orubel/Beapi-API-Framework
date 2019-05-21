@@ -1,7 +1,8 @@
 
 ![alt text](https://github.com/orubel/logos/blob/master/beapi_logo_large.png)
 # BeApi(tm) Api Framework ( https://www.beapi.io/ )
-[ ![Download](https://api.bintray.com/packages/orubel/plugins/api-framework/images/download.svg?version=0.9.9) ](https://bintray.com/orubel/plugins/api-framework/0.9.9/link)
+
+## Plugin Version: [0.9.9](https://api.bintray.com/packages/orubel/plugins/api-framework/images/download.svg?version=0.9.9)
 ## Profile Version: [1.1.5](https://github.com/orubel/Beapi-Plugin-Profile)
 ## Documentation - http://orubel.github.io/Beapi-API-Framework/
 ## Forums - http://beapi.freeforums.net/
