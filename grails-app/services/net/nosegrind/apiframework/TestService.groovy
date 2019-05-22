@@ -31,6 +31,7 @@ class TestService {
     void initTest(String controller){
         this.controller = controller
         this.cache = getApiCache(controller)
+        this.version = this.cache['cacheversion']
         adminLogin()
         List userRoles = getUserRoles(controller)
         String username = "${controller}test"
@@ -60,9 +61,8 @@ class TestService {
 
 
     private List getNetworkRoles(String controller){
-        String version = 1
-        String action = this.cache[version]['defaultAction']
-        String networkGrp = this.cache[version][action]['networkGrp']
+        String action = this.cache[this.version]['defaultAction']
+        String networkGrp = this.cache[this.version][action]['networkGrp']
         List networkRoles = Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGrp}"
         return networkRoles
     }
@@ -162,7 +162,7 @@ class TestService {
         when:"info is not null"
         assert info!=null
         then:"delete created user"
-        assert this.guestId == info.id
+        assert this.user.id == info.id
     }
 
 
@@ -211,4 +211,24 @@ class TestService {
         }
     }
 
+    String createRecievesMockData(String action){
+        String data = "{"
+        this.cache?."${this.version}"?."${action}".receives.each(){ k,v ->
+            v.each(){
+                data += "'"+it.name+"': '"+it.mockData+"',"
+            }
+        }
+        data += "}"
+        return data
+    }
+
+    LinkedHashMap createReturnsMockData(String action){
+        LinkedHashMap returns = [:]
+        this.cache?."${this.version}"?."${action}".receives.each(){ k,v ->
+            v.each(){
+                returns[it.name] = it.mockData
+            }
+        }
+        return returns
+    }
 }
