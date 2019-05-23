@@ -108,10 +108,10 @@
 }
 </code></pre>
 <p>And then call via Curl(or via javascript) as follows:</p>
-<pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer [access token]" -X POST -d "{'chain':{'key':'dept_id','combine':'false','type':'postchain','order':{'dept/show':'company_id','company/update':'return'}}}" "http://localhost:8080/v0.1/person/show/1"
+<pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer [access token]" -X POST -d "{'chain':{'key':'dept_id','combine':'false','type':'postchain','order':{'dept/show':'company_id','company/update':'return'}}}" "http://localhost:8080/v1.0/person/show/1"
 </code></pre>
 <p>If you need to send Max/Offset variables, do so as follows:</p>
-<pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer [access token]" -X POST -d "{'chain':{'key':'dept_id','combine':'false','type':'postchain','order':{'dept/show':'company_id','company/update':'return'}}}" "http://localhost:8080/v0.1/person/show/1?max=1,1,1&offset=0,0,0"
+<pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer [access token]" -X POST -d "{'chain':{'key':'dept_id','combine':'false','type':'postchain','order':{'dept/show':'company_id','company/update':'return'}}}" "http://localhost:8080/v1.0/person/show/1?max=1,1,1&offset=0,0,0"
 </code></pre>
 
 

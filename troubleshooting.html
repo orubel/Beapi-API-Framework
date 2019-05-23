@@ -58,7 +58,7 @@
         <p>Make sure you are authenticated and sending authentication via AJAX properly (http://grails-plugins.github.io/grails-spring-security-core/docs/manual/guide/authentication.html#ajax. Also make sure that if you are sending a 'cross-domain' request to encode your session cookie for such.</p>
 
 
-        </br><p><b>Calls to http://localhost/api_v0.1/controller/action/1 fail or give a blank page</b></p>
+        </br><p><b>Calls to http://localhost/v1.0/controller/action/1 fail or give a blank page</b></p>
         <p>This is because you have a context set for your application. You need to call the api with the appContext (usually the app name) or set the app to a blank context within your Config.groovy environment...</p>
 <pre><code>grails.app.context = "/"
 </code></pre>

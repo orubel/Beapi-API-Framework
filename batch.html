@@ -61,19 +61,19 @@
 <h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Batch API Processing</h1>
 <p>Have you ever had someone from marketing or sales come to you and say 'Hey I'm tired of entering these one at a time. Can you make it so I can enter 50 or 100 of these at once through the API?' Well you just created a Batch API. But why create them when you can just use the existing endpoints? BeAPI automates everything so you don't have to create 'batch api's'; ALL API's are batchable! You merely have to set the proper authorities for those endpoints in your <a href="http://orubel.github.io/Beapi-API-Framework/iostate.html">IO State File</a>.</p>
 <p>Once added, a batch call can be made simply like this:</p>
-<pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request POST -d "{'combine':true,'batch': [{'name': 'test1'},{'name': 'test2'},{'name': 'test3'},{'name': 'test4'},{'name': 'test5'},{'name': 'test6'}]}" http://localhost:8080/b0.1/test/create</code></pre>
+<pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request POST -d "{'combine':true,'batch': [{'name': 'test1'},{'name': 'test2'},{'name': 'test3'},{'name': 'test4'},{'name': 'test5'},{'name': 'test6'}]}" http://localhost:8080/b1.0/test/create</code></pre>
 <p>In the example above, the 'combine' flag lets us know to concatenate the output into a single response. Otherwise it will only return the last 'element' for this response.</p>
 <p>This is important if you are doing batch INSERTS and don't care about the output (unless there is an EXCEPTION thrown).</p>
-        <p><b>NOTE ON VERSIONING:</b> Of importance to note is that the versioning used here is <b>b0.1</b> (if you did not notice). We do this so that we can separate this functionality out to a separate server if we want so as not to affect main api calls. Same goes for API chaining calls which use 'c0.1'.</p>
+        <p><b>NOTE ON VERSIONING:</b> Of importance to note is that the versioning used here is <b>b1.0</b> (if you did not notice). We do this so that we can separate this functionality out to a separate server if we want so as not to affect main api calls. Same goes for API chaining calls which use 'c1.0'.</p>
 </br>
 <h3><a id="examples" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Batch Examples Using Curl</h3>
 <p>Below are example of batch calls taken directly from the integration tests in the framework to give you an example of how to write them:</p>
 <p><b><span style="text-decoration: underline;">POST Batch Call EXAMPLE (no concatenation)</span></b></p>
-<pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request POST -d "{'batch': [{'name': 'test1'},{'name': 'test2'},{'name': 'test3'},{'name': 'test4'},{'name': 'test5'},{'name': 'test6'}]}" http://localhost:8080/b0.1/test/create</code></pre>
+<pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request POST -d "{'batch': [{'name': 'test1'},{'name': 'test2'},{'name': 'test3'},{'name': 'test4'},{'name': 'test5'},{'name': 'test6'}]}" http://localhost:8080/b1.0/test/create</code></pre>
 <p><b><span style="text-decoration: underline;">GET Batch Call EXAMPLE (with concatenation)</span></b></p>
-<pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request POST -d "{'combine':true,'batch': [{'id': '1'},{'id': '2'},{'id': '3'},{'id': '4'},{'id': '5'},{'id': '6'}]}" http://localhost:8080/b0.1/test/show</code></pre>
+<pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request POST -d "{'combine':true,'batch': [{'id': '1'},{'id': '2'},{'id': '3'},{'id': '4'},{'id': '5'},{'id': '6'}]}" http://localhost:8080/b1.0/test/show</code></pre>
 <p><b><span style="text-decoration: underline;">DELETE Batch Call EXAMPLE (with concatenation)</span></b></p>
-<pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request POST -d "{'combine':true,'batch': [{'id': '1'},{'id': '2'},{'id': '3'},{'id': '4'},{'id': '5'},{'id': '6'}]}" http://localhost:8080/b0.1/test/delete</code></pre>
+<pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request POST -d "{'combine':true,'batch': [{'id': '1'},{'id': '2'},{'id': '3'},{'id': '4'},{'id': '5'},{'id': '6'}]}" http://localhost:8080/b1.0/test/delete</code></pre>
 
 </br>
 <h3><a id="csvjson" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>CSV To JSON Tools</h3>

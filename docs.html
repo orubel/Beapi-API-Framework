@@ -67,7 +67,7 @@
         <h3><a id="chg" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling From JavaScript</h3>
         <pre><code>$.ajax({
 	type:'GET',
-	url: window.url+"/v0.1/apidoc/show",
+	url: window.url+"/v1.0/apidoc/show",
 	crossDomain: true,
 	cache:false,
 	async:true,
@@ -96,7 +96,7 @@
 
         </br>
         <h3><a id="shell" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling From The Shell</h3>
-        <pre><code>curl -v -H "Origin: http://localhost" -H "Authorization: Bearer your_token_here" -H "Access-Control-Request-Method: OPTIONS" -H "Access-Control-Request-Headers: X-Requested-With" -H "Content-Type: application/json" --request GET "http://localhost:8080/v0.1/apidoc/show"</code>code></pre>
+        <pre><code>curl -v -H "Origin: http://localhost" -H "Authorization: Bearer your_token_here" -H "Access-Control-Request-Method: OPTIONS" -H "Access-Control-Request-Headers: X-Requested-With" -H "Content-Type: application/json" --request GET "http://localhost:8080/v1.0/apidoc/show"</code>code></pre>
         <p><b>Note:</b>'Origin' needs to match the machine you are calling from (if not calling from the same machine) and it needs to be added to your 'beapi_api.yml' file under 'allowedOrigins'</p>
       </section>
       <footer>

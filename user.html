@@ -60,27 +60,27 @@
 
       <h3><a id="vars" class="anchor" href="#values" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>User API's</h3>
       <p><b>Create User</b>
-      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v0.1/person/create"</code></pre>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v1.0/person/create"</code></pre>
       </p>
 
       <p><b>Show User (SuperUser)</b>
-      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request GET "http://localhost:8080/v0.1/person/show/1"</code></pre>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request GET "http://localhost:8080/v1.0/person/show/1"</code></pre>
       </p>
 
       <p><b>Show Self</b>
-      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request GET "http://localhost:8080/v0.1/person/show</code></pre>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request GET "http://localhost:8080/v1.0/person/show</code></pre>
       </p>
 
       <p><b>Update User (SuperUser)</b>
-      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v0.1/person/update/56"</code></pre>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v1.0/person/update/56"</code></pre>
       </p>
 
       <p><b>Update Self</b>
-      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v0.1/person/update"</code></pre>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v1.0/person/update"</code></pre>
       </p>
 
       <p><b>Delete User (SuperUser)</b>
-      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request DELETE "http://localhost:8080/v0.1/person/delete/1"</code></pre>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request DELETE "http://localhost:8080/v1.0/person/delete/1"</code></pre>
       </p>
 
 
@@ -89,11 +89,11 @@
 
           <p>Even though you created a user, they can't access anything until you assign them a 'ROLE' and this ROLE is assigned to an endpoint. Think of a 'ROLE' like a SECURITY GROUP that users belong to that grants them access.</p>
       <p><b>Create User Role</b>
-      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request POST -d "{'personId': '56','roleId':'1'}" "http://localhost:8080/v0.1/personRole/create"</code></pre>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request POST -d "{'personId': '56','roleId':'1'}" "http://localhost:8080/v1.0/personRole/create"</code></pre>
       </p>
 
       <p><b>Delete User Role</b>
-      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request DELETE "http://localhost:8080/v0.1/personRole/delete/56"</code></pre>
+      <pre><code>curl -v -H "Content-Type: application/json" -H "Authorization: Bearer &lt;your_token&gt;"  --request DELETE "http://localhost:8080/v1.0/personRole/delete/56"</code></pre>
       </p>
 
           <p><b>* NOTE:</b>While you will ALWAYS have to delete dependencies (such as THE USER ROLE) prior to deleting PERSON due to the foreign key dependency, this is taken care of for you in the current implamentation. All you have to do is 'delete person' and the related 'person role' record is automatically deleted as well.</p>

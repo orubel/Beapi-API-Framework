@@ -62,23 +62,23 @@
 <h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Versioning</h1>
 
 <p>The version for your api is sent through the URL but is set in two different places. Let's first break apart the URL version:</p>
-<pre><code>http://localhost:8080/v0.1-1/person/create</code></pre>
-<p>In the above example, the version is v0.1-1. This is broken out into three parts:</p>
+<pre><code>http://localhost:8080/v1.0-1/person/create</code></pre>
+<p>In the above example, the version is v1.0-1. This is broken out into three parts:</p>
 <ul>
-  <li><b>[v] 0.1-1 :</b> The 'v' determines what kind of call it is whether it is a batch call(b), a chained call(c) or a regular api call(v)</li>
-  <li><b>v[0.1] -1 :</b> This is the version of the application (as set by the application); this helps us to run multiple versions of the application should we need to.</li>
-  <li><b>v0.1[-1] :</b> This is the version of the IO State. It always defaults to '1' if this is not set (which it doesn't need to be). This allows you to have multiple version of your api rules running should you need to support older versions while running newer versions on the same application. Supports up 1-9 versions on any existing application for any IO State file.</li>
+  <li><b>[v] 1.0-1 :</b> The 'v' determines what kind of call it is whether it is a batch call(b), a chained call(c) or a regular api call(v)</li>
+  <li><b>v[1.0] -1 :</b> This is the version of the application (as set by the application); this helps us to run multiple versions of the application should we need to.</li>
+  <li><b>v1.0[-1] :</b> This is the version of the IO State. It always defaults to '1' if this is not set (which it doesn't need to be). This allows you to have multiple version of your api rules running should you need to support older versions while running newer versions on the same application. Supports up 1-9 versions on any existing application for any IO State file.</li>
 </ul>
 
 </br>
 <h3><a id="woversion" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling Without Version</h3>
 <p>This is the most common call you will make... which is without any particular version (to the default version in the IO State). This would look like the following:</p>
-<pre><code>http://localhost:8080/v0.1/person/create</code></pre>
+<pre><code>http://localhost:8080/v1.0/person/create</code></pre>
 
 </br>
 <h3><a id="version" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling With Version</h3>
 <p>If you have a particular version you wish to call (and you know it is supported via documentation), simply call that version of the endpoint like so:</p>
-<pre><code>http://localhost:8080/v0.1-1/person/create</code></pre>
+<pre><code>http://localhost:8080/v1.0-1/person/create</code></pre>
 
 </br>
 <h3><a id="appversion" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling With App Version</h3>

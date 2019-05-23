@@ -106,16 +106,16 @@
 </br>
 <h3><a id="data_shell" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling API Via Shell</h3>
 <p><b><span style="text-decoration: underline;">GET Example</span></b></p>
-<pre><code>curl -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request GET "http://localhost:8080/v0.1/person/show/1"</code></pre>
+<pre><code>curl -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request GET "http://localhost:8080/v1.0/person/show/1"</code></pre>
 <p><b><span style="text-decoration: underline;">PUT Example</span></b></p>
-<pre><code>curl -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request PUT -d "{'title':'testamundo'"} "http://localhost:8080/v0.1/post/update/1"</code></pre>
+<pre><code>curl -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request PUT -d "{'title':'testamundo'"} "http://localhost:8080/v1.0/post/update/1"</code></pre>
 
 </br>
 <h3><a id="data_js" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling API Via Javascript</h3>
 <p><b><span style="text-decoration: underline;">GET Example</span></b></p>
 <pre><code>$.ajax({
     type: 'GET',
-    url: window.url+"/v0.1/"+path+"?"+string,
+    url: window.url+"/v1.0/"+path+"?"+string,
     crossDomain: true,
     cache:false,
     xhrFields: {
@@ -140,7 +140,7 @@
 <p><b><span style="text-decoration: underline;">PUT Example</span></b></p>
 <pre><code>$.ajax({
     type: 'PUT',
-    url: window.url+"/v0.1/"+path,
+    url: window.url+"/v1.0/"+path,
     data: JSON.stringify(jsonData),
     crossDomain: true,
     cache:false,
