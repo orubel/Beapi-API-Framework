@@ -10,6 +10,9 @@ import grails.util.Holders
 import grails.util.Metadata
 import groovy.json.JsonSlurper
 
+/**
+ * TestService. 
+ */
 class TestService {
 
     String version
@@ -22,8 +25,6 @@ class TestService {
     String testDomain
     String appVersion = "v${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
     String loginUri
-
-
 
     GrailsCacheManager grailsCacheManager
 
@@ -72,8 +73,8 @@ class TestService {
         List roles = []
         def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.adminToken}","--request","GET", "--verbose",  "${this.testDomain}/${this.appVersion}/role/list"].execute()
         proc.waitFor()
-        def outputStream = new StringBuffer()
-        def error = new StringWriter()
+        StringBuffer outputStream = new StringBuffer()
+        StringWriter error = new StringWriter()
         proc.waitForProcessOutput(outputStream, error)
         String output = outputStream.toString()
         if(output){
@@ -95,8 +96,8 @@ class TestService {
         String guestdata = "{'username': '${username}','password':'${password}','email':'${email}'}"
         def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.adminToken}","--request","POST", "--verbose", "-d", "${guestdata}", "${this.testDomain}/${this.appVersion}/person/create"].execute()
         proc.waitFor()
-        def outputStream = new StringBuffer()
-        def error = new StringWriter()
+        StringBuffer outputStream = new StringBuffer()
+        StringWriter error = new StringWriter()
         proc.waitForProcessOutput(outputStream, error)
         String output = outputStream.toString()
         if(output){
@@ -120,8 +121,8 @@ class TestService {
             String data = "{'personId': '${personId}','roleId':'${it}'}"
             def proc = ["curl", "-H", "Origin: http://localhost", "-H", "Access-Control-Request-Headers: Origin,X-Requested-With", "--request", "POST", "-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.adminToken}", "-d", "${data}", "${this.testDomain}/${this.appVersion}/personRole/create"].execute()
             proc.waitFor()
-            def outputStream = new StringBuffer()
-            def error = new StringWriter()
+            StringBuffer outputStream = new StringBuffer()
+            StringWriter error = new StringWriter()
             proc.waitForProcessOutput(outputStream, error)
             String output = outputStream.toString()
             if(output) {
@@ -147,13 +148,13 @@ class TestService {
     private String deleteUser(String personId) {
         def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","--request","DELETE", "-H","Content-Type: application/json","-H","Authorization: Bearer ${this.adminToken}","${this.testDomain}/${this.appVersion}/person/delete?id=${personId}"].execute()
         proc.waitFor()
-        def outputStream = new StringBuffer()
-        def error = new StringWriter()
+        StringBuffer outputStream = new StringBuffer()
+        StringWriter error = new StringWriter()
         proc.waitForProcessOutput(outputStream, error)
         String output = outputStream.toString()
 
         ArrayList stdErr = error.toString().split( '> \n' )
-        println(stdErr)
+        //println(stdErr)
         //ArrayList response1 = stdErr[0].split("> ")
         //ArrayList response2 = stdErr[1].split("< ")
 
@@ -198,7 +199,6 @@ class TestService {
                     cache = temp.get(it2)
                 }
             }
-
 
             if(cache?.get()){
                 return cache.get() as LinkedHashMap
