@@ -327,10 +327,14 @@ abstract class ApiCommProcess{
      */
     LinkedHashMap parseURIDefinitions(LinkedHashMap model,ArrayList responseList){
         if(model[0].getClass().getName()=='java.util.LinkedHashMap') {
-            model.each() { key, val ->
-                model[key] = parseURIDefinitions(val, responseList)
+            try {
+                model.each() { key, val ->
+                    model[key] = parseURIDefinitions(val, responseList)
+                }
+                return model
+            }catch(Exception e){
+                throw new Exception('[ApiCommProcess :: parseURIDefinitions] : Exception - full stack trace follows:', e)
             }
-            return model
         }else{
             try {
                 ArrayList paramsList = (model.size()==0)?[:]:model.keySet() as ArrayList
