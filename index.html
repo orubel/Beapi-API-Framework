@@ -120,7 +120,7 @@ mkdir ~/.beapi/.iostate
 <h3><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Step 6: Test</h3>
 
 <p>You can now test out your running project using the following command (replacing 'login' and 'password' with root.login and password found in your beapi.yml file)::</p>
-<pre><code>curl -v -H "Content-Type: application/json" -X POST -d '{"username":"login","password":"password"}' http://localhost:8080/api/login</code></pre>
+<pre><code>curl -H Origin: http://localhost -H "Access-Control-Request-Headers: Origin,X-Requested-With" -H "Content-Type: application/json"--request POST -d '{"username":"your_admin_login","password":"your_admin_password"}' http://localhost:8080/api/login</code></pre>
 
 <p>If everything ran right, you should see output similar to this:</p>
 <pre><code>{"username":"admin","authorities":["ROLE_ADMIN"],"token_type":"Bearer","access_token":"q3s2ov25h8jll757ff5baqhf8nscbjf9"}</code></pre>
