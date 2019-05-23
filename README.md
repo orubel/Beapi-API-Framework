@@ -6,7 +6,7 @@
 ## Latest Plugin Version: [0.9.9](https://bintray.com/orubel/plugins/api-framework/0.9.9/link)
 ## Stable Profile Version: [1.1.3](https://github.com/orubel/Beapi-Plugin-Profile)
 ## Latest Profile Version: [1.1.5](https://github.com/orubel/Beapi-Plugin-Profile)
-
+***
 ## Documentation - http://orubel.github.io/Beapi-API-Framework/
 ## Forums - http://beapi.freeforums.net/
 
