@@ -31,7 +31,8 @@ plugins {
     id "com.jfrog.bintray" version "1.2"
 }
 
-version "0.9.9"
+
+//version "0.9.9"
 group "org.grails.plugins"
 
 apply plugin: "maven-publish"
@@ -42,7 +43,6 @@ apply plugin: "com.jfrog.bintray"
 apply plugin: "org.grails.grails-plugin-publish"
 apply plugin: "org.grails.grails-plugin"
 apply plugin: "org.grails.grails-doc"
-
 
 grailsPublish {
     user = System.getenv('BINTRAY_USER')
