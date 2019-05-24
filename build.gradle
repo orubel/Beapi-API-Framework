@@ -32,8 +32,14 @@ plugins {
 }
 
 
+build = System.getProperty(BUILD_NUMBER)
+major = '0'
+minor = '9'
+temp = '9'
+patch = temp + build
+
 //version "0.9.9"
-version = rootProject.version
+version = "${major}.${minor}.${patch}"
 group "org.grails.plugins"
 
 apply plugin: "maven-publish"
@@ -44,6 +50,10 @@ apply plugin: "com.jfrog.bintray"
 apply plugin: "org.grails.grails-plugin-publish"
 apply plugin: "org.grails.grails-plugin"
 apply plugin: "org.grails.grails-doc"
+
+
+
+
 
 grailsPublish {
     user = System.getenv('BINTRAY_USER')
