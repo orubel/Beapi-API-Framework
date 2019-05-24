@@ -32,11 +32,11 @@ plugins {
 }
 
 
-int build_num = System.getenv('BUILD_NUMBER')
+Integer build_num = System.getenv('BUILD_NUMBER') as Integer
 def major = '0'
 def minor = '9'
-int temp = 9
-def patch = temp + build_num
+Integer temp = 9
+Integer patch = temp + build_num
 
 //version "0.9.9"
 version = "${major}.${minor}.${patch}"
