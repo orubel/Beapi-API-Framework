@@ -32,11 +32,11 @@ plugins {
 }
 
 
-build = System.getenv('BUILD_NUMBER')
+build_num = System.getenv('BUILD_NUMBER')
 major = '0'
 minor = '9'
-temp = '9'
-patch = temp + build
+temp = 9
+patch = temp + build_num
 
 //version "0.9.9"
 version = "${major}.${minor}.${patch}"
