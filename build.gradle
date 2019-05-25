@@ -2,8 +2,8 @@
 
 buildscript {
     ext {
-        //grailsVersion = '3.1.9'
         grailsVersion = project.grailsVersion
+        gradleWrapperVersion = project.gradleWrapperVersion
     }
     repositories {
         flatDir {
@@ -31,15 +31,9 @@ plugins {
     id "com.jfrog.bintray" version "1.2"
 }
 
-
-Integer build_num = System.getenv('BUILD_NUMBER') as Integer
-def major = '0'
-def minor = '9'
-Integer temp = 9
-Integer patch = temp + build_num
-
-//version "0.9.9"
-version = "${major}.${minor}.${patch}"
+def appVersion = (System.getenv('BEAPI_BUILD_VERSION'))?System.getenv('BEAPI_BUILD_VERSION'):'1'
+def patch = (System.getenv('BUILD_NUMBER'))?System.getenv('BUILD_NUMBER'):'0'
+version = "${appVersion}.${patch}"
 group "org.grails.plugins"
 
 apply plugin: "maven-publish"
@@ -50,9 +44,6 @@ apply plugin: "com.jfrog.bintray"
 apply plugin: "org.grails.grails-plugin-publish"
 apply plugin: "org.grails.grails-plugin"
 apply plugin: "org.grails.grails-doc"
-
-
-
 
 
 grailsPublish {
