@@ -39,10 +39,6 @@ task changeApiFrameworkVersion(type: Exec) {
     commandLine "./changeVersion.sh ${version}"
 }
 
-task changeApiFrameworkVersion(type: Exec) {
-    commandLine "./changeVersion.sh ${version}"
-}
-
 apply plugin: "maven-publish"
 apply plugin: "org.springframework.boot"
 apply plugin: "com.jfrog.bintray"
