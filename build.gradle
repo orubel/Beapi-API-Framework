@@ -26,7 +26,6 @@ buildscript {
 }
 
 plugins {
-    //id "io.spring.dependency-management" version "0.5.2.RELEASE"
     id "io.spring.dependency-management" version "0.6.0.RELEASE"
     id "com.jfrog.bintray" version "1.2"
 }
@@ -35,6 +34,14 @@ def appVersion = (System.getenv('BEAPI_BUILD_VERSION'))?System.getenv('BEAPI_BUI
 def patch = (System.getenv('BUILD_NUMBER'))?System.getenv('BUILD_NUMBER'):'0'
 version = "${appVersion}.${patch}"
 group "org.grails.plugins"
+
+task changeApiFrameworkVersion(type: Exec) {
+    commandLine "./changeVersion.sh ${version}"
+}
+
+task changeApiFrameworkVersion(type: Exec) {
+    commandLine "./changeVersion.sh ${version}"
+}
 
 apply plugin: "maven-publish"
 apply plugin: "org.springframework.boot"
@@ -50,9 +57,7 @@ grailsPublish {
     user = System.getenv('BINTRAY_USER')
     key = System.getenv('BINTRAY_KEY')
     githubSlug = 'orubel/Beapi-API-Framework'
-    license {
-        name = 'MIT'
-    }
+    license { name = 'MIT' }
     title = "BeAPI API Framework"
     desc = "BeAPI API Framework is a fully reactive plug-n-play API Framework for Distributed Architectures providing api abstraction, cached IO state, automated batching and more. It is meant to autmoate alot of the issues behind setting up and maintaining API's in distributed architectures as well as handling and simplifying automation."
     developers = [orubel:"Owen Rubel"]
