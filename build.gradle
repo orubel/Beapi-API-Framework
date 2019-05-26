@@ -36,7 +36,7 @@ version = "${appVersion}.${patch}"
 group "org.grails.plugins"
 
 task changeApiFrameworkVersion(type: Exec) {
-    commandLine "./changeVersion.sh ${version}"
+    commandLine "./changeVersion.sh ${version} printenv | grep BEAPI_APIFRAMEWORK_VERSION"
 }
 
 apply plugin: "maven-publish"
