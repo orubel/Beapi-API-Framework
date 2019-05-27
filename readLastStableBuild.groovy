@@ -22,13 +22,12 @@ build.actions."hudson.plugins.parameterizedtrigger.CapturedEnvironmentAction".en
 	}
 }
 
-
+Properties props = new Properties()
 def propsFile = new File("/home/orubel/.jenkins/workspace/beapi-backend/gradle.properties")
-if (propsFile.exists()) {
-	propsFile.withReader { r ->
-		def props = new Properties()
-		props.load(r)
-		props.setProperty('apiFrameworkVersion', version)
-		props.store(propsFile.newWriter(), null)
-	}
-}
+props.load(propsFile.newDataInputStream())
+println props.getProperty('apiFrameworkVersion')
+
+props.setProperty('apiFrameworkVersion', version)
+props.store(propsFile.newWriter(), null)
+
+println props.getProperty('apiFrameworkVersion')
