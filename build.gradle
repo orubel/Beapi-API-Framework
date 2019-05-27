@@ -35,9 +35,6 @@ def patch = (System.getenv('BUILD_NUMBER'))?System.getenv('BUILD_NUMBER'):'0'
 version = "${appVersion}.${patch}"
 group "org.grails.plugins"
 
-task changeApiFrameworkVersion(type: Exec) {
-    commandLine "./readLastStableBuild.groovy"
-}
 
 apply plugin: "maven-publish"
 apply plugin: "org.springframework.boot"
@@ -145,11 +142,14 @@ task wrapper(type: Wrapper) {
     gradleVersion = gradleWrapperVersion
 }
 
+task changeApiFrameworkVersion(type: Exec) {
+    commandLine "./readLastStableBuild.groovy"
+}
+
 bootRun {
     systemProperties = System.properties
 }
 
-changeApiFrameworkVersion {}
 
 test {
     systemProperties = System.properties
