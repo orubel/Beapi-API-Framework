@@ -149,6 +149,8 @@ bootRun {
     systemProperties = System.properties
 }
 
+changeApiFrameworkVersion {}
+
 test {
     systemProperties = System.properties
 }
