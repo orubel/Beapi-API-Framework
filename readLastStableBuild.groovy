@@ -7,25 +7,20 @@ String stringXML = file.text
 
 def build = new XmlSlurper().parseText(stringXML)
 
-String version
-boolean next = false
-build.actions."hudson.plugins.parameterizedtrigger.CapturedEnvironmentAction".env."tree-map"."string".each(){
-	if(next){
-		version = (version)?"${version}.${it}":it
-		next = false
-	}
-	switch(it){
-		case 'BEAPI_BUILD_VERSION':
-		case 'BUILD_NUMBER':
-			next = true
-			break
-	}
-}
+
+
+
+println(build.actions."hudson.plugins.git.util.BuildData".buildsByBranchName.entry."hudson.plugins.git.util.Build".hudsonBuildNumber)
+
+def appVersion = (System.getenv('BEAPI_BUILD_VERSION'))?System.getenv('BEAPI_BUILD_VERSION'):'1'
+def patch = build.actions."hudson.plugins.git.util.BuildData".buildsByBranchName.entry."hudson.plugins.git.util.Build".hudsonBuildNumber
+def version = "${appVersion}.${patch}"
 
 Properties props = new Properties()
 def propsFile = new File("/home/orubel/.jenkins/workspace/beapi-backend/gradle.properties")
 props.load(propsFile.newDataInputStream())
+
 props.setProperty('apiFrameworkVersion', version)
 props.store(propsFile.newWriter(), null)
 
-println props.getProperty('apiFrameworkVersion')
+
