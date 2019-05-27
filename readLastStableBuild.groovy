@@ -24,9 +24,7 @@ build.actions."hudson.plugins.parameterizedtrigger.CapturedEnvironmentAction".en
 
 
 def propsFile = new File("/home/orubel/.jenkins/workspace/beapi-backend/gradle.properties")
-
 if (propsFile.exists()) {
-	println propsFile.getProperty('apiFrameworkVersion')
 	propsFile.withReader { r ->
 		def props = new Properties()
 		props.load(r)
