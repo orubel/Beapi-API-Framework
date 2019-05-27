@@ -143,7 +143,9 @@ task wrapper(type: Wrapper) {
 }
 
 task changeApiFrameworkVersion(type: Exec) {
-    commandLine "./readLastStableBuild.groovy"
+    doLast {
+        commandLine "./readLastStableBuild.groovy"
+    }
 }
 
 bootRun {
