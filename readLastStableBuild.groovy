@@ -1,7 +1,7 @@
 #!/usr/bin/env groovy
 
-
-File file = new File("/home/orubel/.jenkins/jobs/api-framework/builds/lastStableBuild/build.xml")
+String userHome = System.properties['user.home']
+File file = new File("${userHome}/.jenkins/jobs/api-framework/builds/lastStableBuild/build.xml")
 
 String stringXML = file.text
 
@@ -23,7 +23,7 @@ build.actions."hudson.plugins.parameterizedtrigger.CapturedEnvironmentAction".en
 }
 
 
-def propsFile = new File("/home/orubel/.jenkins/workspace/beapi-backend/gradle.properties")
+def propsFile = new File("${userHome}/.jenkins/workspace/beapi-backend/gradle.properties")
 
 if (propsFile.exists()) {
 	propsFile.withReader { r ->
