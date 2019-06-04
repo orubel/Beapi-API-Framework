@@ -1,82 +1,253 @@
 <!doctype html>
-<html>
-  <head>
-      <!-- Global site tag (gtag.js) - Google Analytics -->
-      <script async src="https://www.googletagmanager.com/gtag/js?id=UA-87598302-1"></script>
-      <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="assets/css/vendor.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
 
-  gtag('config', 'UA-87598302-1');
-</script>
-      <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>BeAPI-API-Framework</title>
+  <title>BeAPI API Framework - Documentation / API Usage (Examples)</title>
+</head>
+<body data-spy="scroll" data-target="#toc">
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/github-light.css">
-    <meta name="viewport" content="width=device-width">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
-        <img src="beapi_logo2.png" style="width:auto;height:auto;">
-        <p></p>
 
-        <ul>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/index.html"><strong>Installation</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/confserv.html"><strong>Configure Server</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/confdb.html"><strong>Configure Database</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/confapi.html"><strong>Configure API Application</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/bootstrap.html"><strong>Bootstrapping</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/model.html"><strong>Model/Domain Object</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/controller.html"><strong>Controller</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/iostate.html"><strong>IO State</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/version.html"><strong>Versioning</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/user.html"><strong>User Management</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/security.html"><strong>Security</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/usage.html"><strong>API Usage</strong></a>
-            <ul>
-              <li><a href="usage.html#authshell">Authorizing From A Shell</a></li>
-              <li><a href="usage.html#authjs">Authorizing From Javascript</a></li>
-              <li><a href="usage.html#data_shell">Calling API via Shell</a></li>
-              <li><a href="usage.html#data_js">Calling API via Javascript</a></li>
-            </ul>
-          </li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/batch.html"><strong>Batch Processing</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/chain.html"><strong>Api Chaining</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/hook.html"><strong>Web Hooks</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/ping.html"><strong>PING Architecture</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/rate.html"><strong>Rate Limiting</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/docs.html"><strong>API Docs</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/troubleshooting.html"><strong>Troubleshooting</strong></a></li>
-          <li>&nbsp</li>
+<section class="py-0">
+  <div class="container-fluid">
+    <div class="row justify-content-between">
 
-        </ul>
-      </header>
-      <section>
+      <!-- navigation -->
+      <aside class="col-lg-3 col-xxl-2 p-3 doc-sidebar">
+        <div class="sticky">
+          <nav class="navbar navbar-vertical navbar-expand-lg navbar-light">
+            <div>
+              <a href="index.html" class="navbar-brand"><img src="assets/images/logo.png" alt="Logo"><span class="badge badge-green ml-2"></span></a>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+            </div>
 
-  <h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>API Usage</h1>
-  <p>Below we show you several different ways to access and test your API using CURL and Javascript including getting your token, passing your token and doing basic GET and PUT.</p>
 
-  </br>
-  <h3><a id="authshell" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authorizing From A Shell</h3>
-  <p>The first thing you will need to do before you make any API calls is you will need to AUTHORIZE and get a token that you can then pass to the API's. To do this, you will pass the 'root' login/password that you entered in your 'beapi_api.yml' file when initially doing your setup in the following command:</p>
-  <pre><code>curl -v -H "Content-Type: application/json" -X POST -d '{"username":"login","password":"password"}' http://localhost:8080/api/login</code></pre>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul id="page-nav" class="nav flex-column nav-vertical-2">
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-2" role="button" aria-expanded="true" aria-controls="menu-2">Installation</a>
+                  <div class="collapse" id="menu-2" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-1">Requirements</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-2">Quick Start Installation</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-3">Move Configuration Files</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-3" role="button" aria-expanded="false" aria-controls="menu-3">Configuration</a>
+                  <div class="collapse" id="menu-3" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="config.html#section-1">Server Configuration</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="config.html#section-2">Database Configuration</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="config.html#section-3">API Configuration</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-5" role="button" aria-expanded="false" aria-controls="menu-5">Bootstrapping</a>
+                  <div class="collapse" id="menu-5" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="bootstrap.html#section-1">Generate API Controllers</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="bootstrap.html#section-2">Generate IO State</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-4" role="button" aria-expanded="false" aria-controls="menu-4">MVC Functionality</a>
+                  <div class="collapse" id="menu-4" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="mvc.html#section-1">Domains</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="mvc.html#section-2">Controllers</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-6" role="button" aria-expanded="false" aria-controls="menu-6">Security</a>
+                  <div class="collapse" id="menu-6" data-parent="#page-nav">
+                    <div>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="security.html#section-1">CORS / NetworkGroups</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="security.html#section-2">Roles / NetworkRoles</a>
+                            </li>
+                        </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active" data-toggle="collapse" href="#menu-7" role="button" aria-expanded="false" aria-controls="menu-7">API Usage (Examples)</a>
+                  <div class="collapse show" id="menu-7" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="usage.html#section-1">Authorization Calls</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="usage.html#section-2">API Calls</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="usage.html#section-3">User Management</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-8" role="button" aria-expanded="false" aria-controls="menu-8">Advanced Functionality</a>
+                  <div class="collapse" id="menu-8" data-parent="#page-nav">
+                    <div>
+                        <ul class="nav flex-column">
+                            <li class="nav-item">
+                                <a class="nav-link" href="advanced.html#section-1">Automated Batching</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="advanced.html#section-2">Automated Webhooks</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="advanced.html#section-3">API Chaining®</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="advanced.html#section-4">Architecture PING</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" href="advanced.html#section-5">Rate Limiting</a>
+                            </li>
+                        </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-9" role="button" aria-expanded="false" aria-controls="menu-9">Advanced Configuration</a>
+                  <div class="collapse" id="menu-9" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-1">Cors</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-2">Roles</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-3">User Management</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-4">Versioning</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+      </aside>
+      <!-- / navigation -->
 
-  <p>If everything ran right, you should see output similar to this:</p>
-  <pre><code>{"username":"admin","authorities":["ROLE_ADMIN"],"token_type":"Bearer","access_token":"q3s2ov25h8jll757ff5baqhf8nscbjf9"}</code></pre>
-<p>That weird 'access_token' value is what you pass to ALL API calls to validate who you are and your security ROLES.</p>
 
-</br>
-<h3><a id="authjs" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Authorizing From Javascript</h3>
-<p>To do the same thing and get your token in Javascript for your frontend, you can do something similar to the following and store it in a token for use on following calls:</p>
+      <!-- content -->
+      <article class="col-lg-9 col-xxl-10 doc-content">
 
-<pre><code>    $.ajax({
+        <div class="row">
+          <div class="col">
+            <div class="doc-content-header">
+              <div class="row align-items-center">
+                <div class="col">
+                  <nav aria-label="breadcrumb" class="align-items-center">
+                    <ol class="breadcrumb d-none d-lg-inline-flex">
+                      <li class="breadcrumb-item"><a href="index.html">Documentation</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">API Usage (Examples)</li>
+                    </ol>
+                  </nav>
+                </div>
+                <div class="col text-right">
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row justify-content-between doc-content-body">
+          <article class="col-md-9 col-xxl-8">
+
+            <h1 class="h2 font-weight-light"><b>API Examples & Usage</b></h1>
+            <p>Below we show several different ways to access and test your API using CURL and Javascript including getting your token, passing your token and doing basic GET and PUT calls.</p>
+
+<hr size="5">
+
+            <!-- typogrpahy -->
+            <section id="section-1">
+              <h2 class="section-title-2">Authorization Calls<a data-scroll href="#section-1" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>BeAPI has built in OAuth so you do not have to worry about auth/validation... you merely USE IT! So before you can call any API, you have to first validate and get a token back; that token is then used for all subsequent calls. Below are example in Curl and Javascript on how to make these calls.</p>
+              <div id="section-1.1">
+                <h2 class="section-title-2">Authorizing Via Curl</h2>
+                <p>The first thing you will need to do before you make any API calls is you will need to AUTHORIZE and get a token that you can then pass to the API's. To do this, you will pass the 'root' login/password that you entered in your <b>'~/.beapi/beapi_api.yml'</b> file when initially doing your setup in the following command:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -H Origin: http://localhost -H "Access-Control-Request-Headers: Origin,X-Requested-With" -H "Content-Type: application/json"--request POST -d '{"username":"login","password":"password"}' http://localhost:8080/api/login</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p>If you configured your environment properly, you should get something like this:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">{"username":"admin","authorities":["ROLE_ADMIN"],"token_type":"Bearer","access_token":"q3s2ov25h8jll757ff5baqhf8nscbjf9"}</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p>That weird 'access_token' value is what you pass to ALL API calls to validate who you are and your security ROLES.</p>
+              </div>
+              <div id="section-1.2">
+                <h2 class="section-title-2">Authorizing Via Javascript</h2>
+                <p>To do the same thing and get your token in Javascript for your frontend, you can do something similar to the following and store it in a token for use on following calls:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">$.ajax({
     type: 'POST',
     url: window.url + "/api/login",
     cache:false,
@@ -102,74 +273,302 @@
 }).fail(function(jqXHR, textStatus, errorThrown) {
 ...
 })</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- / typography -->
 
-</br>
-<h3><a id="data_shell" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling API Via Shell</h3>
-<p><b><span style="text-decoration: underline;">GET Example</span></b></p>
-<pre><code>curl -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request GET "http://localhost:8080/v1.0/person/show/1"</code></pre>
-<p><b><span style="text-decoration: underline;">PUT Example</span></b></p>
-<pre><code>curl -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>" --request PUT -d "{'title':'testamundo'"} "http://localhost:8080/v1.0/post/update/1"</code></pre>
+<hr size="5">
 
-</br>
-<h3><a id="data_js" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Calling API Via Javascript</h3>
-<p><b><span style="text-decoration: underline;">GET Example</span></b></p>
-<pre><code>$.ajax({
-    type: 'GET',
-    url: window.url+"/v1.0/"+path+"?"+string,
-    crossDomain: true,
-    cache:false,
-    xhrFields: {
-        withCredentials: false
-    },
-    beforeSend: function(request){
-        request.setRequestHeader('Authorization','Bearer '+window.token.access_token);
-    },
-    headers:{
-        'Content-Type': contenttype
-    },
-    dataType: datatype,
-    success: function(data) {
-        if(data){
-        ...
-        }
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-            document.getElementById("output_"+count).innerHTML = jqXHR.status+" : "+jqXHR.statusText;
-    },
+            <!-- colors -->
+            <section id="section-2">
+              <h2 class="section-title-2">API Call Examples<a data-scroll href="#section-2" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>Getting started with making API calls can be messy, so we provided some basic API calls to provide as templates for you to get started...</p>
+              <div id="section-2.1">
+                <h2 class="section-title-2">Calling API Via Curl</h2>
+                <p><b><u>GET Example</u></b></p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -H "Content-Type: application/json" -H "Authorization: Bearer "  --request GET "http://localhost:8080/v1.0/person/show/1"</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p><b><u>PUT Example</u></b></p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -H "Content-Type: application/json" -H "Authorization: Bearer " --request PUT -d "{'title':'testamundo'"} "http://localhost:8080/v1.0/post/update/1"</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div id="section-2.2">
+                <h2 class="section-title-2">Calling API Via Javascript</h2>
+                <p><b><u>GET Example</u></b></p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">$.ajax({
+    type: 'GET',
+    url: window.url+"/v1.0/"+path+"?"+string,
+    crossDomain: true,
+    cache:false,
+    xhrFields: {
+        withCredentials: false
+    },
+    beforeSend: function(request){
+        request.setRequestHeader('Authorization','Bearer '+window.token.access_token);
+    },
+    headers:{
+        'Content-Type': contenttype
+    },
+    dataType: datatype,
+    success: function(data) {
+        if(data){
+        ...
+        }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+            document.getElementById("output_"+count).innerHTML = jqXHR.status+" : "+jqXHR.statusText;
+    },
 });</code></pre>
-<p><b><span style="text-decoration: underline;">PUT Example</span></b></p>
-<pre><code>$.ajax({
-    type: 'PUT',
-    url: window.url+"/v1.0/"+path,
-    data: JSON.stringify(jsonData),
-    crossDomain: true,
-    cache:false,
-    xhrFields: {
-        withCredentials: false
-    },
-    beforeSend: function(request){
-        request.setRequestHeader('Authorization','Bearer '+window.token.access_token);
-    },
-    headers:{
-        'Content-Type': contenttype
-    },
-    dataType: datatype,
-    success: function(data) {
-        if(data){
-        ...
-        }
-    },
-    error: function(jqXHR, textStatus, errorThrown) {
-            document.getElementById("output_"+count).innerHTML = jqXHR.status+" : "+jqXHR.statusText;
-    },
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p><b><u>PUT Example</u></b></p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">$.ajax({
+    type: 'PUT',
+    url: window.url+"/v1.0/"+path,
+    data: JSON.stringify(jsonData),
+    crossDomain: true,
+    cache:false,
+    xhrFields: {
+        withCredentials: false
+    },
+    beforeSend: function(request){
+        request.setRequestHeader('Authorization','Bearer '+window.token.access_token);
+    },
+    headers:{
+        'Content-Type': contenttype
+    },
+    dataType: datatype,
+    success: function(data) {
+        if(data){
+        ...
+        }
+    },
+    error: function(jqXHR, textStatus, errorThrown) {
+            document.getElementById("output_"+count).innerHTML = jqXHR.status+" : "+jqXHR.statusText;
+    },
 });</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- / colors -->
 
-      </section>
-      <footer>
-        <p class="view"><a href="https://github.com/orubel/Beapi-API-Framework">View the Project on GitHub <small>orubel/Beapi-API-Framework</small></a></p>
-      </footer>
+
+<hr size="5">
+
+
+              <!-- typogrpahy -->
+              <section id="section-3">
+                  <h2 class="section-title-2">User Management<a data-scroll href="#section-3" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+                  <p>Once you have most of your application setup, you will want to add/edit users & user roles. This can be done very easily through the API's.</p>
+                  <div id="section-3.1">
+                      <h2 class="section-title-2">User API's</h2>
+                      <p><b><u>Create User Example</u></b></p>
+                      <div class="row">
+                          <div class="col">
+                              <div class="card">
+                                  <div class="card-body" style="background-color:#000;">
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v1.0/person/create"</code></pre>
+                                  </div>
+                              </div>
+                          </div>
+                      </div></br>
+                      <p><b><u>Show User (SuperUser Call Example)</u></b></p>
+                      <div class="row">
+                          <div class="col">
+                              <div class="card">
+                                  <div class="card-body" style="background-color:#000;">
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request GET "http://localhost:8080/v1.0/person/show/1"</code></pre>
+                                  </div>
+                              </div>
+                          </div>
+                      </div></br>
+                      <p><b><u>Show Self Example</u></b></p>
+                      <div class="row">
+                          <div class="col">
+                              <div class="card">
+                                  <div class="card-body" style="background-color:#000;">
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request GET "http://localhost:8080/v1.0/person/show</code></pre>
+                                  </div>
+                              </div>
+                          </div>
+                      </div></br>
+                      <p><b><u>Update User (SuperUser Call Example)</u></b></p>
+                      <div class="row">
+                          <div class="col">
+                              <div class="card">
+                                  <div class="card-body" style="background-color:#000;">
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v1.0/person/update/56"</code></pre>
+                                  </div>
+                              </div>
+                          </div>
+                      </div></br>
+                      <p><b><u>Update Self Example</u></b></p>
+                      <div class="row">
+                          <div class="col">
+                              <div class="card">
+                                  <div class="card-body" style="background-color:#000;">
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v1.0/person/update"</code></pre>
+                                  </div>
+                              </div>
+                          </div>
+                      </div></br>
+                      <p><b><u>Delete User (SuperUser Call Example)</u></b></p>
+                      <div class="row">
+                          <div class="col">
+                              <div class="card">
+                                  <div class="card-body" style="background-color:#000;">
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request DELETE "http://localhost:8080/v1.0/person/delete/1"</code></pre>
+                                  </div>
+                              </div>
+                          </div>
+                      </div>
+                  </div></br>
+                  <div id="section-3.2">
+                      <h2 class="section-title-2">User Role API's</h2>
+                      <p>Even though you created a user, they can't access anything until you assign them a 'ROLE' and this ROLE is assigned to an endpoint. Think of a 'ROLE' like a SECURITY GROUP that users belong to that grants them access.</p>
+                      <p><b><u>Create User Role Example</u></b></p>
+                      <div class="row">
+                          <div class="col">
+                              <div class="card">
+                                  <div class="card-body" style="background-color:#000;">
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request POST -d "{'personId': '56','roleId':'1'}" "http://localhost:8080/v1.0/personRole/create"</code></pre>
+                                  </div>
+                              </div>
+                          </div>
+                      </div></br>
+                      <p><b><u>Delete User Role Example</u></b></p>
+                      <div class="row">
+                          <div class="col">
+                              <div class="card">
+                                  <div class="card-body" style="background-color:#000;">
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request DELETE "http://localhost:8080/v1.0/personRole/delete/56"</code></pre>
+                                  </div>
+                              </div>
+                          </div>
+                      </div></br>
+                      <p><b>NOTE</b>: While you will ALWAYS have to delete dependencies (such as THE USER ROLE) prior to deleting PERSON due to the foreign key dependency, this is taken care of for you in the current implamentation. All you have to do is 'delete person' and the related 'person role' record is automatically deleted as well.</p>
+                  </div>
+              </section>
+              <!-- / typography -->
+
+<hr size="5">
+
+            <!-- file tree -->
+            <section id="section-4">
+              <h2 class="section-title-2">Troubleshooting<a data-scroll href="#section-4" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p></p>
+              <div class="row">
+                <div class="col">
+                  <div class="alert alert-warning" role="alert">
+                    <ul>
+                      <li>Check that the IO State request values for your ROLE, match what you are sending</li>
+                      <li>Check that you are calling the correct endpoint.</li>
+                      <li>Check that you are sending the proper headers and token.</li>
+                      <li>Make sure the version you are using is correct.</li>
+                      <li>9 times out of 10, if you have any kind of error, the thrown stacktrace will tell you precisely what was misconfigured.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- / file tree -->
+
+          </article>
+
+
+          <aside class="col-md-3 col-xxl-3 d-none d-md-block">
+            <div class="sticky">
+              <ul id="toc" class="nav flex-column toc">
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-1">Authorization Calls</a>
+                  <ul class="nav flex-column">
+                    <li><a data-scroll class="nav-link" href="#section-1.1">Authorizing Via Curl</a></li>
+                    <li><a data-scroll class="nav-link" href="#section-1.2">Authorizing Via Javascript</a></li>
+                  </ul>
+                </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-2">API Call Examples</a>
+                  <ul class="nav flex-column">
+                    <li><a data-scroll class="nav-link" href="#section-2.1">Calling API Via Curl</a></li>
+                    <li><a data-scroll class="nav-link" href="#section-2.2">Calling API Via Javascript</a></li>
+                  </ul>
+                </li>
+                  <li class="nav-item">
+                      <a data-scroll class="nav-link" href="#section-3">User Management</a>
+                      <ul class="nav flex-column">
+                          <li><a data-scroll class="nav-link" href="#section-3.1">User API's</a></li>
+                          <li><a data-scroll class="nav-link" href="#section-3.2">User Role API's</a></li>
+                      </ul>
+                  </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-4">Troubleshooting</a>
+                </li>
+              </ul>
+            </div>
+          </aside>
+
+
+        </div>
+
+      </article>
+      <!-- / content -->
+
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
-  </body>
+  </div>
+</section>
+
+
+<!-- footer -->
+<footer class="bg-dark">
+  <div class="container">
+    <div class="row gutter-3">
+      <div class="col-12 col-md-2">
+        <a href=""><img src="assets/images/logo_bw.png" alt="Logo"></a>
+      </div>
+      <div class="col-12 col-md-6 text-white">
+        <p class="mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      </div>
+      <div class="col-12 col-md-4 col-lg-2 ml-auto text-md-right">
+        <div class="dropdown"> placeholder </div>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- / footer -->
+
+
+<script src="assets/js/vendor.min.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
 </html>

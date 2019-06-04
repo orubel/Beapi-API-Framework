@@ -1,135 +1,437 @@
 <!doctype html>
-<html>
-  <head>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-87598302-1"></script>
-    <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="assets/css/vendor.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
 
-  gtag('config', 'UA-87598302-1');
-</script>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>BeAPI-API-Framework</title>
-
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/github-light.css">
-    <meta name="viewport" content="width=device-width">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
-        <img src="beapi_logo2.png" style="width:auto;height:auto;padding:0px;">
-        <p></p>
-
-        <ul>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/index.html"><strong>Installation</strong></a>
-            <ul>
-            <li><a href="installation.html#req">Requirements</a></li>
-            <li><a href="installation.html#conf">Configuration</a></li>
-            <li><a href="installation.html#samp">Sample Project</a></li>
-            </ul>
-          </li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/confserv.html"><strong>Configure Server</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/confdb.html"><strong>Configure Database</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/confapi.html"><strong>Configure API Application</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/bootstrap.html"><strong>Bootstrapping</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/model.html"><strong>Model/Domain Object</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/controller.html"><strong>Controller</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/iostate.html"><strong>IO State</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/version.html"><strong>Versioning</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/user.html"><strong>User Management</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/security.html"><strong>Security</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/usage.html"><strong>API Usage</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/batch.html"><strong>Batch Processing</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/chain.html"><strong>Api Chaining</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/hook.html"><strong>Web Hooks</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/ping.html"><strong>PING Architecture</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/rate.html"><strong>Rate Limiting</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/docs.html"><strong>API Docs</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/troubleshooting.html"><strong>Troubleshooting</strong></a></li>
-          <li>&nbsp</li>
-
-        </ul>
-      </header>
-      <section>
+  <title>BeAPI API Framework - Documentation / Installation</title>
+</head>
+<body data-spy="scroll" data-target="#toc">
 
 
-<h1><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Installation</h1>
-          <p>Getting started with BeAPI is simple process. Below are the steps for installation and configuration of your Beapi API Automation Tool Suite...</p>
-          <p><b>NOTE:</b>If you are needing help with a pre-existing application, please feel free to <a href="https://www.beapi.io/what-we-believe">get in touch with us</a>.</p>
-          </br>
-</br>
-<h3><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Requirements</h3>
+<section class="py-0">
+  <div class="container-fluid">
+    <div class="row justify-content-between">
 
-<p>The <b>BeAPI&#8482; API Framework</b> has the following project requirements:</p>
-<pre><code>* Grails 3.3.2 (or higher)
-* Java 1.8 (or higher)</code></pre>
+      <!-- navigation -->
+      <aside class="col-lg-3 col-xxl-2 p-3 doc-sidebar">
+        <div class="sticky">
+          <nav class="navbar navbar-vertical navbar-expand-lg navbar-light">
+            <div>
+              <a href="index.html" class="navbar-brand"><img src="assets/images/logo.png" alt="Logo"><span class="badge badge-green ml-2"></span></a>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+            </div>
 
-</br>
-<h3><a id="conf" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Step 1: Installation</h3>
 
-<p>Type the following command to create a new project with the Beapi Framework Installed:</p>
-<pre><code>grails create-app name_of_your_app --profile org.grails.profiles:beapi:1.1.6</code></pre>
-<p><b>NOTE:</b>If you are needing help with a pre-existing application, please feel free to <a href="https://www.beapi.io/what-we-believe">get in touch with us</a>.</p>
-</br>
-<h3><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Step 2: Make Configuration Directories</h3>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul id="page-nav" class="nav flex-column nav-vertical-2">
+                <li class="nav-item">
+                  <a class="nav-link active" data-toggle="collapse" href="#menu-2" role="button" aria-expanded="true" aria-controls="menu-2">Installation</a>
+                  <div class="collapse show" id="menu-2" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-1">Requirements</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-2">Quick Start Installation</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-3">Move Configuration Files</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-3" role="button" aria-expanded="false" aria-controls="menu-3">Configuration</a>
+                  <div class="collapse" id="menu-3" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="config.html#section-1">Server Configuration</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="config.html#section-2">Database Configuration</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="config.html#section-3">API Configuration</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-5" role="button" aria-expanded="false" aria-controls="menu-5">Bootstrapping</a>
+                  <div class="collapse" id="menu-5" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="bootstrap.html#section-1">Generate API Controllers</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="bootstrap.html#section-2">Generate IO State</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-4" role="button" aria-expanded="false" aria-controls="menu-4">MVC Functionality</a>
+                  <div class="collapse" id="menu-4" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="mvc.html#section-1">Domains</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="mvc.html#section-2">Controllers</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-6" role="button" aria-expanded="false" aria-controls="menu-6">Security</a>
+                  <div class="collapse" id="menu-6" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="security.html#section-1">CORS / NetworkGroups</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="security.html#section-2">Roles / NetworkRoles</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-7" role="button" aria-expanded="false" aria-controls="menu-7">API Usage (Examples)</a>
+                  <div class="collapse" id="menu-7" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="usage.html#section-1">Authorization Calls</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="usage.html#section-2">API Calls</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="usage.html#section-3">User Management</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-8" role="button" aria-expanded="false" aria-controls="menu-8">Advanced Functionality</a>
+                  <div class="collapse" id="menu-8" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-1">Automated Batching</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-2">Automated Webhooks</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-3">API Chaining®</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-4">Architecture PING</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-5">Rate Limiting</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-9" role="button" aria-expanded="false" aria-controls="menu-9">Advanced Configuration</a>
+                  <div class="collapse" id="menu-9" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-1">Cors</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-2">Roles</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-3">User Management</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-4">Versioning</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+      </aside>
+      <!-- / navigation -->
 
-<p>Create a file in your home directory for your configuration files using the following commands in a shell:</p>
-<pre><code>mkdir ~/.beapi
+
+      <!-- content -->
+      <article class="col-lg-9 col-xxl-10 doc-content">
+
+        <div class="row">
+          <div class="col">
+            <div class="doc-content-header">
+              <div class="row align-items-center">
+                <div class="col">
+                  <nav aria-label="breadcrumb" class="align-items-center">
+                    <ol class="breadcrumb d-none d-lg-inline-flex">
+                      <li class="breadcrumb-item"><a href="index.html">Documentation</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">Installation</li>
+                    </ol>
+                  </nav>
+                </div>
+                <div class="col text-right">
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row justify-content-between doc-content-body">
+          <article class="col-md-9 col-xxl-8">
+
+            <h1 class="h2 font-weight-light"><b>BeAPI Framework Installation</b></h1>
+            <p>Getting started with BeAPI is simple process. Below are the steps for installation and configuration of your Beapi API Automation Tool Suite...
+
+<hr size="5">
+
+            <!-- typogrpahy -->
+            <section id="section-1">
+              <h2 class="section-title-2">Requirements <a data-scroll href="#section-1" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+            <p>The <b>BeAPI™ API Framework</b> has the following project requirements:</p>
+            <div class="row">
+              <div class="col">
+                <div class="alert alert-warning" role="alert">
+                  <ul>
+                    <li>Java 1.8 (or higher - see <a href="#section-4">troubleshooting</a> on this page)</li>
+                    <li><a href="http://docs.grails.org/3.3.3/guide/gettingStarted.html">Grails 3.3.x</a></li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+            </section>
+            <!-- / typography -->
+
+<hr size="5">
+
+            <!-- colors -->
+            <section id="section-2">
+              <h2 class="section-title-2">Quick Start Installation<a data-scroll href="#section-2" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>To quickly get started on a new project, type the following command to create a new project with the Beapi Framework Installed:</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">grails create-app name_of_your_app --profile org.grails.profiles:beapi:1.1.6</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p>You should now have a project directory that looks something like this:</p>
+              <div class="row">
+                <div class="col col-xxl-8">
+                  <div class="boxed p-3">
+                    <ul class="file-tree">
+                      <li class="file-tree-folder">docs
+                        <span>documentation</span>
+                      </li>
+                      <li class="file-tree-folder">gradle
+                        <span>gradle directory</span>
+                      </li>
+                      <li class="file-tree-folder">grails-app
+                        <span>directory for MVC of application</span>
+                        <ul>
+                          <li class="file-tree-folder">commands
+                            <span>gradle commands directory</span>
+                          </li>
+                          <li class="file-tree-folder">conf
+                            <span>configuration directory</span>
+                            <ul style="display:block;">
+                              <li>application.groovy <span>application config file. <u>DO NOT MOVE!!!</u></span></li>
+                              <li>logback.groovy <span>application log file. <u>DO NOT MOVE!!!</u></span></li>
+                              <li>beapi.groovy <span>FILE TO BE MOVED TO '~/.beapi'</span></li>
+                              <li>beapi.yml <span>FILE TO BE MOVED TO '~/.beapi'</span></li>
+                              <li>beapi_api.yml <span>FILE TO BE MOVED TO '~/.beapi'</span></li>
+                              <li>beapi_db.yml <span>FILE TO BE MOVED TO '~/.beapi'</span></li>
+                              <li>beapi_server.yml <span>FILE TO BE MOVED TO '~/.beapi'</span></li>
+                            </ul>
+                          </li>
+                          <li class="file-tree-folder">controllers/net/nosegrind/apiframework
+                            <span>application controllers folder</span>
+                          </li>
+                          <li class="file-tree-folder">domains/net/nosegrind/apiframework
+                            <span>application domains folders</span>
+                          </li>
+                          <li class="file-tree-folder">i18n
+                            <span>unused</span>
+                          </li>
+                          <li class="file-tree-folder">init
+                            <span>Application initializtion folder</span>
+                          </li>
+                          <li class="file-tree-folder">jobs
+                            <span>cronjobs folder</span>
+                          </li>
+                          <li class="file-tree-folder">services
+                            <span>services folder</span>
+                          </li>
+                          <li class="file-tree-folder">views
+                            <span>views folder</span>
+                          </li>
+                        </ul>
+                      </li>
+                      <li class="file-tree-folder">src
+                        <span>src folder</span>
+                        <ul>
+                          <li class="file-tree-folder">integration-test
+                            <span>test folder</span>
+                          </li>
+                          <li class="file-tree-folder">iostate
+                            <span>io-state folder</span>
+                            <ul style="display:block;">
+                              <li>Apidoc.json <span>FILE TO BE MOVED TO '~/.beapi/.iostate'</span></li>
+                              <li>Hook.json <span>FILE TO BE MOVED TO '~/.beapi/.iostate'</span></li>
+                              <li>IOState.json <span>FILE TO BE MOVED TO '~/.beapi/.iostate'</span></li>
+                              <li>Person.json <span>FILE TO BE MOVED TO '~/.beapi/.iostate'</span></li>
+                              <li>PersonRole.json <span>FILE TO BE MOVED TO '~/.beapi/.iostate'</span></li>
+                              <li>Role.json <span>FILE TO BE MOVED TO '~/.beapi/.iostate'</span></li>
+                              <li>Stat.json <span>FILE TO BE MOVED TO '~/.beapi/.iostate'</span></li>
+                              <li>Test.json <span>FILE TO BE MOVED TO '~/.beapi/.iostate'</span></li>
+                            </ul>
+                          </li>
+                          <li class="file-tree-folder">main
+                            <span>application folder</span>
+                          </li>
+                        </ul>
+                      </li>
+                      <li>build.gradle <span>gradle build file</span></li>
+                      <li>gradle.properties <span>gradle properties file</span></li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- / colors -->
+
+<hr size="5">
+
+            <!-- file tree -->
+            <section id="section-3">
+              <h2 class="section-title-2">Move Configuration Files<a data-scroll href="#section-3" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>Once you have created your project, you will need to create a file in your home directory for your configuration files:</p>
+              <ol>
+                <li>Use the following commands in a shell to create you local config directory:
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">mkdir ~/.beapi
 cd ~/.beapi
-mkdir ~/.beapi/.iostate
-</code></pre>
-<ul>
-    <li>Move <b></b>beapi.yml, beapi_api.yml,beapi_db.yml, beapi_server.yml, beapi.groovy</li> from 'grails-app/conf' into '<your_home_directory>/.beapi/'</li>
-    <li>Now move all files from 'src/iostate' into '<your_home_directory>/.beapi/.iostate'</li>
-</ul>
+mkdir ~/.beapi/.iostate</code></pre>
+
+                    </div>
+                  </div>
+                </div>
+              </div>
+                  <br/>
+                </li>
+              <li>Next move all files marked above in your <b>'grails-app/conf'</b> directory (see above) to your newly created  <b>'~/.beapi/'</b> directory.<br/><br/></li>
+              <li>Next move all files marked above in your <b>'src/iostate'</b> directory (see above) to your newly created  <b>'~/.beapi/.iostate'</b> directory.<br/><br/></li>
+              </ol>
+              <p>Now you are setup and can start <a href="config.html"><b>configuring your environment</b></a>...</p>
+            </section>
+            <!-- / file tree -->
+
+<hr size="5">
+
+            <!-- file tree -->
+            <section id="section-4">
+              <h2 class="section-title-2">Troubleshooting<a data-scroll href="#section-3" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p></p>
+              <div class="row">
+                <div class="col">
+                  <div class="alert alert-warning" role="alert">
+                    <ul>
+                      <li>Make sure you have proper READ/WRITE/EXECUTE(755) for the files in ~/.beapi/ and ~/.beapi/.iostate</li>
+                      <li>Make sure you have matching named Controllers/Domains for all IO State files</li>
+                      <li>If you want to use a version of Java HIGHER than 1.8, change 'sourceCompatibility' in build.gradle</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- / file tree -->
+
+          </article>
 
 
-</br>
-<h3><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Step 3: Configure</h3>
-
-<p>Next follow these configuration steps to get your environment setup and working:</p>
-<ul>
-    <li><a href="confserv.html">Configure Server</a></li>
-    <li><a href="confdb.html">Configure Database</a></li>
-    <li><a href="confapi.html">Configure API</a></li>
-</ul>
-
-
-</br>
-<h3><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Step 4: Build & Test</h3>
-
-<p>You can now build the project using the following command:</p>
-<pre><code>./gradlew --stop;./gradlew clean;./gradlew build --stacktrace  --refresh-dependencies</code></pre>
-
-
-</br>
-<h3><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Step 5: Run</h3>
-
-<p>If you configured it properly, there should be no errors and you can now run the project using the following command:</p>
-<pre><code>java -jar build/libs/name_of_your_app-0.1.jar</code></pre>
+          <aside class="col-md-3 col-xxl-3 d-none d-md-block">
+            <div class="sticky">
+              <ul id="toc" class="nav flex-column toc">
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-1">Requirements</a>
+                </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-2">Quick Start Installation</a>
+                </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-3">Move Configuration Files</a>
+                </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-4">Troubleshooting</a>
+                </li>
+              </ul>
+            </div>
+          </aside>
 
 
-</br>
-<h3><a id="samp" class="anchor" href="#samp" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Step 6: Test</h3>
+        </div>
 
-<p>You can now test out your running project using the following command (replacing 'login' and 'password' with root.login and password found in your beapi.yml file)::</p>
-<pre><code>curl -H Origin: http://localhost -H "Access-Control-Request-Headers: Origin,X-Requested-With" -H "Content-Type: application/json"--request POST -d '{"username":"your_admin_login","password":"your_admin_password"}' http://localhost:8080/api/login</code></pre>
+      </article>
+      <!-- / content -->
 
-<p>If everything ran right, you should see output similar to this:</p>
-<pre><code>{"username":"admin","authorities":["ROLE_ADMIN"],"token_type":"Bearer","access_token":"q3s2ov25h8jll757ff5baqhf8nscbjf9"}</code></pre>
-
-</section>
-      <footer>
-      </footer>
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
-  </body>
+  </div>
+</section>
+
+
+<!-- footer -->
+<footer class="bg-dark">
+  <div class="container">
+    <div class="row gutter-3">
+      <div class="col-12 col-md-2">
+        <a href=""><img src="assets/images/logo_bw.png" alt="Logo"></a>
+      </div>
+      <div class="col-12 col-md-6 text-white">
+        <p class="mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      </div>
+      <div class="col-12 col-md-4 col-lg-2 ml-auto text-md-right">
+        <div class="dropdown"> placeholder </div>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- / footer -->
+
+
+<script src="assets/js/vendor.min.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
 </html>

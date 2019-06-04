@@ -1,104 +1,357 @@
 <!doctype html>
-<html>
-  <head>
-      <!-- Global site tag (gtag.js) - Google Analytics -->
-      <script async src="https://www.googletagmanager.com/gtag/js?id=UA-87598302-1"></script>
-      <script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="assets/css/vendor.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
 
-  gtag('config', 'UA-87598302-1');
-</script>
+  <title>BeAPI API Framework - Documentation / Bootstrap</title>
+</head>
+<body data-spy="scroll" data-target="#toc">
 
-      <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <title>BeAPI-API-Framework</title>
 
-    <link rel="stylesheet" href="stylesheets/styles.css">
-    <link rel="stylesheet" href="stylesheets/github-light.css">
-    <meta name="viewport" content="width=device-width">
-    <!--[if lt IE 9]>
-    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-  </head>
-  <body>
-    <div class="wrapper">
-      <header>
-        <img src="beapi_logo2.png" style="width:auto;height:auto;">
-        <p></p>
+<section class="py-0">
+  <div class="container-fluid">
+    <div class="row justify-content-between">
 
-        <ul>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/index.html"><strong>Installation</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/confserv.html"><strong>Configure Server</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/confdb.html"><strong>Configure Database</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/confapi.html"><strong>Configure API Application</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/bootstrap.html"><strong>Bootstrapping</strong></a>
-                <ul>
-                    <li><a href="bootstrap.html#contr">Bootstrap Your Controllers</a></li>
-                    <li><a href="bootstrap.html#iostate">Bootstrap Your IO State</a></li>
-                </ul>
-            </li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/model.html"><strong>Model/Domain Object</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/controller.html"><strong>Controller</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/iostate.html"><strong>IO State</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/version.html"><strong>Versioning</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/user.html"><strong>User Management</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/security.html"><strong>Security</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/usage.html"><strong>API Usage</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/batch.html"><strong>Batch Processing</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/chain.html"><strong>Api Chaining</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/hook.html"><strong>Web Hooks</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/ping.html"><strong>PING Architecture</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/rate.html"><strong>Rate Limiting</strong></a></li>
-            <li><a href="http://orubel.github.io/Beapi-API-Framework/docs.html"><strong>API Docs</strong></a></li>
-          <li><a href="http://orubel.github.io/Beapi-API-Framework/troubleshooting.html"><strong>Troubleshooting</strong></a></li>
-          <li>&nbsp</li>
+      <!-- navigation -->
+      <aside class="col-lg-3 col-xxl-2 p-3 doc-sidebar">
+        <div class="sticky">
+          <nav class="navbar navbar-vertical navbar-expand-lg navbar-light">
+            <div>
+              <a href="index.html" class="navbar-brand"><img src="assets/images/logo.png" alt="Logo"><span class="badge badge-green ml-2"></span></a>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+            </div>
 
-        </ul>
-      </header>
-      <section>
 
-<h1><a id="req" class="anchor" href="#req" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Bootstrapping</h1>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul id="page-nav" class="nav flex-column nav-vertical-2">
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-2" role="button" aria-expanded="true" aria-controls="menu-2">Installation</a>
+                  <div class="collapse" id="menu-2" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-1">Requirements</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-2">Quick Start Installation</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-3">Move Configuration Files</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-3" role="button" aria-expanded="false" aria-controls="menu-3">Configuration</a>
+                  <div class="collapse" id="menu-3" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="config.html#section-1">Server Configuration</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="config.html#section-2">Database Configuration</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="config.html#section-3">API Configuration</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active" data-toggle="collapse" href="#menu-5" role="button" aria-expanded="false" aria-controls="menu-5">Bootstrapping</a>
+                  <div class="collapse show" id="menu-5" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="bootstrap.html#section-1">Generate API Controllers</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="bootstrap.html#section-2">Generate IO State</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-4" role="button" aria-expanded="false" aria-controls="menu-4">MVC Functionality</a>
+                  <div class="collapse" id="menu-4" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="mvc.html#section-1">Domains</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="mvc.html#section-2">Controllers</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-6" role="button" aria-expanded="false" aria-controls="menu-6">Security</a>
+                  <div class="collapse" id="menu-6" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="security.html#section-1">CORS / NetworkGroups</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="security.html#section-2">Roles / NetworkRoles</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-7" role="button" aria-expanded="false" aria-controls="menu-7">API Usage (Examples)</a>
+                  <div class="collapse" id="menu-7" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="usage.html#section-1">Authorization Calls</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="usage.html#section-2">API Calls</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="usage.html#section-3">User Management</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-8" role="button" aria-expanded="false" aria-controls="menu-8">Advanced Functionality</a>
+                  <div class="collapse" id="menu-8" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-1">Automated Batching</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-2">Automated Webhooks</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-3">API Chaining®</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-4">Architecture PING</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-5">Rate Limiting</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-9" role="button" aria-expanded="false" aria-controls="menu-9">Advanced Configuration</a>
+                  <div class="collapse" id="menu-9" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-1">Cors</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-2">Roles</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-3">User Management</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-4">Versioning</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+      </aside>
+      <!-- / navigation -->
 
-</br>
-<h3><a id="cont" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Bootstrap Your Controllers</h3>
-<p>Once you have your domains built, you can then 'autogenerate' your controllers using the following command:</p>
-<pre><code>./gradlew GenerateController</code></pre>
-<p>This will generate the controllers for all your domains using basic CRUD functionality. <b>NOTE:</b>There is no need to add annotations or anything to them as this is all handled by the BeAPI framework.</p>
-<p><b>NOTE:</b>If you are not using the 'profile', you will need to add this code to the bottom of your 'build.gradle' file:</p>
-<pre><code>task generateControllerCommand(type: ApplicationContextCommandTask) {
+
+      <!-- content -->
+      <article class="col-lg-9 col-xxl-10 doc-content">
+
+        <div class="row">
+          <div class="col">
+            <div class="doc-content-header">
+              <div class="row align-items-center">
+                <div class="col">
+                  <nav aria-label="breadcrumb" class="align-items-center">
+                    <ol class="breadcrumb d-none d-lg-inline-flex">
+                      <li class="breadcrumb-item"><a href="index.html">Documentation</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">Bootstrap</li>
+                    </ol>
+                  </nav>
+                </div>
+                <div class="col text-right">
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row justify-content-between doc-content-body">
+          <article class="col-md-9 col-xxl-8">
+
+            <h1 class="h2 font-weight-light"><b>Bootstrapping Your Application</b></h1>
+            <p>The Beapi API Framework has several built-in tools to help you get started that will automate most of the development/build for you. Below is an explaination of those tools and how to use them.</p>
+
+<hr size="5">
+
+            <!-- typogrpahy -->
+            <section id="section-1">
+              <h2 class="section-title-2">The 'Generate API Controllers' Command<a data-scroll href="#section-1" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+            <p>Once you have your projects domains built, you can then 'autogenerate' your controllers using the following command from the root of the project:</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">./gradlew GenerateController</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p>This will generate a BASIC set of controllers for all your domain classes. <b>There is no need to add annotations or anything</b> to them as this is all handled by the BeAPI framework. These controllers are all set and ready to go and provide an example structure for you to use and work from.</p>
+              <p><b>NOTE</b>: If you are not using the 'profile', you will need to add this code to the bottom of your 'build.gradle' file:</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">task generateControllerCommand(type: ApplicationContextCommandTask) {
     classpath =  project.sourceSets.main.runtimeClasspath + project.configurations.console
     command = "generate-controller"
 }
 
 generateControllerCommand {
     systemProperties = System.properties
-}
-</code></pre>
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- / typography -->
 
-</br>
-<h3><a id="iostate" class="anchor" href="#conf" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>Bootstrap Your IO State</h3>
-<p>After you have built your domains AND controllers, you can then 'autogenerate your IO State files using the following command:</p>
-<pre><code>./gradlew GenerateIostate</code></pre>
-<p>This will then create all the necessary state files for your endpoints used by the framework.</p>
-<p><b>NOTE:</b>If you are not using the 'profile', you will need to add this code to the bottom of your 'build.gradle' file:</p>
-<pre><code>task generateIostateCommand(type: ApplicationContextCommandTask) {
+<hr size="5">
+
+            <!-- colors -->
+            <section id="section-2">
+              <h2 class="section-title-2">The 'Generate IO State' Command<a data-scroll href="#section-2" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>After you have built your domains AND controllers, you can then 'autogenerate your IO State files using the following command from the root of your project:</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">./gradlew GenerateIostate</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p>This will then create all the necessary state files for your endpoints used by the framework.</p>
+              <p><b>NOTE</b>: If you are not using the 'profile', you will need to add this code to the bottom of your 'build.gradle' file:</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">task generateIostateCommand(type: ApplicationContextCommandTask) {
     classpath =  project.sourceSets.main.runtimeClasspath + project.configurations.console
     command = "generate-iostate"
 }
 
 generateIostateCommand {
     systemProperties = System.properties
-}
-</code></pre>
+}</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- / colors -->
 
-      </section>
-      <footer>
-        <p class="view"><a href="https://github.com/orubel/Beapi-API-Framework">View the Project on GitHub <small>orubel/Beapi-API-Framework</small></a></p>
-      </footer>
+
+<hr size="5">
+
+            <!-- file tree -->
+            <section id="section-4">
+              <h2 class="section-title-2">Troubleshooting<a data-scroll href="#section-3" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p></p>
+              <div class="row">
+                <div class="col">
+                  <div class="alert alert-warning" role="alert">
+                    <ul>
+                      <li>For best results, The 'GenerateControllers' command should always be run <b>BEFORE</b> the 'GenerateIOState' command.</li>
+                      <li>If you are bootstrapping your controllers, make sure all your corresponding domains exist first.</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- / file tree -->
+
+          </article>
+
+
+          <aside class="col-md-3 col-xxl-3 d-none d-md-block">
+            <div class="sticky">
+              <ul id="toc" class="nav flex-column toc">
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-1">Generate API Controllers</a>
+                </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-2">Generate IO State</a>
+                </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-3">Troubleshooting</a>
+                </li>
+              </ul>
+            </div>
+          </aside>
+
+
+        </div>
+
+      </article>
+      <!-- / content -->
+
     </div>
-    <script src="javascripts/scale.fix.js"></script>
-    
-  </body>
+  </div>
+</section>
+
+
+<!-- footer -->
+<footer class="bg-dark">
+  <div class="container">
+    <div class="row gutter-3">
+      <div class="col-12 col-md-2">
+        <a href=""><img src="assets/images/logo_bw.png" alt="Logo"></a>
+      </div>
+      <div class="col-12 col-md-6 text-white">
+        <p class="mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      </div>
+      <div class="col-12 col-md-4 col-lg-2 ml-auto text-md-right">
+        <div class="dropdown"> placeholder </div>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- / footer -->
+
+
+<script src="assets/js/vendor.min.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
 </html>

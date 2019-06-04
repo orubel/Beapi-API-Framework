@@ -1,0 +1,29 @@
+//
+// hero
+//
+//
+
+.overlay {
+	overflow: visible;
+
+
+	.overlay-item-bottom {
+		margin-bottom: -($section-padding * 2); 
+	}
+
+	.overlay-item-top { 
+		margin-top: -($section-padding * 2);
+	}
+
+}
+
+
+@include media-breakpoint-up(lg) {
+	.overlay-content {
+		margin-top: -($section-padding - 1.875rem);
+	}
+
+	.overlay-hero {
+		margin-bottom: -($section-padding - 1.875rem);
+	}
+}

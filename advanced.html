@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="assets/css/vendor.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+
+  <title>BeAPI API Framework - Documentation / Advanced Functionality</title>
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+
+<section class="py-0">
+  <div class="container-fluid">
+    <div class="row justify-content-between">
+
+      <!-- navigation -->
+      <aside class="col-lg-3 col-xxl-2 p-3 doc-sidebar">
+        <div class="sticky">
+          <nav class="navbar navbar-vertical navbar-expand-lg navbar-light">
+            <div>
+              <a href="index.html" class="navbar-brand"><img src="assets/images/logo.png" alt="Logo"><span class="badge badge-green ml-2"></span></a>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+            </div>
+
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul id="page-nav" class="nav flex-column nav-vertical-2">
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-2" role="button" aria-expanded="true" aria-controls="menu-2">Installation</a>
+                  <div class="collapse" id="menu-2" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-1">Requirements</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-2">Quick Start Installation</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-3">Move Configuration Files</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-3" role="button" aria-expanded="false" aria-controls="menu-3">Configuration</a>
+                  <div class="collapse" id="menu-3" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="config.html#section-1">Server Configuration</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="config.html#section-2">Database Configuration</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="config.html#section-3">API Configuration</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-5" role="button" aria-expanded="false" aria-controls="menu-5">Bootstrapping</a>
+                  <div class="collapse" id="menu-5" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="bootstrap.html#section-1">Generate API Controllers</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="bootstrap.html#section-2">Generate IO State</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-4" role="button" aria-expanded="false" aria-controls="menu-4">MVC Functionality</a>
+                  <div class="collapse" id="menu-4" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="mvc.html#section-1">Domains</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="mvc.html#section-2">Controllers</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-6" role="button" aria-expanded="false" aria-controls="menu-6">Security</a>
+                  <div class="collapse" id="menu-6" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="security.html#section-1">CORS / NetworkGroups</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="security.html#section-2">Roles / NetworkRoles</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-7" role="button" aria-expanded="false" aria-controls="menu-7">API Usage (Examples)</a>
+                  <div class="collapse" id="menu-7" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="usage.html#section-1">Authorization Calls</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="usage.html#section-2">API Calls</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="usage.html#section-3">User Management</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active" data-toggle="collapse" href="#menu-8" role="button" aria-expanded="false" aria-controls="menu-8">Advanced Functionality</a>
+                  <div class="collapse show" id="menu-8" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-1">Automated Batching</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-2">Automated Webhooks</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-3">API Chaining®</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-4">Architecture PING</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-5">Rate Limiting</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-9" role="button" aria-expanded="false" aria-controls="menu-9">Advanced Configuration</a>
+                  <div class="collapse" id="menu-9" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-1">Cors</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-2">Roles</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-3">User Management</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-4">Versioning</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+      </aside>
+      <!-- / navigation -->
+
+
+      <!-- content -->
+      <article class="col-lg-9 col-xxl-10 doc-content">
+
+        <div class="row">
+          <div class="col">
+            <div class="doc-content-header">
+              <div class="row align-items-center">
+                <div class="col">
+                  <nav aria-label="breadcrumb" class="align-items-center">
+                    <ol class="breadcrumb d-none d-lg-inline-flex">
+                      <li class="breadcrumb-item"><a href="index.html">Documentation</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">Advanced Functionality</li>
+                    </ol>
+                  </nav>
+                </div>
+                <div class="col text-right">
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row justify-content-between doc-content-body">
+          <article class="col-md-9 col-xxl-8">
+
+            <h1 class="h2 font-weight-light"><b>Advanced Functionality</b></h1>
+            <p>Once you have completed installation, you will next need to configure your environment. Follow these configuration steps in order to get your environment setup and working:
+
+<hr size="5">
+
+            <!-- typogrpahy -->
+            <section id="section-1">
+              <h2 class="section-title-2">Automated Batching<a data-scroll href="#section-1" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>Have you ever had someone from marketing or sales come to you and say 'Hey I'm tired of entering these one at a time. Can you make it so I can enter 50 or 100 of these at once through the API?' Well you just created a Batch API. But why create them when you can just use the existing endpoints? BeAPI automates everything so you don't have to create 'batch api's'; ALL API's are batchable! You merely have to set the proper authorities for those endpoints in your IO State File.</p>
+              <p>Once added, a batch call can be made simply like this:</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer " --request POST -d "{'combine':true,'batch': [{'name': 'test1'},{'name': 'test2'},{'name': 'test3'},{'name': 'test4'},{'name': 'test5'},{'name': 'test6'}]}" http://localhost:8080/b1.0/test/create</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p>In the example above, <b>the 'combine' flag</b> lets us know to concatenate the output into a single response. Otherwise it will only return the last 'element' for this response.</p>
+              <p>This is important if you are doing batch INSERTS and don't care about the output (unless there is an EXCEPTION thrown).</p>
+              <p><b>NOTE ON VERSIONING:</b> Of importance to note is that the versioning used here is <b>b1.0</b> (if you did not notice). We do this so that we can separate this functionality out to a separate server if we want so as not to affect main api calls. Same goes for API chaining calls which use 'c1.0'.</p>
+              </br>
+              <div id="section-1.1">
+                <h2 class="section-title-2">Batch Examples Using Curl</h2>
+                <p>Below are example of batch calls taken directly from the integration tests in the framework to give you an example of how to write them:</p>
+                <p><b><u>POST Batch Call EXAMPLE (no concatenation)</u></b></p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer " --request POST -d "{'batch': [{'name': 'test1'},{'name': 'test2'},{'name': 'test3'},{'name': 'test4'},{'name': 'test5'},{'name': 'test6'}]}" http://localhost:8080/b1.0/test/create</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p><b><u>GET Batch Call EXAMPLE (with concatenation)</u></b></p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer " --request POST -d "{'combine':true,'batch': [{'id': '1'},{'id': '2'},{'id': '3'},{'id': '4'},{'id': '5'},{'id': '6'}]}" http://localhost:8080/b1.0/test/show</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p><b><u>DELETE Batch Call EXAMPLE (with concatenation)</u></b></p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer " --request POST -d "{'combine':true,'batch': [{'id': '1'},{'id': '2'},{'id': '3'},{'id': '4'},{'id': '5'},{'id': '6'}]}" http://localhost:8080/b1.0/test/delete</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div></br>
+              <div id="section-1.2">
+                <h2 class="section-title-2">CSV To JSON Tools</h2>
+                <p>Alot of people in your organization may will be asking for help with CSV to JSON conversion. So here are some links to CSV to JSON tools:</p>
+                <ul>
+                  <li><a href="https://www.csvjson.com/csv2json">Online CSV to JSON Converter</a></li>
+                  <li><a href="http://www.convertcsv.com/csv-to-json.htm">Another Online CSV to JSON Convertor</a></li>
+                </ul>
+            </section>
+            <!-- / typography -->
+
+<hr size="5">
+
+            <!-- colors -->
+            <section id="section-2">
+              <h2 class="section-title-2">Automated Webhooks<a data-scroll href="#section-2" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>A Web Hook is a way to notify a user of a change to data whenever it occurs. Of course, you don't always WANT users to see all the changes to all your data so you want to be very careful who you expose your web hooks to!</p>
+              <div id="section-2.1">
+                <h2 class="section-title-2">Enabling Your Endpoint To Be Hookable</h2>
+                <p>Every endpoint in the framework has the ability to be hookable via your IO State files which can be found in your <b>'~/.beapi/.iostate/'</b> directory.</p>
+                <p>Webhooks are optional and are not turned on by default. You can set this variable PER ENVIRONMENT in your <b>'~/.beapi/beapi_server.yml'</b> file by changing the variable 'webhookActive' in your environment to 'true'. The default is:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">webhookActive: false</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div></br>
+                <p>Simply modify the <b>HOOK</b> section in your IO State file for the endpoint of the controller you want to add a hook to in the iostate file by adding a new role. For example, if I wanted to add a new role to the 'person/create' endpoint which looks like the following:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh"> ...
+"create": {
+    "METHOD":"POST",
+    "DESCRIPTION":"Create new Person",
+    "ROLES":{
+    "DEFAULT":["ROLE_ADMIN","ROLE_USER"],
+    "BATCH":["ROLE_ADMIN"],
+    "HOOK":["ROLE_ADMIN"]
+},
+    "REQUEST": {
+        "permitAll":["username","password","email"]
+    },
+    "RESPONSE": {
+        "permitAll":["id","version"]
+    }
+}
+...</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div></br>
+                <p><b>For example...</b> if you wanted to allow <b>USER</b> ROLE to access webhooks for the 'create' api, you simple add the role to HOOK like so:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh"> ...
+"create": {
+    "METHOD":"POST",
+    "DESCRIPTION":"Create new Person",
+    "ROLES":{
+    "DEFAULT":["ROLE_ADMIN","ROLE_USER"],
+    "BATCH":["ROLE_ADMIN"],
+    "HOOK":["ROLE_ADMIN","ROLE_USER"]
+},
+    "REQUEST": {
+        "permitAll":["username","password","email"]
+    },
+    "RESPONSE": {
+        "permitAll":["id","version"]
+    }
+}
+...</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div></br>
+                <p><b>NOTE</b>: All roles have to exist in the 'networkRoles' for the IO State files 'NETWORKGRP'. See <a href="file:///home/orubel/workspace/guidebook/app/security.html#section-1">'Security: Cors / Network Roles'</a></p>
+              </div></br>
+              <div id="section-2.2">
+                <h2 class="section-title-2">Create Your First Webhook</h2>
+                <p>To create your first webhook, setup an URL endpoint on a separate service (like AWS Lambda) that we can forward the data to. Enter the url (or IP) into your CORS 'allowedOrigins' in your <b>~/.beapi/beapi.yml</b>. This will be defined as your URL in your webhook.</p>
+                <p>Finally, go into your database for your application and type the following SQL Query:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">select id from person where email='[your_email]';
+// this is how you get your user id
+
+insert into hook (attempts,date_created,format,last_modified,user_id,is_enabled,url,service) values(0,NOW(),'JSON',NOW(),[your_user_id],true,'[your_url]','[your_service]');</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div></br>
+                <p>And there you have it! Your first webhook!</p>
+              </div></br>
+            </section>
+            <!-- / colors -->
+
+<hr size="5">
+
+            <!-- file tree -->
+            <section id="section-3">
+              <h2 class="section-title-2">API Chaining®<a data-scroll href="#section-3" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>API Chaining is a process allowing one api call to return data into another api call which returns data into another api call , etc etc, all within ONE REQUEST/RESPONSE. This is allowed through the abstraction of communication logic from business logic through the New API Pattern. This is limited in the fact that you can only use GET method as the connectors in the chain and one other 'non-safe' method (ie PUT/POST/DELETE) at either the beginning or the end of the chain (as determined by the REQUEST method).</p>
+              <div class="row">
+                <div class="col">
+                  <div class="alert alert-warning" role="alert">
+                    <p><b>NOTE</b>: The API Chaining trademark can only be used by those properly implementing the process. As a process, it is only considered successfully implemented if:</p>
+                    <ul>
+                      <li>API call MUST use ONLY ONE REQUEST/RESPONSE (ie no redirects)</li>
+                      <li>Client can create chains and they MUST be processed dynamically; there SHOULD BE NO hardcoded chains.</li>
+                      <li>There MUST BE no more than ONE non-safe REQUEST method used in a chain during a single REQUEST/RESPONSE</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+              <div id="section-3.1">
+                <h2 class="section-title-2">What Is API Chaining®?</h2>
+                <p>We have all used encoded GET data when sending form data via a POST request. This is considered common practice. Why? Because GET is idempotent and SAFE. Because it is SAFE (meaning it doesn't change data), it is commonly used with other types of requests as a mixed request. This may not be RESTful but it is considered normal and not unsafe. This is what I like to refer to as a single link chain since it has only one link which is the same as it's destination request.</p>
+                <p>API chaining extends upon this principle in the fact that you can encode GET data in the URL but pass a POST/PUT/DELETE request (much like post GET with a POST form) to chain the request TO or FROM the request method destination link. This can be used to imply GET requests chained TO a final request link (known as a post- chain) or FROM a request link to other implied GET links (known as a pre-chain).</p>
+                <p>The reason why this is better than practices like HATEOAS/HAL is that it doesn't rely on the link for the relationship... it relies on a common API Object. By relying on a common API Object to apply rules, endpoints/URI's then only become a reference point for data.</p>
+                <p>For example, when we make our PUT/POST/DELETE requests we can do :</p>
+                <ul>
+                  <li><b>a post-chain request</b>: a GET request that return the data, then specifies the key we wish to pass to the next 'link' in the chain which will make a GET request returning data, etc until the final request method is matched. This can be illustrated as follows:
+                    <div class="row">
+                      <div class="col">
+                        <div class="card">
+                          <div class="card-body" style="background-color:#000;">
+                            <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">GET > GET > GET > PUT</code></pre>
+                          </div>
+                        </div>
+                      </div>
+                    </div></br>
+                  </li>
+                  <li><b>a pre-chain request</b>: same as a post chain request except the request method is matched in the beginning and then sends and id to the GET methods after it is called. This can be illustrated as follows:
+                    <div class="row">
+                      <div class="col">
+                        <div class="card">
+                          <div class="card-body" style="background-color:#000;">
+                            <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">POST > GET > GET</code></pre>
+                          </div>
+                        </div>
+                      </div>
+                    </div></br>
+                  </li>
+                  <li><b>a blank chain request (AKA a 'GET' chain)</b>: a blank chain has no additional method; it is merely a series of chained GET requests. Basically this takes the returned data from one GET and you give the KEY to get the data for the next GET request in the chain (just like in other chains).
+                    <div class="row">
+                      <div class="col">
+                        <div class="card">
+                          <div class="card-body" style="background-color:#000;">
+                            <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">GET > GET > GET > GET > GET</code></pre>
+                          </div>
+                        </div>
+                      </div>
+                    </div></br>
+                  </li>
+                </ul></br>
+                <p><b>NOTE</b>: Pre and Post chain example can happen with any method including DELETE; A Delete method can delete data or just render it 'inactive' (depending on your controller and domain setup) so passing the ID to a GET method after a DELETE can be useful to get related data or to confirm the state.</p>
+              </div></br>
+              <div id="section-3.2">
+                <h2 class="section-title-2">API Chaining® Example</h2>
+                <p><b><u>POST Post-Chain Example (minus the data)</u></b></p>
+                <p>The POST post-chain would be encoded as follows:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">{
+    companyName:'Amazon',
+    address:'549 S. Dawson',
+    zip:'98108',
+    chain:{
+        key:dept_id,
+        combine:'false',
+        type:'postchain',
+        order:{dept/show:company_id,company/update:return}
+    }
+}</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div></br>
+
+                <p>And then call via Curl (or via javascript) as follows:</p>
+                <div class="col">
+                <div class="card">
+                  <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer [access token]" -X POST -d "{'companyName':'Amazon','address': '549 S. Dawson','zip': '98108','chain':{ 'key':'dept_id','combine':'false','type':'postchain','order':{'dept/show':'company_id','company/update':'return'}}}" "http://localhost:8080/v1.0/person/show/1"</code></pre>
+                  </div>
+                </div>
+                </div></br>
+              </div>
+              <div id="section-3.3">
+                <h2 class="section-title-2">Creating A Chain</h2>
+                <p>Now lets break down how this call work. Normally you could never pass more than one method but you can URL encode GET data with UNSAFE Methods (PUT, POST, DELETE); now by only using one unsafe method for the call and <b>only one unsafe method</b>, we can send <b>AS MANY GETS in the chain as we want!</b></p>
+                <p>So the rules of a chain are:</p>
+                <ul>
+                  <li>You can have only one PUT,POST or DELETE endpoint per chain</li>
+                  <li>You can have unlimited GET endpoints in a chain</li>
+                  <li>The unsafe method (PUT/POST/DELETE) must begin/end the chain</li>
+                  <li>Chains MUST be called using <b>c0.1</b> in the URL for routing purposes (See Versioning)</li>
+                </ul>
+                <p>Now lets examine how one of the above chain works:</p>
+                <ul>
+                  <li><b>http://localhost:8080/c0.1/person/show/1</b>: initial endpoint that retrieves the initial dataset</li>
+                  <li><b>key : dept_id</b>: the key to return from the initial dataset to the next iteration in the chain</li>
+                  <li><b>combine:false</b>: whether to concatenate all data in the chain for return</li>
+                  <li><b>type:postchain</b>: tells us the location of the unsafe method in the chain for processing; 'postchain' tells us it is at the end, 'prechain' tells us it is at the beginning.</li>
+                  <li><b>dept/show : company_id</b>: second endpoint iteration; id is the key returned for the next iteration in the chain</li>
+                  <li><b>company/update : return</b>: As this is the final iteration (and this is a post chain), we return from the chain here</li>
+                </ul>
+                <p>So given the chain above, we can see that the unsafe method(PUT) is at the end of the chain (section/update). We also KNOW that it is there because it was DECLARED as a 'postchain' (rather than 'prechain')</p>
+              </div>
+            </section>
+            <!-- / file tree -->
+
+
+            <hr size="5">
+
+            <!-- typogrpahy -->
+            <section id="section-4">
+              <h2 class="section-title-2">Architecture PING <a data-scroll href="#section-4" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>BeAPI gives you the ability to 'ping' all the api servers in your architecture to test for uptime. You can do this by using the following command:</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer "  --request GET "http://localhost:8080/v1.0/server/pingServers/"</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div></br>
+            </section>
+            <!-- / typography -->
+
+<hr size="5">
+
+            <!-- typogrpahy -->
+            <section id="section-5">
+              <h2 class="section-title-2">Rate Limiting <a data-scroll href="#section-5" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>Rate Limiting is optional and is not turned on by default. You can set this variable <b>PER ENVIRONMENT</b> in your 'beapi_server.yml' file by changing the variable 'apiThrottle' in your environment to 'true':</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">apiThrottle: true</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div></br>
+              <p>Rate limiting needs to be configured on a <b>per ROLE basis</b>; that is to say; for each ROLE you want to apply rate limiting to, you need to create the rules for it in the 'beapi_api.yml' file. Lets take a look at that section:</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">    throttle:
+        rateLimit: {'ROLE_USER':1000,'ROLE_ADMIN':10000}
+        dataLimit: {'ROLE_USER':1000000,'ROLE_ADMIN':1000000}
+        # in seconds (3600 = 60 minutes)
+        expires: 3600</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div></br>
+              <p>Lets examine the above settings and break them down:</p>
+              <ul>
+                <li><b>rateLimit</b>: This sets the 'count' for the number of requests that are allowed to be done within the day. After this is hit (or goes over the limit), a lock is put on the account until 'expires' clock runs out.</li>
+                <li><b>dataLimit</b>: <u>This is not yet implemented</u>. This will eventually mark the MB limit before a lock is place on the account.</li>
+                <li><b>expires</b>: This sets the number of seconds until a rateLimit lock is released. Ideally this should be a day but we have it currently set low.</li>
+              </ul>
+            </section>
+            <!-- / typography -->
+
+          </article>
+
+
+          <aside class="col-md-3 col-xxl-3 d-none d-md-block">
+            <div class="sticky">
+              <ul id="toc" class="nav flex-column toc">
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-1">Automated Batching</a>
+                  <ul class="nav flex-column">
+                    <li><a data-scroll class="nav-link" href="#section-1.1">Batch Examples Using Curl</a></li>
+                    <li><a data-scroll class="nav-link" href="#section-1.2">CSV To JSON Tools</a></li>
+                  </ul>
+                </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-2">Automated Webhooks</a>
+                  <ul class="nav flex-column">
+                    <li><a data-scroll class="nav-link" href="#section-2.1">Enabling Your Endpoint To Be Hookable</a></li>
+                    <li><a data-scroll class="nav-link" href="#section-2.2">Create Your First Webhook</a></li>
+                  </ul>
+                </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-3">API Chaining®</a>
+                  <ul class="nav flex-column">
+                    <li><a data-scroll class="nav-link" href="#section-3.1">What is API Chaining®</a></li>
+                    <li><a data-scroll class="nav-link" href="#section-3.2">API Chaining® Example</a></li>
+                    <li><a data-scroll class="nav-link" href="#section-3.3">Creating A Chain</a></li>
+                  </ul>
+                </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-4">Architecture PING</a>
+                </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-5">Rate Limiting</a>
+                </li>
+              </ul>
+            </div>
+          </aside>
+        </div>
+      </article>
+      <!-- / content -->
+
+    </div>
+  </div>
+</section>
+
+
+<!-- footer -->
+<footer class="bg-dark">
+  <div class="container">
+    <div class="row gutter-3">
+      <div class="col-12 col-md-2">
+        <a href=""><img src="assets/images/logo_bw.png" alt="Logo"></a>
+      </div>
+      <div class="col-12 col-md-6 text-white">
+        <p class="mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      </div>
+      <div class="col-12 col-md-4 col-lg-2 ml-auto text-md-right">
+        <div class="dropdown"> placeholder </div>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- / footer -->
+
+
+<script src="assets/js/vendor.min.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>

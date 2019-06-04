@@ -1,0 +1,391 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <link rel="stylesheet" href="assets/css/vendor.css" />
+  <link rel="stylesheet" href="assets/css/style.css" />
+
+  <title>BeAPI API Framework - Documentation / Configuration</title>
+</head>
+<body data-spy="scroll" data-target="#toc">
+
+
+<section class="py-0">
+  <div class="container-fluid">
+    <div class="row justify-content-between">
+
+      <!-- navigation -->
+      <aside class="col-lg-3 col-xxl-2 p-3 doc-sidebar">
+        <div class="sticky">
+          <nav class="navbar navbar-vertical navbar-expand-lg navbar-light">
+            <div>
+              <a href="index.html" class="navbar-brand"><img src="assets/images/logo.png" alt="Logo"><span class="badge badge-green ml-2"></span></a>
+              <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+            </div>
+
+
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+              <ul id="page-nav" class="nav flex-column nav-vertical-2">
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-2" role="button" aria-expanded="true" aria-controls="menu-2">Installation</a>
+                  <div class="collapse" id="menu-2" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-1">Requirements</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-2">Quick Start Installation</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-3">Move Configuration Files</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link active" data-toggle="collapse" href="#menu-3" role="button" aria-expanded="false" aria-controls="menu-3">Configuration</a>
+                  <div class="collapse show" id="menu-3" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="config.html#section-1">Server Configuration</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="config.html#section-2">Database Configuration</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="config.html#section-3">API Configuration</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-5" role="button" aria-expanded="false" aria-controls="menu-5">Bootstrapping</a>
+                  <div class="collapse" id="menu-5" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="bootstrap.html#section-1">Generate API Controllers</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="bootstrap.html#section-2">Generate IO State</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-4" role="button" aria-expanded="false" aria-controls="menu-4">MVC Functionality</a>
+                  <div class="collapse" id="menu-4" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="mvc.html#section-1">Domains</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="mvc.html#section-2">Controllers</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-6" role="button" aria-expanded="false" aria-controls="menu-6">Security</a>
+                  <div class="collapse" id="menu-6" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="security.html#section-1">CORS / NetworkGroups</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="security.html#section-2">Roles / NetworkRoles</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-7" role="button" aria-expanded="false" aria-controls="menu-7">API Usage (Examples)</a>
+                  <div class="collapse" id="menu-7" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="usage.html#section-1">Authorization Calls</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="usage.html#section-2">API Calls</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="usage.html#section-3">User Management</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-8" role="button" aria-expanded="false" aria-controls="menu-8">Advanced Functionality</a>
+                  <div class="collapse" id="menu-8" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-1">Automated Batching</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-2">Automated Webhooks</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-3">API Chaining®</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-4">Architecture PING</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-5">Rate Limiting</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+                <li class="nav-item">
+                  <a class="nav-link" data-toggle="collapse" href="#menu-9" role="button" aria-expanded="false" aria-controls="menu-9">Advanced Configuration</a>
+                  <div class="collapse" id="menu-9" data-parent="#page-nav">
+                    <div>
+                      <ul class="nav flex-column">
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-1">Cors</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-2">Roles</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-3">User Management</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="advanced.html#section-4">Versioning</a>
+                        </li>
+                      </ul>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </div>
+          </nav>
+        </div>
+      </aside>
+      <!-- / navigation -->
+
+
+      <!-- content -->
+      <article class="col-lg-9 col-xxl-10 doc-content">
+
+        <div class="row">
+          <div class="col">
+            <div class="doc-content-header">
+              <div class="row align-items-center">
+                <div class="col">
+                  <nav aria-label="breadcrumb" class="align-items-center">
+                    <ol class="breadcrumb d-none d-lg-inline-flex">
+                      <li class="breadcrumb-item"><a href="index.html">Documentation</a></li>
+                      <li class="breadcrumb-item active" aria-current="page">Configuration</li>
+                    </ol>
+                  </nav>
+                </div>
+                <div class="col text-right">
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row justify-content-between doc-content-body">
+          <article class="col-md-9 col-xxl-8">
+
+            <h1 class="h2 font-weight-light"><b>BeAPI Framework Configuration</b></h1>
+            <p>Once you have completed installation, you will next need to configure your environment. Follow these configuration steps in order to get your environment setup and working:
+
+<hr size="5">
+
+            <!-- typogrpahy -->
+            <section id="section-1">
+              <h2 class="section-title-2">Server Configuration <a data-scroll href="#section-1" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>The project has an embedded and configured Tomcat server available so all you have to do is change the settings to fit what you need. The config to edit is your <b><a href="https://github.com/orubel/beapi_backend/blob/master/grails-app/conf/beapi_server.yml">beapi_server.yml</a></b> file in your <b>~/.beapi</b> directory.</p>
+              <div id="section-1.1">
+                <h2 class="section-title-2">What You Have To Change...</h2>
+                <p>Don't be intimidated! There are only a couple of things that have to be changed and configured here:</p>
+                <ul>
+                  <li><b>serverURL</b>: <u>You MUST add the PORT number</u> or this will cause failures! There will be three instances of this variable (marked with #changeit): one for your test, development and production environments. You will need to enter a url for each. If you do not have a URL for your test/development, you can fake it by adding a fake FQDN in your /etc/hosts file (see below)</li>
+                  <li><b>SSL</b>: For test and development, you will need a self-signed keystore (for production you need a real SSL cert). To generate a self-signed keystore, use the following:
+                    <div class="row">
+                      <div class="col">
+                        <div class="card">
+                          <div class="card-body" style="background-color:#000;">
+                            <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">tool -genkey -keyalg RSA -alias selfsigned -keystore keystore.jks -storepass yabbadabbadoo -validity 360 -keysize 2048</code></pre>
+                          </div>
+                        </div>
+                      </div>
+                    </div></br>
+                    <p>You will then be asked a series of questions, you can just hit return and use the defaults (usually empty) but make sure to set the domain name to the <a href="https://en.wikipedia.org/wiki/Fully_qualified_domain_name#Example">fully qualified domain name (FQDN)</a>a> used in <b>'serverUrl'</b>.</p>
+                    <p>This will create a <b>'keystore.jks'</b> which you can store in <b>'yourhomedirectory/.ssh'</b> to use with 'ssl/keyStore' in the config. If you have additional questions on created a keystore, they can be <a href="https://www.sslshopper.com/article-how-to-create-a-self-signed-certificate-using-java-keytool.html">answered here</a>.</p>
+                  </li>
+                </ul>
+              </div>
+            </br>
+              <div id="section-1.2">
+                <h2 class="section-title-2">Fake FQDN</h2>
+                <p>If you are on a local test/development machine and need a FQDN (fully qualified domain name), they are very easy to fake. Just go into your <b>'/etc/hosts'</b> file on your local machine and add an entry like the following:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">127.0.0.1       test.yourdomain.com</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- / typography -->
+
+<hr size="5">
+
+            <!-- colors -->
+            <section id="section-2">
+              <h2 class="section-title-2">Database Configuration<a data-scroll href="#section-2" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>First the project needs MariaDB/MySQL installed. You can change this in your build.gradle file and your ~/.beapi/beapi_db.yml files if you know what you are doing but for now we will stick with a default install for the project.</p>
+              <p>You will first need to edit your <b><a href="https://github.com/orubel/beapi_backend/blob/master/grails-app/conf/beapi_db.yml">beapi_db.yml</a></b> file in your <b>~/.beapi</b> directory</p>
+
+              <h2 class="section-title-2">What You Have To Change...</h2>
+              <p>Don't be intimidated! There are only a couple of things that have to be changed and configured here:</p>
+              <ul>
+                <li><b>url</b>: There will be three instances of this variable (marked with #changeit): one for your test, development and production environments. You will need to enter a url with your database for each. First you will need to create a database and we will show you how to do that below.</li>
+                <li><b>username</b>: There will be three instances of this variable : one for your test, development and production environments. You will need to enter the username/password for your database. First you will need to create a database and we will show you how to do that below.</li>
+                <li><b>password</b>: There will be three instances of this variable : one for your test, development and production environments. You will need to enter the username/password for your database. First you will need to create a database and we will show you how to do that below.</li>
+              </ul>
+              <h2 class="section-title-2">Initializing Your Database</h2>
+              <p>If you have not installed your database yet, do the following first:</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">sudo apt install mariadb-server</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p>The run the following command and follow all prompts:</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">sudo mysql_secure_installation</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <p>Once that is complete, log in to your server and create your database and grant privileges to it. The default database name is <b>'beapi'</b>:</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">create database beapi;
+use mysql;
+GRANT ALL PRIVILEGES ON beapi.* to your_username@'localhost' IDENTIFIED BY 'your_password';
+flush privileges;
+
+                      </code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            <p><b>NOTE</b>: Make sure username/password used in the GRANT STATEMENT match the username/password used in the config above.</p>
+
+            </section>
+            <!-- / colors -->
+
+<hr size="5">
+
+            <!-- file tree -->
+            <section id="section-3">
+              <h2 class="section-title-2">API Configuration<a data-scroll href="#section-3" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>Once you have created your project, you will need to edit your <a href="https://github.com/orubel/beapi_backend/blob/master/grails-app/conf/beapi_api.yml">beapi_server.yml</a></b> file in your <b>~/.beapi</b> directory.</p>
+              <h2 class="section-title-2">What You Have To Change...</h2>
+              <p>Don't be intimidated! There are only a couple of things that have to be changed and configured here:</p>
+              <ul>
+                <li><b>login</b>: This will be used in testing and will provide a default user for you to login to the application with.</li>
+                <li><b>password</b>: This will be used in testing and will provide a default user for you to login to the application with.</li>
+                <li><b>email</b>: <u>NOTE:</u>This can be a fake email; it just has to be a valid domain name. This will be used in testing and will provide a default user for you to login to the application with. </li>
+              </ul>
+            </section>
+            <!-- / file tree -->
+
+          </article>
+
+
+          <aside class="col-md-3 col-xxl-3 d-none d-md-block">
+            <div class="sticky">
+              <ul id="toc" class="nav flex-column toc">
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-1">Server Configuration</a>
+                  <ul class="nav flex-column">
+                    <li><a data-scroll class="nav-link" href="#section-1.1">What You Have To Change</a></li>
+                    <li><a data-scroll class="nav-link" href="#section-1.2">Fake FQDN</a></li>
+                  </ul>
+                </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-2">Database Configuration</a>
+                  <ul class="nav flex-column">
+                    <li><a data-scroll class="nav-link" href="#section-2.1">What You Have To Change</a></li>
+                    <li><a data-scroll class="nav-link" href="#section-2.2">Initializing Your Database</a></li>
+                  </ul>
+                </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-3">API Configuration</a>
+                  <ul class="nav flex-column">
+                    <li><a data-scroll class="nav-link" href="#section-3.1">What You Have To Change</a></li>
+                  </ul>
+                </li>
+              </ul>
+            </div>
+          </aside>
+
+
+        </div>
+
+      </article>
+      <!-- / content -->
+
+    </div>
+  </div>
+</section>
+
+
+<!-- footer -->
+<footer class="bg-dark">
+  <div class="container">
+    <div class="row gutter-3">
+      <div class="col-12 col-md-2">
+        <a href=""><img src="assets/images/logo_bw.png" alt="Logo"></a>
+      </div>
+      <div class="col-12 col-md-6 text-white">
+        <p class="mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+      </div>
+      <div class="col-12 col-md-4 col-lg-2 ml-auto text-md-right">
+        <div class="dropdown"> placeholder </div>
+      </div>
+    </div>
+  </div>
+</footer>
+<!-- / footer -->
+
+
+<script src="assets/js/vendor.min.js"></script>
+<script src="assets/js/app.js"></script>
+</body>
+</html>
