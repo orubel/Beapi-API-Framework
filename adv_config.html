@@ -15,7 +15,7 @@
   <link rel="stylesheet" href="assets/css/vendor.css" />
   <link rel="stylesheet" href="assets/css/style.css" />
 
-  <title>BeAPI API Framework - Documentation / Configuration</title>
+  <title>BeAPI API Framework - Documentation / Advanced Configuration</title>
 </head>
 <body data-spy="scroll" data-target="#toc">
 
@@ -167,10 +167,10 @@
                     <div>
                       <ul class="nav flex-column">
                         <li class="nav-item">
-                          <a class="nav-link" href="adv_conf.html#section-1">Versioning</a>
+                          <a class="nav-link" href="adv_config.html#section-1">Versioning</a>
                         </li>
                         <li class="nav-item">
-                          <a class="nav-link" href="adv_conf.html#section-2">IO State</a>
+                          <a class="nav-link" href="adv_config.html#section-2">IO State</a>
                         </li>
                       </ul>
                     </div>
@@ -195,7 +195,7 @@
                   <nav aria-label="breadcrumb" class="align-items-center">
                     <ol class="breadcrumb d-none d-lg-inline-flex">
                       <li class="breadcrumb-item"><a href="index.html">Documentation</a></li>
-                      <li class="breadcrumb-item active" aria-current="page">Configuration</li>
+                      <li class="breadcrumb-item active" aria-current="page">Advanced Configuration</li>
                     </ol>
                   </nav>
                 </div>
@@ -210,49 +210,82 @@
         <div class="row justify-content-between doc-content-body">
           <article class="col-md-9 col-xxl-8">
 
-            <h1 class="h2 font-weight-light"><b>BeAPI Framework Configuration</b></h1>
-            <p>Once you have completed installation, you will next need to configure your environment. Follow these configuration steps in order to get your environment setup and working:
+            <h1 class="h2 font-weight-light"><b>Advanced Configuration</b></h1>
+            <p>Below you will find some additional techniques and methods for tweaking your BeAPI implementation.
 
 <hr size="5">
 
             <!-- typogrpahy -->
             <section id="section-1">
-              <h2 class="section-title-2">Server Configuration <a data-scroll href="#section-1" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
-              <p>The project has an embedded and configured Tomcat server available so all you have to do is change the settings to fit what you need. The config to edit is your <b><a href="https://github.com/orubel/beapi_backend/blob/master/grails-app/conf/beapi_server.yml">beapi_server.yml</a></b> file in your <b>~/.beapi</b> directory.</p>
+              <h2 class="section-title-2">Versioning <a data-scroll href="#section-1" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>The version for your api is sent through the URL but is set in two different places. Let's first break apart the URL version:</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">http://localhost:8080/v1.0-1/person/create</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div></br>
+              <p>In the above example, the version is v1.0-1. This is broken out into three parts:</p>
+              <ul>
+                <li><u><b>[v]</b>1.0-1</u>: The 'v' determines what kind of call it is whether it is a batch call(b), a chained call(c) or a regular api call(v)</li>
+                <li><u>v<b>[1.0]</b>-1</u>: This is the version of the application (as set by the application); this helps us to run multiple versions of the application should we need to.</li>
+                <li><u>v1.0<b>[-1]</b></u>: This is the version of the IO State. It always defaults to '1' if this is not set (which it doesn't need to be). This allows you to have multiple version of your api rules running should you need to support older versions while running newer versions on the same application. Supports up 1-9 versions on any existing application for any IO State file</li>
+              </ul></br>
               <div id="section-1.1">
-                <h2 class="section-title-2">What You Have To Change...</h2>
-                <p>Don't be intimidated! There are only a couple of things that have to be changed and configured here:</p>
-                <ul>
-                  <li><b>serverURL</b>: <u>You MUST add the PORT number</u> or this will cause failures! There will be three instances of this variable (marked with #changeit): one for your test, development and production environments. You will need to enter a url for each. If you do not have a URL for your test/development, you can fake it by adding a fake FQDN in your /etc/hosts file (see below)</li>
-                  <li><b>SSL</b>: For test and development, you will need a self-signed keystore (for production you need a real SSL cert). To generate a self-signed keystore, use the following:
-                    <div class="row">
-                      <div class="col">
-                        <div class="card">
-                          <div class="card-body" style="background-color:#000;">
-                            <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">tool -genkey -keyalg RSA -alias selfsigned -keystore keystore.jks -storepass yabbadabbadoo -validity 360 -keysize 2048</code></pre>
-                          </div>
-                        </div>
-                      </div>
-                    </div></br>
-                    <p>You will then be asked a series of questions, you can just hit return and use the defaults (usually empty) but make sure to set the domain name to the <a href="https://en.wikipedia.org/wiki/Fully_qualified_domain_name#Example">fully qualified domain name (FQDN)</a>a> used in <b>'serverUrl'</b>.</p>
-                    <p>This will create a <b>'keystore.jks'</b> which you can store in <b>'yourhomedirectory/.ssh'</b> to use with 'ssl/keyStore' in the config. If you have additional questions on created a keystore, they can be <a href="https://www.sslshopper.com/article-how-to-create-a-self-signed-certificate-using-java-keytool.html">answered here</a>.</p>
-                  </li>
-                </ul>
-              </div>
-            </br>
-              <div id="section-1.2">
-                <h2 class="section-title-2">Fake FQDN</h2>
-                <p>If you are on a local test/development machine and need a FQDN (fully qualified domain name), they are very easy to fake. Just go into your <b>'/etc/hosts'</b> file on your local machine and add an entry like the following:</p>
+                <h2 class="section-title-2">Calling Without Version</h2>
+                <p>This is the most common call you will make... which is without any particular version (to the default version in the IO State). This would look like the following:</p>
                 <div class="row">
                   <div class="col">
                     <div class="card">
                       <div class="card-body" style="background-color:#000;">
-                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">127.0.0.1       test.yourdomain.com</code></pre>
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">http://localhost:8080/v1.0/person/create</code></pre>
                       </div>
                     </div>
                   </div>
-                </div>
+                </div></br>
               </div>
+            </br>
+              <div id="section-1.2">
+                <h2 class="section-title-2">Calling With Version</h2>
+                <p>If you have a particular version you wish to call (and you know it is supported via documentation), simply call that version of the endpoint like so:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">http://localhost:8080/v1.0-1/person/create</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div></br>
+              </div>
+              </br>
+              <div id="section-1.3">
+                <h2 class="section-title-2">Calling With App Version</h2>
+                <p>If you are running separate application versions and are properly routing based on app version, simply call the different app version like so:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">http://localhost:8080/v0.5/person/create</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div></br>
+                <p>... or like so:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">http://localhost:8080/v0.5-1/person/create</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div></br>
+              </div>
+              </br>
             </section>
             <!-- / typography -->
 
@@ -260,73 +293,308 @@
 
             <!-- colors -->
             <section id="section-2">
-              <h2 class="section-title-2">Database Configuration<a data-scroll href="#section-2" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
-              <p>First the project needs MariaDB/MySQL installed. You can change this in your build.gradle file and your ~/.beapi/beapi_db.yml files if you know what you are doing but for now we will stick with a default install for the project.</p>
-              <p>You will first need to edit your <b><a href="https://github.com/orubel/beapi_backend/blob/master/grails-app/conf/beapi_db.yml">beapi_db.yml</a></b> file in your <b>~/.beapi</b> directory</p>
+              <h2 class="section-title-2">IO State <a data-scroll href="#section-2" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>The IO State File is a descriptor for your API endpoints. It is a cacheable configuration file holding data directly associated with a specific group of API requests & responses. This enables all URI's (and their associated data) to be easily cached and this data to be shared with services in the architecture (ie Proxy, MQ, etc).</p>
+              <p>URI's call a common set of data as they are based on classes/method. As such, these URIs can be GROUPED and said to share a common dataset and set of config options. The IO State File is a set of rules for all URI's sharing a common data object.</p>
+              <p>Examples of IO state files can be found in <a href="https://github.com/orubel/beapi_backend/tree/master/src/iostate">the example project here</a>.</p>
+              <p>To bootstrap your IOState from your domains, simply go into the the root directory of your project and type the following command from the shell:</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">./gradlew GenerateIostate</code></pre>
+                    </div>
+                  </div>
+                </div>
+              </div></br>
+              <p>This will generate IO state files based on all your domains/models. A typical IO State File looks like the following:</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card">
+                    <div class="card-body" style="background-color:#000;">
+                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">/* JSON API Object */
 
-              <h2 class="section-title-2">What You Have To Change...</h2>
-              <p>Don't be intimidated! There are only a couple of things that have to be changed and configured here:</p>
-              <ul>
-                <li><b>url</b>: There will be three instances of this variable (marked with #changeit): one for your test, development and production environments. You will need to enter a url with your database for each. First you will need to create a database and we will show you how to do that below.</li>
-                <li><b>username</b>: There will be three instances of this variable : one for your test, development and production environments. You will need to enter the username/password for your database. First you will need to create a database and we will show you how to do that below.</li>
-                <li><b>password</b>: There will be three instances of this variable : one for your test, development and production environments. You will need to enter the username/password for your database. First you will need to create a database and we will show you how to do that below.</li>
-              </ul>
-              <h2 class="section-title-2">Initializing Your Database</h2>
-              <p>If you have not installed your database yet, do the following first:</p>
-              <div class="row">
-                <div class="col">
-                  <div class="card">
-                    <div class="card-body" style="background-color:#000;">
-                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">sudo apt install mariadb-server</code></pre>
+{
+    "NAME":"person",
+    "VALUES": {
+        "id": {
+            "key": "PRIMARY",
+            "type": "Long",
+            "description":"ID for Event",
+	    "mockData":"1"
+        },
+        "version": {
+            "type": "Long",
+            "description":"Version for Event",
+	    "mockData":"0"
+        },
+	"username":{
+            "type": "String",
+            "description":"User Name",
+	    "mockData":"guest"
+	},
+	"password":{
+            "type": "String",
+            "description":"password",
+	    "mockData":"password"
+	},
+	"email":{
+            "type": "String",
+            "description":"Account Email",
+	    "mockData":"test@mockdata.com"
+	},
+	"oauthProvider":{
+            "type": "String",
+            "description":"Oauth Provider (if available)",
+	    "mockData":"GMail"
+	},
+	"avatarUrl":{
+            "type": "String",
+            "description":"Event Type Name",
+	    "mockData":"https://en.gravatar.com/userimage/38053926/62165e36e1f429564a78e82db5b72591.jpg?size=200"
+	},
+	"enabled":{
+            "type": "Boolean",
+            "description":"Is Account Enabled",
+	    "mockData":"true"
+	},
+	"accountExpired":{
+            "type": "Boolean",
+            "description":"Is Account Expired",
+	    "mockData":"false"
+	},
+	"accountLocked":{
+            "type": "Boolean",
+            "description":"Is Account Locked",
+	    "mockData":"false"
+	},
+	"passwordExpired":{
+            "type": "Boolean",
+            "description":"Is Password Expired",
+	    "mockData":"false"
+	}
+    },
+	"CURRENTSTABLE": "1",
+	"VERSION": {
+		"1": {
+			"DEFAULTACTION":"list",
+			"URI": {
+			    "create": {
+			     	"METHOD":"POST",
+			    	"DESCRIPTION":"Create new Person",
+			    	"ROLES":{
+				    "DEFAULT":["ROLE_ADMIN","ROLE_USER"],
+				    "BATCH":["ROLE_ADMIN"],
+				    "HOOK":["ROLE_ADMIN"]
+				},
+			        "REQUEST": {
+			            "permitAll":["username","password","email"]
+			        },
+			        "RESPONSE": {
+			        	"permitAll":["id","version"]
+			        }
+			    },
+			    "show": {
+			     	"METHOD":"GET",
+			    	"DESCRIPTION":"Get Person by ID",
+			    	"ROLES":{
+				    "DEFAULT":["ROLE_ADMIN","ROLE_USER"],
+				    "BATCH":["ROLE_ADMIN"],
+				    "HOOK":["ROLE_ADMIN"]
+				},
+			        "REQUEST": {
+			            "permitAll":[],
+				    "ROLE_ADMIN":["id"],
+			        },
+			        "RESPONSE": {
+			        	"permitAll":["id","version","username","email","enabled","accountExpired"]
+			        }
+			    },
+			    "list": {
+			     	"METHOD":"GET",
+			    	"DESCRIPTION":"List all Event Types",
+			    	"ROLES":{
+				    "DEFAULT":["ROLE_ADMIN"],
+				    "BATCH":["ROLE_ADMIN"],
+				    "HOOK":["ROLE_ADMIN"]
+				},
+			        "REQUEST": {
+			            "permitAll":[]
+			        },
+			        "RESPONSE": {
+			        	"permitAll":["id","version","username","email","enabled","accountExpired"]
+			        }
+			    },
+			    "delete": {
+			     	"METHOD":"DELETE",
+			    	"DESCRIPTION":"Delete Person",
+			    	"ROLES":{
+				    "DEFAULT":["ROLE_ADMIN"],
+				    "BATCH":["ROLE_ADMIN"],
+				    "HOOK":["ROLE_ADMIN"]
+				},
+			        "REQUEST": {
+			            "permitAll":["id"]
+			        },
+			        "RESPONSE": {
+			        	"permitAll":["id"]
+			        }
+			    }
+			}
+		}
+	}
+}</code></pre>
                     </div>
                   </div>
                 </div>
-              </div>
-              <p>The run the following command and follow all prompts:</p>
-              <div class="row">
-                <div class="col">
-                  <div class="card">
-                    <div class="card-body" style="background-color:#000;">
-                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">sudo mysql_secure_installation</code></pre>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <p>Once that is complete, log in to your server and create your database and grant privileges to it. The default database name is <b>'beapi'</b>:</p>
-              <div class="row">
-                <div class="col">
-                  <div class="card">
-                    <div class="card-body" style="background-color:#000;">
-                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">create database beapi;
-use mysql;
-GRANT ALL PRIVILEGES ON beapi.* to your_username@'localhost' IDENTIFIED BY 'your_password';
-flush privileges;
+              </div></br>
+              <div id="section-2.1">
+                <h2 class="section-title-2">Variable Declaration</h2>
+                <p>Lets break apart the pieces of an IOState file to see what they consist of and how they work; the first part of the file declares 'VALUES' for use by the endpoints:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">    "NAME":"person",
+    "NETWORKGRP": "public",
+    "VALUES": {
+        "id": {
+            "key": "PRIMARY",
+            "type": "Long",
+            "description":"ID for Event",
+        "mockData":"1"
+        },
+        "version": {
+            "type": "Long",
+            "description":"Version for Event",
+        "mockData":"0"
+        },
 
-                      </code></pre>
+        ...</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div></br>
+                <p>We  start by declaring the NAME of the file and our 'values':</p>
+                <ul>
+                  <li><b>NAME</b>: This corresponds directly with the name of the controller; the controller typically pulls in from the same domain name but does not have to. The controller can create a nested call, return a file, etc. So the name directly relates to the controller.</li>
+                  <li><b>NETWORKGRP</b>: This defines the 'networkGroup' that this group of endpoints can be accessed through thus defining the CORS allowed origins and the ROLES that can access it. See Security section for more</li>
+                  <li><b>VALUES</b>: These are the individual variables returned. These help us for automating testing, api docs and defining what needs to be sent and returned in each endpoint.</li>
+                </ul></br>
+
+                <p>Underneath values, then define each individual value to be sent/returned with the following stats:</p>
+                <ul>
+                  <li><b>type (required)</b> : One of [PKEY, FKEY, INDEX, STRING, DATE, LONG, BOOLEAN, FLOAT, BIGDECIMAL, EMAIL, URL, ARRAY, COMPOSITE]. Defines scope of variable; only used for apidocs/options or for reference.</li>
+                  <li><b>description (required)</b> : description of variable, how it is used; mainly for apidocs</li>
+                  <li><b>references (optional)</b> : This allows someone to point a PKEY/FKEY/Index to its referencing IO State Object NAME. Usage is as follows:
+                    <ul>
+                      <li><u>references: self (type:Long)</u>: primary key, reference to self;</li>
+                      <li><u>references: &lt;name of API Object referenced w/ type:Long&gt;  (type:Long)</u>: foreign key; referenced to IO State Object</li>
+                      <li><u>references: &lt;name of API Object referenced w/ type:String&gt;  (type:String)</u>: index;reference to IO State Object</li>
+                    </ul>
+                  </li>
+                  <li><b>mockData</b>(required) : string descriptor; Mock data for tests and apidoc.</li>
+                </ul>
+              </div>
+              </br>
+
+              <div id="section-2.2">
+                <h2 class="section-title-2">Rules Declaration</h2>
+                <p>Following this, we then define the 'rules' for our endpoints in the IOState like so:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">    "CURRENTSTABLE": "1",
+    "VERSION": {
+        "1": {
+            "DEFAULTACTION":"list",
+            "URI": {
+                "create": {
+                    "METHOD":"POST",
+                    "DESCRIPTION":"Create new Person",
+                    "ROLES":{
+                        "DEFAULT":["ROLE_ADMIN","ROLE_USER"],
+                        "BATCH":["ROLE_ADMIN"],
+                        "HOOK":["ROLE_ADMIN"]
+                    },
+                    "REQUEST": {
+                        "permitAll":["username","password","email"]
+                    },
+                    "RESPONSE": {
+                        "permitAll":["id","version"]
+                    }
+                },
+                ...</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p>The above data has the following definitions:</p>
+                <ul>
+                  <li><b>CURRENTSTABLE</b>: This is the current stable version of IOState; if you you do not have multiple versions of this file, this number is the same as 'VERSION'</li>
+                  <li><b>VERSION</b>: This is the file version. This allows to API to have several versions of IOState if you are currently supported deprecated versions
+                  <ul>
+                    <li><b>DEFAULTACTION</b>: This is the default endpoint action if if none given; commonly 'list'</li>
+                    <li><b>URI</b>: This is the endpoint and the rules for the endpoint.</li>
+                  </ul>
+                  </li>
+                </ul></br>
+
+                <p>Then under 'URI', you define the rules for the endpoint for the controller/method. In this case for the NAME 'person' and URI 'create' point to the controller method 'person.create', which would be called like so:</p>
+                  <div class="row">
+                    <div class="col">
+                      <div class="card">
+                        <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">http://&lt;yourdomain&gt;:8080/v1.0/person/create</code></pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                <p>We will explain more about where the 'v1.0' comes under <a href="http://orubel.github.io/Beapi-API-Framework/adv_config.html#section-1">'Versioning'</a> but for right now, lets finish explaining the rest of the IOState:</p>
+                <ul>
+                  <li><b>METHOD</b>: One of [GET, PUT, POST,DELETE]. This defines how the endpoint should be called.</li>
+                  <li><b>DESCRIPTION</b>: A description of the endpoint for the API Docs</li>
+                  <li><b>ROLES</b>: A grouping for security rules (SEE '<a href="http://orubel.github.io/Beapi-API-Framework/security.html#section-2">Security: Network Roles</a>')</li>
+                  <li><b>BATCH</b>: Security roles for endpoints that have batching enabled</li>
+                  <li><b>HOOK</b>: Security roles for endpoints that have web hooks enabled</li>
+                  <li><b>REQUEST</b>: Per role data for expected when sending the request; concatenates across roles</li>
+                  <li><b>RESPONSE</b>: Per role data for expected when sending the request; concatenates across roles</li>
+                </ul>
+                <p><b>Of note on REQUEST/RESPONSE and ROLES</b>: one can set different access levels by concatenating privileges. Their is a default privilege level called 'permitAll' which will allow ALL privileges set in ROLES>DEFAULT access to this data. You can then allow more atomic access by setting additional values PER ROLE like so:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">"REQUEST": {
+    "permitAll":["name"],
+    "ROLE_USER":["id"]
+},</code></pre>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
-            <p><b>NOTE</b>: Make sure username/password used in the GRANT STATEMENT match the username/password used in the config above.</p>
+              </br>
+              <div id="section-2.3">
+                <h2 class="section-title-2">Empty PermitAll</h2>
+                <p>If you are sending no values (such as a 'list' call) or returning no values, you will often have an empty 'permitAll' such as the following:</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="card">
+                      <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">"REQUEST": {
+    "permitAll":[]
+},</code></pre>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <p>An empty 'permitAll' should NEVER be declared with quotes as this sends an empty string. Always leave the brackets empty like above to declare that nothing needs to be sent.</p>
+              </div>
 
             </section>
             <!-- / colors -->
-
-<hr size="5">
-
-            <!-- file tree -->
-            <section id="section-3">
-              <h2 class="section-title-2">API Configuration<a data-scroll href="#section-3" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
-              <p>Once you have created your project, you will need to edit your <a href="https://github.com/orubel/beapi_backend/blob/master/grails-app/conf/beapi_api.yml">beapi_server.yml</a></b> file in your <b>~/.beapi</b> directory.</p>
-              <h2 class="section-title-2">What You Have To Change...</h2>
-              <p>Don't be intimidated! There are only a couple of things that have to be changed and configured here:</p>
-              <ul>
-                <li><b>login</b>: This will be used in testing and will provide a default user for you to login to the application with.</li>
-                <li><b>password</b>: This will be used in testing and will provide a default user for you to login to the application with.</li>
-                <li><b>email</b>: <u>NOTE:</u>This can be a fake email; it just has to be a valid domain name. This will be used in testing and will provide a default user for you to login to the application with. </li>
-              </ul>
-            </section>
-            <!-- / file tree -->
 
           </article>
 
@@ -335,23 +603,19 @@ flush privileges;
             <div class="sticky">
               <ul id="toc" class="nav flex-column toc">
                 <li class="nav-item">
-                  <a data-scroll class="nav-link" href="#section-1">Server Configuration</a>
+                  <a data-scroll class="nav-link" href="#section-1">Versioning</a>
                   <ul class="nav flex-column">
-                    <li><a data-scroll class="nav-link" href="#section-1.1">What You Have To Change</a></li>
-                    <li><a data-scroll class="nav-link" href="#section-1.2">Fake FQDN</a></li>
+                    <li><a data-scroll class="nav-link" href="#section-1.1">Calling Without Version</a></li>
+                    <li><a data-scroll class="nav-link" href="#section-1.2">Calling With Version</a></li>
+                    <li><a data-scroll class="nav-link" href="#section-1.3">Calling With App Version</a></li>
                   </ul>
                 </li>
                 <li class="nav-item">
-                  <a data-scroll class="nav-link" href="#section-2">Database Configuration</a>
+                  <a data-scroll class="nav-link" href="#section-2">IO State</a>
                   <ul class="nav flex-column">
-                    <li><a data-scroll class="nav-link" href="#section-2.1">What You Have To Change</a></li>
-                    <li><a data-scroll class="nav-link" href="#section-2.2">Initializing Your Database</a></li>
-                  </ul>
-                </li>
-                <li class="nav-item">
-                  <a data-scroll class="nav-link" href="#section-3">API Configuration</a>
-                  <ul class="nav flex-column">
-                    <li><a data-scroll class="nav-link" href="#section-3.1">What You Have To Change</a></li>
+                    <li><a data-scroll class="nav-link" href="#section-2.1">Variable Declaration</a></li>
+                    <li><a data-scroll class="nav-link" href="#section-2.2">Rules Declaration</a></li>
+                    <li><a data-scroll class="nav-link" href="#section-2.3">Empty PermitAll</a></li>
                   </ul>
                 </li>
               </ul>
@@ -377,10 +641,10 @@ flush privileges;
         <a href=""><img src="assets/images/logo_bw.png" alt="Logo"></a>
       </div>
       <div class="col-12 col-md-6 text-white">
-        <p class="mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.</p>
+        <p class="mb-4">Copyright © 2014-2019 - All Rights Reserved</p>
       </div>
       <div class="col-12 col-md-4 col-lg-2 ml-auto text-md-right">
-        <div class="dropdown"> placeholder </div>
+        <div class="dropdown"> </div>
       </div>
     </div>
   </div>
