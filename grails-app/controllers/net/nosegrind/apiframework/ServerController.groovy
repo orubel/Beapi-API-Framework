@@ -31,7 +31,12 @@ class ServerController {
     def pingService
 
     HashMap pingServers(){
-        HashMap servers = pingService.send()
+        HashMap list
+        Arch servers = Arch.list()
+        servers.each(){
+            list.add(it.url)
+        }
+        HashMap servers = pingService.send(list)
 
         return [server: [servers:servers]]
     }
