@@ -253,7 +253,7 @@ generateControllerCommand {
                   </div>
                 </div>
               </div>
-              
+
             </section>
             <!-- / typography -->
 
@@ -276,16 +276,11 @@ generateControllerCommand {
               <div class="row">
                 <div class="col">
                   <div class="alert alert-primary" role="alert">
-                    <p><b>NOTE</b>: If you are not using the 'profile', you will need to add this code to the bottom of your 'build.gradle' file:</p>
-                  </div>
-                </div>
-              </div></br>
-
-
-              <div class="row">
-                <div class="col">
-                  <div class="card">
-                    <div class="card-body" style="background-color:#000;">
+                    <p><b>NOTE</b>: If you are not using the 'profile', you will need to add this code to the bottom of your 'build.gradle' file:
+                    <div class="row">
+                      <div class="col">
+                        <div class="card">
+                          <div class="card-body" style="background-color:#000;">
                       <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">task generateIostateCommand(type: ApplicationContextCommandTask) {
     classpath =  project.sourceSets.main.runtimeClasspath + project.configurations.console
     command = "generate-iostate"
@@ -294,10 +289,17 @@ generateControllerCommand {
 generateIostateCommand {
     systemProperties = System.properties
 }</code></pre>
+                          </div>
+                        </div>
+                      </div>
                     </div>
+                    </p>
                   </div>
                 </div>
-              </div>
+              </div></br>
+
+
+
             </section>
             <!-- / colors -->
 
