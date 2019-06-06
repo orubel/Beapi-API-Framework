@@ -231,7 +231,13 @@
               </div>
               <p>In the example above, <b>the 'combine' flag</b> lets us know to concatenate the output into a single response. Otherwise it will only return the last 'element' for this response.</p>
               <p>This is important if you are doing batch INSERTS and don't care about the output (unless there is an EXCEPTION thrown).</p>
-              <p><b>NOTE ON VERSIONING:</b> Of importance to note is that the versioning used here is <b>b1.0</b> (if you did not notice). We do this so that we can separate this functionality out to a separate server if we want so as not to affect main api calls. Same goes for API chaining calls which use 'c1.0'.</p>
+              <div class="row">
+                <div class="col">
+                  <div class="alert alert-primary" role="alert">
+                    <p><b>NOTE ON VERSIONING:</b> Of importance to note is that the versioning used here is <b>b1.0</b> (if you did not notice). We do this so that we can separate this functionality out to a separate server if we want so as not to affect main api calls. Same goes for API chaining calls which use 'c1.0'.</p>
+                  </div>
+                </div>
+              </div>
               </br>
               <div id="section-1.1">
                 <h2 class="section-title-2">Batch Examples Using Curl</h2>
@@ -348,7 +354,14 @@
                     </div>
                   </div>
                 </div></br>
-                <p><b>NOTE</b>: All roles have to exist in the 'networkRoles' for the IO State files 'NETWORKGRP'. See <a href="file:///home/orubel/workspace/guidebook/app/security.html#section-1">'Security: Cors / Network Roles'</a></p>
+                <div class="row">
+                  <div class="col">
+                    <div class="alert alert-primary" role="alert">
+                      <p><b>NOTE</b>: All roles have to exist in the 'networkRoles' for the IO State files 'NETWORKGRP'. See <a href="file:///home/orubel/workspace/guidebook/app/security.html#section-1">'Security: Cors / Network Roles'</a></p>
+                    </div>
+                  </div>
+                </div>
+
               </div></br>
               <div id="section-2.2">
                 <h2 class="section-title-2">Create Your First Webhook</h2>
@@ -379,13 +392,13 @@ insert into hook (attempts,date_created,format,last_modified,user_id,is_enabled,
               <p>API Chaining is a process allowing one api call to return data into another api call which returns data into another api call , etc etc, all within ONE REQUEST/RESPONSE. This is allowed through the abstraction of communication logic from business logic through the New API Pattern. This is limited in the fact that you can only use GET method as the connectors in the chain and one other 'non-safe' method (ie PUT/POST/DELETE) at either the beginning or the end of the chain (as determined by the REQUEST method).</p>
               <div class="row">
                 <div class="col">
-                  <div class="alert alert-warning" role="alert">
-                    <p><b>NOTE</b>: The API Chaining trademark can only be used by those properly implementing the process. As a process, it is only considered successfully implemented if:</p>
-                    <ul>
-                      <li>API call MUST use ONLY ONE REQUEST/RESPONSE (ie no redirects)</li>
-                      <li>Client can create chains and they MUST be processed dynamically; there SHOULD BE NO hardcoded chains.</li>
-                      <li>There MUST BE no more than ONE non-safe REQUEST method used in a chain during a single REQUEST/RESPONSE</li>
-                    </ul>
+                  <div class="alert alert-primary" role="alert">
+                          <p><b>NOTE</b>: The API Chaining trademark can only be used by those properly implementing the process. As a process, it is only considered successfully implemented if:</p>
+                          <ul>
+                            <li>API call MUST use ONLY ONE REQUEST/RESPONSE (ie no redirects)</li>
+                            <li>Client can create chains and they MUST be processed dynamically; there SHOULD BE NO hardcoded chains.</li>
+                            <li>There MUST BE no more than ONE non-safe REQUEST method used in a chain during a single REQUEST/RESPONSE</li>
+                          </ul>
                   </div>
                 </div>
               </div>
@@ -430,7 +443,14 @@ insert into hook (attempts,date_created,format,last_modified,user_id,is_enabled,
                     </div></br>
                   </li>
                 </ul></br>
-                <p><b>NOTE</b>: Pre and Post chain example can happen with any method including DELETE; A Delete method can delete data or just render it 'inactive' (depending on your controller and domain setup) so passing the ID to a GET method after a DELETE can be useful to get related data or to confirm the state.</p>
+                <div class="row">
+                  <div class="col">
+                    <div class="alert alert-primary" role="alert">
+                      <p><b>NOTE</b>: Pre and Post chain example can happen with any method including DELETE; A Delete method can delete data or just render it 'inactive' (depending on your controller and domain setup) so passing the ID to a GET method after a DELETE can be useful to get related data or to confirm the state.</p>
+                    </div>
+                  </div>
+                </div>
+
               </div></br>
               <div id="section-3.2">
                 <h2 class="section-title-2">API Chaining® Example</h2>

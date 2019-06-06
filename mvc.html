@@ -218,7 +218,13 @@
             <!-- typogrpahy -->
             <section id="section-1">
               <h2 class="section-title-2">The Domains<a data-scroll href="#section-1" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
-              <p><b>NOTE</b>: See Grails documentation on <a href="https://docs.grails.org/latest/ref/Domain%20Classes/Usage.html">Domains</a>.</p>
+              <div class="row">
+                <div class="col">
+                  <div class="alert alert-primary" role="alert">
+                    <p><b>NOTE</b>: See Grails documentation on <a href="https://docs.grails.org/latest/ref/Domain%20Classes/Usage.html">Domains</a>.</p>
+                  </div>
+                </div>
+              </div>
               <p>Your Model requires no additional annotations added to it to make the api's function. You merely need to map the database tables like a normal model. Included in the project are several <a href="https://github.com/orubel/beapi_backend/blob/master/grails-app/domain/net/nosegrind/apiframework/Hook.groovy">domain classes</a> to show you how one should look. There is nothing complex; just follow <a href="http://gorm.grails.org/latest/hibernate/manual/index.html">GORM principles</a> for creating a basic domain object.</p>
             </section>
             <!-- / typography -->
@@ -228,8 +234,14 @@
             <!-- colors -->
             <section id="section-2">
               <h2 class="section-title-2">The Controllers<a data-scroll href="#section-2" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
-              <p><b>NOTE</b>: See Grails documentation on <a href="https://docs.grails.org/latest/ref/Controllers/Usage.html">Controllers</a>.</p>
-              <p><b>NOTE:</b>If you would like to simplify this process, see <a href="bootstrap.html#section-1">'Bootstrapping : Generate API Controllers'</a></p>
+              <div class="row">
+                <div class="col">
+                  <div class="alert alert-primary" role="alert">
+                    <p><b>NOTE</b>: See Grails documentation on <a href="https://docs.grails.org/latest/ref/Controllers/Usage.html">Controllers</a>.</p>
+                    <p><b>NOTE:</b>If you would like to simplify this process, see <a href="bootstrap.html#section-1">'Bootstrapping : Generate API Controllers'</a></p>
+                  </div>
+                </div>
+              </div>
               <p>Your controllers requires no additional annotations (or ROLE checks) added to it to make the api's function. Included in the project are several <a href="https://github.com/orubel/beapi_backend/blob/master/grails-app/controllers/net/nosegrind/apiframework/PersonController.groovy">controllers</a> to show you how one should look.</p>
               <p>There ARE two caveats to your controller methods however:</p>
               <ul>
@@ -256,7 +268,6 @@
                   </div>
                 </li>
               </ul>
-              <p><b>NOTE:</b>If you would like to simplify this process, see <a href="bootstrap.html#section-1">'Bootstrapping : Generate Controllers'</a></p>
             </section>
             <!-- / colors -->
 
@@ -269,7 +280,7 @@
               <p></p>
               <div class="row">
                 <div class="col">
-                  <div class="alert alert-warning" role="alert">
+                  <div class="alert alert-primary" role="alert">
                     <ul>
                       <li>If you are having problems with a domain class, remove 'cache: true'; this usually takes care of the problem.</li>
                       <li>If you are bootstrapping your controllers, make sure all your corresponding domains exist first.</li>

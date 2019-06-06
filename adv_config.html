@@ -561,19 +561,26 @@
                   <li><b>REQUEST</b>: Per role data for expected when sending the request; concatenates across roles</li>
                   <li><b>RESPONSE</b>: Per role data for expected when sending the request; concatenates across roles</li>
                 </ul>
-                <p><b>Of note on REQUEST/RESPONSE and ROLES</b>: one can set different access levels by concatenating privileges. Their is a default privilege level called 'permitAll' which will allow ALL privileges set in ROLES>DEFAULT access to this data. You can then allow more atomic access by setting additional values PER ROLE like so:</p>
-                <div class="row">
-                  <div class="col">
-                    <div class="card">
-                      <div class="card-body" style="background-color:#000;">
+                  <div class="row">
+                      <div class="col">
+                          <div class="alert alert-primary" role="alert">
+                              <p><b>Of note on REQUEST/RESPONSE and ROLES</b>: one can set different access levels by concatenating privileges. Their is a default privilege level called 'permitAll' which will allow ALL privileges set in ROLES>DEFAULT access to this data. You can then allow more atomic access by setting additional values PER ROLE like so:</p>
+                              <div class="row">
+                                  <div class="col">
+                                      <div class="card">
+                                          <div class="card-body" style="background-color:#000;">
                         <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">"REQUEST": {
     "permitAll":["name"],
     "ROLE_USER":["id"]
 },</code></pre>
+                                          </div>
+                                      </div>
+                                  </div>
+                              </div>
+                          </div>
                       </div>
-                    </div>
                   </div>
-                </div>
+
               </div>
               </br>
               <div id="section-2.3">
