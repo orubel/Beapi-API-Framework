@@ -2,7 +2,7 @@
  * Copyright 2013-2019 Beapi.io
  * API Chaining(R) 2019 USPTO
  *
- * Licensed under the MIT License;
+ * Licensed under the MPL-2.0 License;
  * you may not use this file except in compliance with the License.
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -74,6 +74,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 	List roles
 	String authority
 	Long userId
+	String networkGrp
 
 	ChainInterceptor(){
 		match(uri:"/${entryPoint}/**")
@@ -163,6 +164,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 		this.roles = cache[apiObject][action]['roles'] as List
 		this.authority = getUserRole(this.roles) as String
+		this.networkGrp = cache[apiObject][action]['networkGrp']
 
 		// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
 		//String path = "${params.controller}/${params.action}".toString()

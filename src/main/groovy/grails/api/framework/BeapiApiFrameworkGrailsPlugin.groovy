@@ -36,14 +36,14 @@ import grails.util.Metadata
  * @author Owen Rubel
  */
 class BeapiApiFrameworkGrailsPlugin extends Plugin{
-	def version = '0.2.1.2'
-    def grailsVersion = '3.1.1 > *'
+	def version = '1.1'
+    def grailsVersion = '3.2.1 > *'
     def title = 'BeAPI Api Framework' // Headline display name of the plugin
 	def author = 'Owen Rubel'
 	def authorEmail = 'orubel@gmail.com'
 	def description = 'BeAPI Framework is a fully reactive plug-n-play API Framework for Distributed Architectures providing api abstraction, cached IO state, automated batching and more. It is meant to autmoate alot of the issues behind setting up and maintaining API\'s in distributed architectures as well as handling and simplifying automation.'
 	def documentation = 'https://www.beapi.io/documentation'
-	def license = 'MIT'
+	def license = 'MPL-2.0'
     def organization = [ name: 'BeAPI', url: 'http://www.beapi.io' ]
     def developers = [[ name: 'Owen Rubel', email: 'orubel@gmail.com' ]]
 	def issueManagement = [system: 'GitHub', url: 'https://github.com/orubel/grails-api-toolkit-docs/issues']

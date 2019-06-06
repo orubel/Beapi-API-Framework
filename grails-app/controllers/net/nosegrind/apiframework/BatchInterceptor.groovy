@@ -2,7 +2,7 @@
  * Copyright 2013-2019 Beapi.io
  * API Chaining(R) 2019 USPTO
  *
- * Licensed under the MIT License;
+ * Licensed under the MPL-2.0 License;
  * you may not use this file except in compliance with the License.
  *
  * Unless required by applicable law or agreed to in writing, software
@@ -76,6 +76,7 @@ class BatchInterceptor extends ApiCommLayer{
 	List roles
 	String authority
 	Long userId
+	String networkGrp
 
 	BatchInterceptor(){
 		match(uri:"/${entryPoint}/**")
@@ -126,6 +127,7 @@ class BatchInterceptor extends ApiCommLayer{
 
 		this.roles = cache[apiObject][action]['roles'] as List
 		this.authority = getUserRole(this.roles) as String
+		this.networkGrp = cache[apiObject][action]['networkGrp']
 
 		try{
 			//Test For APIDoc

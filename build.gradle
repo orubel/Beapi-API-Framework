@@ -50,7 +50,7 @@ grailsPublish {
     user = System.getenv('BINTRAY_USER')
     key = System.getenv('BINTRAY_KEY')
     githubSlug = 'orubel/Beapi-API-Framework'
-    license { name = 'MIT' }
+    license { name = 'MPL-2.0' }
     title = "BeAPI API Framework"
     desc = "BeAPI API Framework is a fully reactive plug-n-play API Framework for Distributed Architectures providing api abstraction, cached IO state, automated batching and more. It is meant to autmoate alot of the issues behind setting up and maintaining API's in distributed architectures as well as handling and simplifying automation."
     developers = [orubel:"Owen Rubel"]

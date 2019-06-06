@@ -2,7 +2,7 @@
  * Copyright 2013-2019 Beapi.io
  * API Chaining(R) 2019 USPTO
  *
- * Licensed under the MIT License;
+ * Licensed under the MPL-2.0 License;
  * you may not use this file except in compliance with the License.
  *
  * Unless required by applicable law or agreed to in writing, software

@@ -1,6 +1,6 @@
 /*
  * Copyright 2013-2019 Beapi.io
- * API Chaining(R) 2019 USPTO
+ * API Chaining(R) MPL-2.0 USPTO
  *
  * Licensed under the MIT License;
  * you may not use this file except in compliance with the License.
