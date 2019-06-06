@@ -57,7 +57,7 @@ class ApiTokenStorageService implements TokenStorageService {
     UserDetails loadUserByToken(String tokenValue) throws TokenNotFoundException {
         //log.debug "Finding token ${tokenValue} in GORM"
         def conf = SpringSecurityUtils.securityConfig
-        println("loadUser:"+conf)
+
         String usernamePropertyName = conf.rest.token.storage.gorm.usernamePropertyName
         def existingToken = findExistingToken(tokenValue)
 

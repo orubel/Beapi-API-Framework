@@ -194,6 +194,8 @@ abstract class ApiCommProcess{
      */
     boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions, String authority){
         ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','apiResult','combine','_','batch','max','offset','apiObjectVersion']
+        ArrayList paramsList
+        ArrayList requestList
         try {
             ArrayList temp = []
             if (requestDefinitions["${authority}"]) {
@@ -202,23 +204,23 @@ abstract class ApiCommProcess{
                 temp = requestDefinitions['permitAll'] as ArrayList
             }
 
-            ArrayList requestList = (temp != null) ? temp.collect() { it.name } : []
+            requestList = (temp != null) ? temp.collect() { it.name } : []
 
             if (requestList.contains('*')) {
                 return true
             } else {
                 LinkedHashMap methodParams = getMethodParams(params)
-                ArrayList paramsList = methodParams.keySet() as ArrayList
+                paramsList = methodParams.keySet() as ArrayList
                 // remove reservedNames from List
 
                 reservedNames.each() { paramsList.remove(it) }
-                
+
                 if (paramsList.size() == requestList.intersect(paramsList).size()) {
                     return true
                 }
             }
 
-            errorResponse([400,'Expected request variables for endpoint do not match sent variables'])
+            errorResponse([400,"Expected request variables for endpoint [${requestList}] do not match sent variables [${paramsList}]"])
             return false
         }catch(Exception e) {
            throw new Exception("[ApiCommProcess :: checkURIDefinitions] : Exception - full stack trace follows:",e)
@@ -727,6 +729,7 @@ abstract class ApiCommProcess{
      * @return a hash from all id's needed when making request to endpoint
      */
     String createCacheHash(GrailsParameterMap params, LinkedHashMap receives, String authority){
+        //boolean roles = Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGroup}"
         StringBuilder hashString = new StringBuilder('')
         ArrayList temp = []
         if (receives["${authority}"]) {

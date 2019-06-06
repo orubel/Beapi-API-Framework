@@ -380,7 +380,6 @@ class GenerateIostateCommand implements ApplicationCommand {
                         if (method.isEmpty()) {
                             Matcher putm = putPattern.matcher(it4)
                             if (putm.find()) {
-                                println(it4+"is PUT")
                                 method = 'PUT'
                                 req = variables
                                 resp.add('\"id\"')

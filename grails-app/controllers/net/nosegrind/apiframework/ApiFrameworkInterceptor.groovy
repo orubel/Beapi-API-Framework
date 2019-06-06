@@ -73,7 +73,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	List roles
 	String authority
 	Long userId
-
+	String networkGrp
 
 	/**
 	 * Constructor for ApiFrameworkInterceptor. Matches on entrypoint (ie v0.1 for example)
@@ -145,6 +145,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		this.cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 		this.roles = cache[apiObject][action]['roles'] as List
 		this.authority = getUserRole(this.roles) as String
+		this.networkGrp = cache[apiObject][action]['networkGrp']
 
 		try{
 			//Test For APIDoc
@@ -193,7 +194,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 				// RETRIEVE CACHED RESULT (only if using get method); DON'T CACHE LISTS
 				if (this.cachedEndpoint.cachedResult && mthdKey=='GET' && cacheHash !=null) {
-					LinkedHashMap cachedResult = this.cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
+
+
+					LinkedHashMap cachedResult = this.cachedEndpoint['cachedResult'][cacheHash][this.networkGrp][format] as LinkedHashMap
 					if(cachedResult){
 
 						String domain = ((String) controller).capitalize()
@@ -331,7 +334,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		if(model) {
 			//List unsafeMethods = ['PUT', 'POST', 'DELETE']
 			Object vals = model.values()
-			try {
+			//try {
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
@@ -393,7 +396,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						String role
 						if(request.method.toUpperCase()=='GET') {
 							role = (controller == 'apidoc')? 'permitAll' : this.authority
-							apiCacheService.setApiCachedResult(cacheHash, controller, apiObject, action, role, this.format, result)
+
+							apiCacheService.setApiCachedResult(cacheHash, controller, apiObject, action, this.networkGrp, this.format, result)
 						}
 
 						if (apiThrottle) {

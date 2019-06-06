@@ -181,14 +181,6 @@ class TestService {
         return userRoles
     }
 
-    boolean getApiCall(){}
-
-    boolean  putApiCall(){}
-
-    boolean  postApiCall(){}
-
-    boolean deleteApiCall(){}
-
     LinkedHashMap getApiCache(String controllername){
         try{
             GrailsConcurrentMapCache temp = grailsCacheManager?.getCache('ApiCache')
@@ -230,5 +222,59 @@ class TestService {
             }
         }
         return returns
+    }
+
+    LinkedHashMap getJSON(String endpoint, String data=null){
+        def info
+        String url
+        if(data) {
+            url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${this.user.token}' --request GET -d '${data}' ${endpoint}"
+        }else{
+            url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${this.user.token}' --request GET ${endpoint}"
+        }
+
+        def proc = ['bash','-c',url].execute()
+        proc.waitFor()
+
+        StringBuffer outputStream = new StringBuffer()
+        StringWriter error = new StringWriter()
+        proc.waitForProcessOutput(outputStream, error)
+
+        try {
+            String output = outputStream.toString()
+            info = new JsonSlurper().parseText(output)
+            return info
+        }catch(Exception e){
+            ArrayList stdErr = error.toString().split( '> \n' )
+            println(stdErr)
+        }
+    }
+
+    void getXML(String token, String data=null, String endpoint){
+
+    }
+
+    void putJSON(String token, String data, String endpoint){
+
+    }
+
+    void putXML(String token, String data, String endpoint){
+
+    }
+
+    void postJSON(String token, String data, String endpoint){
+
+    }
+
+    void postXML(String token, String data, String endpoint){
+
+    }
+
+    void deleteJSON(String token, String data=null, String endpoint){
+
+    }
+
+    void deleteXML(String token, String data=null, String endpoint){
+
     }
 }
