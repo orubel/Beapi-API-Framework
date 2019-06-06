@@ -334,7 +334,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		if(model) {
 			//List unsafeMethods = ['PUT', 'POST', 'DELETE']
 			Object vals = model.values()
-			//try {
+			try {
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
