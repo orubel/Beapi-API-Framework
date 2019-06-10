@@ -71,7 +71,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	ApiDescriptor cachedEndpoint
 
 	List roles
-	String authority
+	List authority
 	Long userId
 	String networkGrp
 
@@ -97,7 +97,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * @return
 	 */
 	boolean before(){
-		//println('##### INTERCEPTOR (BEFORE)')
+		//println("##### INTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
 
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
@@ -144,10 +144,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 		this.cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 		this.roles = cache[apiObject][action]['roles'] as List
-		this.authority = getUserRole(this.roles) as String
+		this.authority = getUserRole(this.roles)
 		this.networkGrp = cache[apiObject][action]['networkGrp']
 
-		try{
+		//try{
 			//Test For APIDoc
 			if(controller=='apidoc') { return true }
 
@@ -318,10 +318,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 			return false
 
-		}catch(Exception e){
-			throw new Exception('[ApiToolkitFilters :: preHandler] : Exception - full stack trace follows:', e)
-			return false
-		}
+		//}catch(Exception e){
+		//	throw new Exception('[ApiToolkitFilters :: preHandler] : Exception - full stack trace follows:', e)
+		//	return false
+		//}
 	}
 
 	/**
@@ -329,7 +329,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * @return
 	 */
 	boolean after() {
-		//println('##### INTERCEPTOR (AFTER)')
+		//println("##### INTERCEPTOR (AFTER) - ${params.controller}/${params.action}")
 
 		if(model) {
 			//List unsafeMethods = ['PUT', 'POST', 'DELETE']

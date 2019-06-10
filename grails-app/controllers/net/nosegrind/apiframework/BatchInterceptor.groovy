@@ -74,7 +74,7 @@ class BatchInterceptor extends ApiCommLayer{
 	ApiDescriptor cachedEndpoint
 
 	List roles
-	String authority
+	List authority
 	Long userId
 	String networkGrp
 
@@ -126,7 +126,7 @@ class BatchInterceptor extends ApiCommLayer{
 		cachedEndpoint = cache[apiObject][action] as ApiDescriptor
 
 		this.roles = cache[apiObject][action]['roles'] as List
-		this.authority = getUserRole(this.roles) as String
+		this.authority = getUserRole(this.roles)
 		this.networkGrp = cache[apiObject][action]['networkGrp']
 
 		try{
@@ -208,7 +208,7 @@ class BatchInterceptor extends ApiCommLayer{
 				if (cachedEndpoint['cachedResult']) {
 					if(cachedEndpoint['cachedResult'][cacheHash]){
 						String domain = (controller).capitalize()
-						JSONObject json = (JSONObject) cachedEndpoint['cachedResult'][cacheHash][this.authority][format]
+						JSONObject json = (JSONObject) cachedEndpoint['cachedResult'][cacheHash][this.networkGrp][format]
 						if (!json || json == null) {
 							return false
 						} else {
@@ -223,7 +223,7 @@ class BatchInterceptor extends ApiCommLayer{
 								int version = jsonObj.get('version') as Integer
 
 								if (isCachedResult((Integer) version, domain)) {
-									LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
+									LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][this.networkGrp][format] as LinkedHashMap
 									String content = new groovy.json.JsonBuilder(result).toString()
 									byte[] contentLength = content.getBytes('ISO-8859-1')
 									if (apiThrottle) {
@@ -246,7 +246,7 @@ class BatchInterceptor extends ApiCommLayer{
 							} else {
 								if (json.version != null) {
 									if (isCachedResult((Integer) json.get('version'), domain)) {
-										LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][this.authority][format] as LinkedHashMap
+										LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][this.networkGrp][format] as LinkedHashMap
 										String content = new groovy.json.JsonBuilder(result).toString()
 										byte[] contentLength = content.getBytes('ISO-8859-1')
 										if (apiThrottle) {

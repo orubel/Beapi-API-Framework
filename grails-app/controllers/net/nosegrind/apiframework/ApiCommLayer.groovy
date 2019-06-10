@@ -116,12 +116,15 @@ abstract class ApiCommLayer extends ApiCommProcess{
      * @param params
      * @return
      */
-    def handleBatchResponse(String authority, LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model){
+    def handleBatchResponse(List authority, LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model){
         try{
-
             response.setHeader('Authorization', roles.join(', '))
 
-            ArrayList<LinkedHashMap> temp = (requestDefinitions[authority])?requestDefinitions[authority] as ArrayList<LinkedHashMap>:requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
+            ArrayList<LinkedHashMap> temp = []
+            authority.each { temp.addAll(requestDefinitions["${it}"] as ArrayList) }
+            if (receives['permitAll'][0] != null) { temp.addAll(requestDefinitions['permitAll'] as ArrayList) }
+
+            //ArrayList<LinkedHashMap> temp = (requestDefinitions[authority])?requestDefinitions[authority] as ArrayList<LinkedHashMap>:requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
             ArrayList responseList = (ArrayList)temp.collect(){ it.name }
             LinkedHashMap result = parseURIDefinitions(model,responseList)
 
@@ -147,11 +150,14 @@ abstract class ApiCommLayer extends ApiCommProcess{
      * @param params
      * @return
      */
-    def handleChainResponse(String authority,LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model, GrailsParameterMap params){
+    def handleChainResponse(List authority,LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model, GrailsParameterMap params){
         try{
             response.setHeader('Authorization', roles.join(', '))
+            ArrayList<LinkedHashMap> temp = []
+            authority.each { temp.addAll(requestDefinitions["${it}"] as ArrayList) }
+            if (receives['permitAll'][0] != null) { temp.addAll(requestDefinitions['permitAll'] as ArrayList) }
 
-            ArrayList<LinkedHashMap> temp = (requestDefinitions[authority])?requestDefinitions[authority] as ArrayList<LinkedHashMap>:requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
+            //ArrayList<LinkedHashMap> temp = (requestDefinitions[authority])?requestDefinitions[authority] as ArrayList<LinkedHashMap>:requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
             ArrayList responseList = (ArrayList)temp.collect(){ it.name }
             LinkedHashMap result = parseURIDefinitions(model,responseList)
             LinkedHashMap chain = params.apiChain as LinkedHashMap

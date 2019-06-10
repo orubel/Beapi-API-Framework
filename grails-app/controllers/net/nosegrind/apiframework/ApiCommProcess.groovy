@@ -128,11 +128,12 @@ abstract class ApiCommProcess{
      * @see ApiCommLayer#handleApiResponse(LinkedHashMap, List, RequestMethod, String, HttpServletResponse, HashMap, GrailsParameterMap)
      * @return String Role of current principal (logged in user)
      */
-    String getUserRole(List roles) {
-        String authority = 'permitAll'
+    List getUserRole(List roles) {
+        //String authority = 'permitAll'
+        List authority = ['permitAll']
         springSecurityService.principal.authorities*.authority.each{
             if(roles.contains(it)){
-                authority = it
+                authority.add(it)
             }
         }
         return authority
@@ -192,16 +193,16 @@ abstract class ApiCommProcess{
      * @param LinkedHashMap map of variables defining endpoint request variables
      * @return Boolean returns false if request variable keys do not match expected endpoint keys
      */
-    boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions, String authority){
+    boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions, List authority){
         ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','apiResult','combine','_','batch','max','offset','apiObjectVersion']
         ArrayList paramsList
         ArrayList requestList
         try {
             ArrayList temp = []
-            if (requestDefinitions["${authority}"]) {
-                temp = requestDefinitions["${authority}"] as ArrayList
-            } else if (requestDefinitions['permitAll'][0] != null) {
-                temp = requestDefinitions['permitAll'] as ArrayList
+            authority.each {
+                if(requestDefinitions["${it}"] && !requestDefinitions.every { temp.contains(it) }) {
+                        temp.addAll(requestDefinitions["${it}"] as ArrayList)
+                }
             }
 
             requestList = (temp != null) ? temp.collect() { it.name } : []
@@ -213,7 +214,13 @@ abstract class ApiCommProcess{
                 paramsList = methodParams.keySet() as ArrayList
                 // remove reservedNames from List
 
+
+
                 reservedNames.each() { paramsList.remove(it) }
+
+                //println("RL (expected):"+requestList)
+                //println("PL (sent):"+paramsList)
+
 
                 if (paramsList.size() == requestList.intersect(paramsList).size()) {
                     return true
@@ -628,14 +635,14 @@ abstract class ApiCommProcess{
      * @param int contentLength
      * @return
      */
-    boolean checkLimit(int contentLength,String auth){
+    boolean checkLimit(int contentLength,List auth){
         HashMap throttle = Holders.grailsApplication.config.apitoolkit.throttle as HashMap
         HashMap rateLimit = throttle.rateLimit as HashMap
         HashMap dataLimit = throttle.dataLimit as HashMap
         Integer expire = throttle.expires as Integer
-        ArrayList roles = rateLimit.keySet() as ArrayList
+        ArrayList keys = rateLimit.keySet() as ArrayList
 
-        if(roles.contains(auth)){
+        if(keys.contains(rateLimitKey)){
             String userId = springSecurityService.loggedIn?springSecurityService.principal.id : null
             def lcache = throttleCacheService.getThrottleCache(userId)
 
@@ -648,9 +655,13 @@ abstract class ApiCommProcess{
                 return true
             }else{
                 if(lcache['locked']==false) {
+                    int userLimit = 0
+                    int userDataLimit = 0
+                    auth.each(){
+                        userLimit=((rateLimit["${it}"] as Integer)>userLimit)?rateLimit["${it}"] as Integer:userLimit
+                        userDataLimit = ((dataLimit["${it}"] as Integer)>userDataLimit)?dataLimit["${it}"] as Integer:userDataLimit
+                    }
 
-                    int userLimit = rateLimit["${auth}"] as Integer
-                    int userDataLimit = dataLimit["${auth}"] as Integer
                     if(lcache['currentRate']>=userLimit || lcache['currentData']>=userDataLimit){
                         // TODO : check locked (and lock if not locked) and expires
                         int now = System.currentTimeMillis() / 1000
@@ -728,15 +739,18 @@ abstract class ApiCommProcess{
      * @param LinkedHashMap List of ids required when making request to endpoint
      * @return a hash from all id's needed when making request to endpoint
      */
-    String createCacheHash(GrailsParameterMap params, LinkedHashMap receives, String authority){
+    String createCacheHash(GrailsParameterMap params, LinkedHashMap receives, List authority){
+
         //boolean roles = Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGroup}"
         StringBuilder hashString = new StringBuilder('')
         ArrayList temp = []
-        if (receives["${authority}"]) {
-            temp = receives["${authority}"] as ArrayList
-        } else if (receives['permitAll'][0] != null) {
-            temp = receives['permitAll'] as ArrayList
+        authority.each {
+            if (receives["${it}"]) {
+                temp.addAll(receives["${it}"] as ArrayList)
+            }
         }
+
+        //if (receives['permitAll'][0] != null) { temp.addAll(receives['permitAll'] as ArrayList) }
 
         ArrayList receivesList = (temp != null)?temp.collect(){ it.name }:[]
 

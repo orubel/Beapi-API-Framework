@@ -167,13 +167,13 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 String fileChar1 = fileName.charAt(fileName.length() - 1)
 
                 if (tmp[1] == 'json' && fileChar1== "n") {
-                    try{
+                    //try{
                         JSONObject json = JSON.parse(file.text)
                         methods[json.NAME.toString()] = parseJson(json.NAME.toString(), json, applicationContext)
                         //parseJson(json.NAME.toString(), json, applicationContext)
-                    }catch(Exception e){
-                        throw new Exception("[ApiObjectService :: initialize] : Unacceptable file '${file.name}' - full stack trace follows:",e)
-                    }
+                    //}catch(Exception e){
+                    //    throw new Exception("[ApiObjectService :: initialize] : Unacceptable file '${file.name}' - full stack trace follows:",e)
+                    //}
                 }else{
                     println(" # Bad File Type [ ${tmp[1]} ]; Ignoring file : ${fileName}")
                 }
@@ -332,7 +332,17 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 String apiMethod = it.value.METHOD
                 String apiDescription = it.value.DESCRIPTION
 
-                Set apiRoles = it.value.ROLES.DEFAULT
+                List apiRoles = (it.value.ROLES.DEFAULT)?it.value.ROLES.DEFAULT as List:null
+                List networkRoles = grails.util.Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGrp}"
+                if(apiRoles) {
+                    if(!(apiRoles-networkRoles.intersect(apiRoles).isEmpty())){
+                        throw new Exception("[Runtime :: parseJson] : ${it.key}.ROLES.DEFAULT does not match any networkRoles for ${apiName} NETWORKGRP :",e)
+                    }
+                }else{
+                    apiRoles = networkRoles
+                }
+
+
                 Set batchRoles = it.value.ROLES.BATCH
                 Set hookRoles = it.value.ROLES.HOOK
 
@@ -378,10 +388,10 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
 
 
-    private ApiDescriptor createApiDescriptor(String networkGrp, String apiname,String apiMethod, String apiDescription, Set apiRoles, Set batchRoles, Set hookRoles, String uri, JSONObject values, JSONObject json){
+    private ApiDescriptor createApiDescriptor(String networkGrp, String apiname,String apiMethod, String apiDescription, List apiRoles, Set batchRoles, Set hookRoles, String uri, JSONObject values, JSONObject json){
         LinkedHashMap<String,ParamsDescriptor> apiObject = [:]
         ApiParams param = new ApiParams()
-        List networkRoles = grails.util.Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGrp}"
+
         Set fkeys = []
         Set pkeys= []
         try {
@@ -446,7 +456,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 'pkey':pkeys,
                 'fkeys':fkeys,
                 'description':"$apiDescription",
-                'roles':networkRoles,
+                'roles':apiRoles,
                 'batchRoles':[],
                 'hookRoles':[],
                 'doc':[:],
@@ -454,17 +464,20 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 'returns':returns
         )
 
-        //service['roles'] = apiRoles
+        // override networkRoles with 'DEFAULT' in IO State
+
+
+
         batchRoles.each{
-            if(!networkRoles.contains(it)){
-                throw new Exception("[Runtime :: createApiDescriptor] : BatchRoles in IO State[" + apiname + "] do not match networkRoles")
+            if(!apiRoles.contains(it)){
+                throw new Exception("[Runtime :: createApiDescriptor] : BatchRoles in IO State[" + apiname + "] do not match default/networkRoles")
             }
         }
         service['batchRoles'] = batchRoles
 
         hookRoles.each{
-            if(!networkRoles.contains(it)){
-                throw new Exception("[Runtime :: createApiDescriptor] : HookRoles in IO State[" + apiname + "] do not match networkRoles")
+            if(!apiRoles.contains(it)){
+                throw new Exception("[Runtime :: createApiDescriptor] : HookRoles in IO State[" + apiname + "] do not match default/networkRoles")
             }
         }
         service['hookRoles'] = hookRoles

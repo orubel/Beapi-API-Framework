@@ -22,6 +22,7 @@ import grails.plugin.cache.GrailsValueWrapper
 import grails.util.Holders
 import grails.util.Metadata
 import groovy.json.JsonSlurper
+import grails.core.GrailsApplication
 
 /**
  * TestService. 
@@ -38,7 +39,8 @@ class TestService {
     String testDomain
     String appVersion = "v${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
     String loginUri
-
+    LinkedHashMap userMockData
+    GrailsApplication grailsApplication
     GrailsCacheManager grailsCacheManager
 
 
@@ -47,13 +49,18 @@ class TestService {
         this.cache = getApiCache(controller)
         this.version = this.cache['cacheversion']
         adminLogin()
+	
         List userRoles = getUserRoles(controller)
         String username = "${controller}test"
         String password = 'testamundo'
         String email = "${controller}test@${controller}test.com"
         String id = createUser(username, password, email, userRoles)
-        String token = loginUser(username,password)
-        this.user = ['id':id,'token':token]
+        LinkedHashMap temp = loginUser(username,password)
+        this.user = ['id':id,'token':temp.token,'authorities':temp.authorities]
+	this.userMockData.username = username
+	this.userMockData.email=email
+	this.userMockData.enabled=true
+	this.userMockData.accountExpired=false
     }
 
     boolean cleanupTest(){
@@ -69,7 +76,8 @@ class TestService {
         String password = Holders.grailsApplication.config.root.password
         this.testDomain = Holders.grailsApplication.config.environments.test.grails.serverURL
         this.loginUri = Holders.grailsApplication.config.grails.plugin.springsecurity.rest.login.endpointUrl
-        this.adminToken = loginUser(login, password)
+        LinkedHashMap temp = loginUser(login, password)
+        this.adminToken = temp.token
     }
 
 
@@ -116,6 +124,7 @@ class TestService {
         if(output){
             def info = new JsonSlurper().parseText(output)
             if(createUserRoles(info['id'] as String, roles)){
+		        this.userMockData = ['id':info['id'],'version':info['version'],'username':'','email':'','enabled':'','accountExpired':'']
                 return info['id']
             }else{
                 deleteUser(info['id'])
@@ -150,12 +159,14 @@ class TestService {
         return true
     }
 
-    private String loginUser(String username, String password){
+    private LinkedHashMap loginUser(String username, String password){
         String url = "curl -H 'Content-Type: application/json' -X POST -d '{\"username\":\"${username}\",\"password\":\"${password}\"}' ${this.testDomain}${this.loginUri}"
         def proc = ['bash','-c',url].execute()
         proc.waitFor()
         def info = new JsonSlurper().parseText(proc.text)
-        return info.access_token
+        List authorities = info.authorities
+        String token = info.access_token
+        return ['token':token,'authorities':authorities]
     }
 
     private String deleteUser(String personId) {
@@ -185,9 +196,11 @@ class TestService {
         // get list of roles we can install with testUser
         List userRoles = []
         List roles = getNetworkRoles(controller)
+        List adminRoles = grailsApplication.config.apitoolkit.admin.roles as List
         List allRoles = getRoleList()
+        List finalRoles = roles - roles.intersect( adminRoles )
         allRoles.each() { it ->
-            if(roles.contains(it.name)){
+            if(finalRoles.contains(it.name)){
                 userRoles.add(it.id)
             }
         }
@@ -246,21 +259,27 @@ class TestService {
             url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${this.user.token}' --request GET ${endpoint}"
         }
 
-        def proc = ['bash','-c',url].execute()
-        proc.waitFor()
 
+
+        def proc = ['bash','-c',"${url}"].execute()
+        proc.waitFor()
         StringBuffer outputStream = new StringBuffer()
         StringWriter error = new StringWriter()
         proc.waitForProcessOutput(outputStream, error)
 
-        try {
-            String output = outputStream.toString()
-            info = new JsonSlurper().parseText(output)
-            return info
-        }catch(Exception e){
-            ArrayList stdErr = error.toString().split( '> \n' )
-            println(stdErr)
-        }
+        String output = outputStream.toString()
+
+	if(output){
+		info = new JsonSlurper().parseText(output)
+		if(info){
+		    return info
+		}else{
+		    throw new Exception("[ERROR] : ${output} : ${error}")
+		}
+	}else{
+		throw new Exception("[ERROR] : No output when calling '${endpoint}': ${error}")
+	}
+	return info
     }
 
     void getXML(String token, String data=null, String endpoint){

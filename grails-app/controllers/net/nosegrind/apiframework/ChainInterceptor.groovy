@@ -72,7 +72,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 	String action
 
 	List roles
-	String authority
+	List authority
 	Long userId
 	String networkGrp
 
@@ -163,7 +163,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 
 		this.roles = cache[apiObject][action]['roles'] as List
-		this.authority = getUserRole(this.roles) as String
+		this.authority = getUserRole(this.roles)
 		this.networkGrp = cache[apiObject][action]['networkGrp']
 
 		// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
@@ -257,13 +257,13 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 						String domain = ((String) params.controller).capitalize()
 
-						JSONObject json = (JSONObject) cache[apiObject][action]['cachedResult'][cacheHash][this.authority][request.format.toUpperCase()]
+						JSONObject json = (JSONObject) cache[apiObject][action]['cachedResult'][cacheHash][this.networkGrp][request.format.toUpperCase()]
 						if (!json) {
 							return false
 						} else {
 							if (isCachedResult((Integer) json.get('version'), domain)) {
 
-								String result = cache[apiObject][action]['cachedResult'][cacheHash][this.authority][request.format.toUpperCase()] as String
+								String result = cache[apiObject][action]['cachedResult'][cacheHash][this.networkGrp][request.format.toUpperCase()] as String
 								byte[] contentLength = result.getBytes("ISO-8859-1")
 								if (apiThrottle) {
 									if (checkLimit(contentLength.length, this.authority)) {
