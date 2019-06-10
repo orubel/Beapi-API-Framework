@@ -117,12 +117,17 @@ abstract class ApiCommLayer extends ApiCommProcess{
      * @return
      */
     def handleBatchResponse(List authority, LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model){
-        try{
+        //try{
             response.setHeader('Authorization', roles.join(', '))
 
             ArrayList<LinkedHashMap> temp = []
-            authority.each { temp.addAll(requestDefinitions["${it}"] as ArrayList) }
-            if (receives['permitAll'][0] != null) { temp.addAll(requestDefinitions['permitAll'] as ArrayList) }
+
+            authority.each(){
+                if(requestDefinitions["${it}"]) {
+                    temp.addAll(requestDefinitions["${it}"] as ArrayList)
+                }
+            }
+            //if (receives['permitAll'][0] != null) { temp.addAll(requestDefinitions['permitAll'] as ArrayList) }
 
             //ArrayList<LinkedHashMap> temp = (requestDefinitions[authority])?requestDefinitions[authority] as ArrayList<LinkedHashMap>:requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
             ArrayList responseList = (ArrayList)temp.collect(){ it.name }
@@ -133,9 +138,9 @@ abstract class ApiCommLayer extends ApiCommProcess{
             }else{
                 return parseBatchResponseMethod(mthd, format, result)
             }
-        }catch(Exception e){
-            throw new Exception("[ApiCommLayer : handleBatchResponse] : Exception - full stack trace follows:",e)
-        }
+        //}catch(Exception e){
+        //    throw new Exception("[ApiCommLayer : handleBatchResponse] : Exception - full stack trace follows:",e)
+        //}
     }
 
     /**
@@ -154,8 +159,13 @@ abstract class ApiCommLayer extends ApiCommProcess{
         try{
             response.setHeader('Authorization', roles.join(', '))
             ArrayList<LinkedHashMap> temp = []
-            authority.each { temp.addAll(requestDefinitions["${it}"] as ArrayList) }
-            if (receives['permitAll'][0] != null) { temp.addAll(requestDefinitions['permitAll'] as ArrayList) }
+
+            authority.each(){
+                if(requestDefinitions["${it}"]) {
+                    temp.addAll(requestDefinitions["${it}"] as ArrayList)
+                }
+            }
+            //if (receives['permitAll'][0] != null) { temp.addAll(requestDefinitions['permitAll'] as ArrayList) }
 
             //ArrayList<LinkedHashMap> temp = (requestDefinitions[authority])?requestDefinitions[authority] as ArrayList<LinkedHashMap>:requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
             ArrayList responseList = (ArrayList)temp.collect(){ it.name }
