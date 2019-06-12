@@ -226,11 +226,21 @@
                   <div class="col">
                     <div class="card">
                       <div class="card-body" style="background-color:#000;">
-                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -H Origin: http://localhost -H "Access-Control-Request-Headers: Origin,X-Requested-With" -H "Content-Type: application/json"--request POST -d '{"username":"login","password":"password"}' http://localhost:8080/api/login</code></pre>
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -H Origin: http://localhost -H "Content-Type: application/json"--request POST -d '{"username":"login","password":"password"}' http://localhost:8080/api/login</code></pre>
                       </div>
                     </div>
                   </div>
                 </div>
+                  <p>...or if you are calling from a remote machine...</p>
+                  <div class="row">
+                      <div class="col">
+                          <div class="card">
+                              <div class="card-body" style="background-color:#000;">
+                                  <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -H Origin: http://localhost -H "Access-Control-Request-Headers: Origin,X-Requested-With" -H "Content-Type: application/json"--request POST -d '{"username":"login","password":"password"}' http://localhost:8080/api/login</code></pre>
+                              </div>
+                          </div>
+                      </div>
+                  </div>
                 <p>If you configured your environment properly, you should get something like this:</p>
                 <div class="row">
                   <div class="col">
@@ -297,7 +307,7 @@
                   <div class="col">
                     <div class="card">
                       <div class="card-body" style="background-color:#000;">
-                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -H "Content-Type: application/json" -H "Authorization: Bearer "  --request GET "http://localhost:8080/v1.0/person/show/1"</code></pre>
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -H "Content-Type: application/json" -H "Authorization: Bearer "  --request GET "http://localhost:8080/<b>v1.2.X</b>/person/show/1"</code></pre>
                       </div>
                     </div>
                   </div>
@@ -307,12 +317,20 @@
                   <div class="col">
                     <div class="card">
                       <div class="card-body" style="background-color:#000;">
-                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -H "Content-Type: application/json" -H "Authorization: Bearer " --request PUT -d "{'title':'testamundo'"} "http://localhost:8080/v1.0/post/update/1"</code></pre>
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -H "Content-Type: application/json" -H "Authorization: Bearer " --request PUT -d "{'title':'testamundo'"} "http://localhost:8080/<b>v1.0</b>/post/update/1"</code></pre>
                       </div>
                     </div>
                   </div>
                 </div>
+                  <div class="row">
+                      <div class="col">
+                          <div class="alert alert-primary" role="alert">
+                              <p><b>NOTE</b>: Always remember to replace version (here represented by <b>v1.2.x</b>) with the current version of the application. If you are unsure, check the <b>build.gradle</b>b> for 'version'.</p>
+                          </div>
+                      </div>
+                  </div>
               </div>
+
               <div id="section-2.2">
                 <h2 class="section-title-2">Calling API Via Javascript</h2>
                 <p><b><u>GET Example</u></b></p>
@@ -322,7 +340,7 @@
                       <div class="card-body" style="background-color:#000;">
                       <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">$.ajax({
     type: 'GET',
-    url: window.url+"/v1.0/"+path+"?"+string,
+    url: window.url+"/v1.2.0/"+path+"?"+string,
     crossDomain: true,
     cache:false,
     xhrFields: {
@@ -355,7 +373,7 @@
                       <div class="card-body" style="background-color:#000;">
                       <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">$.ajax({
     type: 'PUT',
-    url: window.url+"/v1.0/"+path,
+    url: window.url+"/v1.2.0/"+path,
     data: JSON.stringify(jsonData),
     crossDomain: true,
     cache:false,
@@ -382,6 +400,13 @@
                     </div>
                   </div>
                 </div>
+                  <div class="row">
+                      <div class="col">
+                          <div class="alert alert-primary" role="alert">
+                              <p><b>NOTE</b>: Always remember to replace version (here represented by <b>v1.2.x</b>) with the current version of the application. If you are unsure, check the <b>build.gradle</b>b> for 'version'.</p>
+                          </div>
+                      </div>
+                  </div>
               </div>
             </section>
             <!-- / colors -->
@@ -401,7 +426,7 @@
                           <div class="col">
                               <div class="card">
                                   <div class="card-body" style="background-color:#000;">
-                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v1.0/person/create"</code></pre>
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v1.2.0/person/create"</code></pre>
                                   </div>
                               </div>
                           </div>
@@ -411,7 +436,7 @@
                           <div class="col">
                               <div class="card">
                                   <div class="card-body" style="background-color:#000;">
-                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request GET "http://localhost:8080/v1.0/person/show/1"</code></pre>
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request GET "http://localhost:8080/v1.2.0/person/show/1"</code></pre>
                                   </div>
                               </div>
                           </div>
@@ -421,7 +446,7 @@
                           <div class="col">
                               <div class="card">
                                   <div class="card-body" style="background-color:#000;">
-                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request GET "http://localhost:8080/v1.0/person/show</code></pre>
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request GET "http://localhost:8080/v1.2.0/person/show</code></pre>
                                   </div>
                               </div>
                           </div>
@@ -431,7 +456,7 @@
                           <div class="col">
                               <div class="card">
                                   <div class="card-body" style="background-color:#000;">
-                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v1.0/person/update/56"</code></pre>
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v1.2.0/person/update/56"</code></pre>
                                   </div>
                               </div>
                           </div>
@@ -441,7 +466,7 @@
                           <div class="col">
                               <div class="card">
                                   <div class="card-body" style="background-color:#000;">
-                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v1.0/person/update"</code></pre>
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request POST -d "{'username': 'guesttest1','password':'testamundo','email':'guest1@guesttest.com'}" "http://localhost:8080/v1.2.0/person/update"</code></pre>
                                   </div>
                               </div>
                           </div>
@@ -451,8 +476,15 @@
                           <div class="col">
                               <div class="card">
                                   <div class="card-body" style="background-color:#000;">
-                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request DELETE "http://localhost:8080/v1.0/person/delete/1"</code></pre>
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request DELETE "http://localhost:8080/v1.2.0/person/delete/1"</code></pre>
                                   </div>
+                              </div>
+                          </div>
+                      </div>
+                      <div class="row">
+                          <div class="col">
+                              <div class="alert alert-primary" role="alert">
+                                  <p><b>NOTE</b>: Always remember to replace version (here represented by <b>v1.2.x</b>) with the current version of the application. If you are unsure, check the <b>build.gradle</b>b> for 'version'.</p>
                               </div>
                           </div>
                       </div>
@@ -465,7 +497,7 @@
                           <div class="col">
                               <div class="card">
                                   <div class="card-body" style="background-color:#000;">
-                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request POST -d "{'personId': '56','roleId':'1'}" "http://localhost:8080/v1.0/personRole/create"</code></pre>
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request POST -d "{'personId': '56','roleId':'1'}" "http://localhost:8080/v1.2.0/personRole/create"</code></pre>
                                   </div>
                               </div>
                           </div>
@@ -475,11 +507,18 @@
                           <div class="col">
                               <div class="card">
                                   <div class="card-body" style="background-color:#000;">
-                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request DELETE "http://localhost:8080/v1.0/personRole/delete/56"</code></pre>
+                                      <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">curl -v -H "Content-Type: application/json" -H "Authorization: Bearer <your_token>"  --request DELETE "http://localhost:8080/v1.2.0/personRole/delete/56"</code></pre>
                                   </div>
                               </div>
                           </div>
                       </div></br>
+                      <div class="row">
+                          <div class="col">
+                              <div class="alert alert-primary" role="alert">
+                                  <p><b>NOTE</b>: Always remember to replace version (here represented by <b>v1.2.x</b>) with the current version of the application. If you are unsure, check the <b>build.gradle</b>b> for 'version'.</p>
+                              </div>
+                          </div>
+                      </div>
                       <div class="row">
                           <div class="col">
                               <div class="alert alert-primary" role="alert">
