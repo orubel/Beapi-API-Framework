@@ -82,7 +82,7 @@ class CorsSecurityFilter extends OncePerRequestFilter {
                 break;
             default:
                 response.status = 401
-                response.setHeader('ERROR', 'BAD Access attempted')
+                response.setHeader('ERROR', "Bad URI Access attempted at '${actualUri}'")
                 response.writer.flush()
                 return true
         }

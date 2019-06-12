@@ -196,16 +196,15 @@ abstract class ApiCommProcess{
     boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions, List authority){
         ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','apiResult','combine','_','batch','max','offset','apiObjectVersion']
         ArrayList paramsList
-        ArrayList requestList
+        ArrayList requestList = []
         try {
-            ArrayList temp = []
             authority.each {
-                if(requestDefinitions["${it}"] && !requestDefinitions.every { temp.contains(it) }) {
-                        temp.addAll(requestDefinitions["${it}"] as ArrayList)
+                if(requestDefinitions["${it}"]) {
+                        requestList.addAll(requestDefinitions["${it}"].collect(){ it2 ->  it2.name })
                 }
             }
+            //requestList.unique()
 
-            requestList = (temp != null) ? temp.collect() { it.name } : []
 
             if (requestList.contains('*')) {
                 return true
@@ -740,19 +739,18 @@ abstract class ApiCommProcess{
      * @return a hash from all id's needed when making request to endpoint
      */
     String createCacheHash(GrailsParameterMap params, LinkedHashMap receives, List authority){
-
+        ArrayList receivesList = []
         //boolean roles = Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGroup}"
         StringBuilder hashString = new StringBuilder('')
-        ArrayList temp = []
+
+
         authority.each {
-            if (receives["${it}"]) {
-                temp.addAll(receives["${it}"] as ArrayList)
+            if(receives["${it}"]) {
+                receivesList.addAll(receives["${it}"].collect(){ it2 -> it2.name })
             }
         }
+        //receivesList.unique()
 
-        //if (receives['permitAll'][0] != null) { temp.addAll(receives['permitAll'] as ArrayList) }
-
-        ArrayList receivesList = (temp != null)?temp.collect(){ it.name }:[]
 
         receivesList.each(){ it ->
             hashString.append(params[it])
