@@ -234,7 +234,7 @@
               <div class="row">
                 <div class="col">
                   <div class="alert alert-primary" role="alert">
-                    <p><b>NOTE ON VERSIONING:</b> Of importance to note is that the versioning used here is <b>b1.0</b> (if you did not notice). We do this so that we can separate this functionality out to a separate server if we want so as not to affect main api calls. Same goes for API chaining calls which use 'c1.0'.</p>
+                    <p><b>NOTE ON VERSIONING:</b> Of importance to note is that the versioning used here is <b>b1.0</b> ('b' plus the application 'version' as found in <b>build.gradle</b> - see <a href="usage.html">Usage</a>). We do this so that we can separate this functionality out to a separate server if we want so as not to affect main api calls. Same goes for API chaining calls which use 'c1.0'.</p>
                   </div>
                 </div>
               </div>
@@ -493,7 +493,7 @@ insert into hook (attempts,date_created,format,last_modified,user_id,is_enabled,
                   <li>You can have only one PUT,POST or DELETE endpoint per chain</li>
                   <li>You can have unlimited GET endpoints in a chain</li>
                   <li>The unsafe method (PUT/POST/DELETE) must begin/end the chain</li>
-                  <li>Chains MUST be called using <b>c0.1</b> in the URL for routing purposes (See Versioning)</li>
+                  <li>Chains MUST be called using 'c' followed by the application 'version' (as found in <b>build.gradle</b>) 'b' plus the application 'version' as found in <b>build.gradle</b> - see <a href="usage.html">Usage</a></li>
                 </ul>
                 <p>Now lets examine how one of the above chain works:</p>
                 <ul>
