@@ -193,18 +193,12 @@ abstract class ApiCommProcess{
      * @param LinkedHashMap map of variables defining endpoint request variables
      * @return Boolean returns false if request variable keys do not match expected endpoint keys
      */
-    boolean checkURIDefinitions(GrailsParameterMap params,LinkedHashMap requestDefinitions, List authority){
+    boolean checkURIDefinitions(GrailsParameterMap params,ArrayList requestList, List authority){
         ArrayList reservedNames = ['batchLength','batchInc','chainInc','apiChain','apiResult','combine','_','batch','max','offset','apiObjectVersion']
         ArrayList paramsList
-        ArrayList requestList = []
-        try {
-            authority.each {
-                if(requestDefinitions["${it}"]) {
-                        requestList.addAll(requestDefinitions["${it}"].collect(){ it2 ->  it2.name })
-                }
-            }
-            //requestList.unique()
 
+        //ArrayList requestList = []
+        try {
 
             if (requestList.contains('*')) {
                 return true
@@ -217,8 +211,8 @@ abstract class ApiCommProcess{
 
                 reservedNames.each() { paramsList.remove(it) }
 
-                //println("RL (expected):"+requestList)
-                //println("PL (sent):"+paramsList)
+                println("RL (expected):"+requestList)
+                println("PL (sent):"+paramsList)
 
 
                 if (paramsList.size() == requestList.intersect(paramsList).size()) {
@@ -657,8 +651,8 @@ abstract class ApiCommProcess{
                     int userLimit = 0
                     int userDataLimit = 0
                     auth.each(){
-                        userLimit=((rateLimit["${it}"] as Integer)>userLimit)?rateLimit["${it}"] as Integer:userLimit
-                        userDataLimit = ((dataLimit["${it}"] as Integer)>userDataLimit)?dataLimit["${it}"] as Integer:userDataLimit
+                        userLimit=((rateLimit[it] as Integer)>userLimit)?rateLimit[it] as Integer:userLimit
+                        userDataLimit = ((dataLimit[it] as Integer)>userDataLimit)?dataLimit[it] as Integer:userDataLimit
                     }
 
                     if(lcache['currentRate']>=userLimit || lcache['currentData']>=userDataLimit){
@@ -738,20 +732,11 @@ abstract class ApiCommProcess{
      * @param LinkedHashMap List of ids required when making request to endpoint
      * @return a hash from all id's needed when making request to endpoint
      */
-    String createCacheHash(GrailsParameterMap params, LinkedHashMap receives, List authority){
-        ArrayList receivesList = []
+    String createCacheHash(GrailsParameterMap params, ArrayList receivesList, List authority){
+        //ArrayList receivesList = []
         //boolean roles = Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGroup}"
         StringBuilder hashString = new StringBuilder('')
-
-
-        authority.each {
-            if(receives["${it}"]) {
-                receivesList.addAll(receives["${it}"].collect(){ it2 -> it2.name })
-            }
-        }
-        //receivesList.unique()
-
-
+        
         receivesList.each(){ it ->
             hashString.append(params[it])
             hashString.append("/")

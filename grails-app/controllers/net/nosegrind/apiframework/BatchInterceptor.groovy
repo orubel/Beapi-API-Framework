@@ -71,7 +71,9 @@ class BatchInterceptor extends ApiCommLayer{
 	String apiObject
 	String controller
 	String action
+
 	ApiDescriptor cachedEndpoint
+	ArrayList receivesList = []
 
 	List roles
 	List authority
@@ -195,10 +197,15 @@ class BatchInterceptor extends ApiCommLayer{
 
 				// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
 				LinkedHashMap receives = cachedEndpoint['receives'] as LinkedHashMap
-				cacheHash = createCacheHash(params, receives, this.authority)
+				this.authority.each {
+					if(receives[it]) {
+						this.receivesList.addAll(receives[it].collect(){ it2 -> it2 })
+					}
+				}
+				cacheHash = createCacheHash(params, this.receivesList, this.authority)
 
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
-				if (!checkURIDefinitions(params, receives,this.authority)) {
+				if (!checkURIDefinitions(params, this.receivesList,this.authority)) {
 					render(status: HttpStatus.BAD_REQUEST.value(), text: 'Expected request variables for endpoint do not match sent variables')
 					response.flushBuffer()
 					return false

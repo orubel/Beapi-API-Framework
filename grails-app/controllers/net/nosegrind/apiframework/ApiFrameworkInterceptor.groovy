@@ -68,6 +68,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	String apiObject
 	String controller
 	String action
+
 	ApiDescriptor cachedEndpoint
 
 	List roles
@@ -102,7 +103,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
 		//println("FILTERCHAIN : "+filterChain)
-
 
 		format = (request?.format)?request.format.toUpperCase():'JSON'
 		mthdKey = request.method.toUpperCase()
@@ -166,8 +166,15 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				}
 
 				LinkedHashMap receives = this.cachedEndpoint['receives'] as LinkedHashMap
-				cacheHash = createCacheHash(params, receives, this.authority)
-				if(!checkURIDefinitions(params, receives, this.authority)){
+				ArrayList receivesList = []
+				this.authority.each(){
+					if(receives[it]) {
+						receivesList.addAll(receives[it].collect{ it2 -> it2['name'] })
+					}
+				}
+
+				cacheHash = createCacheHash(params, receivesList, this.authority)
+				if(!checkURIDefinitions(params, receivesList, this.authority)){
 					response.writer.flush()
 					return false
 				}
@@ -369,6 +376,14 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						LinkedHashMap requestDefinitions = this.cachedEndpoint['returns'] as LinkedHashMap
 						response.setHeader('Authorization', roles.join(', '))
 
+						this.authority.each(){
+							if(requestDefinitions[it]) {
+								responseList.addAll(requestDefinitions[it].collect(){ it2 ->  if(it2!=null){ it2['name'] }})
+							}
+						}
+
+
+/*
 						ArrayList<LinkedHashMap> temp = new ArrayList()
 						if(requestDefinitions[this.authority]) {
 							ArrayList<LinkedHashMap> temp1 = requestDefinitions[this.authority] as ArrayList<LinkedHashMap>
@@ -379,6 +394,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						}
 
 						responseList = (ArrayList)temp?.collect(){ if(it!=null){it.name} }
+*/
 
 						result = parseURIDefinitions(newModel, responseList)
 						// will parse empty map the same as map with content
