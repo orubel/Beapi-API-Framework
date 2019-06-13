@@ -245,16 +245,17 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 				// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
 				LinkedHashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as LinkedHashMap
-				this.authority.each {
+				ArrayList receivesList = []
+				this.authority.each(){
 					if(receives[it]) {
-						this.receivesList.addAll(receives[it].collect(){ it2 -> it2 })
+						receivesList.addAll(receives[it].collect(){ it2 -> it2['name'] })
 					}
 				}
 
-				cacheHash = createCacheHash(params, this.receivesList, this.authority)
+				cacheHash = createCacheHash(params, receivesList, this.authority)
 
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
-				if (!checkURIDefinitions(params, this.receivesList, this.authority)) {
+				if (!checkURIDefinitions(params, receivesList, this.authority)) {
 					statsService.setStatsCache(this.userId, 400, request.requestURI)
 					render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Expected request variables for endpoint do not match sent variables')
 					return false

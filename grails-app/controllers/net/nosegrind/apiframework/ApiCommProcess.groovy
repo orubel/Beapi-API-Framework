@@ -206,14 +206,11 @@ abstract class ApiCommProcess{
                 LinkedHashMap methodParams = getMethodParams(params)
                 paramsList = methodParams.keySet() as ArrayList
                 // remove reservedNames from List
-
-
-
+                
                 reservedNames.each() { paramsList.remove(it) }
 
-                println("RL (expected):"+requestList)
-                println("PL (sent):"+paramsList)
-
+                //println("RL (expected):"+requestList)
+                //println("PL (sent):"+paramsList)
 
                 if (paramsList.size() == requestList.intersect(paramsList).size()) {
                     return true
@@ -736,7 +733,7 @@ abstract class ApiCommProcess{
         //ArrayList receivesList = []
         //boolean roles = Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGroup}"
         StringBuilder hashString = new StringBuilder('')
-        
+
         receivesList.each(){ it ->
             hashString.append(params[it])
             hashString.append("/")
