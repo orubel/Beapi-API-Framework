@@ -1,8 +1,7 @@
 #!/usr/bin/env groovy
 
 
-println "ls".execute().text
-
+println "ls -all".execute().text
 
 String userHome = System.properties['user.home']
 
