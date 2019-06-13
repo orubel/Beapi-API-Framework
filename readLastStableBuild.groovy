@@ -1,7 +1,6 @@
 #!/usr/bin/env groovy
 import org.apache.commons.configuration2.PropertiesConfiguration
 
-println "ls -all".execute().text
 
 String userHome = System.properties['user.home']
 
@@ -10,29 +9,52 @@ def patch = System.getenv('BUILD_NUMBER')
 def version = "${appVersion}.${patch}"
 
 
-PropertiesConfiguration config = new PropertiesConfiguration("${userHome}/.jenkins/workspace/beapi-backend/gradle.properties")
-config.setProperty('apiFrameworkVersion', version)
-config.save()
+Properties props = new Properties()
+FileOutputStream out1 = new FileOutputStream("${userHome}/.jenkins/workspace/beapi-backend/gradle.properties");
+FileInputStream in1 = new FileInputStream("${userHome}/.jenkins/workspace/beapi-backend/gradle.properties");
+
+props.load(in1)
+props.remove('apiFrameworkVersion')
+props.store(out1, null)
+out1.close()
+
+props.load(in1)
+props.setProperty('apiFrameworkVersion', version)
+props.store(out1, null)
+out1.close()
+
+
+Properties props2 = new Properties()
+FileOutputStream out2 = new FileOutputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties");
+FileInputStream in2 = new FileInputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties");
+
+props2.load(in2)
+props2.remove('patchVersion')
+props2.store(out2, null)
+out2.close()
+
+props2.load(in2)
+props2.setProperty('patchVersion', patch)
+prop2s.store(out2, null)
+out2.close()
 
 /*
 Properties props = new Properties()
-def propsFile = new File("${userHome}/.jenkins/workspace/beapi-backend/gradle.properties")
-props.load(propsFile.newDataInputStream())
+FileOutputStream out = new FileOutputStream("${userHome}/.jenkins/workspace/beapi-backend/gradle.properties");
+FileInputStream in = new FileInputStream("${userHome}/.jenkins/workspace/beapi-backend/gradle.properties");
+//def propsFile = new File("${userHome}/.jenkins/workspace/beapi-backend/gradle.properties")
 println("### writing to '${userHome}/.jenkins/workspace/beapi-backend/gradle.properties' > ${version}")
 props.setProperty('apiFrameworkVersion', version)
 props.store(propsFile.newWriter(), null)
 try {
 	props.store(propsFile.newWriter(), null)
+	props.close()
 } catch (IOException ex) {
 	println(ex)
 }
-*/
 
-PropertiesConfiguration config = new PropertiesConfiguration("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
-config.setProperty('patchVersion', patch)
-config.save()
 
-/*
+
 Properties props2 = new Properties()
 def propsFile2 = new File("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
 props2.load(propsFile2.newDataInputStream())
@@ -45,3 +67,19 @@ try {
 	println(ex)
 }
 */
+
+
+Properties props = new Properties()
+FileOutputStream out = new FileOutputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties");
+FileInputStream in = new FileInputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties");
+
+props.load(in)
+props.remove('patchVersion')
+props.store(out, null)
+out.close()
+
+props.load(in)
+props.setProperty('patchVersion', patch)
+props.store(out, null)
+out.close()
+
