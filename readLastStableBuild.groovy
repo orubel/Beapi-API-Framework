@@ -1,5 +1,3 @@
-#!/usr/bin/env groovy
-
 import java.io.IOException
 
 String userHome = System.properties['user.home']
