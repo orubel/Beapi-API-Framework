@@ -1,6 +1,9 @@
 #!/usr/bin/env groovy
 
 
+println "ls".execute().text
+
+
 String userHome = System.properties['user.home']
 
 def appVersion = (System.getenv('BEAPI_BUILD_VERSION'))?System.getenv('BEAPI_BUILD_VERSION'):'1'
