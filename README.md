@@ -1,8 +1,8 @@
 
 ![alt text](https://github.com/orubel/logos/blob/master/beapi_logo_large.png)
 # BeApi(tm) Api Framework ( https://www.beapi.io/ )
-## Stable/Latest Plugin Version: [1.1.77](https://bintray.com/orubel/plugins/api-framework/1.1.77/link) / [1.1.77](https://bintray.com/orubel/plugins/api-framework/1.1.77/link)
-## Stable/Latest Profile Version: [1.1.6](https://github.com/orubel/Beapi-Plugin-Profile) / [1.1.6](https://github.com/orubel/Beapi-Plugin-Profile)
+## Stable/Latest Plugin Version: [1.3.77](https://bintray.com/orubel/plugins/api-framework/1.3.77/link) / [1.3.77](https://bintray.com/orubel/plugins/api-framework/1.3.77/link)
+## Stable/Latest Profile Version: [1.3.6](https://github.com/orubel/Beapi-Plugin-Profile) / [1.3.6](https://github.com/orubel/Beapi-Plugin-Profile)
 
 ***
 ## Documentation - http://orubel.github.io/Beapi-API-Framework/
