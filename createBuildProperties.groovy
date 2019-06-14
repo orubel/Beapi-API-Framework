@@ -20,7 +20,7 @@ FileInputStream in2 = new FileInputStream("${userHome}/.jenkins/workspace/api-fr
 
 props2.load(in2)
 props2.setProperty('patchVersion', patch)
-props2.store(in2, null)
+props2.store(out2, null)
 in2.close()
 
 
