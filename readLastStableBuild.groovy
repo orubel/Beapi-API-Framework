@@ -25,8 +25,8 @@ out1.close()
 
 
 Properties props2 = new Properties()
-FileOutputStream out2 = new FileOutputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties");
-FileInputStream in2 = new FileInputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties");
+FileOutputStream out2 = new FileOutputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
+FileInputStream in2 = new FileInputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
 
 props2.load(in2)
 props2.remove('patchVersion')
@@ -68,18 +68,4 @@ try {
 }
 */
 
-
-Properties props = new Properties()
-FileOutputStream out = new FileOutputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties");
-FileInputStream in = new FileInputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties");
-
-props.load(in)
-props.remove('patchVersion')
-props.store(out, null)
-out.close()
-
-props.load(in)
-props.setProperty('patchVersion', patch)
-props.store(out, null)
-out.close()
 
