@@ -8,8 +8,14 @@ def appVersion = (System.getenv('BEAPI_BUILD_VERSION'))?System.getenv('BEAPI_BUI
 def patch = System.getenv('BUILD_NUMBER')
 def version = "${appVersion}.${patch}"
 
+Properties props = new Properties()
+def propsFile = new File("${userHome}/.jenkins/workspace/beapi-backend/gradle.properties")
+props.load(propsFile.newDataInputStream())
 
+props.setProperty('apiFrameworkVersion', version)
+props.store(propsFile.newWriter(), null)
 
+/*
 Properties props2 = new Properties()
 FileOutputStream out2 = new FileOutputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
 FileInputStream in2 = new FileInputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
@@ -22,6 +28,7 @@ props2.load(in2)
 props2.setProperty('patchVersion', patch)
 props2.store(out2, null)
 in2.close()
+*/
 
 
 
