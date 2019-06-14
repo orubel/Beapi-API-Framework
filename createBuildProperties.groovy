@@ -9,10 +9,10 @@ def patch = System.getenv('BUILD_NUMBER')
 def version = "${appVersion}.${patch}"
 
 Properties props = new Properties()
-def propsFile = new File("${userHome}/.jenkins/workspace/beapi-backend/gradle.properties")
+def propsFile = new File("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
 props.load(propsFile.newDataInputStream())
 
-props.setProperty('apiFrameworkVersion', version)
+props.setProperty('patchVersion', version)
 props.store(propsFile.newWriter(), null)
 
 /*
