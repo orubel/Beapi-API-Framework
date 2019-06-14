@@ -25,7 +25,8 @@ while (enums.hasMoreElements()) {
 	String key = enums.nextElement();
 	String value = props2.getProperty(key)
 	//System.out.println(key + " : " + value)
-	props2.setProperty(ket, value)
+	props2.setProperty(key, value)
+	props2.store(out2, null)
 }
 props2.setProperty('patchVersion', patch)
 props2.store(out2, null)
