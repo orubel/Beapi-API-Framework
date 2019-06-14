@@ -4,31 +4,23 @@
 
 String userHome = System.properties['user.home']
 
-def appVersion = (System.getenv('BEAPI_BUILD_VERSION'))?System.getenv('BEAPI_BUILD_VERSION'):'1'
-def patch = System.getenv('BUILD_NUMBER')
-def version = "${appVersion}.${patch}"
+//def appVersion = (System.getenv('BEAPI_BUILD_VERSION'))?System.getenv('BEAPI_BUILD_VERSION'):'1'
+//def patch = System.getenv('BUILD_NUMBER')
+//def version = "${appVersion}.${patch}"
 
 Properties props = new Properties()
 def propsFile = new File("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
 props.load(propsFile.newDataInputStream())
 
-props.setProperty('patchVersion', version)
+def appVersion = props.getProperty('buildVersion')
+def patch = System.getenv('BUILD_NUMBER')
+def version = "${appVersion}.${patch}"
+
+props.setProperty('patchVersion', patch)
+props.setProperty('buildVersion', version)
 props.store(propsFile.newWriter(), null)
 
-/*
-Properties props2 = new Properties()
-FileOutputStream out2 = new FileOutputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
-FileInputStream in2 = new FileInputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
 
-//props2.load(in2)
-//props2.remove('patchVersion')
-//props2.store(out2, null)
-
-props2.load(in2)
-props2.setProperty('patchVersion', patch)
-props2.store(out2, null)
-in2.close()
-*/
 
 
 
