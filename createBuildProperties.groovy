@@ -14,28 +14,13 @@ Properties props2 = new Properties()
 FileOutputStream out2 = new FileOutputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
 FileInputStream in2 = new FileInputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
 
-File f = new File("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
-InputStream is = new FileInputStream( f )
-
-props2.load( is )
-
-
 //props2.load(in2)
 //props2.remove('patchVersion')
 //props2.store(out2, null)
 
-
-//props2.load(in2)
+props2.load(in2)
 props2.setProperty('patchVersion', patch)
-Enumeration<String> enums = (Enumeration<String>) props2.propertyNames()
-println("NAMES:"+enums)
-while (enums.hasMoreElements()) {
-	String key = enums.nextElement();
-	String value = props2.getProperty(key)
-	println("###PROPERTY:"+key + " : " + value)
-	props2.setProperty("${key}", value)
-}
-props2.store(out2, null)
+//props2.store(out2, null)
 out2.close()
 
 
