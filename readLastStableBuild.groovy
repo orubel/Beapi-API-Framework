@@ -1,5 +1,5 @@
 #!/usr/bin/env groovy
-import org.apache.commons.configuration2.PropertiesConfiguration
+
 
 
 String userHome = System.properties['user.home']
