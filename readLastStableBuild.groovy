@@ -10,15 +10,15 @@ def version = "${appVersion}.${patch}"
 
 
 Properties props = new Properties()
-FileOutputStream out1 = new FileOutputStream("${userHome}/.jenkins/workspace/beapi-backend/gradle.properties");
-FileInputStream in1 = new FileInputStream("${userHome}/.jenkins/workspace/beapi-backend/gradle.properties");
+FileOutputStream out1 = new FileOutputStream("${userHome}/.jenkins/workspace/beapi-backend/gradle.properties")
+FileInputStream in1 = new FileInputStream("${userHome}/.jenkins/workspace/beapi-backend/gradle.properties")
 
 props.load(in1)
-props.remove('apiFrameworkVersion')
-props.store(out1, null)
+//props.remove('apiFrameworkVersion')
+//props.store(out1, null)
+//out1.close()
 
-
-//props.load(in1)
+props.load(in1)
 props.setProperty('apiFrameworkVersion', version)
 props.store(out1, null)
 out1.close()
@@ -28,12 +28,12 @@ Properties props2 = new Properties()
 FileOutputStream out2 = new FileOutputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
 FileInputStream in2 = new FileInputStream("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
 
-props2.load(in2)
-props2.remove('patchVersion')
-props2.store(out2, null)
-
-
 //props2.load(in2)
+//props2.remove('patchVersion')
+//props2.store(out2, null)
+
+
+props2.load(in2)
 props2.setProperty('patchVersion', patch)
 props2.store(out2, null)
 out2.close()
