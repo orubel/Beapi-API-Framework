@@ -16,9 +16,9 @@ FileInputStream in1 = new FileInputStream("${userHome}/.jenkins/workspace/beapi-
 props.load(in1)
 props.remove('apiFrameworkVersion')
 props.store(out1, null)
-out1.close()
 
-props.load(in1)
+
+//props.load(in1)
 props.setProperty('apiFrameworkVersion', version)
 props.store(out1, null)
 out1.close()
@@ -31,9 +31,9 @@ FileInputStream in2 = new FileInputStream("${userHome}/.jenkins/workspace/api-fr
 props2.load(in2)
 props2.remove('patchVersion')
 props2.store(out2, null)
-out2.close()
 
-props2.load(in2)
+
+//props2.load(in2)
 props2.setProperty('patchVersion', patch)
 prop2s.store(out2, null)
 out2.close()
