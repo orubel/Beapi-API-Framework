@@ -142,14 +142,9 @@ task wrapper(type: Wrapper) {
     gradleVersion = gradleWrapperVersion
 }
 
-task changeApiFrameworkVersion(type: Exec) {
-    commandLine "./readLastStableBuild.groovy"
-}
-
 bootRun {
     systemProperties = System.properties
 }
-
 
 test {
     systemProperties = System.properties
