@@ -137,7 +137,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 		if(cache) {
 			apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
-			action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
+			action = (params.action == null) ? cache[apiObject]['defaultAction'] : params.action
 		}else{
 			action = params?.action
 		}
