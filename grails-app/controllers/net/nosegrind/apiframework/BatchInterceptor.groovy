@@ -24,6 +24,7 @@ import grails.util.Metadata
 import groovy.json.JsonSlurper
 import net.nosegrind.apiframework.RequestMethod
 
+
 import org.grails.web.util.WebUtils
 import grails.converters.JSON
 import grails.converters.XML
@@ -344,7 +345,7 @@ class BatchInterceptor extends ApiCommLayer{
 			int batchInc = (int) request.getAttribute('batchInc')
 			String output
 			if(batchEnabled && (batchLength > batchInc+1)){
-				WebUtils.exposeRequestAttributes(request, params);
+				WebUtils.exposeRequestAttributesAndReturnOldValues(request, params);
 				// this will work fine when we upgrade to newer version that has fix in it
 
 				List temp = []
