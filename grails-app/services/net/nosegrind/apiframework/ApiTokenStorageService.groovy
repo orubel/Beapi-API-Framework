@@ -13,21 +13,13 @@
  */
 package net.nosegrind.apiframework
 
-import grails.transaction.Transactional
-import com.nimbusds.jose.JOSEException
-import com.nimbusds.jwt.JWT
-import grails.plugin.springsecurity.rest.JwtService
+
 import grails.plugin.springsecurity.rest.token.storage.TokenNotFoundException
-import grails.plugin.springsecurity.rest.token.storage.TokenStorageService
-import groovy.transform.CompileStatic
-import groovy.util.logging.Slf4j
-import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import grails.plugin.springsecurity.SpringSecurityUtils
 import grails.core.GrailsApplication
 import grails.util.Holders
-import java.text.ParseException
+
 
 import grails.plugin.springsecurity.rest.token.storage.TokenStorageService
 

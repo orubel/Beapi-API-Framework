@@ -30,12 +30,17 @@ plugins {
     id "com.jfrog.bintray" version "1.2"
 }
 
+wrapper {
+    gradleVersion = '5.1.1'
+}
+
 def appVersion = project.buildVersion
 def patch = (System.getenv('BUILD_NUMBER'))?System.getenv('BUILD_NUMBER'):project.patchVersion
 version = "${appVersion}.${patch}"
 group "org.grails.plugins"
 
-
+apply plugin: 'java'
+apply plugin: 'groovy'
 apply plugin: "maven-publish"
 apply plugin: "org.springframework.boot"
 apply plugin: "com.jfrog.bintray"
@@ -82,7 +87,15 @@ repositories {
 //    applyMavenExclusions false
 //}
 
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+}
+
 dependencies {
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
     compile 'org.grails.plugins:cache:4.0.0'
     //compile 'org.grails.plugins:cache:3.0.2'
     //compile 'org.springframework.boot:spring-boot-starter-logging'
@@ -134,13 +147,11 @@ dependencies {
     compile("org.codehaus.groovy:groovy-ant:$groovyVersion")
 
     compile "org.grails.plugins:hibernate5"
-    compile "org.hibernate:hibernate-core:5.1.5.Final"
-    compile "org.hibernate:hibernate-ehcache:5.1.5.Final"
+    compile "org.hibernate:hibernate-core:5.4.0.Final"
+    compile "org.hibernate:hibernate-ehcache:5.4.0.Final"
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = gradleWrapperVersion
-}
+
 
 bootRun {
     systemProperties = System.properties
