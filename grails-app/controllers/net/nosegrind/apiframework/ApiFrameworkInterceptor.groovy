@@ -148,7 +148,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		this.networkGrp = cache[apiObject][action]['networkGrp']
 
 
-		try{
+		//try{
 			//Test For APIDoc
 			if(controller=='apidoc') { return true }
 
@@ -213,7 +213,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								statsService.setStatsCache(userId, response.status, request.requestURI)
 								render(text: getContent(result, contentType), contentType: contentType)
 							}else{
-								println('Rate Limit exceeded. Please wait')
 								statsService.setStatsCache(userId, 404, request.requestURI)
 								//response.status = 404
 								//response.setHeader('ERROR', 'Rate Limit exceeded. Please wait')
@@ -225,7 +224,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								return false
 							}
 						}else{
-							println('...render output')
 							statsService.setStatsCache(userId, response.status, request.requestURI)
 							render(text: getContent(result, contentType), contentType: contentType)
 						}
@@ -235,12 +233,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 
 				// RETRIEVE CACHED RESULT (only if using get method); DON'T CACHE LISTS
-				if (this.cachedEndpoint.cachedResult && mthdKey=='GET' && cacheHash !=null) {
+				if (this.cachedEndpoint?.cachedResult && mthdKey=='GET' && cacheHash !=null && cachedEndpoint['cachedResult'][cacheHash]) {
 
-
-					LinkedHashMap cachedResult = this.cachedEndpoint['cachedResult'][cacheHash][this.networkGrp][format] as LinkedHashMap
-					if(cachedResult){
-
+						LinkedHashMap cachedResult = this.cachedEndpoint['cachedResult'][cacheHash][this.networkGrp][format] as LinkedHashMap
 						String domain = ((String) controller).capitalize()
 
 
@@ -264,12 +259,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 									byte[] contentLength = output.getBytes('ISO-8859-1')
 									if (apiThrottle) {
 										if (checkLimit(contentLength.length, this.authority)) {
-											println('...render output after throttle check')
 											statsService.setStatsCache(userId, response.status, request.requestURI)
 											render(text: output, contentType: contentType)
 											return false
 										}else{
-											println('Rate Limit exceeded. Please wait')
 											statsService.setStatsCache(userId, 404, request.requestURI)
 											//response.status = 404
 											//response.setHeader('ERROR', 'Rate Limit exceeded. Please wait')
@@ -282,7 +275,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 											return false
 										}
 									} else {
-										println('...render output')
 										statsService.setStatsCache(userId, response.status, request.requestURI)
 										render(text: output, contentType: contentType)
 										return false
@@ -304,12 +296,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 										byte[] contentLength = output.getBytes('ISO-8859-1')
 										if (apiThrottle) {
 											if (checkLimit(contentLength.length, this.authority)) {
-												println('...render output after throttle check')
 												statsService.setStatsCache(userId, response.status, request.requestURI)
 												render(text: output, contentType: contentType)
 												return false
 											}else{
-												println('Rate Limit exceeded. Please wait')
 												statsService.setStatsCache(userId, 404, request.requestURI)
 												response.setContentType("application/json")
 												response.setStatus(404)
@@ -318,7 +308,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 												return false
 											}
 										} else {
-											println('...render output')
 											statsService.setStatsCache(userId, response.status, request.requestURI)
 											render(text: output, contentType: contentType)
 											return false
@@ -327,15 +316,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								}
 							}
 						}
-					}else{
-						println('No Content found')
-						statsService.setStatsCache(userId, 404, request.requestURI)
-						response.setContentType("application/json")
-						response.setStatus(404)
-						response.getWriter().write('No Content found')
-						response.writer.flush()
-						return false
-					}
+
 				} else {
 					if (action == null || !action) {
 						String methodAction = mthd.toString()
@@ -382,10 +363,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 			return false
 
-		}catch(Exception e){
-			throw new Exception('[ApiToolkitFilters :: preHandler] : Exception - full stack trace follows:', e)
-			return false
-		}
+		//}catch(Exception e){
+		//	throw new Exception('[ApiToolkitFilters :: preHandler] : Exception - full stack trace follows:', e)
+		//	return false
+		//}
 	}
 
 	/**
