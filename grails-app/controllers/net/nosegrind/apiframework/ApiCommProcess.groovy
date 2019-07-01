@@ -776,9 +776,15 @@ abstract class ApiCommProcess{
 
         //statsService.setStatsCache(springSecurityService.principal['id'], response.status, request.requestURI)
 
-        response.status = status
-        response.setHeader('ERROR', msg)
+        //response.status = status
+        //response.setHeader('ERROR', msg)
         //response.writer.flush()
+
+
+        response.setContentType("application/json")
+        response.setStatus(status)
+        response.getWriter().write(msg)
+        response.writer.flush()
     }
 
 

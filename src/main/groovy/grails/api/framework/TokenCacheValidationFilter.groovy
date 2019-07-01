@@ -73,7 +73,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
 
     //@Override
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        //println("#### TokenCacheValidationFilter ####")
+        // println("#### TokenCacheValidationFilter ####")
 
         HttpServletRequest httpRequest = request as HttpServletRequest
         HttpServletResponse httpResponse = response as HttpServletResponse
@@ -89,6 +89,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
         try {
             accessToken = tokenReader.findToken(httpRequest)
             if (accessToken) {
+
                 //log.debug "Token found: ${accessToken.accessToken}"
 
                 accessToken = restAuthenticationProvider.authenticate(accessToken) as AccessToken
@@ -120,6 +121,7 @@ class TokenCacheValidationFilter extends GenericFilterBean {
         } catch (AuthenticationException ae) {
             // NOTE: This will happen if token not found in database
             //log.debug('Token not found in database.')
+            println("Token not found in database: "+ae)
             httpResponse.status = 401
             httpResponse.setHeader('ERROR', 'Token not found in database. Authorization Attempt Failed')
             httpResponse.writer.flush()

@@ -34,8 +34,8 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        //println("#### ContentTypeMarshallerFilter ####")
-        String batchEntryPoint = "b${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
+        // println("#### ContentTypeMarshallerFilter ####")
+        //String batchEntryPoint = "b${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
 
         String format = (request?.format)?request.format.toUpperCase():'JSON'
         HashSet formats = new HashSet()
@@ -44,9 +44,10 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
 
 
         if(!doesContentTypeMatch(request)){
+            println('ContentType does not match Requested Format')
                 response.status = 401
                 response.setHeader('ERROR', 'ContentType does not match Requested Format')
-                //response.writer.flush()
+                response.writer.flush()
                 return
         }
 
@@ -69,9 +70,10 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
             }
 
         } catch (Exception e) {
+            println('Badly formatted data')
             response.status = 401
             response.setHeader('ERROR', 'Badly formatted data')
-            //response.writer.flush()
+            response.writer.flush()
             return
         }
 
@@ -111,6 +113,7 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
             }
             return false
         }catch(Exception e){
+            println("[ContentTypeMarshallerFilter :: getContentType] : Exception - full stack trace follows:"+e)
             throw new Exception("[ContentTypeMarshallerFilter :: getContentType] : Exception - full stack trace follows:",e)
         }
     }

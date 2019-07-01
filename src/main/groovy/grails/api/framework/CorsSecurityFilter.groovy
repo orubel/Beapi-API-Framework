@@ -37,7 +37,7 @@ class CorsSecurityFilter extends OncePerRequestFilter {
     String loginUri
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        //println("#### CorsSecurityFilter ####")
+        // println("#### CorsSecurityFilter ####")
 
         //HttpServletRequest httpRequest = request as HttpServletRequest
         //HttpServletResponse httpResponse = response as HttpServletResponse
