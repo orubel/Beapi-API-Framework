@@ -98,7 +98,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * @return
 	 */
 	boolean before(){
-		// println("##### INTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
+		//println("##### INTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
 
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
@@ -374,7 +374,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * @return
 	 */
 	boolean after() {
-		// println("##### INTERCEPTOR (AFTER) - ${params.controller}/${params.action}")
+		//println("##### INTERCEPTOR (AFTER) - ${params.controller}/${params.action}")
 
 		if(model) {
 			//List unsafeMethods = ['PUT', 'POST', 'DELETE']

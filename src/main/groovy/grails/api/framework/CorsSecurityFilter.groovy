@@ -81,8 +81,9 @@ class CorsSecurityFilter extends OncePerRequestFilter {
                 action = params[2]
                 break;
             default:
-                response.status = 401
-                response.setHeader('ERROR', "Bad URI Access attempted at '${actualUri}'")
+                response.setContentType("application/json")
+                response.setStatus(401)
+                response.getWriter().write("Bad URI Access attempted at '${actualUri}'")
                 response.writer.flush()
                 return true
         }
@@ -91,8 +92,9 @@ class CorsSecurityFilter extends OncePerRequestFilter {
         List networkGroups = (List) Holders.grailsApplication.config.apitoolkit['networkGroups']
         String networkGroupType = getNetworkGrp(version, controller, action, request, response)
         if(!networkGroups.contains(networkGroupType)){
-            response.status = 401
-            response.setHeader('### beapi_api.yml CONFIG ERROR ###', "NETWORKGRP for IO State file :"+controller+" cannot be found. Please double check it against available NetworkGroups in the beapi_api.yml config file.")
+            response.setContentType("application/json")
+            response.setStatus(401)
+            response.getWriter().write("NETWORKGRP for IO State file :"+controller+" cannot be found. Please double check it against available NetworkGroups in the beapi_api.yml config file.")
             response.writer.flush()
             return true
         }else {

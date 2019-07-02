@@ -45,8 +45,9 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
 
         if(!doesContentTypeMatch(request)){
             println('ContentType does not match Requested Format')
-                response.status = 401
-                response.setHeader('ERROR', 'ContentType does not match Requested Format')
+                response.setContentType("application/json")
+                response.setStatus(401)
+                response.getWriter().write('ContentType does not match Requested Format')
                 response.writer.flush()
                 return
         }
@@ -70,9 +71,9 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
             }
 
         } catch (Exception e) {
-            println('Badly formatted data')
-            response.status = 401
-            response.setHeader('ERROR', 'Badly formatted data')
+            response.setContentType("application/json")
+            response.setStatus(401)
+            response.getWriter().write('Badly formatted data')
             response.writer.flush()
             return
         }
@@ -113,7 +114,6 @@ class ContentTypeMarshallerFilter extends OncePerRequestFilter {
             }
             return false
         }catch(Exception e){
-            println("[ContentTypeMarshallerFilter :: getContentType] : Exception - full stack trace follows:"+e)
             throw new Exception("[ContentTypeMarshallerFilter :: getContentType] : Exception - full stack trace follows:",e)
         }
     }

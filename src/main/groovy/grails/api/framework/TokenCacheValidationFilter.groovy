@@ -104,16 +104,18 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                     processFilterChain(httpRequest, httpResponse, chain, accessToken)
                 }else{
                     //log.debug('not authenticated')
-                    httpResponse.status = 401
-                    httpResponse.setHeader('ERROR', 'Token Unauthenticated. Uauthorized Access.')
+                    httpResponse.setContentType("application/json")
+                    httpResponse.setStatus(401)
+                    httpResponse.getWriter().write('Token Unauthenticated. Uauthorized Access.')
                     httpResponse.writer.flush()
                     //return
                 }
 
             } else {
                 //log.debug('token not found')
-                httpResponse.status = 401
-                httpResponse.setHeader('ERROR', 'Token not found. Unauthorized Access.')
+                httpResponse.setContentType("application/json")
+                httpResponse.setStatus(401)
+                httpResponse.getWriter().write('Token not found. Unauthorized Access.')
                 httpResponse.writer.flush()
                 return
             }
@@ -121,9 +123,9 @@ class TokenCacheValidationFilter extends GenericFilterBean {
         } catch (AuthenticationException ae) {
             // NOTE: This will happen if token not found in database
             //log.debug('Token not found in database.')
-            println("Token not found in database: "+ae)
-            httpResponse.status = 401
-            httpResponse.setHeader('ERROR', 'Token not found in database. Authorization Attempt Failed')
+            httpResponse.setContentType("application/json")
+            httpResponse.setStatus(401)
+            httpResponse.getWriter().write('Token not found in database. Authorization Attempt Failed')
             httpResponse.writer.flush()
 
             //authenticationEventPublisher.publishAuthenticationFailure(ae, accessToken)
