@@ -13,9 +13,8 @@
  */
 package net.nosegrind.apiframework
 
-import grails.transaction.Transactional
-import com.nimbusds.jose.JOSEException
-import com.nimbusds.jwt.JWT
+
+
 import grails.plugin.springsecurity.rest.JwtService
 import grails.plugin.springsecurity.rest.token.storage.TokenNotFoundException
 import grails.plugin.springsecurity.rest.token.storage.TokenStorageService
@@ -68,7 +67,6 @@ class ApiTokenStorageService implements TokenStorageService {
 
         throw new TokenNotFoundException("Token ${tokenValue} not found")
     }
-
 
     /**
      * Stores tokenValue associated with loggedIn user

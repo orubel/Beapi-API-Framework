@@ -326,14 +326,18 @@ abstract class ApiCommProcess{
      */
     LinkedHashMap parseURIDefinitions(LinkedHashMap model,ArrayList responseList){
         if(model[0].getClass().getName()=='java.util.LinkedHashMap') {
-            try {
+            /**
+             * Do not leave this try/catch in... only use for testing; will throw error that can be ignored
+             */
+            //try {
                 model.each() { key, val ->
+                    //println("### parseURIDefinitions : ${key} / ${val} ###")
                     model[key] = parseURIDefinitions(val, responseList)
                 }
                 return model
-            }catch(Exception e){
-                throw new Exception('[ApiCommProcess :: parseURIDefinitions] : Exception - full stack trace follows:', e)
-            }
+            //}catch(Exception e){
+            //    throw new Exception('[ApiCommProcess :: parseURIDefinitions] : Exception - full stack trace follows:', e)
+            //}
         }else{
             try {
                 ArrayList paramsList = (model.size()==0)?[:]:model.keySet() as ArrayList
@@ -776,9 +780,15 @@ abstract class ApiCommProcess{
 
         //statsService.setStatsCache(springSecurityService.principal['id'], response.status, request.requestURI)
 
-        response.status = status
-        response.setHeader('ERROR', msg)
+        //response.status = status
+        //response.setHeader('ERROR', msg)
         //response.writer.flush()
+
+
+        response.setContentType("application/json")
+        response.setStatus(status)
+        response.getWriter().write(msg)
+        response.writer.flush()
     }
 
 

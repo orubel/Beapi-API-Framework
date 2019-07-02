@@ -394,8 +394,10 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
         Set fkeys = []
         Set pkeys= []
+        List keys = []
         try {
             values.each { k, v ->
+                keys.add(k)
                 v.reference = (v.reference) ? v.reference : 'self';
                 param.setParam(v.type, k)
 
@@ -440,14 +442,15 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 }
 
                 // collect api vars into list to use in apiDescriptor
+
                 apiObject[param.param.name] = param.toObject()
             }
         }catch(Exception e){
             throw new Exception("[Runtime :: createApiDescriptor] : Badly Formatted IO State :",e)
         }
 
-        LinkedHashMap receives = getIOSet(json.URI[uri]?.REQUEST,apiObject)
-        LinkedHashMap returns = getIOSet(json.URI[uri]?.RESPONSE,apiObject)
+        LinkedHashMap receives = getIOSet(json.URI[uri]?.REQUEST,apiObject,keys,apiname)
+        LinkedHashMap returns = getIOSet(json.URI[uri]?.RESPONSE,apiObject,keys,apiname)
 
         ApiDescriptor service = new ApiDescriptor(
                 'empty':false,
@@ -485,7 +488,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         return service
     }
 
-    private LinkedHashMap getIOSet(JSONObject io,LinkedHashMap apiObject){
+    private LinkedHashMap getIOSet(JSONObject io,LinkedHashMap apiObject,List valueKeys,String apiName){
         LinkedHashMap<String,ParamsDescriptor> ioSet = [:]
 
         io.each{ k, v ->
@@ -495,8 +498,12 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             def roleVars=v.toList()
             roleVars.each{ val ->
                 if(v.contains(val)){
-                    if(!ioSet[k].contains(apiObject[val])){
-                        ioSet[k].add(apiObject[val])
+                    if(!ioSet[k].contains(apiObject[val])) {
+                        if (apiObject[val]){
+                            ioSet[k].add(apiObject[val])
+                        }else {
+                            throw new Exception("VALUE '"+val+"' is not a valid key for IO State [${apiName}]. Please check that this 'VALUE' exists")
+                        }
                     }
                 }
             }
@@ -510,6 +517,14 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                         ioSet[key].add(it)
                     }
                 }
+            }
+        }
+
+        //List ioKeys = []
+        ioSet.each(){ k, v ->
+            List ioKeys = v.collect(){ it -> it.name }
+            if (!ioKeys.minus(valueKeys).isEmpty()) {
+                throw new Exception("[Runtime :: getIOSet] : VALUES for IO State [" + apiName + "] do not match REQUEST/RESPONSE values for endpoints")
             }
         }
 

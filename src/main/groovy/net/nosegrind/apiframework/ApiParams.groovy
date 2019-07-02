@@ -31,8 +31,8 @@ class ApiParams{
 	private ApiParams() {}
 
 	
-	Map toObject(){
-		Map<String, Object> result = new HashMap<String, Object>()
+	LinkedHashMap toObject(){
+		LinkedHashMap<String, Object> result = new LinkedHashMap<String, Object>()
 		BeanInfo info = Introspector.getBeanInfo(param.getClass())
 		for (PropertyDescriptor descriptor : info.getPropertyDescriptors()) {
 			try{

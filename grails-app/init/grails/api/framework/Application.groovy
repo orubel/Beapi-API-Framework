@@ -19,7 +19,6 @@ import grails.boot.config.GrailsAutoConfiguration
 import javax.servlet.*;
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
-import org.springframework.boot.autoconfigure.security.SecurityFilterAutoConfiguration
 
 
 //@ComponentScan

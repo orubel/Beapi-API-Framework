@@ -147,12 +147,14 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		this.authority = getUserRole(this.roles)
 		this.networkGrp = cache[apiObject][action]['networkGrp']
 
+
 		//try{
 			//Test For APIDoc
 			if(controller=='apidoc') { return true }
 
 			params.max = (params.max==null)?0:params.max
 			params.offset = (params.offset==null)?0:params.offset
+
 
 			if(cache) {
 				boolean restAlt = RequestMethod.isRestAlt(mthd.getKey())
@@ -165,19 +167,38 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					return false
 				}
 
+				/**
+				 * Walk through authoprities and get list of 'receives' params from
+				 * IO state for endpoint being called
+				 */
 				LinkedHashMap receives = this.cachedEndpoint['receives'] as LinkedHashMap
 				ArrayList receivesList = []
 				this.authority.each(){
 					if(receives[it]) {
-						receivesList.addAll(receives[it].collect{ it2 -> it2['name'] })
+						//receives.each(){ k,v ->
+						//	println("VALUE:"+v)
+						//	v.each(){ it3 ->
+						//		println("TEST: ${it3['name']} / "+it3.getClass())
+						//	}
+						//}
+						receivesList.addAll(receives[it].collect(){ it2 -> it2['name'] })
 					}
 				}
 
 				cacheHash = createCacheHash(params, receivesList, this.authority)
 				if(!checkURIDefinitions(params, receivesList, this.authority)){
+					statsService.setStatsCache(userId, response.status, request.requestURI)
+					//response.status = 400
+					//response.setHeader('ERROR', "Sent params {${params}} do not match expected params {${receivesList}}")
+					//response.writer.flush()
+
+					response.setContentType("application/json")
+					response.setStatus(400)
+					response.getWriter().write("Sent params {${params}} do not match expected params {${receivesList}}")
 					response.writer.flush()
 					return false
 				}
+
 
 				// CHECK FOR REST ALTERNATIVES
 				if (restAlt) {
@@ -188,8 +209,19 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						byte[] contentLength = result.getBytes('ISO-8859-1')
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length, this.authority)) {
+
 								statsService.setStatsCache(userId, response.status, request.requestURI)
 								render(text: getContent(result, contentType), contentType: contentType)
+							}else{
+								statsService.setStatsCache(userId, 404, request.requestURI)
+								//response.status = 404
+								//response.setHeader('ERROR', 'Rate Limit exceeded. Please wait')
+								//response.writer.flush()
+								response.setContentType("application/json")
+								response.setStatus(404)
+								response.getWriter().write('Rate Limit exceeded. Please wait')
+								response.writer.flush()
+								return false
 							}
 						}else{
 							statsService.setStatsCache(userId, response.status, request.requestURI)
@@ -199,13 +231,11 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					}
 				}
 
+
 				// RETRIEVE CACHED RESULT (only if using get method); DON'T CACHE LISTS
-				if (this.cachedEndpoint.cachedResult && mthdKey=='GET' && cacheHash !=null) {
+				if (this.cachedEndpoint?.cachedResult && mthdKey=='GET' && cacheHash !=null && cachedEndpoint['cachedResult'][cacheHash]) {
 
-
-					LinkedHashMap cachedResult = this.cachedEndpoint['cachedResult'][cacheHash][this.networkGrp][format] as LinkedHashMap
-					if(cachedResult){
-
+						LinkedHashMap cachedResult = this.cachedEndpoint['cachedResult'][cacheHash][this.networkGrp][format] as LinkedHashMap
 						String domain = ((String) controller).capitalize()
 
 
@@ -231,6 +261,17 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 										if (checkLimit(contentLength.length, this.authority)) {
 											statsService.setStatsCache(userId, response.status, request.requestURI)
 											render(text: output, contentType: contentType)
+											return false
+										}else{
+											statsService.setStatsCache(userId, 404, request.requestURI)
+											//response.status = 404
+											//response.setHeader('ERROR', 'Rate Limit exceeded. Please wait')
+											//response.writer.flush()
+
+											response.setContentType("application/json")
+											response.setStatus(404)
+											response.getWriter().write('Rate Limit exceeded. Please wait')
+											response.writer.flush()
 											return false
 										}
 									} else {
@@ -260,8 +301,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 												return false
 											}else{
 												statsService.setStatsCache(userId, 404, request.requestURI)
-												response.status = 404
-												response.setHeader('ERROR', 'Rate Limit exceeded. Please wait')
+												response.setContentType("application/json")
+												response.setStatus(404)
+												response.getWriter().write('Rate Limit exceeded. Please wait')
 												response.writer.flush()
 												return false
 											}
@@ -274,13 +316,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								}
 							}
 						}
-					}else{
-						statsService.setStatsCache(userId, 404, request.requestURI)
-						response.status = 404
-						response.setHeader('ERROR', 'No Content found')
-						response.writer.flush()
-						return false
-					}
+
 				} else {
 					if (action == null || !action) {
 						String methodAction = mthd.toString()
@@ -304,18 +340,20 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					boolean checkAuth = checkAuth(roles)
 					if(!checkAuth){
 						statsService.setStatsCache(userId, 400, request.requestURI)
-						//response.status = 400
-						//response.setHeader('ERROR', 'Unauthorized Access attempted')
+						response.setContentType("application/json")
+						response.setStatus(400)
+						response.getWriter().write('Unauthorized Access attempted')
 						response.writer.flush()
 						return false
 					}
 
 					boolean result = handleRequest(this.cachedEndpoint['deprecated'] as List)
 					if(result){
+
 						return result
-					}else{
-						return result
-						response.writer.flush()
+					//}else{
+						//return result
+						//response.writer.flush()
 					}
 
 				}
@@ -346,8 +384,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
 						statsService.setStatsCache(userId, 400, request.requestURI)
-						response.status = 400
-						response.setHeader('ERROR', 'No resource returned; query was empty')
+						response.setContentType("application/json")
+						response.setStatus(400)
+						response.getWriter().write('No resource returned; query was empty')
 						response.writer.flush()
 						return false
 					} else {
@@ -423,8 +462,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								return false
 							}else{
 								statsService.setStatsCache(userId, 404, request.requestURI)
-								response.status = 404
-								response.setHeader('ERROR', 'Rate Limit exceeded. Please wait')
+								response.setContentType("application/json")
+								response.setStatus(404)
+								response.getWriter().write('Rate Limit exceeded. Please wait')
 								response.writer.flush()
 								return false
 							}

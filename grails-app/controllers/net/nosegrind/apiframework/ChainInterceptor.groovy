@@ -349,7 +349,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 				params.id = ((chainInc + 1) == 1) ? chainKeys[0] : chainKeys[(chainInc)]
 				if (chainEnabled && (chainLength >= (chainInc + 1)) && params.id!='return') {
-					WebUtils.exposeRequestAttributes(request, params);
+					WebUtils.exposeRequestAttributesAndReturnOldValues(request, params);
 					// this will work fine when we upgrade to newer version that has fix in it
 					String forwardUri = "/${entryPoint}/${chainUris[chainInc + 1]}/${newModel.get(params.id)}"
 					statsService.setStatsCache(this.userId, response.status, request.requestURI)
