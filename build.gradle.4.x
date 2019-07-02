@@ -30,12 +30,14 @@ plugins {
     id "com.jfrog.bintray" version "1.2"
 }
 
+
 def appVersion = project.buildVersion
 def patch = (System.getenv('BUILD_NUMBER'))?System.getenv('BUILD_NUMBER'):project.patchVersion
 version = "${appVersion}.${patch}"
 group "org.grails.plugins"
 
-
+apply plugin: 'java'
+apply plugin: 'groovy'
 apply plugin: "maven-publish"
 apply plugin: "org.springframework.boot"
 apply plugin: "com.jfrog.bintray"
@@ -82,8 +84,16 @@ repositories {
 //    applyMavenExclusions false
 //}
 
+configurations {
+    developmentOnly
+    runtimeClasspath {
+        extendsFrom developmentOnly
+    }
+}
+
 dependencies {
-    compile 'org.grails.plugins:cache:4.0.0'
+    developmentOnly("org.springframework.boot:spring-boot-devtools")
+    compile 'org.grails.plugins:cache:5.0.0.RC1'
     //compile 'org.grails.plugins:cache:3.0.2'
     //compile 'org.springframework.boot:spring-boot-starter-logging'
     compile 'org.springframework.boot:spring-boot-autoconfigure'
@@ -97,7 +107,7 @@ dependencies {
     compile 'org.grails.plugins:converters:3.3.1'
     compile "org.grails.plugins:events"
 
-    compile('org.grails.plugins:spring-security-core:3.2.0.M1') {
+    compile('org.grails.plugins:spring-security-core:4.0.0.RC2') {
         exclude(module: 'org.springframework.security:spring-security-web')
         exclude(module: 'org.grails.plugins:cors')
     }
@@ -134,12 +144,12 @@ dependencies {
     compile("org.codehaus.groovy:groovy-ant:$groovyVersion")
 
     compile "org.grails.plugins:hibernate5"
-    compile "org.hibernate:hibernate-core:5.1.5.Final"
-    compile "org.hibernate:hibernate-ehcache:5.1.5.Final"
+    compile "org.hibernate:hibernate-core:5.4.0.Final"
+    compile "org.hibernate:hibernate-ehcache:5.4.0.Final"
 }
 
-task wrapper(type: Wrapper) {
-    gradleVersion = gradleWrapperVersion
+wrapper {
+    gradleVersion = '5.1.1'
 }
 
 bootRun {
