@@ -44,7 +44,7 @@ class ApiFrameworkUrlMappings {
         }
 
 
-        "/${api}-$apiObjectVersion/$controller/$action/$id?**" {
+        "/${api}-$apiObjectVersion/$controller/$action/$id**" {
             entryPoint = api
             apiObject = apiObjectVersion
             constraints {
@@ -66,7 +66,7 @@ class ApiFrameworkUrlMappings {
 
 
         // BATCH API ENDPOINTS
-        "/$batchEntryPoint/$controller/$action/$id?**"{
+        "/$batchEntryPoint/$controller/$action/$id**"{
             entryPoint = batchEntryPoint
         }
 
@@ -101,7 +101,7 @@ class ApiFrameworkUrlMappings {
 
 
         // CHAIN API ENDPOINTS
-        "/$chainEntryPoint/$controller/$action/$id?**"{
+        "/$chainEntryPoint/$controller/$action/$id**"{
             entryPoint = chainEntryPoint
         }
 
@@ -134,7 +134,7 @@ class ApiFrameworkUrlMappings {
         }
 
         // PROFILER API ENDPOINTS
-        "/$profilerEntryPoint/$controller/$action/$id?**"{
+        "/$profilerEntryPoint/$controller/$action/$id**"{
             entryPoint = profilerEntryPoint
         }
 
