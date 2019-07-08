@@ -29,10 +29,11 @@ class ApiFrameworkUrlMappings {
         String profilerEntryPoint = "p${apiVersion}"
 
         // REGULAR API ENDPOINTS
-        "/$api/$controller/$action/$id?**"{
+        "/$api/$controller/$action/$id**"{
             entryPoint = api
             parseRequest = true
         }
+
 
         "/$api/$controller/$action" {
             if(action?.toInteger()==action && action!=null){

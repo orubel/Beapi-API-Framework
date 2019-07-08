@@ -387,7 +387,6 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     }
 
 
-
     private ApiDescriptor createApiDescriptor(String networkGrp, String apiname,String apiMethod, String apiDescription, List apiRoles, Set batchRoles, Set hookRoles, String uri, JSONObject values, JSONObject json){
         LinkedHashMap<String,ParamsDescriptor> apiObject = [:]
         ApiParams param = new ApiParams()
