@@ -39,10 +39,6 @@ class CorsSecurityFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         // println("#### CorsSecurityFilter ####")
 
-        //HttpServletRequest httpRequest = request as HttpServletRequest
-        //HttpServletResponse httpResponse = response as HttpServletResponse
-
-
         if(!processPreflight(request, response) ) {
             chain.doFilter(request, response)
         }
@@ -52,8 +48,8 @@ class CorsSecurityFilter extends OncePerRequestFilter {
 
         boolean options = 'OPTIONS' == request.method.toUpperCase()
 
-        request.getHeader('Access-Control-Request-Headers')
-        List headers = request.getHeaderNames() as List
+        //request.getHeader('Access-Control-Request-Headers')
+        //List headers = request.getHeaderNames() as List
 
         /**
          * First get CORS Network grps, then test the domains listed in the users network group

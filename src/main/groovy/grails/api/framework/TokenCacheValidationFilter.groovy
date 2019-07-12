@@ -78,12 +78,6 @@ class TokenCacheValidationFilter extends GenericFilterBean {
         HttpServletRequest httpRequest = request as HttpServletRequest
         HttpServletResponse httpResponse = response as HttpServletResponse
 
-        //String actualUri = httpRequest.requestURI - httpRequest.contextPath
-        //String[] prms = actualUri.split('/')
-        //def cont = prms[2]
-        //def act = prms[3]
-
-
         AccessToken accessToken
 
         try {
@@ -98,6 +92,12 @@ class TokenCacheValidationFilter extends GenericFilterBean {
                     //log.debug "Token authenticated. Storing the authentication result in the security context"
                     //log.debug "Authentication result: ${accessToken}"
                     SecurityContextHolder.context.setAuthentication(accessToken)
+
+                    //println(accessToken.authenticated)
+                    //println(accessToken.authorities)
+                    //println(accessToken.expiration)
+                    //println(accessToken.refreshToken)
+                    //println(accessToken)
 
                     //authenticationEventPublisher.publishAuthenticationSuccess(accessToken)
 
@@ -137,9 +137,6 @@ class TokenCacheValidationFilter extends GenericFilterBean {
     @CompileDynamic
     private void processFilterChain(HttpServletRequest request, HttpServletResponse response, FilterChain chain, AccessToken authenticationResult) {
 
-        //HttpServletRequest httpRequest = request as HttpServletRequest
-        //HttpServletResponse httpResponse = response as HttpServletResponse
-
         String actualUri = request.requestURI - request.contextPath
 
         if (!active) {
@@ -147,16 +144,19 @@ class TokenCacheValidationFilter extends GenericFilterBean {
             return
         }
 
+        /*
         if (authenticationResult?.accessToken) {
             if (actualUri == validationEndpointUrl) {
+                println("Validation endpoint called (${validationEndpointUrl}). Generating response.")
                 //log.debug 'Validation endpoint called. Generating response.'
                 authenticationSuccessHandler.onAuthenticationSuccess(request, response, authenticationResult)
             } else {
                 // continue..
             }
         } else {
-            //log.debug 'Request does not contain any token. Letting it continue through the filter chain'
+            log.debug 'Request does not contain any token. Letting it continue through the filter chain'
         }
+        */
 
         chain.doFilter(request, response)
     }
