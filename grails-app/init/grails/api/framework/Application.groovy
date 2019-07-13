@@ -16,7 +16,7 @@ package grails.api.framework
 import grails.boot.GrailsApp
 import grails.boot.config.GrailsAutoConfiguration
 //import org.springframework.context.annotation.ComponentScan
-import javax.servlet.*;
+import javax.servlet.*
 
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration
 

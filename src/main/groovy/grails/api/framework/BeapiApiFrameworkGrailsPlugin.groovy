@@ -71,11 +71,13 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
             /* restTokenValidationFilter */
             SpringSecurityUtils.registerFilter 'corsSecurityFilter', SecurityFilterPosition.PRE_AUTH_FILTER.order + 1
-            SpringSecurityUtils.registerFilter 'tokenCacheValidationFilter', SecurityFilterPosition.PRE_AUTH_FILTER.order + 2
-            SpringSecurityUtils.registerFilter 'contentTypeMarshallerFilter', SecurityFilterPosition.PRE_AUTH_FILTER.order + 3
+            //SpringSecurityUtils.registerFilter 'tokenCacheValidationFilter', SecurityFilterPosition.PRE_AUTH_FILTER.order + 2
+            //SpringSecurityUtils.registerFilter 'contentTypeMarshallerFilter', SecurityFilterPosition.PRE_AUTH_FILTER.order + 3
+            SpringSecurityUtils.registerFilter 'apiRequestFilter', SecurityFilterPosition.PRE_AUTH_FILTER.order + 4
 
             corsSecurityFilter(CorsSecurityFilter){}
 
+            /*
             tokenCacheValidationFilter(TokenCacheValidationFilter) {
                 headerName = conf.rest.token.validation.headerName
                 validationEndpointUrl = conf.rest.token.validation.endpointUrl
@@ -88,6 +90,18 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 authenticationEventPublisher = ref('authenticationEventPublisher')
             }
             contentTypeMarshallerFilter(ContentTypeMarshallerFilter){}
+            */
+            apiRequestFilter(ApiRequestFilter) {
+                headerName = conf.rest.token.validation.headerName
+                validationEndpointUrl = conf.rest.token.validation.endpointUrl
+                active = conf.rest.token.validation.active
+                tokenReader = ref('tokenReader')
+                enableAnonymousAccess = conf.rest.token.validation.enableAnonymousAccess
+                authenticationSuccessHandler = ref('restAuthenticationSuccessHandler')
+                authenticationFailureHandler = ref('restAuthenticationFailureHandler')
+                restAuthenticationProvider = ref('restAuthenticationProvider')
+                authenticationEventPublisher = ref('authenticationEventPublisher')
+            }
         }catch(Exception e){
             throw new Exception("[BeAPIFramework] : Issue creating Filters :",e)
         }
