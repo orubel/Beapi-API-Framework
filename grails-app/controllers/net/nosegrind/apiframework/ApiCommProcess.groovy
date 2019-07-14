@@ -669,9 +669,9 @@ abstract class ApiCommProcess{
                         }else{
                             lcache['locked'] = true
                             throttleCacheService.setThrottleCache(userId, lcache)
-
-                            return false
                         }
+
+                        errorResponse([404, 'Rate Limit exceeded. Please wait'])
                         return false
                     }else{
                         lcache['currentRate']++
@@ -681,8 +681,10 @@ abstract class ApiCommProcess{
                         return true
                     }
 
+                    errorResponse([404, 'Rate Limit exceeded. Please wait'])
                     return false
                 }else{
+                    errorResponse([404, 'Rate Limit exceeded. Please wait'])
                     return false
                 }
             }

@@ -148,7 +148,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		this.networkGrp = cache[apiObject][action]['networkGrp']
 
 
-		//try{
+		try{
 			//Test For APIDoc
 			if(controller=='apidoc') { return true }
 
@@ -214,13 +214,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								render(text: getContent(result, contentType), contentType: contentType)
 							}else{
 								statsService.setStatsCache(userId, 404, request.requestURI)
-								//response.status = 404
-								//response.setHeader('ERROR', 'Rate Limit exceeded. Please wait')
-								//response.writer.flush()
-								response.setContentType("application/json")
-								response.setStatus(404)
-								response.getWriter().write('Rate Limit exceeded. Please wait')
-								response.writer.flush()
 								return false
 							}
 						}else{
@@ -246,16 +239,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						} else {
 							if (cachedResult.size() > 0) {
 								if(isCachedResult(apiObject as Integer, domain)) {
-									String output
-									switch (format) {
-										case 'XML':
-											output = cachedResult as XML
-											break
-										case 'JSON':
-										default:
-											output = cachedResult as JSON
-											break
-									}
+									String output = (format == 'XML')?cachedResult as XML:cachedResult as JSON
+
 									byte[] contentLength = output.getBytes('ISO-8859-1')
 									if (apiThrottle) {
 										if (checkLimit(contentLength.length, this.authority)) {
@@ -264,14 +249,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 											return false
 										}else{
 											statsService.setStatsCache(userId, 404, request.requestURI)
-											//response.status = 404
-											//response.setHeader('ERROR', 'Rate Limit exceeded. Please wait')
-											//response.writer.flush()
-
-											response.setContentType("application/json")
-											response.setStatus(404)
-											response.getWriter().write('Rate Limit exceeded. Please wait')
-											response.writer.flush()
 											return false
 										}
 									} else {
@@ -283,16 +260,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							} else {
 								if (version != null) {
 									if (isCachedResult(apiObject as Integer, domain)) {
-										String output
-										switch (format) {
-											case 'XML':
-												output = cachedResult as XML
-												break
-											case 'JSON':
-											default:
-												output = cachedResult as JSON
-												break
-										}
+										String output = (format == 'XML')?cachedResult as XML:cachedResult as JSON
+
 										byte[] contentLength = output.getBytes('ISO-8859-1')
 										if (apiThrottle) {
 											if (checkLimit(contentLength.length, this.authority)) {
@@ -301,10 +270,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 												return false
 											}else{
 												statsService.setStatsCache(userId, 404, request.requestURI)
-												response.setContentType("application/json")
-												response.setStatus(404)
-												response.getWriter().write('Rate Limit exceeded. Please wait')
-												response.writer.flush()
 												return false
 											}
 										} else {
@@ -363,10 +328,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 			return false
 
-		//}catch(Exception e){
-		//	throw new Exception('[ApiToolkitFilters :: preHandler] : Exception - full stack trace follows:', e)
-		//	return false
-		//}
+		}catch(Exception e){
+			throw new Exception('[ApiToolkitFilters :: preHandler] : Exception - full stack trace follows:', e)
+			return false
+		}
 	}
 
 	/**
@@ -462,10 +427,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 								return false
 							}else{
 								statsService.setStatsCache(userId, 404, request.requestURI)
-								response.setContentType("application/json")
-								response.setStatus(404)
-								response.getWriter().write('Rate Limit exceeded. Please wait')
-								response.writer.flush()
 								return false
 							}
 						} else {
@@ -502,5 +463,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		}
 		return false
 	}
+
 
 }
