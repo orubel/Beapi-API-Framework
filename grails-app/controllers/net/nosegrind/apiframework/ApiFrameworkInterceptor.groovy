@@ -175,12 +175,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				ArrayList receivesList = []
 				this.authority.each(){
 					if(receives[it]) {
-						//receives.each(){ k,v ->
-						//	println("VALUE:"+v)
-						//	v.each(){ it3 ->
-						//		println("TEST: ${it3['name']} / "+it3.getClass())
-						//	}
-						//}
 						receivesList.addAll(receives[it].collect(){ it2 -> it2['name'] })
 					}
 				}
@@ -188,14 +182,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				cacheHash = createCacheHash(params, receivesList, this.authority)
 				if(!checkURIDefinitions(params, receivesList, this.authority)){
 					statsService.setStatsCache(userId, response.status, request.requestURI)
-					//response.status = 400
-					//response.setHeader('ERROR', "Sent params {${params}} do not match expected params {${receivesList}}")
-					//response.writer.flush()
-
-					response.setContentType("application/json")
-					response.setStatus(400)
-					response.getWriter().write("Sent params {${params}} do not match expected params {${receivesList}}")
-					response.writer.flush()
+					errorResponse([400,"Sent params {${params}} do not match expected params {${receivesList}}"])
 					return false
 				}
 
@@ -305,20 +292,13 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					boolean checkAuth = checkAuth(roles)
 					if(!checkAuth){
 						statsService.setStatsCache(userId, 400, request.requestURI)
-						response.setContentType("application/json")
-						response.setStatus(400)
-						response.getWriter().write('Unauthorized Access attempted')
-						response.writer.flush()
+						errorResponse([400,'Unauthorized Access attempted'])
 						return false
 					}
 
 					boolean result = handleRequest(this.cachedEndpoint['deprecated'] as List)
 					if(result){
-
 						return result
-					//}else{
-						//return result
-						//response.writer.flush()
 					}
 
 				}
@@ -349,10 +329,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				if (params.controller != 'apidoc') {
 					if (!model || vals[0] == null) {
 						statsService.setStatsCache(userId, 400, request.requestURI)
-						response.setContentType("application/json")
-						response.setStatus(400)
-						response.getWriter().write('No resource returned; query was empty')
-						response.writer.flush()
+						errorResponse([400,'No resource returned; query was empty'])
 						return false
 					} else {
 						newModel = convertModel(model)
@@ -386,27 +363,12 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							}
 						}
 
-
-/*
-						ArrayList<LinkedHashMap> temp = new ArrayList()
-						if(requestDefinitions[this.authority]) {
-							ArrayList<LinkedHashMap> temp1 = requestDefinitions[this.authority] as ArrayList<LinkedHashMap>
-							temp.addAll(temp1)
-						}else{
-							ArrayList<LinkedHashMap> temp2 = requestDefinitions['permitAll'] as ArrayList<LinkedHashMap>
-							temp.addAll(temp2)
-						}
-
-						responseList = (ArrayList)temp?.collect(){ if(it!=null){it.name} }
-*/
-
 						result = parseURIDefinitions(newModel, responseList)
 						// will parse empty map the same as map with content
 
 						content = parseResponseMethod(mthd, format, params, result)
 					}
-
-					//
+					
 
 					byte[] contentLength = content.getBytes('ISO-8859-1')
 					if (content) {

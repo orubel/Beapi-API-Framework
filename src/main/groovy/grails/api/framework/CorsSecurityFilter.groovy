@@ -35,6 +35,7 @@ class CorsSecurityFilter extends OncePerRequestFilter {
     //private ApplicationContext context
 
     String loginUri
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
         // println("#### CorsSecurityFilter ####")

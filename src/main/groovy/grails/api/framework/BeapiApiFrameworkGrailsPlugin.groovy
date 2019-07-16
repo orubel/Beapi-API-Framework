@@ -112,7 +112,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         try {
             def config = getBean('grailsApplication').config
             def servletContext = applicationContext.servletContext
-            def serverInfo = servletContext.getServerInfo()
+            //def serverInfo = servletContext.getServerInfo()
 
 
             config?.servlets?.each { name, parameters ->
@@ -198,10 +198,8 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     }
 
 	void doInitApiFrameworkInstall(applicationContext) {
-		//String basedir = applicationContext.getResource("../../..").getFile().path
 		String basedir = BuildSettings.BASE_DIR
         def ant = new AntBuilder()
-		//basedir = basedir.substring(0,basedir.length())
 
         println '### Installing API Framework ...'
 
@@ -265,11 +263,9 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
         String isBatchServer = grailsApplication.config.apitoolkit.batching.enabled
         String isChainServer = grailsApplication.config.apitoolkit.chaining.enabled
-        //final String isLocalAuth = (String)grailsApplication.config.apitoolkit.localauth.enabled
 
         System.setProperty('isBatchServer', isBatchServer)
         System.setProperty('isChainServer', isChainServer)
-        //System.setProperty('isLocalAuth', isLocalAuth)
 
         println  '... API Framework installed. ###'
 	}
@@ -322,7 +318,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
         String networkGrp = json.NETWORKGRP
         json.VERSION.each() { vers ->
-            def versKey = vers.key
+            //def versKey = vers.key
             String defaultAction = (vers.value['DEFAULTACTION'])?vers.value.DEFAULTACTION:'index'
 
             Set deprecated = (vers.value.DEPRECATED)?vers.value.DEPRECATED:[]
@@ -378,7 +374,6 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 if(!methods[vers.key]['defaultAction']){
                     methods[vers.key]['defaultAction'] = defaultAction
                 }
-
 
                 methods[vers.key][actionname] = apiDescriptor
 
