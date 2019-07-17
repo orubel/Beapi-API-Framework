@@ -117,7 +117,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
      * @return
      */
     def handleBatchResponse(List authority, LinkedHashMap requestDefinitions, List roles, RequestMethod mthd, String format, HttpServletResponse response, LinkedHashMap model){
-        //try{
+        try{
             response.setHeader('Authorization', roles.join(', '))
 
             ArrayList<LinkedHashMap> temp = []
@@ -138,9 +138,9 @@ abstract class ApiCommLayer extends ApiCommProcess{
             }else{
                 return parseBatchResponseMethod(mthd, format, result)
             }
-        //}catch(Exception e){
-        //    throw new Exception("[ApiCommLayer : handleBatchResponse] : Exception - full stack trace follows:",e)
-        //}
+        }catch(Exception e){
+            throw new Exception("[ApiCommLayer : handleBatchResponse] : Exception - full stack trace follows:",e)
+        }
     }
 
     /**
