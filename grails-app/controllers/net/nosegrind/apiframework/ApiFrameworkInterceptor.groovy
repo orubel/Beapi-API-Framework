@@ -300,7 +300,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					if(result){
 						return result
 					}
-
 				}
 			}
 
@@ -323,10 +322,11 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 		if(model) {
 			//List unsafeMethods = ['PUT', 'POST', 'DELETE']
-			Object vals = model.values()
+
 			try {
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
+					Object vals = model.values()
 					if (!model || vals[0] == null) {
 						statsService.setStatsCache(userId, 400, request.requestURI)
 						errorResponse([400,'No resource returned; query was empty'])
@@ -368,7 +368,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 						content = parseResponseMethod(mthd, format, params, result)
 					}
-					
+
 
 					byte[] contentLength = content.getBytes('ISO-8859-1')
 					if (content) {

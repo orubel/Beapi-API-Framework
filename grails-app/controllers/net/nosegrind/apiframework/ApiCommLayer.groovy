@@ -55,7 +55,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
             }
             return true
         }catch(Exception e){
-            throw new Exception("[ApiCommLayer : handleApiRequest] : Exception - full stack trace follows:",e)
+            throw new Exception("[ApiCommLayer : handleRequest] : Exception - full stack trace follows:",e)
         }
     }
 
@@ -188,7 +188,7 @@ abstract class ApiCommLayer extends ApiCommProcess{
             }
 
         }catch(Exception e){
-            throw new Exception("[ApiResponseService :: handleApiResponse] : Exception - full stack trace follows:",e)
+            throw new Exception("[ApiResponseService :: handleChainResponse] : Exception - full stack trace follows:",e)
         }
     }
 
