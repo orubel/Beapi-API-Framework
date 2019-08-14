@@ -27,13 +27,14 @@ class ApiFrameworkUrlMappings {
         String batchEntryPoint = "b${apiVersion}"
         String chainEntryPoint = "c${apiVersion}"
         String profilerEntryPoint = "p${apiVersion}"
+        String domainEntryPoint = "d${apiVersion}"
+
 
         // REGULAR API ENDPOINTS
         "/$api/$controller/$action/$id**"{
             entryPoint = api
             parseRequest = true
         }
-
 
         "/$api/$controller/$action" {
             if(action?.toInteger()==action && action!=null){
@@ -42,7 +43,6 @@ class ApiFrameworkUrlMappings {
             }
             entryPoint = api
         }
-
 
         "/${api}-$apiObjectVersion/$controller/$action/$id**" {
             entryPoint = api
@@ -85,7 +85,6 @@ class ApiFrameworkUrlMappings {
                 apiObjectVersion(matches:/^[0-9]?[0-9]?(\\.[0-9][0-9]?)?/)
             }
         }
-
 
         "/${batchEntryPoint}-$apiObjectVersion/$controller/$action" {
             if(action?.toInteger()==action && action!=null){
@@ -133,6 +132,7 @@ class ApiFrameworkUrlMappings {
             }
         }
 
+
         // PROFILER API ENDPOINTS
         "/$profilerEntryPoint/$controller/$action/$id**"{
             entryPoint = profilerEntryPoint
@@ -165,6 +165,34 @@ class ApiFrameworkUrlMappings {
                 apiObjectVersion(matches:/^[0-9]?[0-9]?(\\.[0-9][0-9]?)?/)
             }
         }
+
+
+        // DOMAIN API ENDPOINTS
+        "/$domainEntryPoint/$domain/$id**"{
+            entryPoint = domainEntryPoint
+            parseRequest = true
+        }
+
+        "/$domainEntryPoint/$domain/" {
+            entryPoint = domainEntryPoint
+        }
+
+        "/${domainEntryPoint}-$apiObjectVersion/$domain/$id**" {
+            entryPoint = domainEntryPoint
+            apiObject = apiObjectVersion
+            constraints {
+                apiObjectVersion(matches:/^[0-9]?[0-9]?(\\.[0-9][0-9]?)?/)
+            }
+        }
+
+        "/${domainEntryPoint}-$apiObjectVersion/$domain" {
+            entryPoint = domainEntryPoint
+            apiObject = apiObjectVersion
+            constraints {
+                apiObjectVersion(matches:/^[0-9]?[0-9]?(\\.[0-9][0-9]?)?/)
+            }
+        }
+
 
         '200'{
             id = '200'

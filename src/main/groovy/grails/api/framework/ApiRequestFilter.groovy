@@ -8,60 +8,50 @@
  *   https://opensource.org/licenses/AFL-3.0
  */
 
-package grails.api.framework;
+package grails.api.framework
 
-
-
-
-import org.springframework.http.HttpStatus
-import grails.util.Environment
-
-
-
-
+import grails.compiler.GrailsCompileStatic
+import grails.plugin.cache.GrailsValueWrapper
 import grails.plugin.springsecurity.rest.RestAuthenticationProvider
 import grails.plugin.springsecurity.rest.authentication.RestAuthenticationEventPublisher
 import grails.plugin.springsecurity.rest.token.AccessToken
 import grails.plugin.springsecurity.rest.token.reader.TokenReader
-import groovy.transform.CompileDynamic
-import groovy.transform.CompileStatic
+import grails.web.servlet.mvc.GrailsHttpSession
+
+import grails.util.Environment
+import grails.util.Metadata
+import grails.util.Holders
 import groovy.util.logging.Slf4j
+
+import groovy.transform.CompileDynamic
+
+import org.grails.plugin.cache.GrailsCacheManager
+
+import org.springframework.cache.Cache
+import org.springframework.context.ApplicationContext
+import org.springframework.http.HttpStatus
+import org.springframework.web.context.request.RequestContextHolder as RCH
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.web.filter.GenericFilterBean
 
-import org.springframework.web.context.request.RequestContextHolder as RCH
-
-import javax.annotation.Resource
 import javax.servlet.FilterChain
 import javax.servlet.ServletException
 import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import javax.xml.ws.Service
 
-import grails.util.Metadata
 
-import org.springframework.web.context.support.WebApplicationContextUtils
-import org.springframework.context.ApplicationContext
-
-//import grails.plugin.cache.GrailsCacheManager
-import org.grails.plugin.cache.GrailsCacheManager
-import grails.util.Holders
-
-import javax.servlet.http.HttpSession
-import org.springframework.web.context.request.RequestContextHolder as RCH
-import org.grails.plugin.cache.GrailsCacheManager
-import grails.compiler.GrailsCompileStatic
 
 /**
  * Filter for validation of token send through the request.
  *
  * @author Owen Rubel
  */
+@Slf4j
 @GrailsCompileStatic
 class ApiRequestFilter extends GenericFilterBean {
 
@@ -94,27 +84,16 @@ class ApiRequestFilter extends GenericFilterBean {
             try {
                 accessToken = tokenReader.findToken(httpRequest)
                 if (accessToken) {
-
-                    //log.debug "Token found: ${accessToken.accessToken}"
-
+                    log.debug "Token found: ${accessToken.accessToken}"
                     accessToken = restAuthenticationProvider.authenticate(accessToken) as AccessToken
 
                     if (accessToken.authenticated) {
-                        //log.debug "Token authenticated. Storing the authentication result in the security context"
-                        //log.debug "Authentication result: ${accessToken}"
+                        log.debug "Token authenticated. Storing the authentication result in the security context"
+                        log.debug "Authentication result: ${accessToken}"
                         SecurityContextHolder.context.setAuthentication(accessToken)
-
-                        //println(accessToken.authenticated)
-                        //println(accessToken.authorities)
-                        //println(accessToken.expiration)
-                        //println(accessToken.refreshToken)
-                        //println(accessToken)
-
-                        //authenticationEventPublisher.publishAuthenticationSuccess(accessToken)
-
                         processFilterChain(httpRequest, httpResponse, chain, accessToken)
                     } else {
-                        //log.debug('not authenticated')
+                        log.debug('not authenticated')
                         httpResponse.setContentType("application/json")
                         httpResponse.setStatus(401)
                         httpResponse.getWriter().write('Token Unauthenticated. Uauthorized Access.')
@@ -123,7 +102,7 @@ class ApiRequestFilter extends GenericFilterBean {
                     }
 
                 } else {
-                    //log.debug('token not found')
+                    log.debug('token not found')
                     httpResponse.setContentType("application/json")
                     httpResponse.setStatus(401)
                     httpResponse.getWriter().write('Token not found. Unauthorized Access.')
@@ -133,7 +112,7 @@ class ApiRequestFilter extends GenericFilterBean {
 
             } catch (AuthenticationException ae) {
                 // NOTE: This will happen if token not found in database
-                //log.debug('Token not found in database.')
+                log.debug('Token not found in database.')
                 httpResponse.setContentType("application/json")
                 httpResponse.setStatus(401)
                 httpResponse.getWriter().write('Token not found in database. Authorization Attempt Failed')
@@ -150,6 +129,7 @@ class ApiRequestFilter extends GenericFilterBean {
 
         boolean options = 'OPTIONS' == request.method.toUpperCase()
 
+        // TESTING BLOCK: IGNORE
         //request.getHeader('Access-Control-Request-Headers')
         //List headers = request.getHeaderNames() as List
 
@@ -227,7 +207,6 @@ class ApiRequestFilter extends GenericFilterBean {
                 }
             }
 
-
             if (networkGroupList && networkGroupList.contains(origin)) { // request origin is on the white list
                 // add CORS access control headers for the given origin
                 response.setHeader('Access-Control-Allow-Origin', origin)
@@ -291,7 +270,6 @@ class ApiRequestFilter extends GenericFilterBean {
     @CompileDynamic
     String getNetworkGrp(String version, String controller, String action, HttpServletRequest request, HttpServletResponse response){
         // login URI is always public; this is also handled by 3rd party plugin
-        //String loginUrl = getLoginUrl()
         if("/${controller}/${action}" == this.loginUri){
             return 'public'
         }
@@ -300,9 +278,9 @@ class ApiRequestFilter extends GenericFilterBean {
         if(ctx) {
             GrailsCacheManager grailsCacheManager = ctx.getBean('grailsCacheManager') as GrailsCacheManager
             LinkedHashMap cache = [:]
-            def temp = grailsCacheManager?.getCache('ApiCache')
+            Cache temp = grailsCacheManager?.getCache('ApiCache')
             List cacheNames = temp.getAllKeys() as List
-            def tempCache
+            GrailsValueWrapper tempCache
             for (it in cacheNames) {
                 String cKey = it.simpleKey.toString()
                 if (cKey == controller) {
@@ -311,7 +289,7 @@ class ApiRequestFilter extends GenericFilterBean {
                 }
             }
 
-            def cache2
+            LinkedHashMap cache2
             if (tempCache) {
                 cache2 = tempCache.get() as LinkedHashMap
                 version = (version.isEmpty()) ? cache2['cacheversion'] : version
@@ -322,7 +300,7 @@ class ApiRequestFilter extends GenericFilterBean {
                     response.writer.flush()
                     return
                 } else {
-                    def session = RCH.currentRequestAttributes().getSession()
+                    GrailsHttpSession session = RCH.currentRequestAttributes().getSession())
                     session['cache'] = cache2
                     return session['cache'][version][action]['networkGrp']
                 }
@@ -355,7 +333,6 @@ class ApiRequestFilter extends GenericFilterBean {
 
         try {
             // Init params
-
             if (formats.contains(format)) {
                 LinkedHashMap dataParams = [:]
                 switch (format) {
