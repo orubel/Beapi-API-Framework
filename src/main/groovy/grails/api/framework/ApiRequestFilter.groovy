@@ -159,11 +159,13 @@ class ApiRequestFilter extends GenericFilterBean {
                 action = params[2]
                 break;
             default:
-                response.setContentType("application/json")
-                response.setStatus(401)
-                response.getWriter().write("Bad URI Access attempted at '${actualUri}'")
-                response.writer.flush()
-                return true
+                if(actualUri!='/error') {
+                    response.setContentType("application/json")
+                    response.setStatus(401)
+                    response.getWriter().write("Bad URI Access attempted at '${actualUri}'")
+                    response.writer.flush()
+                    return true
+                }
         }
 
         // get users network group and config NetworkGroups list and test if networkGrp sent exists
@@ -300,7 +302,7 @@ class ApiRequestFilter extends GenericFilterBean {
                     response.writer.flush()
                     return
                 } else {
-                    GrailsHttpSession session = RCH.currentRequestAttributes().getSession())
+                    GrailsHttpSession session = RCH.currentRequestAttributes().getSession()
                     session['cache'] = cache2
                     return session['cache'][version][action]['networkGrp']
                 }

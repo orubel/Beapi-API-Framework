@@ -48,8 +48,8 @@ class TestService {
         this.controller = controller
         this.cache = getApiCache(controller)
         this.version = this.cache['cacheversion']
+        println("### [initTest : ${controller}] ###")
         adminLogin()
-	
         List userRoles = getUserRoles(controller)
         String username = "${controller}test"
         String password = 'testamundo'
@@ -64,33 +64,48 @@ class TestService {
     }
 
     boolean cleanupTest(){
-        String id = deleteUser(this.user.id as String)
-        if(id==this.user.id){
-            return true
+        if(this.user.id) {
+            String id = deleteUser(this.user.id as String)
+            if (id == this.user.id) {
+                return true
+            }
         }
         return false
     }
 
     private void adminLogin(){
-        String login = Holders.grailsApplication.config.root.login
-        String password = Holders.grailsApplication.config.root.password
-        this.testDomain = Holders.grailsApplication.config.environments.test.grails.serverURL
-        this.loginUri = Holders.grailsApplication.config.grails.plugin.springsecurity.rest.login.endpointUrl
-        LinkedHashMap temp = loginUser(login, password)
-        this.adminToken = temp.token
+        println("[adminLogin : ${controller}] - logging in")
+        try {
+            String login = Holders.grailsApplication.config.root.login
+            String password = Holders.grailsApplication.config.root.password
+            this.testDomain = Holders.grailsApplication.config.environments.test.grails.serverURL
+            this.loginUri = Holders.grailsApplication.config.grails.plugin.springsecurity.rest.login.endpointUrl
+
+            LinkedHashMap temp = loginUser(login, password)
+            println("[adminLogin : ${controller}] - successfully loggedIn")
+            this.adminToken = temp.token
+        }catch(Exception e){
+            throw new Exception("[TestService : adminLogin] : Admin Login Failed. Please check privileges in 'beapi_api.yml' file :"+e)
+        }
     }
-
-
+    
 
     private List getNetworkRoles(String controller){
-        String action = this.cache[this.version]['defaultAction']
-        String networkGrp = this.cache[this.version][action]['networkGrp']
-        List networkRoles = Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGrp}"
-        return networkRoles
+        println("[getNetworkRoles : ${this.controller}] - retrieving network roles")
+        try {
+            String action = this.cache[this.version]['defaultAction']
+            String networkGrp = this.cache[this.version][action]['networkGrp']
+            List networkRoles = Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGrp}"
+
+            return networkRoles
+        }catch(Exception e){
+            throw new Exception("[TestService : getNetworkRoles] : Controller action '${controller}/${action}' does not exist. Check your IO State file and try again :"+e)
+        }
     }
 
     // api call to get all roles
     private List getRoleList(){
+        println("[getRoleList : ${this.controller}] - retrieving endpoint roles")
         List roles = []
         def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.adminToken}","--request","GET", "--verbose",  "${this.testDomain}/${this.appVersion}/role/list"].execute()
         proc.waitFor()
@@ -112,8 +127,8 @@ class TestService {
 
     }
 
-
     private String createUser(String username, String password, String email, List roles) {
+        println("[createUser : ${this.controller}] - creating user ${username}")
         String guestdata = "{'username': '${username}','password':'${password}','email':'${email}'}"
         def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.adminToken}","--request","POST", "--verbose", "-d", "${guestdata}", "${this.testDomain}/${this.appVersion}/person/create"].execute()
         proc.waitFor()
@@ -122,14 +137,19 @@ class TestService {
         proc.waitForProcessOutput(outputStream, error)
         String output = outputStream.toString()
         if(output){
-            def info = new JsonSlurper().parseText(output)
-            if(createUserRoles(info['id'] as String, roles)){
-		        this.userMockData = ['id':info['id'],'version':info['version'],'username':'','email':'','enabled':'','accountExpired':'']
-                return info['id']
-            }else{
-                deleteUser(info['id'])
-                throw new Exception("[TestService : createUser] : Problem creating user role:",e)
+            try {
+                def info = new JsonSlurper().parseText(output)
+                if(createUserRoles(info['id'] as String, roles)){
+                    this.userMockData = ['id':info['id'],'version':info['version'],'username':'','email':'','enabled':'','accountExpired':'']
+                    return info['id']
+                }else{
+                    deleteUser(info['id'])
+                    throw new Exception("[TestService : createUser] : Problem creating user role:",e)
+                }
+            }catch(Exception e){
+                throw new Exception("[TestService : createUser] : User already exists :"+e)
             }
+
         }else{
             throw new Exception("[TestService : createUser] : Problem creating user:",e)
         }
@@ -160,13 +180,17 @@ class TestService {
     }
 
     private LinkedHashMap loginUser(String username, String password){
-        String url = "curl -H 'Content-Type: application/json' -X POST -d '{\"username\":\"${username}\",\"password\":\"${password}\"}' ${this.testDomain}${this.loginUri}"
-        def proc = ['bash','-c',url].execute()
-        proc.waitFor()
-        def info = new JsonSlurper().parseText(proc.text)
-        List authorities = info.authorities
-        String token = info.access_token
-        return ['token':token,'authorities':authorities]
+        try{
+            String url = "curl -H 'Content-Type: application/json' -X POST -d '{\"username\":\"${username}\",\"password\":\"${password}\"}' ${this.testDomain}${this.loginUri}"
+            def proc = ['bash','-c',url].execute()
+            proc.waitFor()
+            def info = new JsonSlurper().parseText(proc.text)
+            List authorities = info.authorities
+            String token = info.access_token
+            return ['token':token,'authorities':authorities]
+        }catch(Exception e){
+            throw new Exception("[TestService : loginUser] : Unable to login user. Please check permissions :"+e)
+        }
     }
 
     private String deleteUser(String personId) {
@@ -225,7 +249,7 @@ class TestService {
             }
 
         }catch(Exception e){
-            throw new Exception("[TestService :: getApiCache] : Exception - full stack trace follows:",e)
+            throw new Exception("[TestService :: getApiCache] : Exception - full stack trace follows:"+e)
         }
     }
 
