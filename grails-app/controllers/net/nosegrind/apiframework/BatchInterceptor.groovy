@@ -86,7 +86,7 @@ class BatchInterceptor extends ApiCommLayer{
 	}
 
 	boolean before(){
-		//println("##### BATCHINTERCEPTOR (BEFORE): ${params.action}")
+		// println("##### BATCHINTERCEPTOR (BEFORE): ${params.action}")
 
 		format = (request?.format)?request.format.toUpperCase():'JSON'
 		mthdKey = request.method.toUpperCase()
@@ -214,78 +214,7 @@ class BatchInterceptor extends ApiCommLayer{
 					return false
 				}
 
-				// RETRIEVE CACHED RESULT
-				if (cachedEndpoint['cachedResult']) {
-					if(cachedEndpoint['cachedResult'][cacheHash]){
-						String domain = (controller).capitalize()
-						JSONObject json = (JSONObject) cachedEndpoint['cachedResult'][cacheHash][this.networkGrp][format]
-						if (!json || json == null) {
-							return false
-						} else {
-							Set keys = json.keySet()
-							String temp = keys.iterator().next()
-							boolean first = json.get(temp)
 
-							// is a List of objects
-							if (first instanceof JSONObject && first.size() > 0 && !first.isEmpty()) {
-
-								JSONObject jsonObj = ((JSONObject) json.get('0'))
-								int version = jsonObj.get('version') as Integer
-
-								if (isCachedResult((Integer) version, domain)) {
-									LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][this.networkGrp][format] as LinkedHashMap
-									String content = new groovy.json.JsonBuilder(result).toString()
-									byte[] contentLength = content.getBytes('ISO-8859-1')
-									if (apiThrottle) {
-										if (checkLimit(contentLength.length, this.authority)) {
-											statsService.setStatsCache(this.userId, response.status, request.requestURI)
-											render(text: result as JSON, contentType: contentType)
-											return false
-										} else {
-											statsService.setStatsCache(this.userId, 400, request.requestURI)
-											render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-											response.flushBuffer()
-											return false
-										}
-									} else {
-										statsService.setStatsCache(this.userId, response.status, request.requestURI)
-										render(text: result as JSON, contentType: contentType)
-										return false
-									}
-								}
-							} else {
-								if (json.version != null) {
-									if (isCachedResult((Integer) json.get('version'), domain)) {
-										LinkedHashMap result = cachedEndpoint['cachedResult'][cacheHash][this.networkGrp][format] as LinkedHashMap
-										String content = new groovy.json.JsonBuilder(result).toString()
-										byte[] contentLength = content.getBytes('ISO-8859-1')
-										if (apiThrottle) {
-											if (checkLimit(contentLength.length,this.authority)) {
-												statsService.setStatsCache(this.userId, response.status, request.requestURI)
-												render(text: result as JSON, contentType: contentType)
-												return false
-											} else {
-												statsService.setStatsCache(this.userId, 400, request.requestURI)
-												render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-												response.flushBuffer()
-												return false
-											}
-										} else {
-											statsService.setStatsCache(this.userId, response.status, request.requestURI)
-											render(text: result as JSON, contentType: contentType)
-											return false
-										}
-									}
-								}
-							}
-						}
-					}else{
-							statsService.setStatsCache(this.userId, 404, request.requestURI)
-							render(status: 404, text: 'No content found')
-							response.flushBuffer()
-							return false
-						}
-				} else {
 					if (action == null || !action) {
 						String methodAction = mthd.toString()
 						if (!cache[apiObject][methodAction]) {
@@ -308,7 +237,7 @@ class BatchInterceptor extends ApiCommLayer{
 					boolean result = handleRequest(cachedEndpoint['deprecated'] as List)
 
 					return result
-				}
+
 			}
 
 			return false
@@ -320,7 +249,7 @@ class BatchInterceptor extends ApiCommLayer{
 	}
 
 	boolean after(){
-		//println("##### BATCHINTERCEPTOR (AFTER): ${params.action}")
+		// println("##### BATCHINTERCEPTOR (AFTER): ${params.action}")
 
 		try{
 			String format = request.format.toUpperCase()
@@ -366,7 +295,6 @@ class BatchInterceptor extends ApiCommLayer{
 				String data = ((format=='XML')? (content as XML) as String:(content as JSON) as String)
 				temp.add(data)
 				session['apiResult'] = temp
-
 				output = (params?.combine==true)?((format=='XML')?(session['apiResult'] as XML) as String:(session['apiResult'] as JSON) as String):data as String
 			}
 

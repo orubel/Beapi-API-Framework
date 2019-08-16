@@ -44,23 +44,57 @@ class TestService {
     GrailsCacheManager grailsCacheManager
 
 
-    void initTest(String controller){
+    void initTest(){
         this.controller = controller
+        this.action = action
         this.cache = getApiCache(controller)
         this.version = this.cache['cacheversion']
-        println("### [initTest : ${controller}] ###")
         adminLogin()
-        List userRoles = getUserRoles(controller)
-        String username = "${controller}test"
-        String password = 'testamundo'
-        String email = "${controller}test@${controller}test.com"
-        String id = createUser(username, password, email, userRoles)
-        LinkedHashMap temp = loginUser(username,password)
+        userLogin()
+        initLoop()
+        
+    }
+
+    void initLoop(){
+        println("### [initTest] ###")
+        // Controllers Loop - this needs to be moved into TEST below
+        grailsApplication.controllerClasses.each { controllerArtefact ->
+            //def controllerClass = controllerArtefact.getClazz()
+            this.controller = controllerArtefact.getLogicalPropertyName()
+            LinkedHashMap cache = apiCacheService.getApiCache(this.controller)
+            if(cache){
+                println("### ${this.controller} EXISTS!!! ###")
+
+                String version = cache['currentStable']['value']
+                cache[version].each(){ k, v ->
+                    if(!['deprecated','defaultAction'].contains(k)){
+                        // run tests with test user; need to pass user/token??
+                        // init test with controller/action
+                        println("${this.controller}/${k} : ${v.method}")
+
+
+                    }
+                }
+                cleanupTest()
+            }
+        }
+    }
+
+    void userLogin(){
+
+        String login = Holders.grailsApplication.config.test.login
+        String password = Holders.grailsApplication.config.test.password
+        String email = Holders.grailsApplication.config.test.email
+        List userRoles = Holders.grailsApplication.config.test.roles
+        String id = createUser(login, password, email, userRoles)
+
+        LinkedHashMap temp = loginUser(login,password)
+        println("temp:"+temp)
         this.user = ['id':id,'token':temp.token,'authorities':temp.authorities]
-	this.userMockData.username = username
-	this.userMockData.email=email
-	this.userMockData.enabled=true
-	this.userMockData.accountExpired=false
+        this.userMockData.username = username
+        this.userMockData.email=email
+        this.userMockData.enabled=true
+        this.userMockData.accountExpired=false
     }
 
     boolean cleanupTest(){
@@ -74,7 +108,7 @@ class TestService {
     }
 
     private void adminLogin(){
-        println("[adminLogin : ${controller}] - logging in")
+        println("[adminLogin] - logging in")
         try {
             String login = Holders.grailsApplication.config.root.login
             String password = Holders.grailsApplication.config.root.password
@@ -82,7 +116,7 @@ class TestService {
             this.loginUri = Holders.grailsApplication.config.grails.plugin.springsecurity.rest.login.endpointUrl
 
             LinkedHashMap temp = loginUser(login, password)
-            println("[adminLogin : ${controller}] - successfully loggedIn")
+            println("[adminLogin] - successfully loggedIn")
             this.adminToken = temp.token
         }catch(Exception e){
             throw new Exception("[TestService : adminLogin] : Admin Login Failed. Please check privileges in 'beapi_api.yml' file :"+e)
@@ -90,8 +124,8 @@ class TestService {
     }
     
 
-    private List getNetworkRoles(String controller){
-        println("[getNetworkRoles : ${this.controller}] - retrieving network roles")
+    private List getNetworkRoles(){
+        println("[getNetworkRoles] - retrieving network roles")
         try {
             String action = this.cache[this.version]['defaultAction']
             String networkGrp = this.cache[this.version][action]['networkGrp']
@@ -128,7 +162,7 @@ class TestService {
     }
 
     private String createUser(String username, String password, String email, List roles) {
-        println("[createUser : ${this.controller}] - creating user ${username}")
+        println("[createUser] - creating user ${username}")
         String guestdata = "{'username': '${username}','password':'${password}','email':'${email}'}"
         def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.adminToken}","--request","POST", "--verbose", "-d", "${guestdata}", "${this.testDomain}/${this.appVersion}/person/create"].execute()
         proc.waitFor()
@@ -136,25 +170,30 @@ class TestService {
         StringWriter error = new StringWriter()
         proc.waitForProcessOutput(outputStream, error)
         String output = outputStream.toString()
+        def info
         if(output){
             try {
-                def info = new JsonSlurper().parseText(output)
-                if(createUserRoles(info['id'] as String, roles)){
-                    this.userMockData = ['id':info['id'],'version':info['version'],'username':'','email':'','enabled':'','accountExpired':'']
-                    return info['id']
-                }else{
-                    deleteUser(info['id'])
-                    throw new Exception("[TestService : createUser] : Problem creating user role:",e)
-                }
+                info = new JsonSlurper().parseText(output)
             }catch(Exception e){
                 throw new Exception("[TestService : createUser] : User already exists :"+e)
             }
+            if(createUserRoles(info['id'] as String, roles)){
+                this.userMockData = ['id':info['id'],'version':info['version'],'username':'','email':'','enabled':'','accountExpired':'']
+                return info['id']
+            }else{
+                deleteUser(info['id'])
+                throw new Exception("[TestService : createUser] : Problem creating user role:",e)
+            }
+
 
         }else{
             throw new Exception("[TestService : createUser] : Problem creating user:",e)
         }
+    }
 
-
+    // send as batch and get back list
+    private List getRoles(List roles){
+        return roles
     }
 
 
@@ -167,6 +206,7 @@ class TestService {
             StringWriter error = new StringWriter()
             proc.waitForProcessOutput(outputStream, error)
             String output = outputStream.toString()
+            println("[createUserRoles]:${output}")
             if(output) {
                 def info = new JsonSlurper().parseText(output)
                 if (!info['roleId']) {
@@ -189,6 +229,7 @@ class TestService {
             String token = info.access_token
             return ['token':token,'authorities':authorities]
         }catch(Exception e){
+            println("[TestService : loginUser] : Unable to login user. Please check permissions :"+e)
             throw new Exception("[TestService : loginUser] : Unable to login user. Please check permissions :"+e)
         }
     }
@@ -216,20 +257,7 @@ class TestService {
 
 
 
-    private List getUserRoles(String controller){
-        // get list of roles we can install with testUser
-        List userRoles = []
-        List roles = getNetworkRoles(controller)
-        List adminRoles = grailsApplication.config.apitoolkit.admin.roles as List
-        List allRoles = getRoleList()
-        List finalRoles = roles - roles.intersect( adminRoles )
-        allRoles.each() { it ->
-            if(finalRoles.contains(it.name)){
-                userRoles.add(it.id)
-            }
-        }
-        return userRoles
-    }
+
 
     LinkedHashMap getApiCache(String controllername){
         try{

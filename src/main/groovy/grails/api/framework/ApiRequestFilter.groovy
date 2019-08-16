@@ -27,7 +27,7 @@ import groovy.transform.CompileDynamic
 
 import org.grails.plugin.cache.GrailsCacheManager
 
-import org.springframework.cache.Cache
+//import org.springframework.cache.Cache
 import org.springframework.context.ApplicationContext
 import org.springframework.http.HttpStatus
 import org.springframework.web.context.request.RequestContextHolder as RCH
@@ -44,7 +44,8 @@ import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
-
+import grails.core.GrailsApplication
+import grails.plugin.cache.GrailsConcurrentMapCache
 
 /**
  * Filter for validation of token send through the request.
@@ -54,6 +55,7 @@ import javax.servlet.http.HttpServletResponse
 @Slf4j
 @GrailsCompileStatic
 class ApiRequestFilter extends GenericFilterBean {
+
 
     String headerName
     String loginUri
@@ -70,6 +72,8 @@ class ApiRequestFilter extends GenericFilterBean {
 
     Boolean enableAnonymousAccess
     GrailsCacheManager grailsCacheManager
+
+    GrailsApplication grailsApplication = Holders.grailsApplication
 
     //@Override
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
@@ -137,7 +141,7 @@ class ApiRequestFilter extends GenericFilterBean {
          * First get CORS Network grps, then test the domains listed in the users network group
          * against sent origin
          */
-        this.loginUri = getLoginUrl()
+        this.loginUri = Holders.grailsApplication.config.getProperty('grails.plugin.springsecurity.rest.login.endpointUrl')
         String actualUri = request.requestURI - request.contextPath
         String entryPoint = Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)
         String controller
@@ -264,10 +268,6 @@ class ApiRequestFilter extends GenericFilterBean {
         }
     }
 
-    @CompileDynamic
-    String getLoginUrl(){
-        return Holders.grailsApplication.config.grails.plugin.springsecurity.rest.login.endpointUrl
-    }
 
     @CompileDynamic
     String getNetworkGrp(String version, String controller, String action, HttpServletRequest request, HttpServletResponse response){
@@ -280,7 +280,8 @@ class ApiRequestFilter extends GenericFilterBean {
         if(ctx) {
             GrailsCacheManager grailsCacheManager = ctx.getBean('grailsCacheManager') as GrailsCacheManager
             LinkedHashMap cache = [:]
-            Cache temp = grailsCacheManager?.getCache('ApiCache')
+            GrailsConcurrentMapCache temp = grailsCacheManager?.getCache('ApiCache')
+
             List cacheNames = temp.getAllKeys() as List
             GrailsValueWrapper tempCache
             for (it in cacheNames) {
