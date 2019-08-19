@@ -224,7 +224,6 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 					}
 				}
 
-
 				if (request?.getAttribute('chainInc') == null) {
 					request.setAttribute('chainInc', 0)
 				} else {
@@ -239,7 +238,6 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
                     	return false
                     }
 				}
-
 
 				setChainParams(params)
 
@@ -261,45 +259,6 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 					return false
 				}
 
-				// RETRIEVE CACHED RESULT; DON'T CACHE LISTS
-				if (cache[apiObject][action]['cachedResult'] && request.method.toUpperCase()=='GET' ) {
-					if (cache[apiObject][action]['cachedResult'][cacheHash]) {
-
-						String domain = ((String) params.controller).capitalize()
-
-						JSONObject json = (JSONObject) cache[apiObject][action]['cachedResult'][cacheHash][this.networkGrp][request.format.toUpperCase()]
-						if (!json) {
-							return false
-						} else {
-							if (isCachedResult((Integer) json.get('version'), domain)) {
-
-								String result = cache[apiObject][action]['cachedResult'][cacheHash][this.networkGrp][request.format.toUpperCase()] as String
-								byte[] contentLength = result.getBytes("ISO-8859-1")
-								if (apiThrottle) {
-									if (checkLimit(contentLength.length, this.authority)) {
-										statsService.setStatsCache(this.userId, response.status, request.requestURI)
-										render(text: result, contentType: contentType)
-										return false
-									} else {
-										statsService.setStatsCache(this.userId, 400, request.requestURI)
-										render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-										response.flushBuffer()
-										return false
-									}
-								} else {
-									statsService.setStatsCache(this.userId, response.status, request.requestURI)
-									render(text: result, contentType: contentType)
-									return false
-								}
-							}
-						}
-					} else {
-						// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
-						ApiDescriptor cachedEndpoint = cache[apiObject][action] as ApiDescriptor
-						boolean result = handleRequest(cachedEndpoint['deprecated'] as List)
-						return result
-					}
-				}
 			}
 
 

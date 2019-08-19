@@ -45,10 +45,6 @@ class TestService {
 
 
     void initTest(){
-        this.controller = controller
-        this.action = action
-        this.cache = getApiCache(controller)
-        this.version = this.cache['cacheversion']
         adminLogin()
         userLogin()
         initLoop()
@@ -61,18 +57,20 @@ class TestService {
         grailsApplication.controllerClasses.each { controllerArtefact ->
             //def controllerClass = controllerArtefact.getClazz()
             this.controller = controllerArtefact.getLogicalPropertyName()
-            LinkedHashMap cache = apiCacheService.getApiCache(this.controller)
+            this.cache = getApiCache(controller)
+            //LinkedHashMap cache = apiCacheService.getApiCache(this.controller)
+
             if(cache){
                 println("### ${this.controller} EXISTS!!! ###")
+                this.version = this.cache['currentStable']['value']
+                //this.version = this.cache['cacheversion']
 
-                String version = cache['currentStable']['value']
                 cache[version].each(){ k, v ->
                     if(!['deprecated','defaultAction'].contains(k)){
                         // run tests with test user; need to pass user/token??
                         // init test with controller/action
-                        println("${this.controller}/${k} : ${v.method}")
-
-
+                        this.action = k
+                        println("${this.controller}/${this.action} : ${v.method}")
                     }
                 }
                 cleanupTest()
@@ -81,17 +79,23 @@ class TestService {
     }
 
     void userLogin(){
-
         String login = Holders.grailsApplication.config.test.login
         String password = Holders.grailsApplication.config.test.password
         String email = Holders.grailsApplication.config.test.email
         List userRoles = Holders.grailsApplication.config.test.roles
-        String id = createUser(login, password, email, userRoles)
+        List roleList = getRoleList()
+        List roles = []
+        roleList.each(){
+            if(userRoles.contains(it.authority)){
+                roles.add(it.id)
+            }
+        }
+        String id = createUser(login, password, email, roles)
 
         LinkedHashMap temp = loginUser(login,password)
-        println("temp:"+temp)
+
         this.user = ['id':id,'token':temp.token,'authorities':temp.authorities]
-        this.userMockData.username = username
+        this.userMockData.username = login
         this.userMockData.email=email
         this.userMockData.enabled=true
         this.userMockData.accountExpired=false
@@ -139,7 +143,7 @@ class TestService {
 
     // api call to get all roles
     private List getRoleList(){
-        println("[getRoleList : ${this.controller}] - retrieving endpoint roles")
+        println("[getRoleList] - retrieving endpoint roles")
         List roles = []
         def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.adminToken}","--request","GET", "--verbose",  "${this.testDomain}/${this.appVersion}/role/list"].execute()
         proc.waitFor()
