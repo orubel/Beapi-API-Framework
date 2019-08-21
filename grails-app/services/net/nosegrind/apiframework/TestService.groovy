@@ -42,13 +42,15 @@ class TestService {
     LinkedHashMap userMockData
     GrailsApplication grailsApplication
     GrailsCacheManager grailsCacheManager
-
+    List pIds = []
+    List fIds = []
+    LinkedHashMap tests = [:]
 
     void initTest(){
+        println("### [initTest Users] ###")
         adminLogin()
         userLogin()
         initLoop()
-        
     }
 
     void initLoop(){
@@ -61,19 +63,76 @@ class TestService {
             //LinkedHashMap cache = apiCacheService.getApiCache(this.controller)
 
             if(cache){
-                println("### ${this.controller} EXISTS!!! ###")
                 this.version = this.cache['currentStable']['value']
                 //this.version = this.cache['cacheversion']
 
+
                 cache[version].each(){ k, v ->
+                    boolean primary = false
+                    boolean foreign = false
                     if(!['deprecated','defaultAction'].contains(k)){
                         // run tests with test user; need to pass user/token??
                         // init test with controller/action
                         this.action = k
-                        println("${this.controller}/${this.action} : ${v.method}")
+                        this.pIds = v.pkey as List
+                        v.fkeys.each(){ fk,fv ->
+                            this.fIds.add(fk)
+                        }
+                        println("${this.controller}/${this.action} : ${this.pIds} / ${this.fIds}")
+                        if(v.receives.each(){this.pIds.contains(it)}){
+                            primary == true
+                        }
+                        if(v.receives.each(){this.fIds.contains(it)}){
+                            foreign == true
+                        }
+                        if(primary && !foreign){
+                            println("PRIMARY [${this.controller}/${v.method}] : ${v.pkey} / ${v.fkeys}")
+                        }else if(v.pkey && v.fkeys){
+                            println("PRIMARY/FOREIGN [${this.controller}/${v.method}] : ${v.pkey} / ${v.fkeys}")
+                        }else if(v.fkeys && v.pkey.isEmpty()){
+                            println("FOREIGN [${this.controller}/${v.method}] : ${v.pkey} / ${v.fkeys}")
+                        }
+
+                        // compile a test cache  in the following order:
+                        // (do this in BeapiApiFrameworkGrailsPlugin)
+                        // create sort for apiDescriptor???
+
+                        /** POST/CREATE creates initial ID for tuple
+                         *
+                         * loop through POST of all classes with only PRIMARY keys
+                         * loop through POST of all classes with PRIMARY-FOREIGN keys
+                         * loop through POST of all classes with only FOREIGN  keys
+                         *
+                         */
+
+
+                        /** GET confirms tuple/ID was created
+                         *
+                         * loop through GET of all classes with only PRIMARY keys
+                         * loop through GET of all classes with PRIMARY-FOREIGN keys
+                         * loop through GET of all classes with only FOREIGN  keys
+                         *
+                         */
+
+                        /** PUT/EDIT confirms editing of tuple is possible
+                         *
+                         * loop through PUT of all classes with only PRIMARY keys
+                         * loop through PUT of all classes with PRIMARY-FOREIGN keys
+                         * loop through PUT of all classes with only FOREIGN  keys
+                         *
+                         */
+
+                        /** DELETE does cleanup and confirms cleanup is possible
+                         *
+                         * loop through DELETE of all classes with only PRIMARY keys
+                         * loop through DELETE of all classes with PRIMARY-FOREIGN keys
+                         * loop through DELETE of all classes with only FOREIGN  keys
+                         *
+                         */
+
                     }
                 }
-                cleanupTest()
+                //cleanupTest()
             }
         }
     }
@@ -102,6 +161,7 @@ class TestService {
     }
 
     boolean cleanupTest(){
+        println("### [CleanupTest and Exit] ###")
         if(this.user.id) {
             String id = deleteUser(this.user.id as String)
             if (id == this.user.id) {
@@ -245,9 +305,9 @@ class TestService {
         StringWriter error = new StringWriter()
         proc.waitForProcessOutput(outputStream, error)
         String output = outputStream.toString()
-
+        println(output)
         ArrayList stdErr = error.toString().split( '> \n' )
-        //println(stdErr)
+        println(stdErr)
         //ArrayList response1 = stdErr[0].split("> ")
         //ArrayList response2 = stdErr[1].split("< ")
 
@@ -314,8 +374,6 @@ class TestService {
         }else{
             url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${this.user.token}' --request GET ${endpoint}"
         }
-
-
 
         def proc = ['bash','-c',"${url}"].execute()
         proc.waitFor()

@@ -19,6 +19,7 @@ class ApiDescriptor implements Validateable {
 
 	boolean empty = false
 	String defaultAction
+	List testOrder
 	List deprecated
 	String networkGrp
 	String method

@@ -321,6 +321,8 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             //def versKey = vers.key
             String defaultAction = (vers.value['DEFAULTACTION'])?vers.value.DEFAULTACTION:'index'
 
+            Set testOrder = (vers.value['TESTORDER'])?vers.value.TESTORDER:[]
+
             Set deprecated = (vers.value.DEPRECATED)?vers.value.DEPRECATED:[]
             String domainPackage = (vers.value.DOMAINPACKAGE!=null || vers.value.DOMAINPACKAGE?.size()>0)?vers.value.DOMAINPACKAGE:null
 
@@ -366,6 +368,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                     methods['currentStable'] = [:]
                     methods['currentStable']['value'] = json.CURRENTSTABLE
                 }
+
                 if(!methods[vers.key]['deprecated']){
                     methods[vers.key]['deprecated'] = []
                     methods[vers.key]['deprecated'] = deprecated
@@ -373,6 +376,11 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
                 if(!methods[vers.key]['defaultAction']){
                     methods[vers.key]['defaultAction'] = defaultAction
+                }
+
+                if(!methods[vers.key]['testOrder']){
+                    methods[vers.key]['testOrder'] = []
+                    methods[vers.key]['testOrder'] = testOrder
                 }
 
                 methods[vers.key][actionname] = apiDescriptor
@@ -384,7 +392,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
                 cache[vers.key].each(){ key1,val1 ->
 
-                    if(!['deprecated','defaultAction'].contains(key1)){
+                    if(!['deprecated','defaultAction','testOrder'].contains(key1)){
                         apiCacheService.setApiCache(apiName,key1, val1, vers.key)
                     }
                 }
@@ -406,7 +414,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         try {
             values.each { k, v ->
                 keys.add(k)
-                v.reference = (v.reference) ? v.reference : 'self';
+                v.reference = (v.reference) ? v.reference : 'self'
                 param.setParam(v.type, k)
 
                 String hasKey = (v?.key) ? v.key : null
