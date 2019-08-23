@@ -323,6 +323,8 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
             Set testOrder = (vers.value['TESTORDER'])?vers.value.TESTORDER:[]
 
+            String testUser = (vers.value['TESTUSER'])?vers.value.TESTUSER:""
+
             Set deprecated = (vers.value.DEPRECATED)?vers.value.DEPRECATED:[]
             String domainPackage = (vers.value.DOMAINPACKAGE!=null || vers.value.DOMAINPACKAGE?.size()>0)?vers.value.DOMAINPACKAGE:null
 
@@ -383,6 +385,10 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                     methods[vers.key]['testOrder'] = testOrder
                 }
 
+                if(!methods[vers.key]['testUser']){
+                    methods[vers.key]['testUser'] = testUser
+                }
+
                 methods[vers.key][actionname] = apiDescriptor
 
             }
@@ -392,7 +398,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
                 cache[vers.key].each(){ key1,val1 ->
 
-                    if(!['deprecated','defaultAction','testOrder'].contains(key1)){
+                    if(!['deprecated','defaultAction','testOrder','testUser'].contains(key1)){
                         apiCacheService.setApiCache(apiName,key1, val1, vers.key)
                     }
                 }

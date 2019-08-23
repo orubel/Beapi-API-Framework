@@ -25,7 +25,36 @@ import groovy.json.JsonSlurper
 import grails.core.GrailsApplication
 
 /**
- * TestService. 
+ * TestService.
+ *
+ *
+ * POST/CREATE creates initial ID for tuple
+ *
+ * loop through POST of all classes with only PRIMARY keys
+ * loop through POST of all classes with PRIMARY-FOREIGN keys
+ * loop through POST of all classes with only FOREIGN  keys
+ *
+ *
+ * GET confirms tuple/ID was created
+ *
+ * loop through GET of all classes with only PRIMARY keys
+ * loop through GET of all classes with PRIMARY-FOREIGN keys
+ * loop through GET of all classes with only FOREIGN  keys
+ *
+ *
+ * PUT/EDIT confirms editing of tuple is possible
+ *
+ * loop through PUT of all classes with only PRIMARY keys
+ * loop through PUT of all classes with PRIMARY-FOREIGN keys
+ * loop through PUT of all classes with only FOREIGN  keys
+ *
+ *
+ * DELETE does cleanup and confirms cleanup is possible
+ *
+ * loop through DELETE of all classes with only PRIMARY keys
+ * loop through DELETE of all classes with PRIMARY-FOREIGN keys
+ * loop through DELETE of all classes with only FOREIGN  keys
+ *
  */
 class TestService {
 
@@ -36,14 +65,12 @@ class TestService {
 
     String adminToken
     LinkedHashMap user
-    String testDomain
+    String testDomain = Holders.grailsApplication.config.environments.test.grails.serverURL
     String appVersion = "v${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
     String loginUri
     LinkedHashMap userMockData
     GrailsApplication grailsApplication
     GrailsCacheManager grailsCacheManager
-    List pIds = []
-    List fIds = []
     LinkedHashMap tests = [:]
 
     void initTest(){
@@ -66,71 +93,58 @@ class TestService {
                 this.version = this.cache['currentStable']['value']
                 //this.version = this.cache['cacheversion']
 
+                if(cache[version]['testOrder']) {
+                    cache[version]['testOrder'].each(){
+                        switch(cache[version][it]['method']){
+                            case 'GET':
+                                String endpoint = "${this.testDomain}/${this.appVersion}/${controller}/${it}"
+                                println("${controller}/${it} is GET")
+                                String data = "{"
+                                cache?."${version}"?."${it}".receives.each(){ k,v ->
+                                    v.each(){ it2 ->
+                                        //mapData[it.name] = it.mockData
+                                        if(it2.mockData) {
+                                            data += "'" + it2.name + "': '" + it2.mockData + "',"
+                                        }
+                                    }
+                                }
+                                data += "}"
+                                println("DATA:"+data)
+                                getJSON(endpoint,data)
+                                break
+                            case 'PUT':
+                                println("${controller}/${it} is PUT")
+                                break
+                            case 'POST':
+                                println("${controller}/${it} is POST")
+                                break
+                            case 'DELETE':
+                                println("${controller}/${it} is DELETE")
+                                break
+                            default:
+                                println("ERROR")
+                                break
 
-                cache[version].each(){ k, v ->
-                    boolean primary = false
-                    boolean foreign = false
-                    if(!['deprecated','defaultAction'].contains(k)){
-                        // run tests with test user; need to pass user/token??
-                        // init test with controller/action
-                        this.action = k
-                        this.pIds = v.pkey as List
-                        v.fkeys.each(){ fk,fv ->
-                            this.fIds.add(fk)
                         }
-                        println("${this.controller}/${this.action} : ${this.pIds} / ${this.fIds}")
-                        if(v.receives.each(){this.pIds.contains(it)}){
-                            primary == true
-                        }
-                        if(v.receives.each(){this.fIds.contains(it)}){
-                            foreign == true
-                        }
-                        if(primary && !foreign){
-                            println("PRIMARY [${this.controller}/${v.method}] : ${v.pkey} / ${v.fkeys}")
-                        }else if(v.pkey && v.fkeys){
-                            println("PRIMARY/FOREIGN [${this.controller}/${v.method}] : ${v.pkey} / ${v.fkeys}")
-                        }else if(v.fkeys && v.pkey.isEmpty()){
-                            println("FOREIGN [${this.controller}/${v.method}] : ${v.pkey} / ${v.fkeys}")
-                        }
-
-                        // compile a test cache  in the following order:
-                        // (do this in BeapiApiFrameworkGrailsPlugin)
-                        // create sort for apiDescriptor???
-
-                        /** POST/CREATE creates initial ID for tuple
-                         *
-                         * loop through POST of all classes with only PRIMARY keys
-                         * loop through POST of all classes with PRIMARY-FOREIGN keys
-                         * loop through POST of all classes with only FOREIGN  keys
-                         *
-                         */
-
-
-                        /** GET confirms tuple/ID was created
-                         *
-                         * loop through GET of all classes with only PRIMARY keys
-                         * loop through GET of all classes with PRIMARY-FOREIGN keys
-                         * loop through GET of all classes with only FOREIGN  keys
-                         *
-                         */
-
-                        /** PUT/EDIT confirms editing of tuple is possible
-                         *
-                         * loop through PUT of all classes with only PRIMARY keys
-                         * loop through PUT of all classes with PRIMARY-FOREIGN keys
-                         * loop through PUT of all classes with only FOREIGN  keys
-                         *
-                         */
-
-                        /** DELETE does cleanup and confirms cleanup is possible
-                         *
-                         * loop through DELETE of all classes with only PRIMARY keys
-                         * loop through DELETE of all classes with PRIMARY-FOREIGN keys
-                         * loop through DELETE of all classes with only FOREIGN  keys
-                         *
-                         */
-
+                        //println("testorder[${controller}: ${it}")
                     }
+                    /*
+                    cache[version].each() { k, v ->
+
+                        if (!['deprecated', 'defaultAction'].contains(k)) {
+                            // run tests with test user; need to pass user/token??
+                            // init test with controller/action
+                            this.action = k
+                            println("${controller}/${action}")
+                            // compile a test cache  in the following order:
+                            // (do this in BeapiApiFrameworkGrailsPlugin)
+                            // create sort for apiDescriptor???
+
+
+
+                        }
+                    }
+                    */
                 }
                 //cleanupTest()
             }
@@ -140,24 +154,8 @@ class TestService {
     void userLogin(){
         String login = Holders.grailsApplication.config.test.login
         String password = Holders.grailsApplication.config.test.password
-        String email = Holders.grailsApplication.config.test.email
-        List userRoles = Holders.grailsApplication.config.test.roles
-        List roleList = getRoleList()
-        List roles = []
-        roleList.each(){
-            if(userRoles.contains(it.authority)){
-                roles.add(it.id)
-            }
-        }
-        String id = createUser(login, password, email, roles)
-
         LinkedHashMap temp = loginUser(login,password)
-
-        this.user = ['id':id,'token':temp.token,'authorities':temp.authorities]
-        this.userMockData.username = login
-        this.userMockData.email=email
-        this.userMockData.enabled=true
-        this.userMockData.accountExpired=false
+        this.user = ['token':temp.token,'authorities':temp.authorities]
     }
 
     boolean cleanupTest(){
@@ -384,6 +382,7 @@ class TestService {
         String output = outputStream.toString()
 
 	if(output){
+        println("### OUTPUT:"+output+"###")
 		info = new JsonSlurper().parseText(output)
 		if(info){
 		    return info
