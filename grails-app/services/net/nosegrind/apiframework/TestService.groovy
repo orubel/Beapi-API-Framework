@@ -72,7 +72,7 @@ class TestService {
     LinkedHashMap userMockData
     GrailsApplication grailsApplication
     GrailsCacheManager grailsCacheManager
-    LinkedHashMap values = [:]
+    LinkedHashMap apiObject = [:]
 
 
     void initTest(){
@@ -105,60 +105,54 @@ class TestService {
                     this.version = this.cache['currentStable']['value']
                     if (cache[version]['testOrder']) {
                         cache[version]['testOrder'].each() {
-                            this.values[controller][it] = [:]
-                            this.values[controller]['values'] = [:]
+                            this.apiObject[controller][it] = [:]
+                            this.apiObject[controller]['values'] = [:]
+
+                            this.apiObject[controller]['pkey'] = [:]
+                            if(cache[controller][it]['pkey']['id']) {
+                                this.apiObject[controller]['pkey']['id'] = cache[controller][it]['pkey']['id']
+                            }
+
+                            this.apiObject[controller]['fkeys'] = [:]
+                            this.apiObject[controller]['fkeys'] = getFkeys(cache[controller][it]['fkeys'])
+
                             println("testorder:${cache[version][it]}")
 
                             if(cache[version][it]['method']==method) {
                                 String endpoint = "${this.testDomain}/${this.appVersion}/${controller}/${it}"
 
-                                this.values[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'],this.admin.authorities)
-                                this.values[controller][it]['returns'] = getMockdata(cache[version][it]['returns'],this.admin.authorities)
+                                this.apiObject[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'],this.admin.authorities)
+                                this.apiObject[controller][it]['returns'] = getMockdata(cache[version][it]['returns'],this.admin.authorities)
+                                String receivesData = createDataAsJSON(this.apiObject[controller][it]['recieves'],controller)
+                                LinkedHashMap returnsData = this.apiObject[controller][it]['returns']
                                 switch (method) {
                                     case 'POST':
                                         println("${controller}/${it} is POST")
-
-                                        String receivesData = createDataAsJSON(this.values[controller][it]['recieves'],controller)
-                                        LinkedHashMap returnsData = this.values[controller][it]['returns']
                                         LinkedHashMap output = postJSON(endpoint, this.admin.token, returnsData, receivesData)
                                         output.each() { k, v ->
-                                            this.values[controller]['values'][k] = v
+                                            this.apiObject[controller]['values'][k] = v
                                         }
                                         break
                                     case 'GET':
                                         println("${controller}/${it} is GET")
-                                        String receivesData = createDataAsJSON(this.values[controller][it]['recieves'],controller)
-                                        LinkedHashMap returnsData = this.values[controller][it]['returns']
                                         LinkedHashMap output = getJSON(endpoint, this.admin.token, returnsData, receivesData)
                                         output.each() { k, v ->
-                                            this.values[controller]['values'][k] = v
+                                            this.apiObject[controller]['values'][k] = v
                                         }
                                         break
 
                                     case 'PUT':
                                         println("${controller}/${it} is PUT")
-                                        String pkey = cache[controller][it]['pkey']['id']
-                                        println("pkey: ${pkey}")
-                                        LinkedHashMap fkeys = getFkeys(cache[controller][it]['fkeys'])
-                                        println("fkeys:${fkeys}")
-                                        String receivesData = createDataAsJSON(this.values[controller][it]['recieves'],controller)
-                                        LinkedHashMap returnsData = cache[version][it]['returns']
                                         LinkedHashMap output = postJSON(endpoint, this.admin.token, returnsData, receivesData)
                                         output.each() { k, v ->
-                                            this.values[controller]['values'][k] = v
+                                            this.apiObject[controller]['values'][k] = v
                                         }
                                         break
                                     case 'DELETE':
                                         println("${controller}/${it} is DELETE")
-                                        //String endpoint = "${this.testDomain}/${this.appVersion}/${controller}/${it}"
-                                        List recieves = getRecievesList(cache[version][it]['receives'], this.admin.authorities)
-                                        LinkedHashMap returnsData = cache[version][it]['returns']
-                                        String receivesData = (!values[controller]) ? createMockDataAsJSON(recieves) : createDataAsJSON(recieves, values[controller], cache[version][it]['receives'])
-                                        //println("DATA:"+receivesData)
-
                                         LinkedHashMap output = deleteJSON(endpoint, this.admin.token, returnsData, receivesData)
                                         output.each() { k, v ->
-                                            this.values[controller]['values'][k] = v
+                                            this.apiObject[controller]['values'][k] = v
                                         }
                                         break
                                     default:
@@ -190,34 +184,18 @@ class TestService {
         }
     }
 
-
     private LinkedHashMap getFkeys(LinkedHashMap fkeys){
         // if values, return fkey value
         // else return mockdata value for key (or throw error as you are
         // trying to insert child row BEFORE parent row exists)
         LinkedHashMap keys = [:]
         fkeys.each() { k, v ->
-            if(this.values[v]) {
-                keys[v] = this.values[v]['id']
+            if(this.apiObject[v]) {
+                keys[v] = this.apiObject[v]['id']
             }
         }
         return keys
     }
-
-    private ArrayList getRecievesList(LinkedHashMap receives, List authorities){
-        ArrayList receivesList = []
-        if(receives['permitAll']) {
-            receivesList.addAll(receives['permitAll'].collect(){ it2 -> it2['name'] })
-        }
-        authorities.each(){
-            if(receives[it]) {
-                receivesList.addAll(receives[it].collect(){ it2 -> it2['name'] })
-            }
-        }
-        return receivesList.unique()
-    }
-
-
 
     private LinkedHashMap getMockdata(LinkedHashMap mockdata, List authorities){
         try {
@@ -249,8 +227,8 @@ class TestService {
                     if(v) {
                         data += "'" + k + "': '" + v + "',"
                     }else{
-                        if(this.values[controller]['values'][k]){
-                            data += "'" + k + "': '" + this.values[controller]['values'][k] + "',"
+                        if(this.apiObject[controller]['values'][k]){
+                            data += "'" + k + "': '" + this.apiObject[controller]['values'][k] + "',"
                         }
                     }
             }
@@ -289,102 +267,7 @@ class TestService {
             throw new Exception("[TestService : adminLogin] : Admin Login Failed. Please check privileges in 'beapi_api.yml' file :"+e)
         }
     }
-    
 
-    private List getNetworkRoles(){
-        println("[getNetworkRoles] - retrieving network roles")
-        try {
-            String action = this.cache[this.version]['defaultAction']
-            String networkGrp = this.cache[this.version][action]['networkGrp']
-            List networkRoles = Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGrp}"
-
-            return networkRoles
-        }catch(Exception e){
-            throw new Exception("[TestService : getNetworkRoles] : Controller action '${controller}/${action}' does not exist. Check your IO State file and try again :"+e)
-        }
-    }
-
-    // api call to get all roles
-    private List getRoleList(){
-        println("[getRoleList] - retrieving endpoint roles")
-        List roles = []
-        def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.admin.token}","--request","GET", "--verbose",  "${this.testDomain}/${this.appVersion}/role/list"].execute()
-        proc.waitFor()
-        StringBuffer outputStream = new StringBuffer()
-        StringWriter error = new StringWriter()
-        proc.waitForProcessOutput(outputStream, error)
-        String output = outputStream.toString()
-        if(output){
-            def info = new JsonSlurper().parseText(output)
-            info.each(){ k, v ->
-                if(v['id']){
-                    roles.add(['id':v.id,'name':v.authority])
-                }
-            }
-            return roles
-        }else{
-            throw new Exception("[TestService : createUser] : Problem creating user:",e)
-        }
-
-    }
-
-    private String createUser(String username, String password, String email, List roles) {
-        println("[createUser] - creating user ${username}")
-        String guestdata = "{'username': '${username}','password':'${password}','email':'${email}'}"
-        def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.admin.token}","--request","POST", "--verbose", "-d", "${guestdata}", "${this.testDomain}/${this.appVersion}/person/create"].execute()
-        proc.waitFor()
-        StringBuffer outputStream = new StringBuffer()
-        StringWriter error = new StringWriter()
-        proc.waitForProcessOutput(outputStream, error)
-        String output = outputStream.toString()
-        def info
-        if(output){
-            try {
-                info = new JsonSlurper().parseText(output)
-            }catch(Exception e){
-                throw new Exception("[TestService : createUser] : User already exists :"+e)
-            }
-            if(createUserRoles(info['id'] as String, roles)){
-                this.userMockData = ['id':info['id'],'version':info['version'],'username':'','email':'','enabled':'','accountExpired':'']
-                return info['id']
-            }else{
-                deleteUser(info['id'])
-                throw new Exception("[TestService : createUser] : Problem creating user role:",e)
-            }
-
-
-        }else{
-            throw new Exception("[TestService : createUser] : Problem creating user:",e)
-        }
-    }
-
-    // send as batch and get back list
-    private List getRoles(List roles){
-        return roles
-    }
-
-
-    private boolean createUserRoles(String personId, List roles) {
-        roles.each { it ->
-            String data = "{'personId': '${personId}','roleId':'${it}'}"
-            def proc = ["curl", "-H", "Origin: http://localhost", "-H", "Access-Control-Request-Headers: Origin,X-Requested-With", "--request", "POST", "-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.admin.token}", "-d", "${data}", "${this.testDomain}/${this.appVersion}/personRole/create"].execute()
-            proc.waitFor()
-            StringBuffer outputStream = new StringBuffer()
-            StringWriter error = new StringWriter()
-            proc.waitForProcessOutput(outputStream, error)
-            String output = outputStream.toString()
-            println("[createUserRoles]:${output}")
-            if(output) {
-                def info = new JsonSlurper().parseText(output)
-                if (!info['roleId']) {
-                  return false
-                }
-            }else{
-                return false
-            }
-        }
-        return true
-    }
 
     private LinkedHashMap loginUser(String username, String password){
         try{
@@ -400,30 +283,6 @@ class TestService {
             throw new Exception("[TestService : loginUser] : Unable to login user. Please check permissions :"+e)
         }
     }
-
-    private String deleteUser(String personId) {
-        def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","--request","DELETE", "-H","Content-Type: application/json","-H","Authorization: Bearer ${this.admin.token}","${this.testDomain}/${this.appVersion}/person/delete?id=${personId}"].execute()
-        proc.waitFor()
-        StringBuffer outputStream = new StringBuffer()
-        StringWriter error = new StringWriter()
-        proc.waitForProcessOutput(outputStream, error)
-        String output = outputStream.toString()
-        println(output)
-        ArrayList stdErr = error.toString().split( '> \n' )
-        println(stdErr)
-        //ArrayList response1 = stdErr[0].split("> ")
-        //ArrayList response2 = stdErr[1].split("< ")
-
-
-        def info = new JsonSlurper().parseText(output)
-        when:"info is not null"
-        assert info!=null
-        then:"delete created user"
-        assert this.user.id == info.id
-    }
-
-
-
 
 
     LinkedHashMap getApiCache(String controllername){
@@ -446,27 +305,6 @@ class TestService {
         }catch(Exception e){
             throw new Exception("[TestService : getApiCache] : Exception - full stack trace follows:"+e)
         }
-    }
-
-    String createRecievesMockData(String action){
-        String data = "{"
-        this.cache?."${this.version}"?."${action}".receives.each(){ k,v ->
-            v.each(){
-                data += "'"+it.name+"': '"+it.mockData+"',"
-            }
-        }
-        data += "}"
-        return data
-    }
-
-    LinkedHashMap createReturnsMockData(String action){
-        LinkedHashMap returns = [:]
-        this.cache?."${this.version}"?."${action}".receives.each(){ k,v ->
-            v.each(){
-                returns[it.name] = it.mockData
-            }
-        }
-        return returns
     }
 
     private LinkedHashMap getJSON(String endpoint, String token, LinkedHashMap returnsData, String receivesData=null){
