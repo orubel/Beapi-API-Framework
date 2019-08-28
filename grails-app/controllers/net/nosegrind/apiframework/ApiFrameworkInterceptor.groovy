@@ -98,7 +98,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * @return
 	 */
 	boolean before(){
-		//println("##### INTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
+		println("##### INTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
 
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
@@ -318,11 +318,11 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * @return
 	 */
 	boolean after() {
-		//println("##### INTERCEPTOR (AFTER) - ${params.controller}/${params.action}")
+		println("##### INTERCEPTOR (AFTER) - ${params.controller}/${params.action}")
 
 		if(model) {
 			//List unsafeMethods = ['PUT', 'POST', 'DELETE']
-
+			println("has model:"+model)
 			try {
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
@@ -337,7 +337,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				} else {
 					newModel = model as LinkedHashMap
 				}
-
+				println("newmodel:"+newModel)
+				
 				//ApiDescriptor cachedEndpoint
 				//if(cache) {
 				//	cachedEndpoint = cache[apiObject][action] as ApiDescriptor

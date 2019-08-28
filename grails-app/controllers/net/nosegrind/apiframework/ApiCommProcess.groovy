@@ -484,9 +484,11 @@ abstract class ApiCommProcess{
                 //GParsPool.withPool(this.cores, {
                     d?.persistentProperties?.each() { it2 ->
                         if (it2?.name) {
-                            if (DomainClassArtefactHandler.isDomainClass(data[it2.name].getClass())) {
+                            if(DomainClassArtefactHandler.isDomainClass(data[it2.name].getClass())) {
+                                println "[domain] ${it2.name}Id / ${data[it2.name]}.id"
                                 newMap["${it2.name}Id"] = data[it2.name].id
                             } else {
+                                println "[normal] ${it2.name} / ${data[it2.name]} / ${data[it2.name].getClass()}"
                                 newMap[it2.name] = data[it2.name]
                             }
                         }

@@ -317,13 +317,14 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         LinkedHashMap methods = [:]
 
         String networkGrp = json.NETWORKGRP
+        String testUser = json.TESTUSER
         json.VERSION.each() { vers ->
             //def versKey = vers.key
             String defaultAction = (vers.value['DEFAULTACTION'])?vers.value.DEFAULTACTION:'index'
 
             Set testOrder = (vers.value['TESTORDER'])?vers.value.TESTORDER:[]
 
-            String testUser = (vers.value['TESTUSER'])?vers.value.TESTUSER:""
+
 
             Set deprecated = (vers.value.DEPRECATED)?vers.value.DEPRECATED:[]
             String domainPackage = (vers.value.DOMAINPACKAGE!=null || vers.value.DOMAINPACKAGE?.size()>0)?vers.value.DOMAINPACKAGE:null

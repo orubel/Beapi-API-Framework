@@ -13,9 +13,7 @@
  */
 package net.nosegrind.apiframework
 
-import javax.servlet.http.HttpServletRequest
-import org.springframework.web.context.request.ServletRequestAttributes
-import org.springframework.web.context.request.RequestContextHolder as RCH
+
 import org.grails.plugin.cache.GrailsCacheManager
 import grails.plugin.cache.GrailsConcurrentMapCache
 import grails.plugin.cache.GrailsValueWrapper
@@ -27,6 +25,7 @@ import grails.core.GrailsApplication
 /**
  * TestService.
  *
+ * Future implementations: rather than using TESTORDER in IO State:
  *
  * POST/CREATE creates initial ID for tuple
  *
@@ -63,109 +62,215 @@ class TestService {
     String action
     LinkedHashMap cache
 
-    String adminToken
+    LinkedHashMap admin
     LinkedHashMap user
+
+    List testLoadOrder = Holders.grailsApplication.config.apitoolkit.testLoadOrder
     String testDomain = Holders.grailsApplication.config.environments.test.grails.serverURL
     String appVersion = "v${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
     String loginUri
     LinkedHashMap userMockData
     GrailsApplication grailsApplication
     GrailsCacheManager grailsCacheManager
-    LinkedHashMap tests = [:]
+    LinkedHashMap values = [:]
+
 
     void initTest(){
         println("### [initTest Users] ###")
         adminLogin()
-        userLogin()
+        // create recieves mockdata for each controller/action
+
+        // create returns mockdata for each controller/action
+
+        // create JSON from recieves mockdata
+
+        // create call order
         initLoop()
     }
 
     void initLoop(){
         println("### [initTest] ###")
         // Controllers Loop - this needs to be moved into TEST below
-        grailsApplication.controllerClasses.each { controllerArtefact ->
-            //def controllerClass = controllerArtefact.getClazz()
-            this.controller = controllerArtefact.getLogicalPropertyName()
-            this.cache = getApiCache(controller)
-            //LinkedHashMap cache = apiCacheService.getApiCache(this.controller)
+        //grailsApplication.controllerClasses.each { controllerArtefact ->
 
-            if(cache){
-                this.version = this.cache['currentStable']['value']
-                //this.version = this.cache['cacheversion']
+        // setting call order
+        ['POST','GET','PUT','DELETE'].each() { method ->
+            testLoadOrder.each() { controller ->
+                findDomainClass(controller.capitalize())
+                values[controller] = [:]
+                this.controller = controller
 
-                if(cache[version]['testOrder']) {
-                    cache[version]['testOrder'].each(){
-                        switch(cache[version][it]['method']){
-                            case 'GET':
+                this.cache = getApiCache(controller)
+                if (cache) {
+                    this.version = this.cache['currentStable']['value']
+                    if (cache[version]['testOrder']) {
+                        cache[version]['testOrder'].each() {
+                            this.values[controller][it] = [:]
+                            this.values[controller]['values'] = [:]
+                            println("testorder:${cache[version][it]}")
+
+                            if(cache[version][it]['method']==method) {
                                 String endpoint = "${this.testDomain}/${this.appVersion}/${controller}/${it}"
-                                println("${controller}/${it} is GET")
-                                String data = "{"
-                                cache?."${version}"?."${it}".receives.each(){ k,v ->
-                                    v.each(){ it2 ->
-                                        //mapData[it.name] = it.mockData
-                                        if(it2.mockData) {
-                                            data += "'" + it2.name + "': '" + it2.mockData + "',"
+
+                                this.values[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'],this.admin.authorities)
+                                this.values[controller][it]['returns'] = getMockdata(cache[version][it]['returns'],this.admin.authorities)
+                                switch (method) {
+                                    case 'POST':
+                                        println("${controller}/${it} is POST")
+
+                                        String receivesData = createDataAsJSON(this.values[controller][it]['recieves'],controller)
+                                        LinkedHashMap returnsData = this.values[controller][it]['returns']
+                                        LinkedHashMap output = postJSON(endpoint, this.admin.token, returnsData, receivesData)
+                                        output.each() { k, v ->
+                                            this.values[controller]['values'][k] = v
                                         }
-                                    }
+                                        break
+                                    case 'GET':
+                                        println("${controller}/${it} is GET")
+                                        String receivesData = createDataAsJSON(this.values[controller][it]['recieves'],controller)
+                                        LinkedHashMap returnsData = this.values[controller][it]['returns']
+                                        LinkedHashMap output = getJSON(endpoint, this.admin.token, returnsData, receivesData)
+                                        output.each() { k, v ->
+                                            this.values[controller]['values'][k] = v
+                                        }
+                                        break
+
+                                    case 'PUT':
+                                        println("${controller}/${it} is PUT")
+                                        String pkey = cache[controller][it]['pkey']['id']
+                                        println("pkey: ${pkey}")
+                                        LinkedHashMap fkeys = getFkeys(cache[controller][it]['fkeys'])
+                                        println("fkeys:${fkeys}")
+                                        String receivesData = createDataAsJSON(this.values[controller][it]['recieves'],controller)
+                                        LinkedHashMap returnsData = cache[version][it]['returns']
+                                        LinkedHashMap output = postJSON(endpoint, this.admin.token, returnsData, receivesData)
+                                        output.each() { k, v ->
+                                            this.values[controller]['values'][k] = v
+                                        }
+                                        break
+                                    case 'DELETE':
+                                        println("${controller}/${it} is DELETE")
+                                        //String endpoint = "${this.testDomain}/${this.appVersion}/${controller}/${it}"
+                                        List recieves = getRecievesList(cache[version][it]['receives'], this.admin.authorities)
+                                        LinkedHashMap returnsData = cache[version][it]['returns']
+                                        String receivesData = (!values[controller]) ? createMockDataAsJSON(recieves) : createDataAsJSON(recieves, values[controller], cache[version][it]['receives'])
+                                        //println("DATA:"+receivesData)
+
+                                        LinkedHashMap output = deleteJSON(endpoint, this.admin.token, returnsData, receivesData)
+                                        output.each() { k, v ->
+                                            this.values[controller]['values'][k] = v
+                                        }
+                                        break
+                                    default:
+                                        //println("ERROR")
+                                        break
+
                                 }
-                                data += "}"
-                                println("DATA:"+data)
-                                getJSON(endpoint,data)
-                                break
-                            case 'PUT':
-                                println("${controller}/${it} is PUT")
-                                break
-                            case 'POST':
-                                println("${controller}/${it} is POST")
-                                break
-                            case 'DELETE':
-                                println("${controller}/${it} is DELETE")
-                                break
-                            default:
-                                println("ERROR")
-                                break
-
+                            }
                         }
-                        //println("testorder[${controller}: ${it}")
+
                     }
-                    /*
-                    cache[version].each() { k, v ->
-
-                        if (!['deprecated', 'defaultAction'].contains(k)) {
-                            // run tests with test user; need to pass user/token??
-                            // init test with controller/action
-                            this.action = k
-                            println("${controller}/${action}")
-                            // compile a test cache  in the following order:
-                            // (do this in BeapiApiFrameworkGrailsPlugin)
-                            // create sort for apiDescriptor???
-
-
-
-                        }
-                    }
-                    */
+                    //cleanupTest()
                 }
-                //cleanupTest()
             }
         }
     }
 
-    void userLogin(){
-        String login = Holders.grailsApplication.config.test.login
-        String password = Holders.grailsApplication.config.test.password
-        LinkedHashMap temp = loginUser(login,password)
-        this.user = ['token':temp.token,'authorities':temp.authorities]
+
+    private boolean findDomainClass(String className){
+        try{
+            Class clazz = grailsApplication.domainClasses.find { it.clazz.simpleName == className }.clazz
+            if(clazz){
+                return true
+            }else{
+                return false
+            }
+        }catch(Exception e){
+            throw new Exception("[TestService : findDomainClass] : ERROR - No Domain Class of the name '${className}' exists. Please check spelling/case for 'testLoadOrder' in beapi_api.yml and try again.",e)
+        }
+    }
+
+
+    private LinkedHashMap getFkeys(LinkedHashMap fkeys){
+        // if values, return fkey value
+        // else return mockdata value for key (or throw error as you are
+        // trying to insert child row BEFORE parent row exists)
+        LinkedHashMap keys = [:]
+        fkeys.each() { k, v ->
+            if(this.values[v]) {
+                keys[v] = this.values[v]['id']
+            }
+        }
+        return keys
+    }
+
+    private ArrayList getRecievesList(LinkedHashMap receives, List authorities){
+        ArrayList receivesList = []
+        if(receives['permitAll']) {
+            receivesList.addAll(receives['permitAll'].collect(){ it2 -> it2['name'] })
+        }
+        authorities.each(){
+            if(receives[it]) {
+                receivesList.addAll(receives[it].collect(){ it2 -> it2['name'] })
+            }
+        }
+        return receivesList.unique()
+    }
+
+
+
+    private LinkedHashMap getMockdata(LinkedHashMap mockdata, List authorities){
+        try {
+            LinkedHashMap output = [:]
+            if (mockdata['permitAll']) {
+                mockdata['permitAll'].each() { it ->
+
+                    output[it.name] = it.mockData
+                }
+            }
+            authorities.each() {
+                if (mockdata[it]) {
+                    mockdata[it].each() { it2 ->
+                        output[it2.name] = it2.mockData
+                    }
+                }
+            }
+            return output
+        }catch(Exception e){
+            throw new Exception("[TestService : getMockdata] : ERROR- Exception follows : ",e)
+        }
+    }
+
+
+    private String createDataAsJSON(LinkedHashMap mockdata, String controller){
+        try{
+            String data = "{"
+            mockdata.each(){ k, v ->
+                    if(v) {
+                        data += "'" + k + "': '" + v + "',"
+                    }else{
+                        if(this.values[controller]['values'][k]){
+                            data += "'" + k + "': '" + this.values[controller]['values'][k] + "',"
+                        }
+                    }
+            }
+            data += "}"
+            return data
+        }catch(Exception e){
+            throw new Exception("[TestService : createDataAsJSON] : ERROR- Exception follows : ",e)
+        }
     }
 
     boolean cleanupTest(){
         println("### [CleanupTest and Exit] ###")
+        /*
         if(this.user.id) {
             String id = deleteUser(this.user.id as String)
             if (id == this.user.id) {
                 return true
             }
         }
+        */
         return false
     }
 
@@ -179,7 +284,7 @@ class TestService {
 
             LinkedHashMap temp = loginUser(login, password)
             println("[adminLogin] - successfully loggedIn")
-            this.adminToken = temp.token
+            this.admin = ['token':temp.token,'authorities':temp.authorities]
         }catch(Exception e){
             throw new Exception("[TestService : adminLogin] : Admin Login Failed. Please check privileges in 'beapi_api.yml' file :"+e)
         }
@@ -203,7 +308,7 @@ class TestService {
     private List getRoleList(){
         println("[getRoleList] - retrieving endpoint roles")
         List roles = []
-        def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.adminToken}","--request","GET", "--verbose",  "${this.testDomain}/${this.appVersion}/role/list"].execute()
+        def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.admin.token}","--request","GET", "--verbose",  "${this.testDomain}/${this.appVersion}/role/list"].execute()
         proc.waitFor()
         StringBuffer outputStream = new StringBuffer()
         StringWriter error = new StringWriter()
@@ -226,7 +331,7 @@ class TestService {
     private String createUser(String username, String password, String email, List roles) {
         println("[createUser] - creating user ${username}")
         String guestdata = "{'username': '${username}','password':'${password}','email':'${email}'}"
-        def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.adminToken}","--request","POST", "--verbose", "-d", "${guestdata}", "${this.testDomain}/${this.appVersion}/person/create"].execute()
+        def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.admin.token}","--request","POST", "--verbose", "-d", "${guestdata}", "${this.testDomain}/${this.appVersion}/person/create"].execute()
         proc.waitFor()
         StringBuffer outputStream = new StringBuffer()
         StringWriter error = new StringWriter()
@@ -262,7 +367,7 @@ class TestService {
     private boolean createUserRoles(String personId, List roles) {
         roles.each { it ->
             String data = "{'personId': '${personId}','roleId':'${it}'}"
-            def proc = ["curl", "-H", "Origin: http://localhost", "-H", "Access-Control-Request-Headers: Origin,X-Requested-With", "--request", "POST", "-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.adminToken}", "-d", "${data}", "${this.testDomain}/${this.appVersion}/personRole/create"].execute()
+            def proc = ["curl", "-H", "Origin: http://localhost", "-H", "Access-Control-Request-Headers: Origin,X-Requested-With", "--request", "POST", "-H", "Content-Type: application/json", "-H", "Authorization: Bearer ${this.admin.token}", "-d", "${data}", "${this.testDomain}/${this.appVersion}/personRole/create"].execute()
             proc.waitFor()
             StringBuffer outputStream = new StringBuffer()
             StringWriter error = new StringWriter()
@@ -297,7 +402,7 @@ class TestService {
     }
 
     private String deleteUser(String personId) {
-        def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","--request","DELETE", "-H","Content-Type: application/json","-H","Authorization: Bearer ${this.adminToken}","${this.testDomain}/${this.appVersion}/person/delete?id=${personId}"].execute()
+        def proc = ["curl","-H","Origin: http://localhost","-H","Access-Control-Request-Headers: Origin,X-Requested-With","--request","DELETE", "-H","Content-Type: application/json","-H","Authorization: Bearer ${this.admin.token}","${this.testDomain}/${this.appVersion}/person/delete?id=${personId}"].execute()
         proc.waitFor()
         StringBuffer outputStream = new StringBuffer()
         StringWriter error = new StringWriter()
@@ -339,7 +444,7 @@ class TestService {
             }
 
         }catch(Exception e){
-            throw new Exception("[TestService :: getApiCache] : Exception - full stack trace follows:"+e)
+            throw new Exception("[TestService : getApiCache] : Exception - full stack trace follows:"+e)
         }
     }
 
@@ -364,15 +469,15 @@ class TestService {
         return returns
     }
 
-    LinkedHashMap getJSON(String endpoint, String data=null){
+    private LinkedHashMap getJSON(String endpoint, String token, LinkedHashMap returnsData, String receivesData=null){
         def info
         String url
-        if(data) {
-            url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${this.user.token}' --request GET -d '${data}' ${endpoint}"
+        if(receivesData) {
+            url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request GET -d '${receivesData}' ${endpoint}"
         }else{
-            url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${this.user.token}' --request GET ${endpoint}"
+            url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request GET ${endpoint}"
         }
-
+println(url)
         def proc = ['bash','-c',"${url}"].execute()
         proc.waitFor()
         StringBuffer outputStream = new StringBuffer()
@@ -381,45 +486,128 @@ class TestService {
 
         String output = outputStream.toString()
 
-	if(output){
-        println("### OUTPUT:"+output+"###")
-		info = new JsonSlurper().parseText(output)
-		if(info){
-		    return info
-		}else{
-		    throw new Exception("[ERROR] : ${output} : ${error}")
-		}
-	}else{
-		throw new Exception("[ERROR] : No output when calling '${endpoint}': ${error}")
-	}
-	return info
+        if(output){
+            info = new JsonSlurper().parseText(output)
+            if(info){
+                return info
+            }else{
+                //throw new Exception("[ERROR] : ${output} : ${error}")
+                //println("[OUTPUT] : ${output} [END OUTPUT]")
+                //println("[ERROR] : ${error} [END ERROR]")
+                ArrayList stdErr = error.toString().split( '> \n' )
+                //ArrayList response1 = stdErr[0].split("> ")
+                ArrayList response2 = stdErr[1].split("< ")
+                println("[response2] ${response2} [end response2]")
+            }
+        }else{
+            throw new Exception("[TestService: getJSON] ERROR : No output when calling '${endpoint}': ${error}")
+        }
+	    return info
     }
 
-    void getXML(String token, String data=null, String endpoint){
-
-    }
-
-    void putJSON(String token, String data, String endpoint){
-
-    }
-
-    void putXML(String token, String data, String endpoint){
+    void getXML(String endpoint, String token, LinkedHashMap returnsData, String receivesData=null){
 
     }
 
-    void postJSON(String token, String data, String endpoint){
+    private LinkedHashMap putJSON(String endpoint, String token, LinkedHashMap returnsData, String receivesData){
+        def info
+        String url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request PUT -d '${receivesData}' ${endpoint}"
+        println(url)
+        def proc = ['bash','-c',"${url}"].execute()
+        proc.waitFor()
+        StringBuffer outputStream = new StringBuffer()
+        StringWriter error = new StringWriter()
+        proc.waitForProcessOutput(outputStream, error)
+
+        String output = outputStream.toString()
+
+        if(error) {
+            ArrayList stdErr = error.toString().split( '> \n' )
+            ArrayList response2 = stdErr[1].split("< ")
+            println("[response2] ${response2} [end response2]")
+        }else{
+            info = new JsonSlurper().parseText(output)
+            if(info){
+                return info
+            }else{
+                throw new Exception("[TestService: postJSON] ERROR : No output when calling '${endpoint}': ${error}")
+            }
+        }
+
+        return info
+    }
+
+    void putXML(String endpoint, String token, LinkedHashMap returnsData, String receivesData){
 
     }
 
-    void postXML(String token, String data, String endpoint){
+    private LinkedHashMap postJSON(String endpoint, String token, LinkedHashMap returnsData, String receivesData){
+        def info
+        String url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request POST -d '${receivesData}' ${endpoint}"
+        println(url)
+        def proc = ['bash','-c',"${url}"].execute()
+        proc.waitFor()
+        StringBuffer outputStream = new StringBuffer()
+        StringWriter error = new StringWriter()
+        proc.waitForProcessOutput(outputStream, error)
+
+        String output = outputStream.toString()
+
+        if(output){
+            info = new JsonSlurper().parseText(output)
+            if(info){
+                return info
+            }else{
+                //throw new Exception("[ERROR] : ${output} : ${error}")
+                //println("[OUTPUT] : ${output} [END OUTPUT]")
+                //println("[ERROR] : ${error} [END ERROR]")
+                ArrayList stdErr = error.toString().split( '> \n' )
+                //ArrayList response1 = stdErr[0].split("> ")
+                ArrayList response2 = stdErr[1].split("< ")
+                println("[response2] ${response2} [end response2]")
+            }
+        }else{
+            throw new Exception("[TestService: postJSON] ERROR : No output when calling '${endpoint}': ${error}")
+        }
+        return info
+    }
+
+    void postXML(String endpoint, String token, LinkedHashMap returnsData, String receivesData){
 
     }
 
-    void deleteJSON(String token, String data=null, String endpoint){
+    private LinkedHashMap deleteJSON(String endpoint, String token, LinkedHashMap returnsData, String receivesData){
+        def info
+        String url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request DELETE -d '${receivesData}' ${endpoint}"
+        println(url)
+        def proc = ['bash','-c',"${url}"].execute()
+        proc.waitFor()
+        StringBuffer outputStream = new StringBuffer()
+        StringWriter error = new StringWriter()
+        proc.waitForProcessOutput(outputStream, error)
 
+        String output = outputStream.toString()
+
+        if(output){
+            info = new JsonSlurper().parseText(output)
+            if(info){
+                return info
+            }else{
+                //throw new Exception("[ERROR] : ${output} : ${error}")
+                //println("[OUTPUT] : ${output} [END OUTPUT]")
+                //println("[ERROR] : ${error} [END ERROR]")
+                ArrayList stdErr = error.toString().split( '> \n' )
+                //ArrayList response1 = stdErr[0].split("> ")
+                ArrayList response2 = stdErr[1].split("< ")
+                println("[response2] ${response2} [end response2]")
+            }
+        }else{
+            throw new Exception("[TestService: postJSON] ERROR : No output when calling '${endpoint}': ${error}")
+        }
+        return info
     }
 
-    void deleteXML(String token, String data=null, String endpoint){
+    void deleteXML(String endpoint, String token, LinkedHashMap returnsData, String receivesData){
 
     }
 }
