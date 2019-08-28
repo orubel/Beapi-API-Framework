@@ -97,26 +97,28 @@ class TestService {
         ['POST','GET','PUT','DELETE'].each() { method ->
             testLoadOrder.each() { controller ->
                 findDomainClass(controller.capitalize())
-                values[controller] = [:]
+                this.apiObject[controller] = [:]
                 this.controller = controller
 
                 this.cache = getApiCache(controller)
                 if (cache) {
+
                     this.version = this.cache['currentStable']['value']
                     if (cache[version]['testOrder']) {
                         cache[version]['testOrder'].each() {
+
                             this.apiObject[controller][it] = [:]
                             this.apiObject[controller]['values'] = [:]
 
                             this.apiObject[controller]['pkey'] = [:]
-                            if(cache[controller][it]['pkey']['id']) {
-                                this.apiObject[controller]['pkey']['id'] = cache[controller][it]['pkey']['id']
+
+                            if(cache[version][it]['pkey']) {
+                                this.apiObject[controller]['pkey']['id'] = ""
                             }
 
                             this.apiObject[controller]['fkeys'] = [:]
-                            this.apiObject[controller]['fkeys'] = getFkeys(cache[controller][it]['fkeys'])
+                            this.apiObject[controller]['fkeys'] = getFkeys(cache[version][it]['fkeys'] as LinkedHashMap)
 
-                            println("testorder:${cache[version][it]}")
 
                             if(cache[version][it]['method']==method) {
                                 String endpoint = "${this.testDomain}/${this.appVersion}/${controller}/${it}"
