@@ -198,12 +198,13 @@ class TestService {
         fkeys.each() { it ->
             it.each(){ k,v ->
                 String tempController = v.uncapitalize()
-                println(controller)
+                println("${k} / ${tempController}")
                 if(this.apiObject[tempController]) {
-                    keys[v] = this.apiObject[tempController]['values']['id']
+                    keys[k] = this.apiObject[tempController]['values']['id']
                 }
             }
         }
+        println("fkeys:"+keys)
         return keys
     }
 
@@ -231,22 +232,30 @@ class TestService {
 
 
     private String createDataAsJSON(LinkedHashMap mockdata, String controller, LinkedHashMap fkeys){
-        try{
+        println("CreateDataAsJSON[fkeys]:"+fkeys)
+        //try{
             String data = "{"
             mockdata.each(){ k, v ->
+                    println("${k}/ ${v}")
                     if(v) {
-                        data += "'" + k + "': '" + v + "',"
-                    }else{
                         if(this.apiObject[controller]['values'][k]){
+                            println("apiobject exists...")
                             data += "'" + k + "': '" + this.apiObject[controller]['values'][k] + "',"
+                        }else{
+                            data += "'" + k + "': '" + v + "',"
+                        }
+                    }else{
+                        if (fkeys[k]) {
+                            data += "'" + k + "': '" + fkeys[k] + "',"
                         }
                     }
             }
             data += "}"
+            println("data:"+data)
             return data
-        }catch(Exception e){
-            throw new Exception("[TestService : createDataAsJSON] : ERROR- Exception follows : ",e)
-        }
+        //}catch(Exception e){
+        //    throw new Exception("[TestService : createDataAsJSON] : ERROR- Exception follows : ",e)
+        //}
     }
 
     boolean cleanupTest(){
