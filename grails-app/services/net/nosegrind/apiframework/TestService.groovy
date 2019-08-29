@@ -128,9 +128,10 @@ class TestService {
                                     fkeys = getFkeys(cache[version][it]['fkeys'])
                                 }
                                 String endpoint = "${this.testDomain}/${this.appVersion}/${controller}/${it}"
-
+println("${endpoint}")
                                 this.apiObject[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'],this.admin.authorities)
                                 this.apiObject[controller][it]['returns'] = getMockdata(cache[version][it]['returns'],this.admin.authorities)
+
                                 String receivesData = createDataAsJSON(this.apiObject[controller][it]['recieves'],controller,fkeys)
                                 LinkedHashMap returnsData = this.apiObject[controller][it]['returns']
                                 switch (method) {
@@ -237,16 +238,17 @@ class TestService {
             String data = "{"
             mockdata.each(){ k, v ->
                     println("${k}/ ${v}")
-                    if(v) {
-                        if(this.apiObject[controller]['values'][k]){
-                            println("apiobject exists...")
-                            data += "'" + k + "': '" + this.apiObject[controller]['values'][k] + "',"
-                        }else{
-                            data += "'" + k + "': '" + v + "',"
+                    String key = k
+                    if(fkeys){
+                        if (fkeys[k]){
+                            data += "'${key}': '" + fkeys[k] + "',"
                         }
                     }else{
-                        if (fkeys[k]) {
-                            data += "'" + k + "': '" + fkeys[k] + "',"
+                        if(this.apiObject[controller]['values'][k]){
+                            println("apiobject exists...")
+                            data += "'${key}': '" + this.apiObject[controller]['values'][k] + "',"
+                        }else if(v){
+                            data += "'${key}': '" + v + "',"
                         }
                     }
             }
