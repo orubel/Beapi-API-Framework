@@ -97,7 +97,9 @@ class TestService {
         ['POST','GET','PUT','DELETE'].each() { method ->
             testLoadOrder.each() { controller ->
                 findDomainClass(controller.capitalize())
-                this.apiObject[controller] = [:]
+                if(!this.apiObject[controller]) {
+                    this.apiObject[controller] = [:]
+                }
                 this.controller = controller
 
                 this.cache = getApiCache(controller)
@@ -107,25 +109,29 @@ class TestService {
                     if (cache[version]['testOrder']) {
                         cache[version]['testOrder'].each() {
 
-                            this.apiObject[controller][it] = [:]
-                            this.apiObject[controller]['values'] = [:]
-
-                            this.apiObject[controller]['pkey'] = [:]
-
-                            if(cache[version][it]['pkey']) {
-                                this.apiObject[controller]['pkey']['id'] = ""
+                            if(!this.apiObject[controller][it]) {
+                                this.apiObject[controller][it] = [:]
+                            }
+                            if(!this.apiObject[controller]['values']) {
+                                this.apiObject[controller]['values'] = [:]
                             }
 
-                            this.apiObject[controller]['fkeys'] = [:]
-                            this.apiObject[controller]['fkeys'] = getFkeys(cache[version][it]['fkeys'] as LinkedHashMap)
+
+
 
 
                             if(cache[version][it]['method']==method) {
+                                LinkedHashMap fkeys
+                                if(cache[version][it]['fkeys']) {
+                                    println("#### FKEYS ####")
+                                    //this.apiObject[controller]['fkeys']
+                                    fkeys = getFkeys(cache[version][it]['fkeys'])
+                                }
                                 String endpoint = "${this.testDomain}/${this.appVersion}/${controller}/${it}"
 
                                 this.apiObject[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'],this.admin.authorities)
                                 this.apiObject[controller][it]['returns'] = getMockdata(cache[version][it]['returns'],this.admin.authorities)
-                                String receivesData = createDataAsJSON(this.apiObject[controller][it]['recieves'],controller)
+                                String receivesData = createDataAsJSON(this.apiObject[controller][it]['recieves'],controller,fkeys)
                                 LinkedHashMap returnsData = this.apiObject[controller][it]['returns']
                                 switch (method) {
                                     case 'POST':
@@ -134,6 +140,7 @@ class TestService {
                                         output.each() { k, v ->
                                             this.apiObject[controller]['values'][k] = v
                                         }
+                                        println("### ${controller}:"+this.apiObject[controller]['values'])
                                         break
                                     case 'GET':
                                         println("${controller}/${it} is GET")
@@ -141,8 +148,8 @@ class TestService {
                                         output.each() { k, v ->
                                             this.apiObject[controller]['values'][k] = v
                                         }
+                                        println("### ${controller} :"+this.apiObject[controller]['values'])
                                         break
-
                                     case 'PUT':
                                         println("${controller}/${it} is PUT")
                                         LinkedHashMap output = postJSON(endpoint, this.admin.token, returnsData, receivesData)
@@ -186,14 +193,15 @@ class TestService {
         }
     }
 
-    private LinkedHashMap getFkeys(LinkedHashMap fkeys){
-        // if values, return fkey value
-        // else return mockdata value for key (or throw error as you are
-        // trying to insert child row BEFORE parent row exists)
+    private LinkedHashMap getFkeys(LinkedHashSet fkeys){
         LinkedHashMap keys = [:]
-        fkeys.each() { k, v ->
-            if(this.apiObject[v]) {
-                keys[v] = this.apiObject[v]['id']
+        fkeys.each() { it ->
+            it.each(){ k,v ->
+                String tempController = v.uncapitalize()
+                println(controller)
+                if(this.apiObject[tempController]) {
+                    keys[v] = this.apiObject[tempController]['values']['id']
+                }
             }
         }
         return keys
@@ -222,7 +230,7 @@ class TestService {
     }
 
 
-    private String createDataAsJSON(LinkedHashMap mockdata, String controller){
+    private String createDataAsJSON(LinkedHashMap mockdata, String controller, LinkedHashMap fkeys){
         try{
             String data = "{"
             mockdata.each(){ k, v ->
