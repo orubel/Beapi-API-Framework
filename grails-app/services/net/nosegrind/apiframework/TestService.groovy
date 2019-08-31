@@ -95,12 +95,17 @@ class TestService {
         //grailsApplication.controllerClasses.each { controllerArtefact ->
 
         // setting call order
-        ['POST','GET','PUT','DELETE'].each() { method ->
-            testLoadOrder.each() { controller ->
+
+        testLoadOrder.each() { controller ->
+
+            println("controller:"+controller)
+
+            ['POST','GET','PUT','DELETE'].each() { method ->
                 findDomainClass(controller.capitalize())
                 if(!this.apiObject[controller]) {
                     this.apiObject[controller] = [:]
                 }
+
                 this.controller = controller
 
                 this.cache = getApiCache(controller)
@@ -108,7 +113,9 @@ class TestService {
 
                     this.version = this.cache['currentStable']['value']
                     if (cache[version]['testOrder']) {
+
                         println("testorder:"+cache[version]['testOrder'])
+
                         cache[version]['testOrder'].each() { it ->
 
                             println("testOrder:"+it)
@@ -120,7 +127,7 @@ class TestService {
                                 this.apiObject[controller]['values'] = [:]
                             }
 println(method)
-println(it)
+println("action:"+it)
 println(cache[version])
                             if(cache[version][it]['method']==method) {
                                 LinkedHashMap fkeys

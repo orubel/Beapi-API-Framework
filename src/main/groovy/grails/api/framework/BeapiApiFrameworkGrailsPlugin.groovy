@@ -318,14 +318,15 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         def version
 
         List testOrder
-        List first
         String controller
 
-        first = []
-        List second = []
-        List third = []
+
 
         testLoadOrder.each() { it ->
+            List first = []
+            List second = []
+            List third = []
+
             controller = it
             cache = apiCacheService.getApiCache(it)
             version = cache['currentStable']['value']
@@ -399,6 +400,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             second.addAll(third.unique())
             first.addAll(second.unique())
             testOrder = first.unique()
+
             cache[version]['testOrder'] = testOrder
             cache = apiCacheService.setApiCache(controller,cache)
         }
