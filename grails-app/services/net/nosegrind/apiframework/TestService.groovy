@@ -43,16 +43,17 @@ import grails.core.GrailsApplication
  *
  * PUT/EDIT confirms editing of tuple is possible
  *
- * loop through PUT of all classes with only PRIMARY keys
- * loop through PUT of all classes with PRIMARY-FOREIGN keys
  * loop through PUT of all classes with only FOREIGN  keys
+ * loop through PUT of all classes with PRIMARY-FOREIGN keys
+ * loop through PUT of all classes with only PRIMARY keys
  *
  *
  * DELETE does cleanup and confirms cleanup is possible
  *
- * loop through DELETE of all classes with only PRIMARY keys
- * loop through DELETE of all classes with PRIMARY-FOREIGN keys
- * loop through DELETE of all classes with only FOREIGN  keys
+ * loop through DELETE of all classes with only FOREIGN  keys (vars designated as fkeys cause it to sort first)
+ * loop through DELETE of all classes with PRIMARY-FOREIGN keys (vars designated as fkeys/pkey cause it to sort first)
+ * loop through DELETE of all classes with only PRIMARY keys (vars designated as pkeys cause it to sort first)
+ *
  *
  */
 class TestService {
@@ -107,7 +108,10 @@ class TestService {
 
                     this.version = this.cache['currentStable']['value']
                     if (cache[version]['testOrder']) {
-                        cache[version]['testOrder'].each() {
+                        println("testorder:"+cache[version]['testOrder'])
+                        cache[version]['testOrder'].each() { it ->
+
+                            println("testOrder:"+it)
 
                             if(!this.apiObject[controller][it]) {
                                 this.apiObject[controller][it] = [:]
@@ -115,11 +119,9 @@ class TestService {
                             if(!this.apiObject[controller]['values']) {
                                 this.apiObject[controller]['values'] = [:]
                             }
-
-
-
-
-
+println(method)
+println(it)
+println(cache[version])
                             if(cache[version][it]['method']==method) {
                                 LinkedHashMap fkeys
                                 if(cache[version][it]['fkeys']) {
@@ -127,6 +129,12 @@ class TestService {
                                     //this.apiObject[controller]['fkeys']
                                     fkeys = getFkeys(cache[version][it]['fkeys'])
                                 }
+
+                                /*
+                                if(method=='DELETE'){
+                                    check for fkeys and do those first
+                                */
+
                                 String endpoint = "${this.testDomain}/${this.appVersion}/${controller}/${it}"
 println("${endpoint}")
                                 this.apiObject[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'],this.admin.authorities)
@@ -153,7 +161,7 @@ println("${endpoint}")
                                         break
                                     case 'PUT':
                                         println("${controller}/${it} is PUT")
-                                        LinkedHashMap output = postJSON(endpoint, this.admin.token, returnsData, receivesData)
+                                        LinkedHashMap output = putJSON(endpoint, this.admin.token, returnsData, receivesData)
                                         output.each() { k, v ->
                                             this.apiObject[controller]['values'][k] = v
                                         }

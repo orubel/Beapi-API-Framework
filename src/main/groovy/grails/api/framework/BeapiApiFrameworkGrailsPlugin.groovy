@@ -48,7 +48,6 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     def developers = [[ name: 'Owen Rubel', email: 'orubel@gmail.com' ]]
 	def issueManagement = [system: 'GitHub', url: 'https://github.com/orubel/grails-api-toolkit-docs/issues']
 	def scm = [url: 'https://github.com/orubel/api-framework']
-	
 	def dependsOn = [cache: '* > 3.0']
 	def loadAfter = ['cache']
     //def loadBefore = ['spring-boot-starter-tomcat']
@@ -138,7 +137,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     void doWithApplicationContext() {
 
         // Delegate OPTIONS requests to controllers
-        try{
+        //try{
             applicationContext.dispatcherServlet.setDispatchOptionsRequest(true)
 
             String basedir = BuildSettings.BASE_DIR
@@ -158,9 +157,10 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             statsService.flushAllStatsCache()
 
             parseFiles(apiObjectSrc.toString(), applicationContext)
-        }catch(Exception e){
-            throw new Exception('[BeAPIFramework] : Cannot set system properties :',e)
-        }
+            createTestOrder(applicationContext)
+        //}catch(Exception e){
+        //    throw new Exception('[BeAPIFramework] : Cannot set system properties :',e)
+        //}
     }
 
     /**
@@ -184,6 +184,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                     //try{
                         JSONObject json = JSON.parse(file.text)
                         methods[json.NAME.toString()] = parseJson(json.NAME.toString(), json, applicationContext)
+
                         //parseJson(json.NAME.toString(), json, applicationContext)
                     //}catch(Exception e){
                     //    throw new Exception("[ApiObjectService :: initialize] : Unacceptable file '${file.name}' - full stack trace follows:",e)
@@ -310,6 +311,100 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         }
 	}
 
+    void createTestOrder(ApplicationContext applicationContext){
+        List testLoadOrder = grailsApplication.config.apitoolkit.testLoadOrder
+        def apiCacheService = applicationContext.getBean("apiCacheService")
+        def cache
+        def version
+
+        List testOrder
+        List first
+        String controller
+
+        first = []
+        List second = []
+        List third = []
+
+        testLoadOrder.each() { it ->
+            controller = it
+            cache = apiCacheService.getApiCache(it)
+            version = cache['currentStable']['value']
+            testOrder = []
+            ['POST','GET','PUT','DELETE'].each() { method ->
+                cache[version].each(){ k, v ->
+                    if(!['deprecated','defaultAction','testOrder','testUser'].contains(k)) {
+                        ApiDescriptor cachedEndpoint = v as ApiDescriptor
+                        if (cachedEndpoint['method'] == method) {
+
+                            switch (method) {
+                                case 'POST':
+                                    // SET TESTORDER: PRIMARY, PRIMARY/FOREIGN, FOREIGN
+                                    // IF PRIMARY, PUT IN FRONT OF LIST. IF FOREIGN, PUT IN END OF LIST
+                                    if ((cachedEndpoint['pkey'] && !cachedEndpoint['fkeys']) || (!cachedEndpoint['pkey'] && !cachedEndpoint['fkeys'])) {
+                                        first.add(k)
+                                    } else if (cachedEndpoint['pkey'] && cachedEndpoint['fkeys']) {
+                                        second.add(k)
+                                    } else {
+                                        third.add(k)
+                                    }
+
+                                    break
+                                case 'GET':
+                                    // SET TESTORDER: ANY ORDER
+                                    // SET TESTORDER: PRIMARY, PRIMARY/FOREIGN, FOREIGN
+                                    // IF PRIMARY, PUT IN FRONT OF LIST. IF FOREIGN, PUT IN END OF LIST
+                                    if ((cachedEndpoint['pkey'] && !cachedEndpoint['fkeys']) || (!cachedEndpoint['pkey'] && !cachedEndpoint['fkeys'])) {
+                                        first.add(k)
+                                    } else if (cachedEndpoint['pkey'] && cachedEndpoint['fkeys']) {
+                                        second.add(k)
+                                    } else {
+                                        third.add(k)
+                                    }
+                                    break
+                                case 'PUT':
+                                    // SET TESTORDER: PRIMARY, PRIMARY/FOREIGN, FOREIGN
+                                    // IF PRIMARY, PUT IN FRONT OF LIST. IF FOREIGN, PUT IN END OF LIST
+                                    // SET TESTORDER: PRIMARY, PRIMARY/FOREIGN, FOREIGN
+                                    // IF PRIMARY, PUT IN FRONT OF LIST. IF FOREIGN, PUT IN END OF LIST
+                                    if ((cachedEndpoint['pkey'] && !cachedEndpoint['fkeys']) || (!cachedEndpoint['pkey'] && !cachedEndpoint['fkeys'])) {
+                                        first.add(k)
+                                    } else if (cachedEndpoint['pkey'] && cachedEndpoint['fkeys']) {
+                                        second.add(k)
+                                    } else {
+                                        third.add(k)
+                                    }
+                                    break
+                                case 'DELETE':
+                                    // SET TESTORDER: FOREIGN, PRIMARY/FOREIGN, PRIMARY
+                                    // IF FOREIGN, PUT IN FRONT OF LIST. IF PRIMARY, PUT IN END OF LIST
+                                    // SET TESTORDER: PRIMARY, PRIMARY/FOREIGN, FOREIGN
+                                    // IF PRIMARY, PUT IN FRONT OF LIST. IF FOREIGN, PUT IN END OF LIST
+                                    if (cachedEndpoint['fkeys'] && !cachedEndpoint['pkey']) {
+                                        first.add(k)
+                                    } else if (cachedEndpoint['pkey'] && cachedEndpoint['fkeys']) {
+                                        second.add(k)
+                                    } else {
+                                        third.add(k)
+                                    }
+                                    break
+                                default:
+                                    break
+                            }
+                        }
+                    }
+                }
+
+            }
+
+            second.addAll(third.unique())
+            first.addAll(second.unique())
+            testOrder = first.unique()
+            cache[version]['testOrder'] = testOrder
+            cache = apiCacheService.setApiCache(controller,cache)
+        }
+
+    }
+
     LinkedHashMap parseJson(String apiName,JSONObject json, ApplicationContext applicationContext){
         def apiCacheService = applicationContext.getBean("apiCacheService")
         apiCacheService.flushAllApiCache()
@@ -322,7 +417,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             //def versKey = vers.key
             String defaultAction = (vers.value['DEFAULTACTION'])?vers.value.DEFAULTACTION:'index'
 
-            Set testOrder = (vers.value['TESTORDER'])?vers.value.TESTORDER:[]
+            //Set testOrder = (vers.value['TESTORDER'])?vers.value.TESTORDER:[]
 
 
 
@@ -383,7 +478,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
                 if(!methods[vers.key]['testOrder']){
                     methods[vers.key]['testOrder'] = []
-                    methods[vers.key]['testOrder'] = testOrder
+                    //methods[vers.key]['testOrder'] = testOrder
                 }
 
                 if(!methods[vers.key]['testUser']){
