@@ -96,11 +96,11 @@ class TestService {
 
         // setting call order
 
-        testLoadOrder.each() { controller ->
+        ['POST','GET','PUT','DELETE'].each() { method ->
+            testLoadOrder.each() { controller ->
 
-            println("controller:"+controller)
+                println("controller:"+controller)
 
-            ['POST','GET','PUT','DELETE'].each() { method ->
                 findDomainClass(controller.capitalize())
                 if(!this.apiObject[controller]) {
                     this.apiObject[controller] = [:]
@@ -133,10 +133,11 @@ println(cache[version])
                                 LinkedHashMap fkeys
                                 if(cache[version][it]['fkeys']) {
                                     println("#### FKEYS ####")
+
                                     //this.apiObject[controller]['fkeys']
                                     fkeys = getFkeys(cache[version][it]['fkeys'])
                                 }
-
+println("fkeys:"+fkeys)
                                 /*
                                 if(method=='DELETE'){
                                     check for fkeys and do those first
@@ -365,13 +366,15 @@ println(url)
             if(info){
                 return info
             }else{
+                println(error)
                 //throw new Exception("[ERROR] : ${output} : ${error}")
                 //println("[OUTPUT] : ${output} [END OUTPUT]")
                 //println("[ERROR] : ${error} [END ERROR]")
                 ArrayList stdErr = error.toString().split( '> \n' )
-                //ArrayList response1 = stdErr[0].split("> ")
+                ArrayList response1 = stdErr[0].split("> ")
                 ArrayList response2 = stdErr[1].split("< ")
-                println("[response2] ${response2} [end response2]")
+                //println("[response1] ${response1} [end response1]")
+                //println("[response2] ${response2} [end response2]")
             }
         }else{
             throw new Exception("[TestService: getJSON] ERROR : No output when calling '${endpoint}': ${error}")
@@ -396,9 +399,10 @@ println(url)
         String output = outputStream.toString()
 
         if(error) {
+            println(error)
             ArrayList stdErr = error.toString().split( '> \n' )
             ArrayList response2 = stdErr[1].split("< ")
-            println("[response2] ${response2} [end response2]")
+            //println("[response2] ${response2} [end response2]")
         }else{
             info = new JsonSlurper().parseText(output)
             if(info){
@@ -432,13 +436,14 @@ println(url)
             if(info){
                 return info
             }else{
+                println(error)
                 //throw new Exception("[ERROR] : ${output} : ${error}")
                 //println("[OUTPUT] : ${output} [END OUTPUT]")
                 //println("[ERROR] : ${error} [END ERROR]")
                 ArrayList stdErr = error.toString().split( '> \n' )
                 //ArrayList response1 = stdErr[0].split("> ")
                 ArrayList response2 = stdErr[1].split("< ")
-                println("[response2] ${response2} [end response2]")
+                //println("[response2] ${response2} [end response2]")
             }
         }else{
             throw new Exception("[TestService: postJSON] ERROR : No output when calling '${endpoint}': ${error}")
@@ -467,13 +472,14 @@ println(url)
             if(info){
                 return info
             }else{
+                println(error)
                 //throw new Exception("[ERROR] : ${output} : ${error}")
                 //println("[OUTPUT] : ${output} [END OUTPUT]")
                 //println("[ERROR] : ${error} [END ERROR]")
                 ArrayList stdErr = error.toString().split( '> \n' )
                 //ArrayList response1 = stdErr[0].split("> ")
                 ArrayList response2 = stdErr[1].split("< ")
-                println("[response2] ${response2} [end response2]")
+               // println("[response2] ${response2} [end response2]")
             }
         }else{
             throw new Exception("[TestService: postJSON] ERROR : No output when calling '${endpoint}': ${error}")

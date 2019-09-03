@@ -52,6 +52,8 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 	def loadAfter = ['cache']
     //def loadBefore = ['spring-boot-starter-tomcat']
 
+    LinkedHashMap testLoadOrder = [:]
+
     def pluginExcludes = [
         'grails-app/views/error.gsp'
     ]
@@ -137,7 +139,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     void doWithApplicationContext() {
 
         // Delegate OPTIONS requests to controllers
-        //try{
+        try{
             applicationContext.dispatcherServlet.setDispatchOptionsRequest(true)
 
             String basedir = BuildSettings.BASE_DIR
@@ -157,10 +159,10 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             statsService.flushAllStatsCache()
 
             parseFiles(apiObjectSrc.toString(), applicationContext)
-            createTestOrder(applicationContext)
-        //}catch(Exception e){
-        //    throw new Exception('[BeAPIFramework] : Cannot set system properties :',e)
-        //}
+            this.testLoadOrder = createTestOrder(applicationContext)
+        }catch(Exception e){
+            throw new Exception('[BeAPIFramework] : Cannot set system properties :',e)
+        }
     }
 
     /**
@@ -199,6 +201,13 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     }
 
 	void doInitApiFrameworkInstall(applicationContext) {
+        def userHome = System.getProperty("user.home")
+        if (userHome) {
+            // read .beapi/beapi_api.yml
+            println("USERHOME:"+userHome)
+            println(this.testLoadOrder)
+        }
+
 		String basedir = BuildSettings.BASE_DIR
         def ant = new AntBuilder()
 
@@ -311,42 +320,52 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         }
 	}
 
-    void createTestOrder(ApplicationContext applicationContext){
-        List testLoadOrder = grailsApplication.config.apitoolkit.testLoadOrder
+    LinkedHashMap createTestOrder(ApplicationContext applicationContext){
         def apiCacheService = applicationContext.getBean("apiCacheService")
         def cache
         def version
-
-        List testOrder
+        LinkedHashMap LoadOrder = [:]
         String controller
-
-
+        
+        List testLoadOrder = getTestLoadOrder(applicationContext)
+        List first
+        List second
+        List third
+        List testOrder
 
         testLoadOrder.each() { it ->
-            List first = []
-            List second = []
-            List third = []
 
-            controller = it
-            cache = apiCacheService.getApiCache(it)
-            version = cache['currentStable']['value']
             testOrder = []
-            ['POST','GET','PUT','DELETE'].each() { method ->
-                cache[version].each(){ k, v ->
-                    if(!['deprecated','defaultAction','testOrder','testUser'].contains(k)) {
-                        ApiDescriptor cachedEndpoint = v as ApiDescriptor
+            first = []
+            second = []
+            third = []
+
+            ['POST','GET','PUT','DELETE'].each(){ method ->
+
+                controller = it
+                cache = apiCacheService.getApiCache(it)
+                version = cache['currentStable']['value']
+                LoadOrder[it] = []
+
+                cache[version].each() { k2, v2 ->
+                    if (!['deprecated', 'defaultAction', 'testOrder', 'testUser'].contains(k2)) {
+                        ApiDescriptor cachedEndpoint = v2 as ApiDescriptor
                         if (cachedEndpoint['method'] == method) {
 
                             switch (method) {
                                 case 'POST':
                                     // SET TESTORDER: PRIMARY, PRIMARY/FOREIGN, FOREIGN
                                     // IF PRIMARY, PUT IN FRONT OF LIST. IF FOREIGN, PUT IN END OF LIST
+                                    println("POST_loadorder:")
                                     if ((cachedEndpoint['pkey'] && !cachedEndpoint['fkeys']) || (!cachedEndpoint['pkey'] && !cachedEndpoint['fkeys'])) {
-                                        first.add(k)
+                                        println("POST_loadorder(first):" + k2)
+                                        first.add(k2)
                                     } else if (cachedEndpoint['pkey'] && cachedEndpoint['fkeys']) {
-                                        second.add(k)
+                                        println("POST_loadorder(second):" + k2)
+                                        second.add(k2)
                                     } else {
-                                        third.add(k)
+                                        println("POST_loadorder(third):" + k2)
+                                        third.add(k2)
                                     }
 
                                     break
@@ -355,11 +374,14 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                                     // SET TESTORDER: PRIMARY, PRIMARY/FOREIGN, FOREIGN
                                     // IF PRIMARY, PUT IN FRONT OF LIST. IF FOREIGN, PUT IN END OF LIST
                                     if ((cachedEndpoint['pkey'] && !cachedEndpoint['fkeys']) || (!cachedEndpoint['pkey'] && !cachedEndpoint['fkeys'])) {
-                                        first.add(k)
+                                        println("GET_loadorder(first):" + k2)
+                                        first.add(k2)
                                     } else if (cachedEndpoint['pkey'] && cachedEndpoint['fkeys']) {
-                                        second.add(k)
+                                        println("GET_loadorder(second):" + k2)
+                                        second.add(k2)
                                     } else {
-                                        third.add(k)
+                                        println("GET_loadorder(third):" + k2)
+                                        third.add(k2)
                                     }
                                     break
                                 case 'PUT':
@@ -368,11 +390,14 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                                     // SET TESTORDER: PRIMARY, PRIMARY/FOREIGN, FOREIGN
                                     // IF PRIMARY, PUT IN FRONT OF LIST. IF FOREIGN, PUT IN END OF LIST
                                     if ((cachedEndpoint['pkey'] && !cachedEndpoint['fkeys']) || (!cachedEndpoint['pkey'] && !cachedEndpoint['fkeys'])) {
-                                        first.add(k)
+                                        println("PUT_loadorder(first):" + k2)
+                                        first.add(k2)
                                     } else if (cachedEndpoint['pkey'] && cachedEndpoint['fkeys']) {
-                                        second.add(k)
+                                        println("PUT_loadorder(second):" + k2)
+                                        second.add(k2)
                                     } else {
-                                        third.add(k)
+                                        println("PUT_loadorder(third):" + k2)
+                                        third.add(k2)
                                     }
                                     break
                                 case 'DELETE':
@@ -381,11 +406,14 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                                     // SET TESTORDER: PRIMARY, PRIMARY/FOREIGN, FOREIGN
                                     // IF PRIMARY, PUT IN FRONT OF LIST. IF FOREIGN, PUT IN END OF LIST
                                     if (cachedEndpoint['fkeys'] && !cachedEndpoint['pkey']) {
-                                        first.add(k)
+                                        println("DELETE_loadorder(first):" + k2)
+                                        first.add(k2)
                                     } else if (cachedEndpoint['pkey'] && cachedEndpoint['fkeys']) {
-                                        second.add(k)
+                                        println("DELETE_loadorder(second):" + k2)
+                                        second.add(k2)
                                     } else {
-                                        third.add(k)
+                                        println("DELETE_loadorder(third):" + k2)
+                                        third.add(k2)
                                     }
                                     break
                                 default:
@@ -393,18 +421,85 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                             }
                         }
                     }
+
                 }
 
+
+                second.addAll(third.unique())
+                first.addAll(second.unique())
+                testOrder.addAll(first.unique())
+
             }
+
+            //println("third2:"+third)
+            //println("second2:"+second)
+            //println("first2:"+first)
 
             second.addAll(third.unique())
             first.addAll(second.unique())
             testOrder = first.unique()
 
+            println("controller_testorder: ${controller} / ${testOrder}")
             cache[version]['testOrder'] = testOrder
+
             cache = apiCacheService.setApiCache(controller,cache)
+            LoadOrder[controller] = testOrder
+
+        }
+        return LoadOrder
+    }
+
+    protected List getTestLoadOrder(ApplicationContext applicationContext) {
+        def apiCacheService = applicationContext.getBean("apiCacheService")
+
+        List first = []
+        List second = []
+        List third = []
+
+        grailsApplication.controllerClasses.each { controllerArtefact ->
+            try {
+                String logicalName = controllerArtefact.getLogicalPropertyName()
+
+                def cache = apiCacheService.getApiCache(logicalName)
+
+                def domain = Holders.grailsApplication.getArtefactByLogicalPropertyName('Domain', logicalName)
+                def controller = Holders.grailsApplication.getArtefactByLogicalPropertyName('Controller', logicalName)
+
+                if (controller && domain) {
+                    if(cache && !['stat','hook','test'].contains(logicalName)) {
+                        def pCount = 0
+                        def fCount = 0
+                        cache['values'].each() { k, v ->
+                            if (v['key']) {
+                                if (v['key']=='FOREIGN') {
+                                    fCount+=1
+                                } else if (v['key']=='PRIMARY') {
+                                    pCount+=1
+                                }
+                            }
+                        }
+                        if (pCount>=0 && fCount==0) {
+                            first.add(logicalName)
+                        }else if (pCount>0 && fCount>0) {
+                            second.add(logicalName)
+                        } else {
+                            third.add(logicalName)
+                        }
+                    }
+
+                }
+            } catch (Exception e) {
+                throw new Error("Exception: ",e)
+            }
         }
 
+        second.addAll(third.unique())
+        first.addAll(second.unique())
+
+
+        //System.setProperty("testLoadOrder", first)
+
+        return first
     }
 
     LinkedHashMap parseJson(String apiName,JSONObject json, ApplicationContext applicationContext){
@@ -462,6 +557,11 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 apiDescriptor = createApiDescriptor(networkGrp, apiName, apiMethod, apiDescription, apiRoles, batchRoles, hookRoles, uri, json.get('VALUES'), apiVersion)
                 if(!methods[vers.key]){
                     methods[vers.key] = [:]
+                }
+
+                if(!methods['values']){
+                    methods['values'] = [:]
+                    methods['values'] = json.get('VALUES')
                 }
 
                 if(!methods['currentStable']){
