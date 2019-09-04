@@ -66,7 +66,7 @@ class TestService {
     LinkedHashMap admin
     LinkedHashMap user
 
-    List testLoadOrder = Holders.grailsApplication.config.apitoolkit.testLoadOrder
+    //List testLoadOrder = Holders.grailsApplication.config.apitoolkit.testLoadOrder
     String testDomain = Holders.grailsApplication.config.environments.test.grails.serverURL
     String appVersion = "v${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
     String loginUri
@@ -91,109 +91,104 @@ class TestService {
 
     void initLoop(){
         println("### [initTest] ###")
-        // Controllers Loop - this needs to be moved into TEST below
-        //grailsApplication.controllerClasses.each { controllerArtefact ->
+        List testLoadOrder = System.getProperty("testLoadOrder").split(',')
+        println("TESTLOADORDER:"+testLoadOrder)
+        ['POST','GET','PUT'].each() { method ->
 
-        // setting call order
+            // Controllers Loop - this needs to be moved into TEST below
 
-        ['POST','GET','PUT','DELETE'].each() { method ->
-            testLoadOrder.each() { controller ->
+            println("testLoadOrder:"+testLoadOrder)
 
-                println("controller:"+controller)
+            testLoadOrder.each(){ controller ->
 
-                findDomainClass(controller.capitalize())
+                this.cache = getApiCache(controller)
+
+
+                // TODO: test to see if cache exists for each controller name
+
                 if(!this.apiObject[controller]) {
                     this.apiObject[controller] = [:]
                 }
 
-                this.controller = controller
-
-                this.cache = getApiCache(controller)
                 if (cache) {
-
                     this.version = this.cache['currentStable']['value']
                     if (cache[version]['testOrder']) {
 
                         println("testorder:"+cache[version]['testOrder'])
 
-                        cache[version]['testOrder'].each() { it ->
+                        if(cache[version]['testOrder']) {
+                            cache[version]['testOrder'].each() { it ->
 
-                            println("testOrder:"+it)
+                                println("testOrder:" + it)
 
-                            if(!this.apiObject[controller][it]) {
-                                this.apiObject[controller][it] = [:]
-                            }
-                            if(!this.apiObject[controller]['values']) {
-                                this.apiObject[controller]['values'] = [:]
-                            }
-println(method)
-println("action:"+it)
-println(cache[version])
-                            if(cache[version][it]['method']==method) {
-                                LinkedHashMap fkeys
-                                if(cache[version][it]['fkeys']) {
-                                    println("#### FKEYS ####")
-
-                                    //this.apiObject[controller]['fkeys']
-                                    fkeys = getFkeys(cache[version][it]['fkeys'])
+                                if (!this.apiObject[controller][it]) {
+                                    this.apiObject[controller][it] = [:]
                                 }
-println("fkeys:"+fkeys)
-                                /*
+                                if (!this.apiObject[controller]['values']) {
+                                    this.apiObject[controller]['values'] = [:]
+                                }
+
+                                if (cache[version][it]['method'] == method) {
+                                    LinkedHashMap fkeys
+                                    if (cache[version][it]['fkeys']) {
+                                        println("#### FKEYS ####")
+
+                                        //this.apiObject[controller]['fkeys']
+                                        fkeys = getFkeys(cache[version][it]['fkeys'])
+                                        println("fkeys:"+fkeys)
+                                    }
+
+                                    /*
                                 if(method=='DELETE'){
                                     check for fkeys and do those first
                                 */
 
-                                String endpoint = "${this.testDomain}/${this.appVersion}/${controller}/${it}"
-println("${endpoint}")
-                                this.apiObject[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'],this.admin.authorities)
-                                this.apiObject[controller][it]['returns'] = getMockdata(cache[version][it]['returns'],this.admin.authorities)
+                                    String endpoint = "${this.testDomain}/${this.appVersion}/${controller}/${it}"
 
-                                String receivesData = createDataAsJSON(this.apiObject[controller][it]['recieves'],controller,fkeys)
-                                LinkedHashMap returnsData = this.apiObject[controller][it]['returns']
-                                switch (method) {
-                                    case 'POST':
-                                        println("${controller}/${it} is POST")
-                                        LinkedHashMap output = postJSON(endpoint, this.admin.token, returnsData, receivesData)
-                                        output.each() { k, v ->
-                                            this.apiObject[controller]['values'][k] = v
-                                        }
-                                        println("### ${controller}:"+this.apiObject[controller]['values'])
-                                        break
-                                    case 'GET':
-                                        println("${controller}/${it} is GET")
-                                        LinkedHashMap output = getJSON(endpoint, this.admin.token, returnsData, receivesData)
-                                        output.each() { k, v ->
-                                            this.apiObject[controller]['values'][k] = v
-                                        }
-                                        println("### ${controller} :"+this.apiObject[controller]['values'])
-                                        break
-                                    case 'PUT':
-                                        println("${controller}/${it} is PUT")
-                                        LinkedHashMap output = putJSON(endpoint, this.admin.token, returnsData, receivesData)
-                                        output.each() { k, v ->
-                                            this.apiObject[controller]['values'][k] = v
-                                        }
-                                        break
-                                    case 'DELETE':
-                                        println("${controller}/${it} is DELETE")
-                                        LinkedHashMap output = deleteJSON(endpoint, this.admin.token, returnsData, receivesData)
-                                        output.each() { k, v ->
-                                            this.apiObject[controller]['values'][k] = v
-                                        }
-                                        break
-                                    default:
-                                        //println("ERROR")
-                                        break
+                                    this.apiObject[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'], this.admin.authorities)
+                                    this.apiObject[controller][it]['returns'] = getMockdata(cache[version][it]['returns'], this.admin.authorities)
 
+                                    String receivesData = createDataAsJSON(this.apiObject[controller][it]['recieves'], controller, fkeys)
+                                    LinkedHashMap returnsData = this.apiObject[controller][it]['returns']
+                                    switch (method) {
+                                        case 'POST':
+                                            println("${controller}/${it} is POST")
+                                            LinkedHashMap output = postJSON(endpoint, this.admin.token, returnsData, receivesData)
+                                            output.each() { k, v ->
+                                                this.apiObject[controller]['values'][k] = v
+                                            }
+                                            println("### ${controller}:" + this.apiObject[controller]['values'])
+                                            break
+                                        case 'GET':
+                                            println("${controller}/${it} is GET")
+                                            LinkedHashMap output = getJSON(endpoint, this.admin.token, returnsData, receivesData)
+                                            output.each() { k, v ->
+                                                this.apiObject[controller]['values'][k] = v
+                                            }
+                                            println("### ${controller} :" + this.apiObject[controller]['values'])
+                                            break
+                                        case 'PUT':
+                                            println("${controller}/${it} is PUT")
+                                            LinkedHashMap output = putJSON(endpoint, this.admin.token, returnsData, receivesData)
+                                            output.each() { k, v ->
+                                                this.apiObject[controller]['values'][k] = v
+                                            }
+                                            break
+                                        default:
+                                            //println("ERROR")
+                                            break
+
+                                    }
                                 }
                             }
                         }
 
                     }
-                    //cleanupTest()
                 }
             }
         }
+        println("TESTLOADORDER:"+testLoadOrder)
+        cleanupTest(testLoadOrder)
     }
 
 
@@ -276,16 +271,90 @@ println("${endpoint}")
         //}
     }
 
-    boolean cleanupTest(){
+    boolean cleanupTest(List testLoadOrder){
         println("### [CleanupTest and Exit] ###")
-        /*
-        if(this.user.id) {
-            String id = deleteUser(this.user.id as String)
-            if (id == this.user.id) {
-                return true
+
+        testLoadOrder = testLoadOrder.reverse()
+        
+println("TESTLOADORDER:"+testLoadOrder)
+
+        ['DELETE'].each() { method ->
+
+
+            // Controllers Loop - this needs to be moved into TEST below
+            testLoadOrder.each(){ controller ->
+
+                this.cache = getApiCache(controller)
+
+
+                // TODO: test to see if cache exists for each controller name
+
+                if(!this.apiObject[controller]) {
+                    this.apiObject[controller] = [:]
+                }
+
+                if (cache) {
+                    this.version = this.cache['currentStable']['value']
+                    if (cache[version]['testOrder']) {
+
+
+                        List newTestOrder = cache[version]['testOrder'].reverse()
+
+                        println("NEWTESTORDER:"+newTestOrder)
+                        newTestOrder.each() { it ->
+
+                            println("testOrder:" + it)
+
+                            if (!this.apiObject[controller][it]) {
+                                this.apiObject[controller][it] = [:]
+                            }
+                            if (!this.apiObject[controller]['values']) {
+                                this.apiObject[controller]['values'] = [:]
+                            }
+
+                            if (cache[version][it]['method'] == method) {
+                                LinkedHashMap fkeys
+                                if (cache[version][it]['fkeys']) {
+                                    println("#### FKEYS ####")
+
+                                    //this.apiObject[controller]['fkeys']
+                                    fkeys = getFkeys(cache[version][it]['fkeys'])
+                                    println("fkeys:"+fkeys)
+                                }
+
+                                /*
+                            if(method=='DELETE'){
+                                check for fkeys and do those first
+                            */
+
+                                String endpoint = "${this.testDomain}/${this.appVersion}/${controller}/${it}"
+
+                                this.apiObject[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'], this.admin.authorities)
+                                this.apiObject[controller][it]['returns'] = getMockdata(cache[version][it]['returns'], this.admin.authorities)
+
+                                String receivesData = createDataAsJSON(this.apiObject[controller][it]['recieves'], controller, fkeys)
+                                LinkedHashMap returnsData = this.apiObject[controller][it]['returns']
+                                switch (method) {
+                                    case 'DELETE':
+                                        println("${controller}/${it} is DELETE")
+                                        LinkedHashMap output = deleteJSON(endpoint, this.admin.token, returnsData, receivesData)
+                                        output.each() { k, v ->
+                                            this.apiObject[controller]['values'][k] = v
+                                        }
+                                        break
+                                    default:
+                                        //println("ERROR")
+                                        break
+
+                                }
+                            }
+                        }
+
+
+                    }
+                }
             }
         }
-        */
         return false
     }
 
@@ -398,18 +467,23 @@ println(url)
 
         String output = outputStream.toString()
 
-        if(error) {
-            println(error)
-            ArrayList stdErr = error.toString().split( '> \n' )
-            ArrayList response2 = stdErr[1].split("< ")
-            //println("[response2] ${response2} [end response2]")
-        }else{
+        if(output){
             info = new JsonSlurper().parseText(output)
             if(info){
                 return info
             }else{
-                throw new Exception("[TestService: postJSON] ERROR : No output when calling '${endpoint}': ${error}")
+                println(error)
+                //throw new Exception("[ERROR] : ${output} : ${error}")
+                //println("[OUTPUT] : ${output} [END OUTPUT]")
+                //println("[ERROR] : ${error} [END ERROR]")
+                ArrayList stdErr = error.toString().split( '> \n' )
+                ArrayList response1 = stdErr[0].split("> ")
+                ArrayList response2 = stdErr[1].split("< ")
+                //println("[response1] ${response1} [end response1]")
+                //println("[response2] ${response2} [end response2]")
             }
+        }else{
+            throw new Exception("[TestService: getJSON] ERROR : No output when calling '${endpoint}': ${error}")
         }
 
         return info

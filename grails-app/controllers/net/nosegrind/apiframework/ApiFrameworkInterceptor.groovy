@@ -326,10 +326,12 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 			//List unsafeMethods = ['PUT', 'POST', 'DELETE']
 
 			try {
+				// convert model to standardized object
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					Object vals = model.values()
-					if (!model || vals[0] == null) {
+					println("vals:"+vals)
+					if (!model || vals==null) {
 						statsService.setStatsCache(userId, 400, request.requestURI)
 						errorResponse([400,'No resource returned; query was empty'])
 						return false
@@ -340,7 +342,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					newModel = model as LinkedHashMap
 				}
 
-				
+				println("newmodel:"+newModel)
+
 				//ApiDescriptor cachedEndpoint
 				//if(cache) {
 				//	cachedEndpoint = cache[apiObject][action] as ApiDescriptor
@@ -398,6 +401,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							if(controller=='apidoc') {
 								render(text: newModel as JSON, contentType: contentType)
 							}else {
+println("content:"+content)
 								render(text: content, contentType: contentType)
 							}
 							if(cachedEndpoint['hookRoles']) {
@@ -410,6 +414,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				} else {
 					String content = parseResponseMethod(mthd, format, params, newModel)
 					statsService.setStatsCache(userId, response.status, request.requestURI)
+
 					render(text: getContent(content, contentType), contentType: contentType)
 					if(this.cachedEndpoint['hookRoles']) {
 						List hookRoles = this.cachedEndpoint['hookRoles'] as List

@@ -201,12 +201,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     }
 
 	void doInitApiFrameworkInstall(applicationContext) {
-        def userHome = System.getProperty("user.home")
-        if (userHome) {
-            // read .beapi/beapi_api.yml
-            println("USERHOME:"+userHome)
-            println(this.testLoadOrder)
-        }
+        //def userHome = System.getProperty("user.home")
 
 		String basedir = BuildSettings.BASE_DIR
         def ant = new AntBuilder()
@@ -326,19 +321,20 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         def version
         LinkedHashMap LoadOrder = [:]
         String controller
-        
+
         List testLoadOrder = getTestLoadOrder(applicationContext)
-        List first
-        List second
-        List third
-        List testOrder
+        println("testLoadOrder:"+testLoadOrder)
+        //List first
+        //List second
+        //List third
+        //List testOrder
 
         testLoadOrder.each() { it ->
 
-            testOrder = []
-            first = []
-            second = []
-            third = []
+            List testOrder = []
+            List first = []
+            List second = []
+            List third = []
 
             ['POST','GET','PUT','DELETE'].each(){ method ->
 
@@ -351,52 +347,19 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                     if (!['deprecated', 'defaultAction', 'testOrder', 'testUser'].contains(k2)) {
                         ApiDescriptor cachedEndpoint = v2 as ApiDescriptor
                         if (cachedEndpoint['method'] == method) {
-
                             switch (method) {
                                 case 'POST':
-                                    // SET TESTORDER: PRIMARY, PRIMARY/FOREIGN, FOREIGN
-                                    // IF PRIMARY, PUT IN FRONT OF LIST. IF FOREIGN, PUT IN END OF LIST
-                                    println("POST_loadorder:")
-                                    if ((cachedEndpoint['pkey'] && !cachedEndpoint['fkeys']) || (!cachedEndpoint['pkey'] && !cachedEndpoint['fkeys'])) {
-                                        println("POST_loadorder(first):" + k2)
-                                        first.add(k2)
-                                    } else if (cachedEndpoint['pkey'] && cachedEndpoint['fkeys']) {
-                                        println("POST_loadorder(second):" + k2)
-                                        second.add(k2)
-                                    } else {
-                                        println("POST_loadorder(third):" + k2)
-                                        third.add(k2)
-                                    }
-
-                                    break
                                 case 'GET':
-                                    // SET TESTORDER: ANY ORDER
-                                    // SET TESTORDER: PRIMARY, PRIMARY/FOREIGN, FOREIGN
-                                    // IF PRIMARY, PUT IN FRONT OF LIST. IF FOREIGN, PUT IN END OF LIST
-                                    if ((cachedEndpoint['pkey'] && !cachedEndpoint['fkeys']) || (!cachedEndpoint['pkey'] && !cachedEndpoint['fkeys'])) {
-                                        println("GET_loadorder(first):" + k2)
-                                        first.add(k2)
-                                    } else if (cachedEndpoint['pkey'] && cachedEndpoint['fkeys']) {
-                                        println("GET_loadorder(second):" + k2)
-                                        second.add(k2)
-                                    } else {
-                                        println("GET_loadorder(third):" + k2)
-                                        third.add(k2)
-                                    }
-                                    break
                                 case 'PUT':
                                     // SET TESTORDER: PRIMARY, PRIMARY/FOREIGN, FOREIGN
                                     // IF PRIMARY, PUT IN FRONT OF LIST. IF FOREIGN, PUT IN END OF LIST
                                     // SET TESTORDER: PRIMARY, PRIMARY/FOREIGN, FOREIGN
                                     // IF PRIMARY, PUT IN FRONT OF LIST. IF FOREIGN, PUT IN END OF LIST
                                     if ((cachedEndpoint['pkey'] && !cachedEndpoint['fkeys']) || (!cachedEndpoint['pkey'] && !cachedEndpoint['fkeys'])) {
-                                        println("PUT_loadorder(first):" + k2)
                                         first.add(k2)
                                     } else if (cachedEndpoint['pkey'] && cachedEndpoint['fkeys']) {
-                                        println("PUT_loadorder(second):" + k2)
                                         second.add(k2)
                                     } else {
-                                        println("PUT_loadorder(third):" + k2)
                                         third.add(k2)
                                     }
                                     break
@@ -406,13 +369,10 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                                     // SET TESTORDER: PRIMARY, PRIMARY/FOREIGN, FOREIGN
                                     // IF PRIMARY, PUT IN FRONT OF LIST. IF FOREIGN, PUT IN END OF LIST
                                     if (cachedEndpoint['fkeys'] && !cachedEndpoint['pkey']) {
-                                        println("DELETE_loadorder(first):" + k2)
                                         first.add(k2)
                                     } else if (cachedEndpoint['pkey'] && cachedEndpoint['fkeys']) {
-                                        println("DELETE_loadorder(second):" + k2)
                                         second.add(k2)
                                     } else {
-                                        println("DELETE_loadorder(third):" + k2)
                                         third.add(k2)
                                     }
                                     break
@@ -424,22 +384,15 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
                 }
 
-
                 second.addAll(third.unique())
                 first.addAll(second.unique())
                 testOrder.addAll(first.unique())
-
             }
-
-            //println("third2:"+third)
-            //println("second2:"+second)
-            //println("first2:"+first)
 
             second.addAll(third.unique())
             first.addAll(second.unique())
             testOrder = first.unique()
 
-            println("controller_testorder: ${controller} / ${testOrder}")
             cache[version]['testOrder'] = testOrder
 
             cache = apiCacheService.setApiCache(controller,cache)
@@ -497,7 +450,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         first.addAll(second.unique())
 
 
-        //System.setProperty("testLoadOrder", first)
+        System.setProperty("testLoadOrder", first.join(","))
 
         return first
     }
