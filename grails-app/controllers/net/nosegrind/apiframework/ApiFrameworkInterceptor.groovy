@@ -98,7 +98,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * @return
 	 */
 	boolean before(){
-		println("##### INTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
+		//println("##### INTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
 
 
 
@@ -320,7 +320,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * @return
 	 */
 	boolean after() {
-		println("##### INTERCEPTOR (AFTER) - ${params.controller}/${params.action}")
+		//println("##### INTERCEPTOR (AFTER) - ${params.controller}/${params.action}")
 
 		if(model) {
 			//List unsafeMethods = ['PUT', 'POST', 'DELETE']
@@ -330,7 +330,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				LinkedHashMap newModel = [:]
 				if (params.controller != 'apidoc') {
 					Object vals = model.values()
-					println("vals:"+vals)
 					if (!model || vals==null) {
 						statsService.setStatsCache(userId, 400, request.requestURI)
 						errorResponse([400,'No resource returned; query was empty'])
@@ -341,8 +340,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				} else {
 					newModel = model as LinkedHashMap
 				}
-
-				println("newmodel:"+newModel)
 
 				//ApiDescriptor cachedEndpoint
 				//if(cache) {
@@ -401,7 +398,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 							if(controller=='apidoc') {
 								render(text: newModel as JSON, contentType: contentType)
 							}else {
-println("content:"+content)
 								render(text: content, contentType: contentType)
 							}
 							if(cachedEndpoint['hookRoles']) {

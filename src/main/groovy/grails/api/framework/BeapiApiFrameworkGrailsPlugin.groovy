@@ -183,14 +183,8 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 String fileChar1 = fileName.charAt(fileName.length() - 1)
 
                 if (tmp[1] == 'json' && fileChar1== "n") {
-                    //try{
-                        JSONObject json = JSON.parse(file.text)
-                        methods[json.NAME.toString()] = parseJson(json.NAME.toString(), json, applicationContext)
-
-                        //parseJson(json.NAME.toString(), json, applicationContext)
-                    //}catch(Exception e){
-                    //    throw new Exception("[ApiObjectService :: initialize] : Unacceptable file '${file.name}' - full stack trace follows:",e)
-                    //}
+                    JSONObject json = JSON.parse(file.text)
+                    methods[json.NAME.toString()] = parseJson(json.NAME.toString(), json, applicationContext)
                 }else{
                     println(" # Bad File Type [ ${tmp[1]} ]; Ignoring file : ${fileName}")
                 }

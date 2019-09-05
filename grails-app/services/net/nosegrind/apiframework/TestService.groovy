@@ -21,6 +21,7 @@ import grails.util.Holders
 import grails.util.Metadata
 import groovy.json.JsonSlurper
 import grails.core.GrailsApplication
+import org.grails.web.json.JSONObject
 
 /**
  * TestService.
@@ -77,27 +78,15 @@ class TestService {
 
 
     void initTest(){
-        println("### [initTest Users] ###")
         adminLogin()
-        // create recieves mockdata for each controller/action
-
-        // create returns mockdata for each controller/action
-
-        // create JSON from recieves mockdata
-
-        // create call order
         initLoop()
     }
 
     void initLoop(){
         println("### [initTest] ###")
         List testLoadOrder = System.getProperty("testLoadOrder").split(',')
-        println("TESTLOADORDER:"+testLoadOrder)
+
         ['POST','GET','PUT'].each() { method ->
-
-            // Controllers Loop - this needs to be moved into TEST below
-
-            println("testLoadOrder:"+testLoadOrder)
 
             testLoadOrder.each(){ controller ->
 
@@ -114,12 +103,10 @@ class TestService {
                     this.version = this.cache['currentStable']['value']
                     if (cache[version]['testOrder']) {
 
-                        println("testorder:"+cache[version]['testOrder'])
 
                         if(cache[version]['testOrder']) {
                             cache[version]['testOrder'].each() { it ->
 
-                                println("testOrder:" + it)
 
                                 if (!this.apiObject[controller][it]) {
                                     this.apiObject[controller][it] = [:]
@@ -129,13 +116,11 @@ class TestService {
                                 }
 
                                 if (cache[version][it]['method'] == method) {
+
                                     LinkedHashMap fkeys
                                     if (cache[version][it]['fkeys']) {
-                                        println("#### FKEYS ####")
 
-                                        //this.apiObject[controller]['fkeys']
                                         fkeys = getFkeys(cache[version][it]['fkeys'])
-                                        println("fkeys:"+fkeys)
                                     }
 
                                     /*
@@ -143,7 +128,7 @@ class TestService {
                                     check for fkeys and do those first
                                 */
 
-                                    String endpoint = "${this.testDomain}/${this.appVersion}/${controller}/${it}"
+                                    List endpoint = [this.testDomain,this.appVersion,controller,it.toString()]
 
                                     this.apiObject[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'], this.admin.authorities)
                                     this.apiObject[controller][it]['returns'] = getMockdata(cache[version][it]['returns'], this.admin.authorities)
@@ -152,24 +137,31 @@ class TestService {
                                     LinkedHashMap returnsData = this.apiObject[controller][it]['returns']
                                     switch (method) {
                                         case 'POST':
-                                            println("${controller}/${it} is POST")
-                                            LinkedHashMap output = postJSON(endpoint, this.admin.token, returnsData, receivesData)
+                                            //println("${controller}/${it} is POST")
+                                            println(cache['values'])
+                                            def temp = cache['values']
+                                            println(temp.getClass())
+                                            LinkedHashMap output = postJSON(endpoint, this.admin.token, returnsData, receivesData,cache['values'])
                                             output.each() { k, v ->
                                                 this.apiObject[controller]['values'][k] = v
                                             }
-                                            println("### ${controller}:" + this.apiObject[controller]['values'])
                                             break
                                         case 'GET':
-                                            println("${controller}/${it} is GET")
-                                            LinkedHashMap output = getJSON(endpoint, this.admin.token, returnsData, receivesData)
+                                            //println("${controller}/${it} is GET")
+                                            println(cache['values'])
+                                            def temp = cache['values']
+                                            println(temp.getClass())
+                                            LinkedHashMap output = getJSON(endpoint, this.admin.token, returnsData, receivesData,cache['values'])
                                             output.each() { k, v ->
                                                 this.apiObject[controller]['values'][k] = v
                                             }
-                                            println("### ${controller} :" + this.apiObject[controller]['values'])
                                             break
                                         case 'PUT':
-                                            println("${controller}/${it} is PUT")
-                                            LinkedHashMap output = putJSON(endpoint, this.admin.token, returnsData, receivesData)
+                                            //println("${controller}/${it} is PUT")
+                                            println(cache['values'])
+                                            def temp = cache['values']
+                                            println(temp.getClass())
+                                            LinkedHashMap output = putJSON(endpoint, this.admin.token, returnsData, receivesData,cache['values'])
                                             output.each() { k, v ->
                                                 this.apiObject[controller]['values'][k] = v
                                             }
@@ -187,22 +179,8 @@ class TestService {
                 }
             }
         }
-        println("TESTLOADORDER:"+testLoadOrder)
+
         cleanupTest(testLoadOrder)
-    }
-
-
-    private boolean findDomainClass(String className){
-        try{
-            Class clazz = grailsApplication.domainClasses.find { it.clazz.simpleName == className }.clazz
-            if(clazz){
-                return true
-            }else{
-                return false
-            }
-        }catch(Exception e){
-            throw new Exception("[TestService : findDomainClass] : ERROR - No Domain Class of the name '${className}' exists. Please check spelling/case for 'testLoadOrder' in beapi_api.yml and try again.",e)
-        }
     }
 
     private LinkedHashMap getFkeys(LinkedHashSet fkeys){
@@ -210,13 +188,11 @@ class TestService {
         fkeys.each() { it ->
             it.each(){ k,v ->
                 String tempController = v.uncapitalize()
-                println("${k} / ${tempController}")
                 if(this.apiObject[tempController]) {
                     keys[k] = this.apiObject[tempController]['values']['id']
                 }
             }
         }
-        println("fkeys:"+keys)
         return keys
     }
 
@@ -244,11 +220,9 @@ class TestService {
 
 
     private String createDataAsJSON(LinkedHashMap mockdata, String controller, LinkedHashMap fkeys){
-        println("CreateDataAsJSON[fkeys]:"+fkeys)
-        //try{
+        try{
             String data = "{"
             mockdata.each(){ k, v ->
-                    println("${k}/ ${v}")
                     String key = k
                     if(fkeys){
                         if (fkeys[k]){
@@ -256,7 +230,6 @@ class TestService {
                         }
                     }else{
                         if(this.apiObject[controller]['values'][k]){
-                            println("apiobject exists...")
                             data += "'${key}': '" + this.apiObject[controller]['values'][k] + "',"
                         }else if(v){
                             data += "'${key}': '" + v + "',"
@@ -264,35 +237,24 @@ class TestService {
                     }
             }
             data += "}"
-            println("data:"+data)
             return data
-        //}catch(Exception e){
-        //    throw new Exception("[TestService : createDataAsJSON] : ERROR- Exception follows : ",e)
-        //}
+        }catch(Exception e){
+            throw new Exception("[TestService : createDataAsJSON] : ERROR- Exception follows : ",e)
+        }
     }
 
     boolean cleanupTest(List testLoadOrder){
         println("### [CleanupTest and Exit] ###")
 
         testLoadOrder = testLoadOrder.reverse()
-        
-println("TESTLOADORDER:"+testLoadOrder)
-
         ['DELETE'].each() { method ->
-
-
-            // Controllers Loop - this needs to be moved into TEST below
             testLoadOrder.each(){ controller ->
-
                 this.cache = getApiCache(controller)
 
-
-                // TODO: test to see if cache exists for each controller name
 
                 if(!this.apiObject[controller]) {
                     this.apiObject[controller] = [:]
                 }
-
                 if (cache) {
                     this.version = this.cache['currentStable']['value']
                     if (cache[version]['testOrder']) {
@@ -300,10 +262,8 @@ println("TESTLOADORDER:"+testLoadOrder)
 
                         List newTestOrder = cache[version]['testOrder'].reverse()
 
-                        println("NEWTESTORDER:"+newTestOrder)
                         newTestOrder.each() { it ->
 
-                            println("testOrder:" + it)
 
                             if (!this.apiObject[controller][it]) {
                                 this.apiObject[controller][it] = [:]
@@ -315,17 +275,9 @@ println("TESTLOADORDER:"+testLoadOrder)
                             if (cache[version][it]['method'] == method) {
                                 LinkedHashMap fkeys
                                 if (cache[version][it]['fkeys']) {
-                                    println("#### FKEYS ####")
-
-                                    //this.apiObject[controller]['fkeys']
                                     fkeys = getFkeys(cache[version][it]['fkeys'])
-                                    println("fkeys:"+fkeys)
                                 }
 
-                                /*
-                            if(method=='DELETE'){
-                                check for fkeys and do those first
-                            */
 
                                 String endpoint = "${this.testDomain}/${this.appVersion}/${controller}/${it}"
 
@@ -336,8 +288,7 @@ println("TESTLOADORDER:"+testLoadOrder)
                                 LinkedHashMap returnsData = this.apiObject[controller][it]['returns']
                                 switch (method) {
                                     case 'DELETE':
-                                        println("${controller}/${it} is DELETE")
-                                        LinkedHashMap output = deleteJSON(endpoint, this.admin.token, returnsData, receivesData)
+                                        LinkedHashMap output = deleteJSON(endpoint, this.admin.token, returnsData, receivesData,cache['values']['pkey'],cache['values']['fkeys'])
                                         output.each() { k, v ->
                                             this.apiObject[controller]['values'][k] = v
                                         }
@@ -413,15 +364,18 @@ println("TESTLOADORDER:"+testLoadOrder)
         }
     }
 
-    private LinkedHashMap getJSON(String endpoint, String token, LinkedHashMap returnsData, String receivesData=null){
+    private LinkedHashMap getJSON(List endpoint, String token, LinkedHashMap returnsData, String receivesData=null, JSONObject values){
+        String newEndpoint = "${endpoint[0]}/${endpoint[1]}/${endpoint[2]}/${endpoint[3]}"
+
+        println("[GET TEST for ${newEndpoint}] - starting")
         def info
         String url
         if(receivesData) {
-            url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request GET -d '${receivesData}' ${endpoint}"
+            url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request GET -d '${receivesData}' ${newEndpoint}"
         }else{
-            url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request GET ${endpoint}"
+            url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request GET ${newEndpoint}"
         }
-println(url)
+
         def proc = ['bash','-c',"${url}"].execute()
         proc.waitFor()
         StringBuffer outputStream = new StringBuffer()
@@ -432,32 +386,44 @@ println(url)
 
         if(output){
             info = new JsonSlurper().parseText(output)
-            if(info){
-                return info
-            }else{
-                println(error)
-                //throw new Exception("[ERROR] : ${output} : ${error}")
-                //println("[OUTPUT] : ${output} [END OUTPUT]")
-                //println("[ERROR] : ${error} [END ERROR]")
-                ArrayList stdErr = error.toString().split( '> \n' )
-                ArrayList response1 = stdErr[0].split("> ")
-                ArrayList response2 = stdErr[1].split("< ")
-                //println("[response1] ${response1} [end response1]")
-                //println("[response2] ${response2} [end response2]")
-            }
         }else{
-            throw new Exception("[TestService: getJSON] ERROR : No output when calling '${endpoint}': ${error}")
+            throw new Exception("[TestService: getJSON] ERROR : No output when calling '${newEndpoint}': ${error}")
         }
+
+        println(returnsData)
+        println(info)
+
+
+        info.each(){ k,v ->
+            if(endpoint[3]=='list'){
+                println("### LIST ###")
+                println(info.getClass())
+                println(k.getClass())
+            }else {
+                println("### NOTLIST ###")
+                println(info.getClass())
+                println(k.getClass())
+                if (!['PRIMARY', 'FOREIGN'].contains(values[k]['key']) && k!='version') {
+                    println("type:" + values[k]['key'])
+                    assert returnsData[k].toString() == info[k].toString()
+                }
+            }
+        }
+
+        println("[GET TEST for ${newEndpoint}] - ending")
 	    return info
     }
 
+    // TODO
     void getXML(String endpoint, String token, LinkedHashMap returnsData, String receivesData=null){
 
     }
 
-    private LinkedHashMap putJSON(String endpoint, String token, LinkedHashMap returnsData, String receivesData){
+    private LinkedHashMap putJSON(List endpoint, String token, LinkedHashMap returnsData, String receivesData, JSONObject values){
+        String newEndpoint = "${endpoint[0]}/${endpoint[1]}/${endpoint[2]}/${endpoint[3]}"
+        println("[PUT TEST for ${newEndpoint}] - starting")
         def info
-        String url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request PUT -d '${receivesData}' ${endpoint}"
+        String url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request PUT -d '${receivesData}' ${newEndpoint}"
         println(url)
         def proc = ['bash','-c',"${url}"].execute()
         proc.waitFor()
@@ -469,33 +435,43 @@ println(url)
 
         if(output){
             info = new JsonSlurper().parseText(output)
-            if(info){
-                return info
-            }else{
-                println(error)
-                //throw new Exception("[ERROR] : ${output} : ${error}")
-                //println("[OUTPUT] : ${output} [END OUTPUT]")
-                //println("[ERROR] : ${error} [END ERROR]")
-                ArrayList stdErr = error.toString().split( '> \n' )
-                ArrayList response1 = stdErr[0].split("> ")
-                ArrayList response2 = stdErr[1].split("< ")
-                //println("[response1] ${response1} [end response1]")
-                //println("[response2] ${response2} [end response2]")
-            }
         }else{
-            throw new Exception("[TestService: getJSON] ERROR : No output when calling '${endpoint}': ${error}")
+            throw new Exception("[TestService: putJSON] ERROR : No output when calling '${newEndpoint}': ${error}")
         }
 
+        println(returnsData)
+        println(info)
+
+        info.each(){ k,v ->
+            if(endpoint[3]=='list'){
+                println("### LIST ###")
+                println(info.getClass())
+                println(k.getClass())
+            }else {
+                println("### NOTLIST ###")
+                println(info.getClass())
+                println(k.getClass())
+                if (!['PRIMARY', 'FOREIGN'].contains(values[k]['key']) && k!='version') {
+                    println("type:" + values[k]['key'])
+                    assert returnsData[k].toString() == info[k].toString()
+                }
+            }
+        }
+
+        println("[PUT TEST for ${newEndpoint}] - ending")
         return info
     }
 
+    // TODO
     void putXML(String endpoint, String token, LinkedHashMap returnsData, String receivesData){
 
     }
 
-    private LinkedHashMap postJSON(String endpoint, String token, LinkedHashMap returnsData, String receivesData){
+    private LinkedHashMap postJSON(List endpoint, String token, LinkedHashMap returnsData, String receivesData, JSONObject values){
+        String newEndpoint = "${endpoint[0]}/${endpoint[1]}/${endpoint[2]}/${endpoint[3]}"
+        println("[POST TEST for ${newEndpoint}] - starting")
         def info
-        String url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request POST -d '${receivesData}' ${endpoint}"
+        String url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request POST -d '${receivesData}' ${newEndpoint}"
         println(url)
         def proc = ['bash','-c',"${url}"].execute()
         proc.waitFor()
@@ -507,31 +483,43 @@ println(url)
 
         if(output){
             info = new JsonSlurper().parseText(output)
-            if(info){
-                return info
-            }else{
-                println(error)
-                //throw new Exception("[ERROR] : ${output} : ${error}")
-                //println("[OUTPUT] : ${output} [END OUTPUT]")
-                //println("[ERROR] : ${error} [END ERROR]")
-                ArrayList stdErr = error.toString().split( '> \n' )
-                //ArrayList response1 = stdErr[0].split("> ")
-                ArrayList response2 = stdErr[1].split("< ")
-                //println("[response2] ${response2} [end response2]")
-            }
         }else{
-            throw new Exception("[TestService: postJSON] ERROR : No output when calling '${endpoint}': ${error}")
+            throw new Exception("[TestService: postJSON] ERROR : No output when calling '${newEndpoint}': ${error}")
         }
+
+        println(returnsData)
+        println(info)
+
+        info.each(){ k,v ->
+            if(endpoint[3]=='list'){
+                println("### LIST ###")
+                println(info.getClass())
+                println(k.getClass())
+            }else {
+                println("### NOTLIST ###")
+                println(info.getClass())
+                println(k.getClass())
+                if (!['PRIMARY', 'FOREIGN'].contains(values[k]['key']) && k!='version') {
+                    println("key:" + values[k]['key'])
+                    assert returnsData[k].toString() == info[k].toString()
+                }
+            }
+        }
+
+        println("[POST TEST for ${newEndpoint}] - ending")
         return info
     }
 
+    // TODO
     void postXML(String endpoint, String token, LinkedHashMap returnsData, String receivesData){
 
     }
 
-    private LinkedHashMap deleteJSON(String endpoint, String token, LinkedHashMap returnsData, String receivesData){
+    private LinkedHashMap deleteJSON(List endpoint, String token, LinkedHashMap returnsData, String receivesData, JSONObject values){
+        String newEndpoint = "${endpoint[0]}/${endpoint[1]}/${endpoint[2]}/${endpoint[3]}"
+        println("[DELETE TEST for ${newEndpoint}] - starting")
         def info
-        String url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request DELETE -d '${receivesData}' ${endpoint}"
+        String url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request DELETE -d '${receivesData}' ${newEndpoint}"
         println(url)
         def proc = ['bash','-c',"${url}"].execute()
         proc.waitFor()
@@ -543,24 +531,35 @@ println(url)
 
         if(output){
             info = new JsonSlurper().parseText(output)
-            if(info){
-                return info
-            }else{
-                println(error)
-                //throw new Exception("[ERROR] : ${output} : ${error}")
-                //println("[OUTPUT] : ${output} [END OUTPUT]")
-                //println("[ERROR] : ${error} [END ERROR]")
-                ArrayList stdErr = error.toString().split( '> \n' )
-                //ArrayList response1 = stdErr[0].split("> ")
-                ArrayList response2 = stdErr[1].split("< ")
-               // println("[response2] ${response2} [end response2]")
-            }
         }else{
-            throw new Exception("[TestService: postJSON] ERROR : No output when calling '${endpoint}': ${error}")
+            throw new Exception("[TestService: deleteJSON] ERROR : No output when calling '${newEndpoint}': ${error}")
         }
+
+        println(returnsData)
+        println(info)
+
+        info.each(){ k,v ->
+            if(endpoint[3]=='list'){
+                println("### LIST ###")
+                println(info.getClass())
+                println(k.getClass())
+            }else {
+                println("### NOTLIST ###")
+                println(info.getClass())
+                println(k.getClass())
+                if (!['PRIMARY', 'FOREIGN'].contains(values[k]['key']) && k!='version') {
+                    println("type:" + values[k]['key'])
+                    assert returnsData[k].toString() == info[k].toString()
+                }
+            }
+        }
+
+
+        println("[DELETE TEST for ${newEndpoint}] - ending")
         return info
     }
 
+    // TODO
     void deleteXML(String endpoint, String token, LinkedHashMap returnsData, String receivesData){
 
     }
