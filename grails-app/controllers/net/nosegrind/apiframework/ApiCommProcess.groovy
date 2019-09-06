@@ -325,7 +325,8 @@ abstract class ApiCommProcess{
      * @return LinkedHashMap parses all data for expected response params for users ROLE
      */
     LinkedHashMap parseURIDefinitions(LinkedHashMap model,ArrayList responseList){
-        if(!model[0].isEmpty()) {
+
+        if(model[0]!=[]) {
             if (model[0].getClass().getName() == 'java.util.LinkedHashMap') {
                 /**
                  * Do not leave this try/catch in... only use for testing; will throw error that can be ignored
@@ -363,7 +364,7 @@ abstract class ApiCommProcess{
                 }
             }
         }else{
-            throw new Exception('[ApiCommProcess :: parseURIDefinitions] : Exception - Empty model sent for processing :', e)
+            return [:]
         }
     }
 

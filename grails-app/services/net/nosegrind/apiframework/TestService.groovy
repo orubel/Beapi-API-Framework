@@ -404,8 +404,8 @@ class TestService {
         String controller = endpoint[2]
         String action = endpoint[3]
 
-        def recieves = new JsonSlurper().parseText(receivesData.replaceAll("'","\""))
-        def returns = this.apiObject[controller][action]['returns']
+        //def recieves = new JsonSlurper().parseText(receivesData.replaceAll("'","\""))
+        //def returns = this.apiObject[controller][action]['returns']
 
         println("[GET TEST for ${newEndpoint}] - starting")
         def info
@@ -430,29 +430,19 @@ class TestService {
             throw new Exception("[TestService: getJSON] ERROR : No output when calling '${newEndpoint}': ${error}")
         }
 
-        println(returnsData)
-        println(info)
 
-
-
-
-            //println("values:"+values[k]['key'])
-
-            // TODO : regex to see if action contains string '[l|L]ist'
-            if(action=='list'){
-println(controller)
-                Class clazz = grailsApplication.domainClasses.find { it.clazz.simpleName == controller.capitalize() }.clazz
-                def clazzSize = clazz.count()
-                println("TEST: ${info.size()} == ${clazzSize}")
-
-            }else {
-                info.each() { k, v ->
-                    if (!['PRIMARY', 'FOREIGN'].contains(values[k]['key']) && k != 'version') {
-                        println("key:" + values[k]['key'])
-                        assert returnsData[k].toString() == info[k].toString()
-                    }
+        // TODO : regex to see if action contains string '[l|L]ist'
+        if(action=='list'){
+            Class clazz = grailsApplication.domainClasses.find { it.clazz.simpleName == controller.capitalize() }.clazz
+            println("LISTTEST: ${info.size()} == ${clazz.count()}")
+            assert info.size()==clazz.count()
+        }else {
+            info.each() { k, v ->
+                if (!['PRIMARY', 'FOREIGN'].contains(values[k]['key']) && k != 'version') {
+                    assert returnsData[k].toString() == info[k].toString()
                 }
             }
+        }
 
 
         println("[GET TEST for ${newEndpoint}] - ending")
@@ -473,6 +463,9 @@ println(controller)
         def returns = this.apiObject[controller][action]['returns']
 
         println("[PUT TEST for ${newEndpoint}] - starting")
+
+        // TODO: check for differences from recieves and 'info'
+
         def info
         String url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request PUT -d '${receivesData}' ${newEndpoint}"
 println(url)
@@ -493,11 +486,14 @@ println(url)
         println(returnsData)
         println(info)
 
-        List returnedKeys = new ArrayList(info.keySet())
-        List expectedKeys = mew ArrayList(returnsData.keySet())
+        if(info.version){
+            assert info.version.toInteger()==((returnsData.version.toInteger())+1)
+        }
 
-        // compare recievesData
-        returnedKeys.size() == expectedKeys.intersect(returnedKeys).size()
+        List returnedKeys = new ArrayList(info.keySet())
+        List expectedKeys = new ArrayList(returnsData.keySet())
+
+        assert returnedKeys.size() == expectedKeys.intersect(returnedKeys).size()
 
 
         println("[PUT TEST for ${newEndpoint}] - ending")
