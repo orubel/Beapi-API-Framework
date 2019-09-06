@@ -323,7 +323,7 @@ class TestService {
                                         String receivesData = createDataAsJSON(this.apiObject[controller][it]['recieves'], controller, fkeys)
                                         LinkedHashMap returnsData = createReturnsData(this.apiObject[controller][it]['returns'],controller, fkeys)
 
-                                        LinkedHashMap output = deleteJSON(endpoint, this.admin.token, returnsData, receivesData,cache['values']['pkey'],cache['values']['fkeys'])
+                                        LinkedHashMap output = deleteJSON(endpoint, this.admin.token, returnsData, receivesData,cache['values'])
                                         output.each() { k, v ->
                                             this.apiObject[controller]['values'][k] = v
                                         }
@@ -552,7 +552,7 @@ println(url)
 
     }
 
-    private LinkedHashMap deleteJSON(List endpoint, String token, LinkedHashMap returnsData, String receivesData, JSONObject values){
+    private LinkedHashMap deleteJSON(List endpoint, String token, LinkedHashMap returnsData, String receivesData=null, JSONObject values){
         String newEndpoint = "${endpoint[0]}/${endpoint[1]}/${endpoint[2]}/${endpoint[3]}"
         String controller = endpoint[2]
         String action = endpoint[3]
