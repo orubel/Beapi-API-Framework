@@ -325,41 +325,45 @@ abstract class ApiCommProcess{
      * @return LinkedHashMap parses all data for expected response params for users ROLE
      */
     LinkedHashMap parseURIDefinitions(LinkedHashMap model,ArrayList responseList){
-        if(model[0].getClass().getName()=='java.util.LinkedHashMap') {
-            /**
-             * Do not leave this try/catch in... only use for testing; will throw error that can be ignored
-             */
-            //try {
+        if(!model[0].isEmpty()) {
+            if (model[0].getClass().getName() == 'java.util.LinkedHashMap') {
+                /**
+                 * Do not leave this try/catch in... only use for testing; will throw error that can be ignored
+                 */
+                //try {
                 model.each() { key, val ->
                     //println("### parseURIDefinitions : ${key} / ${val} ###")
                     model[key] = parseURIDefinitions(val, responseList)
                 }
                 return model
-            //}catch(Exception e){
-            //    throw new Exception('[ApiCommProcess :: parseURIDefinitions] : Exception - full stack trace follows:', e)
-            //}
-        }else{
-            try {
-                ArrayList paramsList = (model.size()==0)?[:]:model.keySet() as ArrayList
-                paramsList?.removeAll(optionalParams)
-                if (!responseList.containsAll(paramsList)) {
-                    paramsList.removeAll(responseList)
-                    paramsList.each() { it2 ->
-                        model.remove(it2.toString())
-                    }
+                //}catch(Exception e){
+                //    throw new Exception('[ApiCommProcess :: parseURIDefinitions] : Exception - full stack trace follows:', e)
+                //}
+            } else {
+                try {
+                    ArrayList paramsList = (model.size() == 0) ? [:] : model.keySet() as ArrayList
+                    paramsList?.removeAll(optionalParams)
+                    if (!responseList.containsAll(paramsList)) {
+                        paramsList.removeAll(responseList)
+                        paramsList.each() { it2 ->
+                            model.remove(it2.toString())
+                        }
 
-                    if (!paramsList) {
-                        return [:]
+                        if (!paramsList) {
+                            return [:]
+                        } else {
+                            return model
+                        }
                     } else {
                         return model
                     }
-                } else {
-                    return model
-                }
 
-            } catch (Exception e) {
-                throw new Exception('[ApiCommProcess :: parseURIDefinitions] : Exception - full stack trace follows:', e)
+                } catch (Exception e) {
+                    throw new Exception('[ApiCommProcess :: parseURIDefinitions] : Exception - full stack trace follows:', e)
+                }
             }
+        }else{
+            throw new Exception('[ApiCommProcess :: parseURIDefinitions] : Exception - Empty model sent for processing :', e)
         }
     }
 
