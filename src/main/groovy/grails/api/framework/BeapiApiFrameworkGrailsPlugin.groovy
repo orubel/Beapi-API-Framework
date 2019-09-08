@@ -317,11 +317,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         String controller
 
         List testLoadOrder = getTestLoadOrder(applicationContext)
-        println("testLoadOrder:"+testLoadOrder)
-        //List first
-        //List second
-        //List third
-        //List testOrder
+
 
         testLoadOrder.each() { it ->
 

@@ -325,20 +325,19 @@ abstract class ApiCommProcess{
      * @return LinkedHashMap parses all data for expected response params for users ROLE
      */
     LinkedHashMap parseURIDefinitions(LinkedHashMap model,ArrayList responseList){
-
-        if(model[0]!=[]) {
-            if (model[0].getClass().getName() == 'java.util.LinkedHashMap') {
+        if(model["0"]!=[]) {
+            if (model["0"].getClass().getName() == 'java.util.LinkedHashMap') {
                 /**
                  * Do not leave this try/catch in... only use for testing; will throw error that can be ignored
                  */
                 //try {
-                model.each() { key, val ->
-                    //println("### parseURIDefinitions : ${key} / ${val} ###")
-                    model[key] = parseURIDefinitions(val, responseList)
-                }
-                return model
+                    model.sort()
+                    model.each() { key, val ->
+                        model[key] = parseURIDefinitions(val, responseList)
+                    }
+                    return model
                 //}catch(Exception e){
-                //    throw new Exception('[ApiCommProcess :: parseURIDefinitions] : Exception - full stack trace follows:', e)
+                    //throw new Exception('[ApiCommProcess :: parseURIDefinitions] : Exception - full stack trace follows:', e)
                 //}
             } else {
                 try {
@@ -543,21 +542,19 @@ abstract class ApiCommProcess{
     LinkedHashMap formatList(List list){
         LinkedHashMap newMap = [:]
         if(list) {
-            GParsPool.withPool(this.cores, {
-                list.eachWithIndexParallel() { val, key ->
-                    if (val) {
-                        if (val instanceof java.util.ArrayList || val instanceof java.util.List) {
-                            newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? val : val.toString()
+            list.eachWithIndex() { val, key ->
+                if (val) {
+                    if (val instanceof java.util.ArrayList || val instanceof java.util.List) {
+                        newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? val : val.toString()
+                    } else {
+                        if (DomainClassArtefactHandler?.isDomainClass(val.getClass())) {
+                            newMap[key] = formatDomainObject(val)
                         } else {
-                            if (DomainClassArtefactHandler?.isDomainClass(val.getClass())) {
-                                newMap[key] = formatDomainObject(val)
-                            } else {
-                                newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? list[key] : val.toString()
-                            }
+                            newMap[key] = ((val in java.util.ArrayList || val in java.util.List) || val in java.util.Map) ? list[key] : val.toString()
                         }
                     }
                 }
-            })
+            }
         }
         return newMap
     }
