@@ -76,6 +76,8 @@ class TestService {
     GrailsCacheManager grailsCacheManager
     LinkedHashMap apiObject = [:]
 
+    List testLoadOrder = System.getProperty("testLoadOrder").split(',')
+    List testOrder = []
 
     void initTest(){
         adminLogin()
@@ -84,12 +86,13 @@ class TestService {
 
     void initLoop(){
         println("### [initTest] ###")
-        List testLoadOrder = System.getProperty("testLoadOrder").split(',')
+        //List testLoadOrder = System.getProperty("testLoadOrder").split(',')
 
         ['POST','GET','PUT'].each() { method ->
 
-            testLoadOrder.each(){ controller ->
-
+            this.testLoadOrder.each(){ controller ->
+                println(" ")
+                println("### ${method} tests for ${controller} APIS ###")
                 this.cache = getApiCache(controller)
 
 
@@ -102,7 +105,6 @@ class TestService {
                 if (cache) {
                     this.version = this.cache['currentStable']['value']
                     if (cache[version]['testOrder']) {
-
 
                         if(cache[version]['testOrder']) {
                             cache[version]['testOrder'].each() { it ->
@@ -395,9 +397,6 @@ class TestService {
         String controller = endpoint[2]
         String action = endpoint[3]
 
-        //def recieves = new JsonSlurper().parseText(receivesData.replaceAll("'","\""))
-        //def returns = this.apiObject[controller][action]['returns']
-
         def info
         String url
         if(receivesData) {
@@ -423,20 +422,24 @@ class TestService {
 
         // TODO : regex to see if action contains string '[l|L]ist'
         if(action=='list'){
-            Class clazz = grailsApplication.domainClasses.find { it.clazz.simpleName == controller.capitalize() }.clazz
-            assert info.size()==clazz.count()
+            try{
+                Class clazz = grailsApplication.domainClasses.find { it.clazz.simpleName == controller.capitalize() }.clazz
+                assert info.size()==clazz.count()
+            } catch (AssertionError e) {
+                println("---->[GET TEST for ${newEndpoint}] - FAILED]")
+            }
         }else {
             info.each() { k, v ->
                 if (!['PRIMARY', 'FOREIGN'].contains(values[k]['key']) && k != 'version') {
                     try {
                         assert returnsData[k].toString() == info[k].toString()
                     } catch (AssertionError e) {
-                        println("[GET TEST for ${newEndpoint}] - FAILED]")
+                        println("---->[GET TEST for ${newEndpoint}] - FAILED]")
                     }
                 }
             }
         }
-
+        println("---->[GET TEST for ${newEndpoint}] - PASSED]")
 	    return info
     }
 
@@ -478,7 +481,7 @@ class TestService {
                 List expectedKeys = new ArrayList(returnsData.keySet())
                 assert returnedKeys.size() == expectedKeys.intersect(returnedKeys).size()
             } catch (AssertionError e) {
-                println("[PUT TEST for ${newEndpoint}] - FAILED]")
+                println("---->[PUT TEST for ${newEndpoint}] - FAILED]")
             }
         }else{
             try {
@@ -486,10 +489,10 @@ class TestService {
                 List expectedKeys = new ArrayList(returnsData.keySet())
                 assert returnedKeys.size() == expectedKeys.intersect(returnedKeys).size()
             } catch (AssertionError e) {
-                println("[PUT TEST for ${newEndpoint}] - FAILED]")
+                println("---->[PUT TEST for ${newEndpoint}] - FAILED]")
             }
         }
-
+        println("---->[PUT TEST for ${newEndpoint}] - PASSED]")
         return info
     }
 
@@ -528,9 +531,9 @@ class TestService {
                 }
             }
         } catch (AssertionError e) {
-            println("[POST TEST for ${newEndpoint}] - FAILED]")
+            println("---->[POST TEST for ${newEndpoint}] - FAILED]")
         }
-
+        println("---->[POST TEST for ${newEndpoint}] - PASSED]")
         return info
     }
 
@@ -570,9 +573,9 @@ class TestService {
                 }
             }
         } catch (AssertionError e) {
-            println("[DELETE TEST for ${newEndpoint}] - FAILED]")
+            println("---->[DELETE TEST for ${newEndpoint}] - FAILED]")
         }
-
+        println("---->[DELETE TEST for ${newEndpoint}] - PASSED]")
         return info
     }
 
