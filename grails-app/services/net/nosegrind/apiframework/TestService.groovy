@@ -67,11 +67,10 @@ class TestService {
     LinkedHashMap admin
     LinkedHashMap user
 
-    //List testLoadOrder = Holders.grailsApplication.config.apitoolkit.testLoadOrder
     String testDomain = Holders.grailsApplication.config.environments.test.grails.serverURL
     String appVersion = "v${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
     String loginUri
-    LinkedHashMap userMockData
+
     GrailsApplication grailsApplication
     GrailsCacheManager grailsCacheManager
     LinkedHashMap apiObject = [:]
@@ -79,12 +78,9 @@ class TestService {
     List testLoadOrder = System.getProperty("testLoadOrder").split(',')
     List testOrder = []
 
+
     void initTest(){
         adminLogin()
-        initLoop()
-    }
-
-    void initLoop(){
         println("### [initTest] ###")
         //List testLoadOrder = System.getProperty("testLoadOrder").split(',')
 
@@ -397,35 +393,14 @@ class TestService {
         String controller = endpoint[2]
         String action = endpoint[3]
 
-        def info
-        String url
-        if(receivesData) {
-            url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request GET -d '${receivesData}' ${newEndpoint}"
-        }else{
-            url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request GET ${newEndpoint}"
-        }
-
-        def proc = ['bash','-c',"${url}"].execute()
-        proc.waitFor()
-        StringBuffer outputStream = new StringBuffer()
-        StringWriter error = new StringWriter()
-        proc.waitForProcessOutput(outputStream, error)
-
-        String output = outputStream.toString()
-
-        if(output){
-            info = new JsonSlurper().parseText(output)
-        }else{
-            throw new Exception("[TestService: getJSON] ERROR : No output when calling '${newEndpoint}': ${error}")
-        }
-
+        def info = (receivesData) ? callJSON('GET', token, receivesData, newEndpoint) : callJSON('GET', token, null, newEndpoint)
 
         // TODO : regex to see if action contains string '[l|L]ist'
         if(action=='list'){
             try{
                 Class clazz = grailsApplication.domainClasses.find { it.clazz.simpleName == controller.capitalize() }.clazz
                 assert info.size()==clazz.count()
-            } catch (AssertionError e) {
+            } catch (Exception e) {
                 println("---->[GET TEST for ${newEndpoint}] - FAILED]")
             }
         }else {
@@ -433,7 +408,7 @@ class TestService {
                 if (!['PRIMARY', 'FOREIGN'].contains(values[k]['key']) && k != 'version') {
                     try {
                         assert returnsData[k].toString() == info[k].toString()
-                    } catch (AssertionError e) {
+                    } catch (Exception e) {
                         println("---->[GET TEST for ${newEndpoint}] - FAILED]")
                     }
                 }
@@ -450,48 +425,22 @@ class TestService {
 
     private LinkedHashMap putJSON(List endpoint, String token, LinkedHashMap returnsData, String receivesData, JSONObject values){
         String newEndpoint = "${endpoint[0]}/${endpoint[1]}/${endpoint[2]}/${endpoint[3]}"
-        String controller = endpoint[2]
-        String action = endpoint[3]
 
+        def info= callJSON('PUT', token, receivesData, newEndpoint)
+        List returnedKeys = new ArrayList(info.keySet())
+        List expectedKeys = new ArrayList(returnsData.keySet())
+        try {
+            if(info.version){
 
-        // TODO: check for differences from recieves and 'info'
+                    assert info.version.toInteger()==((returnsData.version.toInteger())+1)
 
-        def info
-        String url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request PUT -d '${receivesData}' ${newEndpoint}"
+            }
+            assert returnedKeys.size() == expectedKeys.intersect(returnedKeys).size()
 
-        def proc = ['bash','-c',"${url}"].execute()
-        proc.waitFor()
-        StringBuffer outputStream = new StringBuffer()
-        StringWriter error = new StringWriter()
-        proc.waitForProcessOutput(outputStream, error)
-
-        String output = outputStream.toString()
-
-        if(output){
-            info = new JsonSlurper().parseText(output)
-        }else{
-            throw new Exception("[TestService: putJSON] ERROR : No output when calling '${newEndpoint}': ${error}")
+        } catch (Exception e) {
+            println("---->[PUT TEST for ${newEndpoint}] - FAILED]")
         }
 
-
-        if(info.version){
-            try {
-                assert info.version.toInteger()==((returnsData.version.toInteger())+1)
-                List returnedKeys = new ArrayList(info.keySet())
-                List expectedKeys = new ArrayList(returnsData.keySet())
-                assert returnedKeys.size() == expectedKeys.intersect(returnedKeys).size()
-            } catch (AssertionError e) {
-                println("---->[PUT TEST for ${newEndpoint}] - FAILED]")
-            }
-        }else{
-            try {
-                List returnedKeys = new ArrayList(info.keySet())
-                List expectedKeys = new ArrayList(returnsData.keySet())
-                assert returnedKeys.size() == expectedKeys.intersect(returnedKeys).size()
-            } catch (AssertionError e) {
-                println("---->[PUT TEST for ${newEndpoint}] - FAILED]")
-            }
-        }
         println("---->[PUT TEST for ${newEndpoint}] - PASSED]")
         return info
     }
@@ -503,26 +452,8 @@ class TestService {
 
     private LinkedHashMap postJSON(List endpoint, String token, LinkedHashMap returnsData, String receivesData, JSONObject values){
         String newEndpoint = "${endpoint[0]}/${endpoint[1]}/${endpoint[2]}/${endpoint[3]}"
-        String controller = endpoint[2]
-        String action = endpoint[3]
 
-
-        def info
-        String url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request POST -d '${receivesData}' ${newEndpoint}"
-
-        def proc = ['bash','-c',"${url}"].execute()
-        proc.waitFor()
-        StringBuffer outputStream = new StringBuffer()
-        StringWriter error = new StringWriter()
-        proc.waitForProcessOutput(outputStream, error)
-
-        String output = outputStream.toString()
-
-        if(output){
-            info = new JsonSlurper().parseText(output)
-        }else{
-            throw new Exception("[TestService: postJSON] ERROR : No output when calling '${newEndpoint}': ${error}")
-        }
+        def info = callJSON('POST', token, receivesData, newEndpoint)
 
         try {
             info.each(){ k,v ->
@@ -530,7 +461,7 @@ class TestService {
                     assert returnsData[k].toString() == info[k].toString()
                 }
             }
-        } catch (AssertionError e) {
+        } catch (Exception e) {
             println("---->[POST TEST for ${newEndpoint}] - FAILED]")
         }
         println("---->[POST TEST for ${newEndpoint}] - PASSED]")
@@ -544,27 +475,8 @@ class TestService {
 
     private LinkedHashMap deleteJSON(List endpoint, String token, LinkedHashMap returnsData, String receivesData=null, JSONObject values){
         String newEndpoint = "${endpoint[0]}/${endpoint[1]}/${endpoint[2]}/${endpoint[3]}"
-        String controller = endpoint[2]
-        String action = endpoint[3]
 
-
-        def info
-        String url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request DELETE -d '${receivesData}' ${newEndpoint}"
-
-        def proc = ['bash','-c',"${url}"].execute()
-        proc.waitFor()
-        StringBuffer outputStream = new StringBuffer()
-        StringWriter error = new StringWriter()
-        proc.waitForProcessOutput(outputStream, error)
-
-        String output = outputStream.toString()
-
-        if(output){
-            info = new JsonSlurper().parseText(output)
-        }else{
-            throw new Exception("[TestService: deleteJSON] ERROR : No output when calling '${newEndpoint}': ${error}")
-        }
-
+        def info = callJSON('DELETE', token, receivesData, newEndpoint)
 
         try {
             info.each(){ k,v ->
@@ -572,7 +484,7 @@ class TestService {
                     assert returnsData[k].toString() == info[k].toString()
                 }
             }
-        } catch (AssertionError e) {
+        } catch (Exception e) {
             println("---->[DELETE TEST for ${newEndpoint}] - FAILED]")
         }
         println("---->[DELETE TEST for ${newEndpoint}] - PASSED]")
@@ -584,12 +496,34 @@ class TestService {
 
     }
 
-    boolean isNumeric(String strNum) {
+
+    LinkedHashMap callJSON(String method, String token, String receivesData=null, String endpoint){
+        def info
         try {
-            double d = Double.parseDouble(strNum)
-        } catch (NumberFormatException | NullPointerException nfe) {
-            return false
+            String url
+            if (receivesData) {
+                url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request ${method} -d '${receivesData}' ${endpoint}"
+            }else {
+                url = "curl -v -H 'Content-Type: application/json' -H 'Authorization: Bearer ${token}' --request ${method} ${endpoint}"
+            }
+
+            def proc = ['bash','-c',"${url}"].execute()
+            proc.waitFor()
+            StringBuffer outputStream = new StringBuffer()
+            StringWriter error = new StringWriter()
+            proc.waitForProcessOutput(outputStream, error)
+
+            String output = outputStream.toString()
+
+            if(output){
+                info = new JsonSlurper().parseText(output)
+                return info
+            }else{
+                throw new Exception("[TestService: callJSON] ERROR : No output when calling '${endpoint}': ${error}")
+            }
+        } catch (Exception e) {
+            throw new Exception("---->[callJSON : ERROR] : ${endpoint}",e)
         }
-        return true
+        return [:]
     }
 }
