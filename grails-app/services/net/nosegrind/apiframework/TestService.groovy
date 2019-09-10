@@ -23,40 +23,6 @@ import groovy.json.JsonSlurper
 import grails.core.GrailsApplication
 import org.grails.web.json.JSONObject
 
-/**
- * TestService.
- *
- * Future implementations: rather than using TESTORDER in IO State:
- *
- * POST/CREATE creates initial ID for tuple
- *
- * loop through POST of all classes with only PRIMARY keys
- * loop through POST of all classes with PRIMARY-FOREIGN keys
- * loop through POST of all classes with only FOREIGN  keys
- *
- *
- * GET confirms tuple/ID was created
- *
- * loop through GET of all classes with only PRIMARY keys
- * loop through GET of all classes with PRIMARY-FOREIGN keys
- * loop through GET of all classes with only FOREIGN  keys
- *
- *
- * PUT/EDIT confirms editing of tuple is possible
- *
- * loop through PUT of all classes with only FOREIGN  keys
- * loop through PUT of all classes with PRIMARY-FOREIGN keys
- * loop through PUT of all classes with only PRIMARY keys
- *
- *
- * DELETE does cleanup and confirms cleanup is possible
- *
- * loop through DELETE of all classes with only FOREIGN  keys (vars designated as fkeys cause it to sort first)
- * loop through DELETE of all classes with PRIMARY-FOREIGN keys (vars designated as fkeys/pkey cause it to sort first)
- * loop through DELETE of all classes with only PRIMARY keys (vars designated as pkeys cause it to sort first)
- *
- *
- */
 class TestService {
 
     String version
@@ -117,60 +83,34 @@ class TestService {
 
                                     LinkedHashMap fkeys
                                     if (cache[version][it]['fkeys']) {
-
                                         fkeys = getFkeys(cache[version][it]['fkeys'])
                                     }
 
-                                    /*
-                                if(method=='DELETE'){
-                                    check for fkeys and do those first
-                                */
-
-
+                                    List endpoint = [this.testDomain,this.appVersion,controller,it.toString()]
+                                    this.apiObject[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'], this.admin.authorities)
+                                    this.apiObject[controller][it]['returns'] = getMockdata(cache[version][it]['returns'], this.admin.authorities)
+                                    LinkedHashMap output
+                                    String receivesData = createDataAsJSON(this.apiObject[controller][it]['recieves'], controller, fkeys)
                                     switch (method) {
                                         case 'POST':
-                                            List endpoint = [this.testDomain,this.appVersion,controller,it.toString()]
-                                            this.apiObject[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'], this.admin.authorities)
-                                            this.apiObject[controller][it]['returns'] = getMockdata(cache[version][it]['returns'], this.admin.authorities)
-                                            String receivesData = createDataAsJSON(this.apiObject[controller][it]['recieves'], controller, fkeys)
                                             LinkedHashMap returnsData = createReturnsData(this.apiObject[controller][it]['returns'],controller, fkeys)
-
-                                            def temp = cache['values']
-                                            LinkedHashMap output = postJSON(endpoint, this.admin.token, returnsData, receivesData,cache['values'])
-                                            output.each() { k, v ->
-                                                this.apiObject[controller]['values'][k] = v
-                                            }
+                                            output = postJSON(endpoint, this.admin.token, returnsData, receivesData,cache['values'])
                                             break
                                         case 'GET':
-                                            List endpoint = [this.testDomain,this.appVersion,controller,it.toString()]
-                                            this.apiObject[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'], this.admin.authorities)
-                                            this.apiObject[controller][it]['returns'] = getMockdata(cache[version][it]['returns'], this.admin.authorities)
-                                            String receivesData = createDataAsJSON(this.apiObject[controller][it]['recieves'], controller, fkeys)
                                             LinkedHashMap returnsData = createReturnsData(this.apiObject[controller][it]['returns'],controller, fkeys)
-
-                                            def temp = cache['values']
-                                            LinkedHashMap output = getJSON(endpoint, this.admin.token, returnsData, receivesData,cache['values'])
-                                            output.each() { k, v ->
-                                                this.apiObject[controller]['values'][k] = v
-                                            }
+                                            output = getJSON(endpoint, this.admin.token, returnsData, receivesData,cache['values'])
                                             break
                                         case 'PUT':
-                                            List endpoint = [this.testDomain,this.appVersion,controller,it.toString()]
-                                            this.apiObject[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'], this.admin.authorities)
-                                            this.apiObject[controller][it]['returns'] = getMockdata(cache[version][it]['returns'], this.admin.authorities)
-                                            String receivesData = createDataAsJSON(this.apiObject[controller][it]['recieves'], controller, fkeys)
                                             LinkedHashMap returnsData = createReturnsData(this.apiObject[controller][it]['returns'],controller, fkeys)
-
-                                            def temp = cache['values']
-                                            LinkedHashMap output = putJSON(endpoint, this.admin.token, returnsData, receivesData,cache['values'])
-                                            output.each() { k, v ->
-                                                this.apiObject[controller]['values'][k] = v
-                                            }
+                                            output = putJSON(endpoint, this.admin.token, returnsData, receivesData,cache['values'])
                                             break
                                         default:
                                             //println("ERROR")
                                             break
 
+                                    }
+                                    output.each() { k, v ->
+                                        this.apiObject[controller]['values'][k] = v
                                     }
                                 }
                             }
@@ -180,7 +120,7 @@ class TestService {
                 }
             }
         }
-
+        // TODO: batchTest here
         cleanupTest(testLoadOrder)
     }
 
