@@ -151,7 +151,7 @@ dependencies {
     }
 }
 
-task wrapper(type: Wrapper) {
+wrapper {
     gradleVersion = gradleWrapperVersion
 }
 
