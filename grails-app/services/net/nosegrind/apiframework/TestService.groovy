@@ -34,6 +34,7 @@ class TestService {
     LinkedHashMap user
 
     String testDomain = Holders.grailsApplication.config.environments.test.grails.serverURL
+    Boolean autoTest = Holders.grailsApplication.config,apitoolkit.autoTest
     String appVersion = "v${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
     String loginUri
 
@@ -45,83 +46,88 @@ class TestService {
     List testOrder = []
 
 
-    void initTest(){
-        adminLogin()
-        println("### [initTest] ###")
-        //List testLoadOrder = System.getProperty("testLoadOrder").split(',')
+    void initTest() {
+        if (autoTest) {
 
-        ['POST','GET','PUT'].each() { method ->
+            adminLogin()
+            println("### [initTest] ###")
+            //List testLoadOrder = System.getProperty("testLoadOrder").split(',')
 
-            this.testLoadOrder.each(){ controller ->
-                println(" ")
-                println("### ${method} tests for ${controller} APIS ###")
-                this.cache = getApiCache(controller)
+            ['POST', 'GET', 'PUT'].each() { method ->
 
-
-                // TODO: test to see if cache exists for each controller name
-
-                if(!this.apiObject[controller]) {
-                    this.apiObject[controller] = [:]
-                }
-
-                if (cache) {
-                    this.version = this.cache['currentStable']['value']
-                    if (cache[version]['testOrder']) {
-
-                        if(cache[version]['testOrder']) {
-                            cache[version]['testOrder'].each() { it ->
+                this.testLoadOrder.each() { controller ->
+                    println(" ")
+                    println("### ${method} tests for ${controller} APIS ###")
+                    this.cache = getApiCache(controller)
 
 
-                                if (!this.apiObject[controller][it]) {
-                                    this.apiObject[controller][it] = [:]
-                                }
-                                if (!this.apiObject[controller]['values']) {
-                                    this.apiObject[controller]['values'] = [:]
-                                }
+                    // TODO: test to see if cache exists for each controller name
 
-                                if (cache[version][it]['method'] == method) {
+                    if (!this.apiObject[controller]) {
+                        this.apiObject[controller] = [:]
+                    }
 
-                                    LinkedHashMap fkeys
-                                    if (cache[version][it]['fkeys']) {
-                                        fkeys = getFkeys(cache[version][it]['fkeys'])
+                    if (cache) {
+                        this.version = this.cache['currentStable']['value']
+                        if (cache[version]['testOrder']) {
+
+                            if (cache[version]['testOrder']) {
+                                cache[version]['testOrder'].each() { it ->
+
+
+                                    if (!this.apiObject[controller][it]) {
+                                        this.apiObject[controller][it] = [:]
+                                    }
+                                    if (!this.apiObject[controller]['values']) {
+                                        this.apiObject[controller]['values'] = [:]
                                     }
 
-                                    List endpoint = [this.testDomain,this.appVersion,controller,it.toString()]
-                                    this.apiObject[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'], this.admin.authorities)
-                                    this.apiObject[controller][it]['returns'] = getMockdata(cache[version][it]['returns'], this.admin.authorities)
-                                    LinkedHashMap output
-                                    String receivesData = createDataAsJSON(this.apiObject[controller][it]['recieves'], controller, fkeys)
-                                    switch (method) {
-                                        case 'POST':
-                                            LinkedHashMap returnsData = createReturnsData(this.apiObject[controller][it]['returns'],controller, fkeys)
-                                            output = postJSON(endpoint, this.admin.token, returnsData, receivesData,cache['values'])
-                                            break
-                                        case 'GET':
-                                            LinkedHashMap returnsData = createReturnsData(this.apiObject[controller][it]['returns'],controller, fkeys)
-                                            output = getJSON(endpoint, this.admin.token, returnsData, receivesData,cache['values'])
-                                            break
-                                        case 'PUT':
-                                            LinkedHashMap returnsData = createReturnsData(this.apiObject[controller][it]['returns'],controller, fkeys)
-                                            output = putJSON(endpoint, this.admin.token, returnsData, receivesData,cache['values'])
-                                            break
-                                        default:
-                                            //println("ERROR")
-                                            break
+                                    if (cache[version][it]['method'] == method) {
 
-                                    }
-                                    output.each() { k, v ->
-                                        this.apiObject[controller]['values'][k] = v
+                                        LinkedHashMap fkeys
+                                        if (cache[version][it]['fkeys']) {
+                                            fkeys = getFkeys(cache[version][it]['fkeys'])
+                                        }
+
+                                        List endpoint = [this.testDomain, this.appVersion, controller, it.toString()]
+                                        this.apiObject[controller][it]['recieves'] = getMockdata(cache[version][it]['receives'], this.admin.authorities)
+                                        this.apiObject[controller][it]['returns'] = getMockdata(cache[version][it]['returns'], this.admin.authorities)
+                                        LinkedHashMap output
+                                        String receivesData = createDataAsJSON(this.apiObject[controller][it]['recieves'], controller, fkeys)
+                                        switch (method) {
+                                            case 'POST':
+                                                LinkedHashMap returnsData = createReturnsData(this.apiObject[controller][it]['returns'], controller, fkeys)
+                                                output = postJSON(endpoint, this.admin.token, returnsData, receivesData, cache['values'])
+                                                break
+                                            case 'GET':
+                                                LinkedHashMap returnsData = createReturnsData(this.apiObject[controller][it]['returns'], controller, fkeys)
+                                                output = getJSON(endpoint, this.admin.token, returnsData, receivesData, cache['values'])
+                                                break
+                                            case 'PUT':
+                                                LinkedHashMap returnsData = createReturnsData(this.apiObject[controller][it]['returns'], controller, fkeys)
+                                                output = putJSON(endpoint, this.admin.token, returnsData, receivesData, cache['values'])
+                                                break
+                                            default:
+                                                //println("ERROR")
+                                                break
+
+                                        }
+                                        output.each() { k, v ->
+                                            this.apiObject[controller]['values'][k] = v
+                                        }
                                     }
                                 }
                             }
-                        }
 
+                        }
                     }
                 }
             }
+            // TODO: batchTest here
+            cleanupTest(testLoadOrder)
+        }else{
+            println("### [AutoTest disabled]: Please make sure your environment is completely setup before enabling. ###")
         }
-        // TODO: batchTest here
-        cleanupTest(testLoadOrder)
     }
 
     private LinkedHashMap getFkeys(LinkedHashSet fkeys){
