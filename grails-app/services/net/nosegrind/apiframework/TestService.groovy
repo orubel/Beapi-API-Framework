@@ -34,7 +34,7 @@ class TestService {
     LinkedHashMap user
 
     String testDomain = Holders.grailsApplication.config.environments.test.grails.serverURL
-    Boolean autoTest = Holders.grailsApplication.config,apitoolkit.autoTest
+    Boolean autoTest = Holders.grailsApplication.config.apitoolkit.autoTest
     String appVersion = "v${Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)}"
     String loginUri
 
