@@ -3,7 +3,7 @@
 String userHome = System.properties['user.home']
 
 Properties props = new Properties()
-def propsFile = new File("${userHome}/.jenkins/workspace/api-framework/gradle.properties")
+def propsFile = new File("${userHome}/.jenkins/workspace/api-framework/gradle.properties.3.x")
 props.load(propsFile.newDataInputStream())
 
 def appVersion = props.getProperty('buildVersion')
