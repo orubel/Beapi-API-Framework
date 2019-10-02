@@ -34,7 +34,7 @@ println("version:"+version)
 
 props.setProperty('patchVersion', patch)
 props.setProperty('buildVersion', version)
-props.store(propsFile.newWriter(), null)
+props.store(propsFile2.newWriter(), null)
 
 
 
