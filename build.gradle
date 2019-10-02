@@ -152,11 +152,7 @@ dependencies {
     }
 }
 
-//wrapper {
-//    gradleVersion = gradleWrapperVersion
-//}
-
-task wrapper(type: Wrapper) {
+wrapper {
     gradleVersion = gradleWrapperVersion
 }
 
