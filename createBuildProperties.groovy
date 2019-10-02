@@ -10,6 +10,9 @@ def appVersion = props.getProperty('buildVersion')
 def patch = System.getenv('BUILD_NUMBER')
 def version = "${appVersion}"
 
+println("patch:"+patch)
+println("version:"+version)
+
 props.setProperty('patchVersion', patch)
 props.setProperty('buildVersion', version)
 props.store(propsFile.newWriter(), null)
