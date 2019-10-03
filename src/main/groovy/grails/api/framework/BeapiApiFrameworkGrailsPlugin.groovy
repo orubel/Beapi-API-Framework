@@ -6,7 +6,7 @@ import net.nosegrind.apiframework.ApiDescriptor
 import net.nosegrind.apiframework.ApiParams
 import net.nosegrind.apiframework.ParamsDescriptor
 import groovy.util.AntBuilder
-
+import grails.util.Metadata
 import javax.servlet.ServletRegistration
 //import java.util.Collections
 //import org.grails.web.servlet.mvc.GrailsDispatcherServlet
@@ -36,13 +36,13 @@ import grails.util.Metadata
  * @author Owen Rubel
  */
 class BeapiApiFrameworkGrailsPlugin extends Plugin{
-	def version = '1.1'
+	def version = Metadata.current.getApplicationVersion()
     def grailsVersion = '3.2.1 > *'
     def title = 'BeAPI Api Framework' // Headline display name of the plugin
 	def author = 'Owen Rubel'
 	def authorEmail = 'orubel@gmail.com'
 	def description = 'BeAPI Framework is a fully reactive plug-n-play API Framework for Distributed Architectures providing api abstraction, cached IO state, automated batching and more. It is meant to autmoate alot of the issues behind setting up and maintaining API\'s in distributed architectures as well as handling and simplifying automation.'
-	def documentation = 'https://www.beapi.io/documentation'
+	def documentation = 'http://orubel.github.io/Beapi-API-Framework/'
 	def license = 'MPL-2.0'
     def organization = [ name: 'BeAPI', url: 'http://www.beapi.io' ]
     def developers = [[ name: 'Owen Rubel', email: 'orubel@gmail.com' ]]

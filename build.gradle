@@ -150,6 +150,11 @@ dependencies {
         exclude(module: 'org.hibernate:hibernate-core:5.4.0.Final')
         exclude(module:'net.sf.ehcache:ehcache')
     }
+
+    /**
+     * CI/CD plugins
+     */
+    compile 'org.grails.plugins:version-update:2.0.0'
 }
 
 wrapper {
