@@ -4,7 +4,7 @@ import grails.converters.JSON
 //import grails.converters.XML
 import grails.plugin.cache.*
 import org.grails.plugin.cache.*
-import org.springframework.cache.CacheManager
+import org.grails.plugin.cache.GrailsCacheManager
 import org.grails.groovy.grails.commons.*
 import grails.core.GrailsApplication
 
@@ -19,21 +19,19 @@ class TraceCacheService{
 	static transactional = false
 	
 	GrailsApplication grailsApplication
-	CacheManager cacheManager
+	GrailsCacheManager grailsCacheManager
 	
 	// called through generateJSON()
 
 	public void flushCache(String uri){
 		try{
-			cacheManager?.getCache('Trace').clear()
-			//Cache cache = cacheManager.getCache('Trace')
-			//cache.clear()
+			grailsCacheManager?.getCache('Trace').clear()
 		}catch(Exception e){
 			throw new Exception("[TraceCacheService :: getTraceCache] : Exception - full stack trace follows:",e)
 		}
 	}
 
-	@CachePut(value="Trace",key= {"uri"})
+	@CachePut(value="Trace",key={uri})
 	LinkedHashMap putTraceCache(String uri, LinkedHashMap cache){
 		try{
 			return cache
@@ -42,7 +40,9 @@ class TraceCacheService{
 		}
 	}
 
-	@CachePut(value="Trace",key= {"uri"})
+
+	// issue here
+	@CachePut(value="Trace",key={uri})
 	LinkedHashMap setTraceMethod(String uri,LinkedHashMap cache){
 		try{
 			return cache
@@ -52,15 +52,22 @@ class TraceCacheService{
 	}
 
 	LinkedHashMap getTraceCache(String uri){
+		println("### getTraceCache")
 		try{
-			GrailsConcurrentMapCache temp = cacheManager?.getCache('Trace')
+			GrailsConcurrentMapCache temp = grailsCacheManager?.getCache('Trace')
+			def temp2 = temp?.getAllKeys() as List
+			temp2.each() { it2 ->
+				println("key:"+it2.simpleKey)
+				def cache = temp?.get(it2.simpleKey)
+				println("${uri} / ${cache}")
+			}
 			def cache = temp?.get(uri)
 			if(cache?.get()){
+				println(cache.get())
 				return cache.get() as LinkedHashMap
-			}else{ 
+			}else{
 				return [:] 
 			}
-
 		}catch(Exception e){
 			throw new Exception("[TraceCacheService :: getTraceCache] : Exception - full stack trace follows:",e)
 		}
@@ -68,7 +75,7 @@ class TraceCacheService{
 	
 	List getCacheNames(){
 		List cacheNames = []
-		cacheNames = cacheManager?.getCache('Trace')?.getAllKeys() as List
+		cacheNames = grailsCacheManager?.getCache('Trace')?.getAllKeys() as List
 		return cacheNames
 	}
 }

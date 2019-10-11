@@ -25,6 +25,7 @@ class TraceService {
 	}
 
 	public void startTrace(String className, String methodName){
+		println("### startTrace  : ${className} / ${methodName}")
 		Long mStart = System.currentTimeMillis()
 		String uri = getRequest().forwardURI
 		LinkedHashMap cache = traceCacheService.getTraceCache(uri)
@@ -39,14 +40,24 @@ class TraceService {
 		cache['calls']["${order}"][loc] = [:]
 		cache['calls']["${order}"][loc]['start'] = mStart
 		cache['calls']["${order}"][loc]['stop'] = 0
-		traceCacheService.setTraceMethod(uri, cache)
+
+		def temp = traceCacheService.setTraceMethod(uri, cache)
+
+		LinkedHashMap cache2 = traceCacheService.getTraceCache(uri)
+
+
+		println("### startTrace(end) : "+temp)
 	}
 
 	public LinkedHashMap endTrace(String className, String methodName) {
+		println("### endTrace : ${className} / ${methodName}")
 		String uri = getRequest().forwardURI
+		println(uri)
 		LinkedHashMap cache = traceCacheService.getTraceCache(uri)
+		println(cache)
+
 		String loc = "${className}/${methodName}".toString()
-		Long order = cache['calls'].size()
+		Long order = (cache['calls']?.size())?cache['calls']?.size():0
 
 		// if uri!= loc, walk backwards through cache and find
 		// 'loc' that matches and has empty 'stop' value
@@ -61,10 +72,12 @@ class TraceService {
 			cache['calls']["${order}"][loc]['stop'] = System.currentTimeMillis()
 		}
 
+
 		return traceCacheService.setTraceMethod(uri, cache)
 	}
 
 	public LinkedHashMap endAndReturnTrace(String className, String methodName){
+		println("### endAndReturnTrace : ${className} / ${methodName}")
 		String uri = getRequest().forwardURI
 		LinkedHashMap returnCache = endTrace(className, methodName)
 		LinkedHashMap newTrace = processTrace(returnCache)
@@ -73,8 +86,11 @@ class TraceService {
 	}
 
 	private LinkedHashMap processTrace(LinkedHashMap cache){
+		println("### processTrace")
 		LinkedHashMap newTrace = [:]
 		newTrace['elapsedTime'] = 0
+
+		println(cache['calls'])
 		cache['calls'].sort{ a, b -> b.key <=> a.key }
 		cache['calls'].each() { it ->
 			Long startTime = 0

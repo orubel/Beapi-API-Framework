@@ -73,6 +73,12 @@ grails:
             overflowToDisk: true
             maxElementsInMemory: 100000
             maxElementsOnDisk: 10000000
+        cache:
+            name: 'Trace'
+            eternal: false
+            overflowToDisk: true
+            maxElementsInMemory: 100000
+            maxElementsOnDisk: 10000000
 
 ---
 apitoolkit:
