@@ -17,8 +17,6 @@ spring:
 
 ---
 grails:
-    cors:
-        enabled: false
     mime:
         disable:
             accept:
