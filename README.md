@@ -1,6 +1,8 @@
 
 ![alt text](https://github.com/orubel/logos/blob/master/beapi_logo_large.png)
 # BeApi(tm) Api Framework ( https://www.beapi.io/ )
+**If you enjoy our work, please click our sponsor button at the top of the page**
+
 ## Benchmarks : [view](https://github.com/orubel/logos/blob/master/bench.png)
 ## Latest Version: [1.4.26](https://bintray.com/orubel/plugins/api-framework/1.4.10/link)
 ## Stable/Latest Profile Version: [1.4.26](https://github.com/orubel/Beapi-Plugin-Profile)(https://github.com/orubel/Beapi-Plugin-Profile)
