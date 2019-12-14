@@ -75,10 +75,9 @@ class ProfilerInterceptor extends ProfilerCommLayer{
 	 * @return
 	 */
 	boolean before(){
-		println("##### PROFILERINTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
+		// println("##### PROFILERINTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
 
 		traceService.startTrace('ProfilerInterceptor','before')
-
 
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
@@ -177,20 +176,20 @@ class ProfilerInterceptor extends ProfilerCommLayer{
 						byte[] contentLength = result.getBytes('ISO-8859-1')
 						if (apiThrottle) {
 							if (checkLimit(contentLength.length, this.authority)) {
-								traceService.endTrace('ProfilerInterceptor','after')
-								LinkedHashMap traceContent = traceService.endAndReturnTrace('ProfilerInterceptor','after')
+								traceService.endTrace('ProfilerInterceptor','before')
+								LinkedHashMap traceContent = traceService.endAndReturnTrace('ProfilerInterceptor','before')
 								String tcontent = traceContent as JSON
-								render(text: getContent(tcontent, "application/json"), contentType: "application/json")
+								render(text: tcontent, contentType: "application/json")
 							}else{
 								traceService.endTrace('ProfilerInterceptor','before')
 								return false
 							}
 						}else{
-							traceService.endTrace('ProfilerInterceptor','after')
+							traceService.endTrace('ProfilerInterceptor','before')
 
-							LinkedHashMap traceContent = traceService.endAndReturnTrace('ProfilerInterceptor','after')
+							LinkedHashMap traceContent = traceService.endAndReturnTrace('ProfilerInterceptor','before')
 							String tcontent = traceContent as JSON
-							render(text: getContent(tcontent, "application/json"), contentType: "application/json")
+							render(text: tcontent, contentType: "application/json")
 						}
 						traceService.endTrace('ProfilerInterceptor','before')
 						return false
@@ -218,21 +217,21 @@ class ProfilerInterceptor extends ProfilerCommLayer{
 									byte[] contentLength = output.getBytes('ISO-8859-1')
 									if (apiThrottle) {
 										if (checkLimit(contentLength.length, this.authority)) {
-											traceService.endTrace('ProfilerInterceptor','after')
-											LinkedHashMap traceContent = traceService.endAndReturnTrace('ProfilerInterceptor','after')
+											traceService.endTrace('ProfilerInterceptor','before')
+											LinkedHashMap traceContent = traceService.endAndReturnTrace('ProfilerInterceptor','before')
 											String tcontent = traceContent as JSON
-											render(text: getContent(tcontent, "application/json"), contentType: "application/json")
+											render(text: tcontent, contentType: "application/json")
 											return false
 										}else{
 											traceService.endTrace('ProfilerInterceptor','before')
 											return false
 										}
 									} else {
-										traceService.endTrace('ProfilerInterceptor','after')
+										traceService.endTrace('ProfilerInterceptor','before')
 
-										LinkedHashMap traceContent = traceService.endAndReturnTrace('ProfilerInterceptor','after')
+										LinkedHashMap traceContent = traceService.endAndReturnTrace('ProfilerInterceptor','before')
 										String tcontent = traceContent as JSON
-										render(text: getContent(tcontent, "application/json"), contentType: "application/json")
+										render(text: tcontent, contentType: "application/json")
 										return false
 									}
 								}
@@ -254,8 +253,8 @@ class ProfilerInterceptor extends ProfilerCommLayer{
 												return false
 											}
 										} else {
-											traceService.endTrace('ProfilerInterceptor','after')
-											LinkedHashMap traceContent = traceService.endAndReturnTrace('ProfilerInterceptor','after')
+											traceService.endTrace('ProfilerInterceptor','before')
+											LinkedHashMap traceContent = traceService.endAndReturnTrace('ProfilerInterceptor','before')
 											String tcontent = traceContent as JSON
 											render(text: getContent(tcontent, "application/json"), contentType: "application/json")
 											return false
@@ -328,7 +327,6 @@ class ProfilerInterceptor extends ProfilerCommLayer{
 				if (params.controller != 'apidoc') {
 					Object vals = model.values()
 					if (!model || vals==null) {
-						println("331")
 						traceService.endAndReturnTrace('ProfilerInterceptor','after')
 						errorResponse([400,'No resource returned; query was empty'])
 						return false
@@ -379,7 +377,6 @@ class ProfilerInterceptor extends ProfilerCommLayer{
 						String role
 						if(request.method.toUpperCase()=='GET') {
 							role = (controller == 'apidoc')? 'permitAll' : this.authority
-
 							apiCacheService.setApiCachedResult(cacheHash, controller, apiObject, action, this.networkGrp, this.format, result)
 						}
 
@@ -387,27 +384,26 @@ class ProfilerInterceptor extends ProfilerCommLayer{
 							if(checkLimit(contentLength.length,this.authority)) {
 								LinkedHashMap traceContent = traceService.endAndReturnTrace('ProfilerInterceptor','after')
 								String tcontent = traceContent as JSON
-								render(text: getContent(tcontent, "application/json"), contentType: "application/json")
+								render(text: tcontent, contentType: "application/json")
 								return false
 							}else{
 								LinkedHashMap traceContent = traceService.endAndReturnTrace('ProfilerInterceptor','after')
 								String tcontent = traceContent as JSON
-								render(text: getContent(tcontent, "application/json"), contentType: "application/json")
+								render(text: tcontent, contentType: "application/json")
 								return false
 							}
 						} else {
-							println("403")
 							LinkedHashMap traceContent = traceService.endAndReturnTrace('ProfilerInterceptor','after')
 							String tcontent = traceContent as JSON
-							render(text: getContent(tcontent, "application/json"), contentType: "application/json")
+							//render(text: getContent(tcontent, "application/json"), contentType: "application/json")
+							render(text: tcontent, contentType: "application/json")
 							return false
 						}
 					}
 				} else {
-					println("407")
 					LinkedHashMap traceContent = traceService.endAndReturnTrace('ProfilerInterceptor','after')
 					String tcontent = traceContent as JSON
-					render(text: getContent(tcontent, contentType), contentType: contentType)
+					render(text: tcontent, contentType: "application/json")
 					//response.flushBuffer()
 				}
 				//traceService.endTrace('ProfilerInterceptor','after')

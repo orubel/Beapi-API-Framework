@@ -164,9 +164,10 @@ class ApiRequestFilter extends GenericFilterBean {
                 break;
             default:
                 if(actualUri!='/error') {
+                    println(entryPoint)
                     response.setContentType("application/json")
                     response.setStatus(401)
-                    response.getWriter().write("Bad URI Access attempted at '${actualUri}'")
+                    response.getWriter().write("APIRequestFilter: Bad URI Access attempted at '${actualUri}'")
                     response.writer.flush()
                     return true
                 }

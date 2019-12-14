@@ -1,5 +1,6 @@
 package net.nosegrind.apiframework
 
+import org.apache.commons.text.StringEscapeUtils
 import grails.converters.JSON
 //import grails.converters.XML
 import grails.plugin.cache.*
@@ -17,13 +18,13 @@ import grails.core.GrailsApplication
 class TraceCacheService{
 
 	static transactional = false
-	
+
 	GrailsApplication grailsApplication
 	GrailsCacheManager grailsCacheManager
 	
 	// called through generateJSON()
 
-	public void flushCache(String uri){
+	public void flushCache(){
 		try{
 			grailsCacheManager?.getCache('Trace').clear()
 		}catch(Exception e){
@@ -47,27 +48,28 @@ class TraceCacheService{
 		try{
 			return cache
 		}catch(Exception e){
-			throw new Exception("[TraceCacheService :: setTraceCache] : Exception - full stack trace follows:",e)
+			throw new Exception("[TraceCacheService :: setTraceMethod] : Exception - full stack trace follows:",e)
 		}
 	}
 
 	LinkedHashMap getTraceCache(String uri){
-		println("### getTraceCache")
 		try{
+
 			GrailsConcurrentMapCache temp = grailsCacheManager?.getCache('Trace')
-			def temp2 = temp?.getAllKeys() as List
+			List temp2=temp.getAllKeys() as List
+			GrailsValueWrapper cache
 			temp2.each() { it2 ->
-				println("key:"+it2.simpleKey)
-				def cache = temp?.get(it2.simpleKey)
-				println("${uri} / ${cache}")
+				if (it2.simpleKey == uri) {
+					cache = temp.get(it2)
+				}
 			}
-			def cache = temp?.get(uri)
+
 			if(cache?.get()){
-				println(cache.get())
 				return cache.get() as LinkedHashMap
 			}else{
-				return [:] 
+				return [:]
 			}
+
 		}catch(Exception e){
 			throw new Exception("[TraceCacheService :: getTraceCache] : Exception - full stack trace follows:",e)
 		}
@@ -78,4 +80,5 @@ class TraceCacheService{
 		cacheNames = grailsCacheManager?.getCache('Trace')?.getAllKeys() as List
 		return cacheNames
 	}
+
 }
