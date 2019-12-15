@@ -74,7 +74,7 @@ class TraceService {
 		String uri = getRequest().forwardURI
 		LinkedHashMap returnCache = endTrace(className, methodName)
 		LinkedHashMap newTrace = processTrace(returnCache)
-		//traceCacheService.flushCache()
+		traceCacheService.flushCache()
 		return newTrace
 	}
 
