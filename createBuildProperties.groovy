@@ -1,4 +1,4 @@
-#!/usr/local/bin groovy
+#!/usr/bin/env groovy
 
 String userHome = System.properties['user.home']
 
