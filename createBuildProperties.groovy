@@ -6,7 +6,7 @@ String userHome = System.properties['user.home']
 Properties props = new Properties()
 
 // update 3.x gradle.properties
-def propsFile = new File("/var/lib/jenkins/workspace/api-framework/gradle.properties")
+def propsFile = new File("gradle.properties")
 props.load(propsFile.newDataInputStream())
 
 def appVersion = props.getProperty('buildVersion')
@@ -24,7 +24,7 @@ props.store(propsFile.newWriter(), null)
 
 
 // update default gradle.properties
-def propsFile2 = new File("/var/lib/jenkins/workspace/api-framework/gradle.properties")
+def propsFile2 = new File("gradle.properties")
 props.load(propsFile2.newDataInputStream())
 
 appVersion = props.getProperty('buildVersion')
