@@ -8,7 +8,7 @@ grails:
 info:
     app:
         name: api-framework
-        version: 0.1.RC1
+        version: '@info.app.buildVersion@'+'.'+'@info.app.patchVersion@'
         grailsVersion: '@info.app.grailsVersion@'
 spring:
     groovy:
@@ -59,24 +59,44 @@ grails:
             overflowToDisk: true
             maxElementsInMemory: 100000
             maxElementsOnDisk: 10000000
+            timeToIdleSeconds 120
+            timeToLiveSeconds 120
+            diskPersistent false
+            diskExpiryThreadIntervalSeconds 120
+            memoryStoreEvictionPolicy 'LRU'
         cache:
             name: 'Stats'
             eternal: false
             overflowToDisk: true
             maxElementsInMemory: 100000
             maxElementsOnDisk: 10000000
+            timeToIdleSeconds 120
+            timeToLiveSeconds 120
+            diskPersistent false
+            diskExpiryThreadIntervalSeconds 120
+            memoryStoreEvictionPolicy 'LRU'
         cache:
             name: 'Throttle'
             eternal: false
             overflowToDisk: true
             maxElementsInMemory: 100000
             maxElementsOnDisk: 10000000
+            timeToIdleSeconds 120
+            timeToLiveSeconds 120
+            diskPersistent false
+            diskExpiryThreadIntervalSeconds 120
+            memoryStoreEvictionPolicy 'LRU'
         cache:
             name: 'Trace'
             eternal: false
             overflowToDisk: true
             maxElementsInMemory: 100000
             maxElementsOnDisk: 10000000
+            timeToIdleSeconds 120
+            timeToLiveSeconds 120
+            diskPersistent false
+            diskExpiryThreadIntervalSeconds 120
+            memoryStoreEvictionPolicy 'LRU'
 
 ---
 apitoolkit:

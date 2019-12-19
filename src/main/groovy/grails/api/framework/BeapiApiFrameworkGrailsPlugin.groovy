@@ -145,7 +145,6 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             String basedir = BuildSettings.BASE_DIR
             String apiObjectSrc = "${System.properties.'user.home'}/${grails.util.Holders.grailsApplication.config.iostate.preloadDir}"
 
-
             def ant = new AntBuilder()
 
             ant.mkdir(dir: "${basedir}/src/iostate")
