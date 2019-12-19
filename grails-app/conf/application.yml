@@ -8,7 +8,7 @@ grails:
 info:
     app:
         name: api-framework
-        version: '@info.app.buildVersion@'+'.'+'@info.app.patchVersion@'
+        version: '@info.app.buildVersion@'.'@info.app.patchVersion@'
         grailsVersion: '@info.app.grailsVersion@'
 spring:
     groovy:
