@@ -4,8 +4,8 @@
 **If you enjoy our work, please click our sponsor button at the top of the page**
 
 ## Benchmarks : [view](https://github.com/orubel/logos/blob/master/bench.png)
-## Latest Version: [1.4.26](https://bintray.com/orubel/plugins/api-framework/1.4.10/link)
-## Stable/Latest Profile Version: [1.4.26](https://github.com/orubel/Beapi-Plugin-Profile)(https://github.com/orubel/Beapi-Plugin-Profile)
+## Latest Version: [1.5.63](https://bintray.com/orubel/plugins/api-framework/1.5.63/link)
+## Stable/Latest Profile Version: [1.5.63](https://github.com/orubel/Beapi-Plugin-Profile)(https://github.com/orubel/Beapi-Plugin-Profile)
 
 ***
 ## Documentation - http://orubel.github.io/Beapi-API-Framework/
@@ -47,7 +47,7 @@ Some features include:
 **Q: How hard is this to implement?**  
 **A:** BeApi is 'Plug-N-Play'. You dont even have to install the plugin. Implementing for your project is as simple as a one line command:
 ```
-grails create-app name_of_your_app --profile org.grails.profiles:beapi:1.4.26
+grails create-app name_of_your_app --profile org.grails.profiles:beapi-profile:1.5.63
 ```
 
 **Q: How do I implement the listener for IO state webhook on my proxy/Message queue?**  
