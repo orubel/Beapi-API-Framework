@@ -745,7 +745,8 @@ abstract class ApiCommProcess{
     }
 
     protected static String hashWithGuava(final String originalString) {
-        final String sha256hex = Hashing.sha256().hashString(originalString, StandardCharsets.UTF_8).toString()
+        //final String sha256hex = Hashing.sha256().hashString(originalString, StandardCharsets.UTF_8).toString()
+        final String sha256hex = Hashing.md5().hashString(originalString, StandardCharsets.UTF_8).toString()
         return sha256hex
     }
 

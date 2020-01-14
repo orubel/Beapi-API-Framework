@@ -57,7 +57,7 @@ grails:
             name: 'ApiCache'
             eternal: false
             overflowToDisk: true
-            maxElementsInMemory: 100000
+            maxElementsInMemory: 1000000
             maxElementsOnDisk: 10000000
             timeToIdleSeconds: 120
             timeToLiveSeconds: 120
@@ -68,7 +68,7 @@ grails:
             name: 'Stats'
             eternal: false
             overflowToDisk: true
-            maxElementsInMemory: 100000
+            maxElementsInMemory: 1000000
             maxElementsOnDisk: 10000000
             timeToIdleSeconds: 120
             timeToLiveSeconds: 120
@@ -79,7 +79,7 @@ grails:
             name: 'Throttle'
             eternal: false
             overflowToDisk: true
-            maxElementsInMemory: 100000
+            maxElementsInMemory: 1000000
             maxElementsOnDisk: 10000000
             timeToIdleSeconds: 120
             timeToLiveSeconds: 120
@@ -90,7 +90,7 @@ grails:
             name: 'Trace'
             eternal: false
             overflowToDisk: true
-            maxElementsInMemory: 100000
+            maxElementsInMemory: 1000000
             maxElementsOnDisk: 10000000
             timeToIdleSeconds: 120
             timeToLiveSeconds: 120
