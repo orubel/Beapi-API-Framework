@@ -83,8 +83,10 @@ class PingService {
                     conn.connect()
                     int code = conn.getResponseCode()
                     if (HttpURLConnection.HTTP_OK == code) {
+                        println("200:"+results)
                         results[endpoint] = 'true'
                     }else{
+                        println(code+":"+results)
                         results[endpoint] = 'false'
                     }
                 } finally {

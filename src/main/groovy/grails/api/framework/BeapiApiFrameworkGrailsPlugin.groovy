@@ -139,7 +139,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     void doWithApplicationContext() {
 
         // Delegate OPTIONS requests to controllers
-        try{
+       // try{
             applicationContext.dispatcherServlet.setDispatchOptionsRequest(true)
 
             String basedir = BuildSettings.BASE_DIR
@@ -159,9 +159,9 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
             parseFiles(apiObjectSrc.toString(), applicationContext)
             this.testLoadOrder = createTestOrder(applicationContext)
-        }catch(Exception e){
-            throw new Exception('[BeAPIFramework] : Cannot set system properties :',e)
-        }
+        //}catch(Exception e){
+        //    throw new Exception('[BeAPIFramework] : Cannot set system properties :',e)
+        //}
     }
 
     /**
