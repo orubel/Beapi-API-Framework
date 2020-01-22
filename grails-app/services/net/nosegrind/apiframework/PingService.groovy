@@ -65,7 +65,7 @@ class PingService {
             HttpURLConnection conn = null
             servers.eachParallel { server ->
 
-                String endpoint = server + "/" + entryPoint + "/server/ping"
+                String endpoint = server + "/" + entryPoint + "/arch/ping"
 
                 String token = request.getHeader("Authorization")
 
