@@ -18,6 +18,8 @@ import grails.plugin.springsecurity.rest.token.AccessToken
 import grails.plugin.springsecurity.rest.token.reader.TokenReader
 import grails.web.servlet.mvc.GrailsHttpSession
 
+import java.io.InputStreamReader
+
 import grails.util.Environment
 import grails.util.Metadata
 import grails.util.Holders
@@ -36,13 +38,22 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
 import org.springframework.web.filter.GenericFilterBean
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 
+import javax.servlet.http.Part;
 import javax.servlet.FilterChain
 import javax.servlet.ServletException
 import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+
+import org.springframework.web.multipart.MultipartFile
+
+import groovy.json.JsonSlurper
+import grails.converters.JSON
+import grails.converters.XML
 
 import grails.core.GrailsApplication
 import grails.plugin.cache.GrailsConcurrentMapCache
@@ -59,6 +70,9 @@ class ApiRequestFilter extends GenericFilterBean {
 
     String headerName
     String loginUri
+
+    private static final String CONTENT_DISPOSITION = "content-disposition";
+    private static final String FILENAME_KEY = "filename=";
 
     RestAuthenticationProvider restAuthenticationProvider
 
@@ -164,7 +178,6 @@ class ApiRequestFilter extends GenericFilterBean {
                 break;
             default:
                 if(actualUri!='/error') {
-                    println(entryPoint)
                     response.setContentType("application/json")
                     response.setStatus(401)
                     response.getWriter().write("APIRequestFilter: Bad URI Access attempted at '${actualUri}'")
@@ -242,6 +255,36 @@ class ApiRequestFilter extends GenericFilterBean {
                 case 'application/xml':
                     return 'XML' == format
                     break
+                case 'multipart/form-data':
+                    Collection parts = request.getParts();
+                    def multipartParameterNames = new LinkedHashSet<String>(parts.size());
+                    MultiValueMap<String, MultipartFile> files = new LinkedMultiValueMap<String, MultipartFile>(parts.size());
+                    for (Part part : parts) {
+                        String filename = extractFilename(part.getHeader(CONTENT_DISPOSITION));
+                        File uploadedFile = new File('/temp', filename);
+
+                        String out = ""
+                        InputStream input = part.getInputStream();
+                        StringBuilder stringBuilder = new StringBuilder();
+                        String line = null;
+                        BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(input))
+                        while ((line = bufferedReader.readLine()) != null) {
+                            stringBuilder.append(line);
+                        }
+                        out = stringBuilder.toString()
+
+                        if (JSON.parse(out)) {
+                            format = 'JSON'
+                            return 'JSON' == format
+                        }
+
+                        if (XML.parse(out)) {
+                            format = 'XML'
+                            return 'XML' == format
+                        }
+
+                    }
+                    break
                 case 'text/json':
                 case 'application/json':
                     return 'JSON' == format
@@ -255,6 +298,35 @@ class ApiRequestFilter extends GenericFilterBean {
                                 return 'XML' == format
                                 break
                             case 'multipart/form-data':
+                                Collection parts = request.getParts();
+                                def multipartParameterNames = new LinkedHashSet<String>(parts.size());
+                                MultiValueMap<String, MultipartFile> files = new LinkedMultiValueMap<String, MultipartFile>(parts.size());
+                                for (Part part : parts) {
+                                    String filename = extractFilename(part.getHeader(CONTENT_DISPOSITION));
+                                    File uploadedFile = new File('/temp', filename);
+
+                                    String out = ""
+                                    InputStream input = part.getInputStream();
+                                    StringBuilder stringBuilder = new StringBuilder();
+                                    String line = null;
+                                    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(input))
+                                    while ((line = bufferedReader.readLine()) != null) {
+                                        stringBuilder.append(line);
+                                    }
+                                    out = stringBuilder.toString()
+
+                                    if (JSON.parse(out)) {
+                                        format = 'JSON'
+                                        return 'JSON' == format
+                                    }
+
+                                    if (XML.parse(out)) {
+                                        format = 'XML'
+                                        return 'XML' == format
+                                    }
+
+                                }
+                                break
                             case 'text/json':
                             case 'application/json':
                                 return 'JSON' == format
@@ -269,6 +341,30 @@ class ApiRequestFilter extends GenericFilterBean {
         }
     }
 
+    private String extractFilename(String contentDisposition) {
+        if (contentDisposition == null) {
+            return null;
+        }
+        // TODO: can only handle the typical case at the moment
+        int startIndex = contentDisposition.indexOf(FILENAME_KEY);
+        if (startIndex == -1) {
+            return null;
+        }
+        String filename = contentDisposition.substring(startIndex + FILENAME_KEY.length());
+        if (filename.startsWith("\"")) {
+            int endIndex = filename.indexOf("\"", 1);
+            if (endIndex != -1) {
+                return filename.substring(1, endIndex);
+            }
+        }
+        else {
+            int endIndex = filename.indexOf(";");
+            if (endIndex != -1) {
+                return filename.substring(0, endIndex);
+            }
+        }
+        return filename;
+    }
 
     @CompileDynamic
     String getNetworkGrp(String version, String controller, String action, HttpServletRequest request, HttpServletResponse response){
@@ -318,16 +414,39 @@ class ApiRequestFilter extends GenericFilterBean {
     }
 
     @CompileDynamic
+    Boolean isMultipartform(String contentType){
+        try{
+            switch(contentType) {
+                case 'multipart/form-data':
+                    return true
+                    break
+                default:
+                    String temp = contentType.split(';')[0]
+                    switch(temp) {
+                        case 'multipart/form-data':
+                            return true
+                            break
+                        default:
+                            return false
+                    }
+            }
+        }catch(Exception e){
+            throw new Exception("[ApiRequestFilter :: isMultipartform] : Exception - full stack trace follows:",e)
+        }
+    }
+
+    @CompileDynamic
     private void processFilterChain(HttpServletRequest request, HttpServletResponse response, FilterChain chain, AccessToken authenticationResult) {
         String actualUri = request.requestURI - request.contextPath
+        String contentType = request.getContentType()
 
         String format = (request?.format)?request.format.toUpperCase():'JSON'
         HashSet formats = new HashSet()
+
         formats.add('XML')
         formats.add('JSON')
 
         if(!doesContentTypeMatch(request)){
-            println('ContentType does not match Requested Format')
             response.setContentType("application/json")
             response.setStatus(401)
             response.getWriter().write('ContentType does not match Requested Format')
@@ -341,13 +460,21 @@ class ApiRequestFilter extends GenericFilterBean {
                 LinkedHashMap dataParams = [:]
                 switch (format) {
                     case 'XML':
-                        dataParams = request.XML  as LinkedHashMap
-                        request.setAttribute('XML', dataParams)
+                        if(isMultipartform(contentType)){
+                            // do nothing; placeholder
+                        }else {
+                            dataParams = request.XML as LinkedHashMap
+                            request.setAttribute('XML', dataParams)
+                        }
                         break
                     case 'JSON':
                     default:
-                        dataParams = request.JSON as LinkedHashMap
-                        request.setAttribute('JSON', dataParams)
+                        if(isMultipartform(contentType)){
+                            // do nothing; placeholder
+                        }else {
+                            dataParams = request.JSON as LinkedHashMap
+                            request.setAttribute('JSON', dataParams)
+                        }
                         break
                 }
             }
