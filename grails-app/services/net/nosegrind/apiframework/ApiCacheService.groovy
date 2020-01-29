@@ -25,6 +25,7 @@ import org.grails.groovy.grails.commons.*
 import grails.core.GrailsApplication
 import grails.util.Holders
 import grails.plugin.cache.GrailsConcurrentMapCache
+import org.springframework.cache.Cache
 import grails.plugin.cache.GrailsValueWrapper
 
 import groovyx.gpars.*
@@ -79,8 +80,13 @@ class ApiCacheService{
 	}
 
 
-	@CacheEvict(value='ApiCache',key={controllername})
-	private void flushApiCache(String controllername){}
+	//@CacheEvict(value='ApiCache',key={controllername})
+	boolean flushApiCache(String controllername){
+		GrailsConcurrentMapCache temp = grailsCacheManager?.getCache('ApiCache')
+		def cache = setApiCache(controllername,[:])
+		println(cache)
+	}
+
 
 
 	//@org.springframework.cache.annotation.CachePut(value="ApiCache",key="#controllername")
@@ -96,10 +102,10 @@ class ApiCacheService{
 	}
 
 	/**
-	 * Method to set the apicache associated with the controller name using pregenerated apidoc
+	 * Method to set the apicache associated with the controller name using pregenerated ApiDescriptor
 	 * @param String controllername for designated endpoint
 	 * @param String methodname for designated endpoint
-	 * @param ApiDescriptor apidocs for current application
+	 * @param ApiDescriptor apidoc for current application
 	 * @param String apiversion of current application
 	 * @return A LinkedHashMap of Cached data associated with controllername
 	 */
@@ -155,6 +161,16 @@ class ApiCacheService{
 				cache[apiversion][methodname]['cachedResult'][cacheHash] = cachedResult
 			}
 			return cache
+		}catch(Exception e){
+			throw new Exception("[ApiCacheService :: setApiCache] : Exception - full stack trace follows:",e)
+		}
+	}
+
+	@CachePut(value='ApiCache',key={controllername})
+	LinkedHashMap unsetApiCachedResult(String controllername, String apiversion, String methodname){
+		try {
+			LinkedHashMap cache = getApiCache(controllername)
+			cache[apiversion][methodname]['cachedResult'] = [:]
 		}catch(Exception e){
 			throw new Exception("[ApiCacheService :: setApiCache] : Exception - full stack trace follows:",e)
 		}
@@ -221,7 +237,7 @@ class ApiCacheService{
 	}
 
 	/**
-	 * Method to load the 'ApiCache' cache object
+	 * Method to get the 'ApiCache' cache object
 	 * @param String controller name for designated endpoint
 	 * @return A LinkedHashMap of Cached data associated with controllername
 	 */
@@ -236,12 +252,34 @@ class ApiCacheService{
 				}
 			}
 
-
 			if(cache?.get()){
 				return cache.get() as LinkedHashMap
 			}else{ 
 				return [:] 
 			}
+
+		}catch(Exception e){
+			throw new Exception("[ApiCacheService :: getApiCache] : Exception - full stack trace follows:",e)
+		}
+	}
+
+	/**
+	 * Method to set the 'ApiCache' cache object
+	 * @param String controller name for designated endpoint
+	 * @return A LinkedHashMap of Cached data associated with controllername
+	 */
+	boolean setCache(String controllername,LinkedHashMap apidesc){
+		try{
+			GrailsConcurrentMapCache temp = grailsCacheManager?.getCache('ApiCache')
+			List cacheNames=temp.getAllKeys() as List
+			GrailsValueWrapper cache
+			cacheNames.each() { it2 ->
+				if (it2.simpleKey == controllername) {
+					cache = temp.put(it2,apidesc)
+					return true
+				}
+			}
+			return false
 
 		}catch(Exception e){
 			throw new Exception("[ApiCacheService :: getApiCache] : Exception - full stack trace follows:",e)

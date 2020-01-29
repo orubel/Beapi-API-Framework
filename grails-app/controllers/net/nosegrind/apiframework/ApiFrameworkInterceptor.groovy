@@ -181,7 +181,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 					}
 				}
 
-				cacheHash = createCacheHash(params, receivesList, this.authority)
+				cacheHash = createCacheHash(params, receivesList)
 				if(!checkURIDefinitions(params, receivesList, this.authority)){
 					statsService.setStatsCache(userId, response.status, request.requestURI)
 					errorResponse([400,"Sent params {${params}} do not match expected params {${receivesList}}"])
@@ -216,10 +216,8 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 				// RETRIEVE CACHED RESULT (only if using get method); DON'T CACHE LISTS
 				if (this.cachedEndpoint?.cachedResult && mthdKey=='GET' && cacheHash !=null && cachedEndpoint['cachedResult'][cacheHash]) {
-
 						LinkedHashMap cachedResult = this.cachedEndpoint['cachedResult'][cacheHash][this.networkGrp][format] as LinkedHashMap
 						String domain = ((String) controller).capitalize()
-
 
 						Integer version = cachedResult['version'] as Integer
 
@@ -320,7 +318,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * @return
 	 */
 	boolean after() {
-		//println("##### INTERCEPTOR (AFTER) - ${params.controller}/${params.action}")
+		// println("##### INTERCEPTOR (AFTER) - ${params.controller}/${params.action}")
 
 		if(model) {
 			//List unsafeMethods = ['PUT', 'POST', 'DELETE']
@@ -381,7 +379,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						String role
 						if(request.method.toUpperCase()=='GET') {
 							role = (controller == 'apidoc')? 'permitAll' : this.authority
-
 							apiCacheService.setApiCachedResult(cacheHash, controller, apiObject, action, this.networkGrp, this.format, result)
 						}
 

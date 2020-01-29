@@ -1,5 +1,8 @@
 package net.nosegrind.apiframework
 
+import net.nosegrind.apiframework.ApiDescriptor
+import net.nosegrind.apiframework.ApiParams
+import net.nosegrind.apiframework.ParamsDescriptor
 import org.grails.web.json.JSONObject
 import grails.core.GrailsApplication
 
@@ -66,9 +69,9 @@ class ApiObjectService{
 		String keyType = (reference.toLowerCase()=='self')?((type.toLowerCase()=='long')?'PKEY':'INDEX'):((type.toLowerCase()=='long')?'FKEY':'INDEX')
 		return keyType
 	}
-	
-	private LinkedHashMap getIOSet(JSONObject io,LinkedHashMap apiObject){
-		LinkedHashMap<String,net.nosegrind.apiframework.ParamsDescriptor> ioSet = [:]
+
+	private LinkedHashMap getIOSet(JSONObject io,LinkedHashMap apiObject,List valueKeys,String apiName){
+		LinkedHashMap<String,ParamsDescriptor> ioSet = [:]
 
 		io.each{ k, v ->
 			// init
@@ -77,8 +80,12 @@ class ApiObjectService{
 			def roleVars=v.toList()
 			roleVars.each{ val ->
 				if(v.contains(val)){
-					if(!ioSet[k].contains(apiObject[val])){
-						ioSet[k].add(apiObject[val])
+					if(!ioSet[k].contains(apiObject[val])) {
+						if (apiObject[val]){
+							ioSet[k].add(apiObject[val])
+						}else {
+							throw new Exception("VALUE '"+val+"' is not a valid key for IO State [${apiName}]. Please check that this 'VALUE' exists")
+						}
 					}
 				}
 			}
@@ -92,6 +99,14 @@ class ApiObjectService{
 						ioSet[key].add(it)
 					}
 				}
+			}
+		}
+
+		//List ioKeys = []
+		ioSet.each(){ k, v ->
+			List ioKeys = v.collect(){ it -> it.name }
+			if (!ioKeys.minus(valueKeys).isEmpty()) {
+				throw new Exception("[Runtime :: getIOSet] : VALUES for IO State [" + apiName + "] do not match REQUEST/RESPONSE values for endpoints")
 			}
 		}
 
@@ -112,89 +127,129 @@ class ApiObjectService{
 		return newDesc
 	}
 
-	private ApiDescriptor createApiDescriptor(String apiname,String apiMethod, String apiDescription, List apiRoles, List batchRoles, List hookRoles, String uri, JSONObject values, JSONObject json){
+	private ApiDescriptor createApiDescriptor(String networkGrp, String apiname,String apiMethod, String apiDescription, List apiRoles, Set batchRoles, Set hookRoles, String uri, JSONObject values, JSONObject json){
 		LinkedHashMap<String,ParamsDescriptor> apiObject = [:]
 		ApiParams param = new ApiParams()
-		LinkedHashMap mocks = [
-			"STRING":'Mock String',
-			"DATE":'Mock Date',
-			"LONG":999,
-			"BOOLEAN":true,
-			"FLOAT":0.01,
-			"BIGDECIMAL":123456789,
-			"EMAIL":'test@mockdata.com',
-			"URL":'www.mockdata.com',
-			"ARRAY":['this','is','mock','data']
-		]
-		
-		List fkeys = []
-		values.each{ k,v ->
-			v.type = (v.references)?getKeyType(v.references, v.type):v.type
-			if(v.type=='FKEY'){
-				fkeys.add(k)	
+
+		Set fkeys = []
+		Set pkeys= []
+		List keys = []
+		try {
+			values.each { k, v ->
+				keys.add(k)
+				v.reference = (v.reference) ? v.reference : 'self'
+				param.setParam(v.type, k)
+
+				String hasKey = (v?.key) ? v.key : null
+
+				if (hasKey != null) {
+					param.setKey(hasKey)
+
+					String hasReference = (v?.reference) ? v.reference : 'self'
+					param.setReference(hasReference)
+
+					if (['FOREIGN', 'INDEX', 'PRIMARY'].contains(v.key?.toUpperCase())) {
+						switch (v.key) {
+							case 'INDEX':
+								if (v.reference != 'self') {
+									LinkedHashMap fkey = ["${k}": "${v.reference}"]
+									fkeys.add(fkey)
+								}
+								break;
+							case 'FOREIGN':
+								LinkedHashMap fkey = ["${k}": "${v.reference}"]
+								fkeys.add(fkey)
+								break;
+							case 'PRIMARY':
+								pkeys.add(k)
+								break;
+						}
+					}
+				}
+
+				String hasDescription = (v?.description) ? v.description : ''
+				param.setDescription(hasDescription)
+
+				if (v.mockData!=null) {
+					if(v.mockData.isEmpty()){
+						param.setMockData('')
+					}else {
+						param.setMockData(v.mockData.toString())
+					}
+				} else {
+					throw new Exception("[Runtime :: createApiDescriptor] : MockData Required for type '" + k + "' in IO State[" + apiname + "]")
+				}
+
+				// collect api vars into list to use in apiDescriptor
+
+				apiObject[param.param.name] = param.toObject()
 			}
-			
-			String references = ''
-			String hasDescription = ''
-			String hasMockData = mocks[v.type]?mocks[v.type]:''
-
-			param.setParam(v.type,k)
-			
-			def configType = grailsApplication.config.apitoolkit.apiobject.type."${v.type}"
-			
-			hasDescription = (configType?.description)?configType.description:hasDescription
-
-			hasDescription = (v?.description)?v.description:hasDescription
-
-			if(hasDescription){ param.setDescription(hasDescription) }
-			
-			references = (configType?.references)?configType.references:""
-			references = (v?.references)?v.references:references
-			if(references){ param.referencedBy(references) }
-			
-			hasMockData = (v?.mockData)?v.mockData:hasMockData
-			if(hasMockData){ param.setMockData(hasMockData) }
-
-			// collect api vars into list to use in apiDescriptor
-			apiObject[param.param.name] = param.toObject()
+		}catch(Exception e){
+			throw new Exception("[Runtime :: createApiDescriptor] : Badly Formatted IO State :",e)
 		}
-		
-		LinkedHashMap receives = getIOSet(json.URI[uri]?.REQUEST,apiObject)
-		LinkedHashMap returns = getIOSet(json.URI[uri]?.RESPONSE,apiObject)
+
+		LinkedHashMap receives = getIOSet(json.URI[uri]?.REQUEST,apiObject,keys,apiname)
+		LinkedHashMap returns = getIOSet(json.URI[uri]?.RESPONSE,apiObject,keys,apiname)
 
 		ApiDescriptor service = new ApiDescriptor(
 				'empty':false,
-			'method':"$apiMethod",
-			'fkeys':fkeys,
-			'description':"$apiDescription",
-			'roles':[],
-			'batchRoles':[],
-			'hookRoles':[],
-			'doc':[:],
-			'receives':receives,
-			'returns':returns
+				'method':"$apiMethod",
+				'networkGrp': "$networkGrp",
+				'pkey':pkeys,
+				'fkeys':fkeys,
+				'description':"$apiDescription",
+				'roles':apiRoles,
+				'batchRoles':[],
+				'hookRoles':[],
+				'doc':[:],
+				'receives':receives,
+				'returns':returns,
+				'cachedResult': [:]
 		)
-		
-		service['roles'] = apiRoles
-		service['batchRoles'] = (batchRoles)?batchRoles:'permitAll'
-		if(hookRoles) {
-			service['hookRoles'] = hookRoles
+
+		// override networkRoles with 'DEFAULT' in IO State
+
+
+
+		batchRoles.each{
+			if(!apiRoles.contains(it)){
+				throw new Exception("[Runtime :: createApiDescriptor] : BatchRoles in IO State[" + apiname + "] do not match default/networkRoles")
+			}
 		}
+		service['batchRoles'] = batchRoles
+
+		hookRoles.each{
+			if(!apiRoles.contains(it)){
+				throw new Exception("[Runtime :: createApiDescriptor] : HookRoles in IO State[" + apiname + "] do not match default/networkRoles")
+			}
+		}
+		service['hookRoles'] = hookRoles
 
 		return service
 	}
-	
-	Boolean parseJson(String apiName,JSONObject json){
+
+	LinkedHashMap parseJson(String apiName,JSONObject json){
+		//apiCacheService.flushAllApiCache()
+
 		LinkedHashMap methods = [:]
+
+		String networkGrp = json.NETWORKGRP
+		String testUser = json.TESTUSER
 		json.VERSION.each() { vers ->
+			//def versKey = vers.key
 			String defaultAction = (vers.value['DEFAULTACTION'])?vers.value.DEFAULTACTION:'index'
-			List deprecated = (vers.value.DEPRECATED)?vers.value.DEPRECATED:[]
+
+			//Set testOrder = (vers.value['TESTORDER'])?vers.value.TESTORDER:[]
+
+
+
+			Set deprecated = (vers.value.DEPRECATED)?vers.value.DEPRECATED:[]
 			String domainPackage = (vers.value.DOMAINPACKAGE!=null || vers.value.DOMAINPACKAGE?.size()>0)?vers.value.DOMAINPACKAGE:null
 
 			String actionname
 			vers.value.URI.each() { it ->
 
-				def cache = apiCacheService.getApiCache(apiName.toString())
+				//def cache = apiCacheService.getApiCache(apiName.toString())
 				//def cache = (temp?.get(apiName))?temp?.get(apiName):[:]
 
 				methods['cacheversion'] = 1
@@ -203,25 +258,42 @@ class ApiObjectService{
 
 				actionname = it.key
 
-				net.nosegrind.apiframework.ApiDescriptor apiDescriptor
+				ApiDescriptor apiDescriptor
 				//Map apiParams
 
 				String apiMethod = it.value.METHOD
 				String apiDescription = it.value.DESCRIPTION
-				List apiRoles = it.value.ROLES.DEFAULT
-				List batchRoles = it.value.ROLES.BATCH
-				List hookRoles = it.value.ROLES.HOOK
+
+				List apiRoles = (it.value.ROLES.DEFAULT)?it.value.ROLES.DEFAULT as List:null
+				List networkRoles = grails.util.Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGrp}"
+				if(apiRoles) {
+					if(!(apiRoles-networkRoles.intersect(apiRoles).isEmpty())){
+						throw new Exception("[Runtime :: parseJson] : ${it.key}.ROLES.DEFAULT does not match any networkRoles for ${apiName} NETWORKGRP :",e)
+					}
+				}else{
+					apiRoles = networkRoles
+				}
+
+
+				Set batchRoles = it.value.ROLES.BATCH
+				Set hookRoles = it.value.ROLES.HOOK
 
 				String uri = it.key
-				apiDescriptor = createApiDescriptor(apiName, apiMethod, apiDescription, apiRoles, batchRoles, hookRoles, uri, json.get('VALUES'), apiVersion)
+				apiDescriptor = createApiDescriptor(networkGrp, apiName, apiMethod, apiDescription, apiRoles, batchRoles, hookRoles, uri, json.get('VALUES'), apiVersion)
 				if(!methods[vers.key]){
 					methods[vers.key] = [:]
+				}
+
+				if(!methods['values']){
+					methods['values'] = [:]
+					methods['values'] = json.get('VALUES')
 				}
 
 				if(!methods['currentStable']){
 					methods['currentStable'] = [:]
 					methods['currentStable']['value'] = json.CURRENTSTABLE
 				}
+
 				if(!methods[vers.key]['deprecated']){
 					methods[vers.key]['deprecated'] = []
 					methods[vers.key]['deprecated'] = deprecated
@@ -231,21 +303,34 @@ class ApiObjectService{
 					methods[vers.key]['defaultAction'] = defaultAction
 				}
 
+				if(!methods[vers.key]['testOrder']){
+					methods[vers.key]['testOrder'] = []
+					//methods[vers.key]['testOrder'] = testOrder
+				}
+
+				if(!methods[vers.key]['testUser']){
+					methods[vers.key]['testUser'] = testUser
+				}
+
 				methods[vers.key][actionname] = apiDescriptor
+
 			}
 
 			if(methods){
 				def cache = apiCacheService.setApiCache(apiName,methods)
-				//println("apiName : ${apiName} /"+methods[vers.key][actionname]['returns'])
+
 				cache[vers.key].each(){ key1,val1 ->
 
-					if(!['deprecated','defaultAction'].contains(key1)){
+					if(!['deprecated','defaultAction','testOrder','testUser'].contains(key1)){
 						apiCacheService.setApiCache(apiName,key1, val1, vers.key)
+						apiCacheService.unsetApiCachedResult(apiName, vers.key, key1)
 					}
 				}
+
 			}
 
 		}
+		return methods
 	}
 
 }

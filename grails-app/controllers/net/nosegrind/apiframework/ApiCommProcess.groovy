@@ -732,7 +732,7 @@ abstract class ApiCommProcess{
      * @param LinkedHashMap List of ids required when making request to endpoint
      * @return a hash from all id's needed when making request to endpoint
      */
-    String createCacheHash(GrailsParameterMap params, ArrayList receivesList, List authority){
+    String createCacheHash(GrailsParameterMap params, ArrayList receivesList){
         //ArrayList receivesList = []
         //boolean roles = Holders.grailsApplication.config.apitoolkit.networkRoles."${networkGroup}"
         StringBuilder hashString = new StringBuilder('')

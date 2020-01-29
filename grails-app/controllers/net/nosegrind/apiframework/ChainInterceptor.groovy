@@ -250,7 +250,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 					}
 				}
 
-				cacheHash = createCacheHash(params, receivesList, this.authority)
+				cacheHash = createCacheHash(params, receivesList)
 
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
 				if (!checkURIDefinitions(params, receivesList, this.authority)) {

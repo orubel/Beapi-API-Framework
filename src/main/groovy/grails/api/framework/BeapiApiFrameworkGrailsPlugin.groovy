@@ -174,7 +174,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
         println '### Loading IO State Files ...'
 
-        try {
+        //try {
             new File(path).eachFile() { file ->
                 String fileName = file.name.toString()
 
@@ -188,9 +188,9 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                     println(" # Bad File Type [ ${tmp[1]} ]; Ignoring file : ${fileName}")
                 }
             }
-        }catch(Exception e){
-            throw new Exception('[BeAPIFramework] : No IO State Files found for initialization :',e)
-        }
+        //}catch(Exception e){
+        //    throw new Exception('[BeAPIFramework] : No IO State Files found for initialization :',e)
+        //}
     }
 
 	void doInitApiFrameworkInstall(applicationContext) {
@@ -446,7 +446,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
     LinkedHashMap parseJson(String apiName,JSONObject json, ApplicationContext applicationContext){
         def apiCacheService = applicationContext.getBean("apiCacheService")
-        apiCacheService.flushAllApiCache()
+        //apiCacheService.flushAllApiCache()
 
         LinkedHashMap methods = [:]
 
@@ -626,7 +626,8 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 'hookRoles':[],
                 'doc':[:],
                 'receives':receives,
-                'returns':returns
+                'returns':returns,
+                'cachedResult': [:]
         )
 
         // override networkRoles with 'DEFAULT' in IO State

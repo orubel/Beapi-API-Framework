@@ -402,7 +402,7 @@ class ApiRequestFilter extends GenericFilterBean {
                 } else {
                     GrailsHttpSession session = RCH.currentRequestAttributes().getSession()
                     session['cache'] = cache2
-                    return session['cache'][version][action]['networkGrp']
+                    return cache2[version][action]['networkGrp']
                 }
             } else {
                 //println("no cache found")
