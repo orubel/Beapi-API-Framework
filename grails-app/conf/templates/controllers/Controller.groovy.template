@@ -21,7 +21,7 @@ class ${realClassName}Controller {
 			}
 
 		}catch(Exception e){
-			throw new Exception("[${realClassName}Controller : get] : Exception - full stack trace follows:",e)
+			throw new Exception("[${realClassName}Controller : show] : Exception - full stack trace follows:",e)
 		}
     }
 

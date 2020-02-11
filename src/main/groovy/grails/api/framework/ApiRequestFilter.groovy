@@ -91,7 +91,7 @@ class ApiRequestFilter extends GenericFilterBean {
 
     //@Override
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        // println("#### ApiRequestFilter ####")
+        println("#### ApiRequestFilter ####")
 
         HttpServletRequest httpRequest = request as HttpServletRequest
         HttpServletResponse httpResponse = response as HttpServletResponse
@@ -188,7 +188,10 @@ class ApiRequestFilter extends GenericFilterBean {
 
         // get users network group and config NetworkGroups list and test if networkGrp sent exists
         List networkGroups = (List) Holders.grailsApplication.config.apitoolkit['networkGroups']
+        //println("networkGrps:"+networkGroups)
         String networkGroupType = getNetworkGrp(version, controller, action, request, response)
+        //println("networkGroupType:"+networkGroupType)
+
         if(!networkGroups.contains(networkGroupType)){
             response.setContentType("application/json")
             response.setStatus(401)
@@ -272,7 +275,6 @@ class ApiRequestFilter extends GenericFilterBean {
                             stringBuilder.append(line);
                         }
                         out = stringBuilder.toString()
-
                         if (JSON.parse(out)) {
                             format = 'JSON'
                             return 'JSON' == format
@@ -350,6 +352,7 @@ class ApiRequestFilter extends GenericFilterBean {
         if (startIndex == -1) {
             return null;
         }
+
         String filename = contentDisposition.substring(startIndex + FILENAME_KEY.length());
         if (filename.startsWith("\"")) {
             int endIndex = filename.indexOf("\"", 1);

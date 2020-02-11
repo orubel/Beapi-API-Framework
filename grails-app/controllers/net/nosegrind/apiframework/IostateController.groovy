@@ -27,7 +27,7 @@ class IostateController {
 
 	HashMap update() {
 		if(isSuperuser()){
-		    def file = request.getFile('iostate')
+		    def file = request.getFile('filename')
 		    
 		    if (file.empty) {
 		        render(status:HttpServletResponse.SC_BAD_REQUEST)
