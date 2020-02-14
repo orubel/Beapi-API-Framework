@@ -323,11 +323,17 @@ class ApiObjectService{
 
 					if(!['deprecated','defaultAction','testOrder','testUser'].contains(key1)){
 						apiCacheService.setApiCache(apiName,key1, val1, vers.key)
-						apiCacheService.unsetApiCachedResult(apiName, vers.key, key1)
 					}
 				}
 
 			}
+/*
+			cache[vers.key].each(){ key1,val1 ->
+				if(!['deprecated','defaultAction','testOrder','testUser'].contains(key1)){
+					apiCacheService.unsetApiCachedResult(apiName, vers.key, key1)
+				}
+			}
+*/
 
 		}
 		return methods

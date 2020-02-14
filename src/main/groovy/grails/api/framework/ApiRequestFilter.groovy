@@ -17,6 +17,7 @@ import grails.plugin.springsecurity.rest.authentication.RestAuthenticationEventP
 import grails.plugin.springsecurity.rest.token.AccessToken
 import grails.plugin.springsecurity.rest.token.reader.TokenReader
 import grails.web.servlet.mvc.GrailsHttpSession
+import net.nosegrind.apiframework.ApiDescriptor
 
 import java.io.InputStreamReader
 
@@ -187,10 +188,9 @@ class ApiRequestFilter extends GenericFilterBean {
         }
 
         // get users network group and config NetworkGroups list and test if networkGrp sent exists
-        List networkGroups = (List) Holders.grailsApplication.config.apitoolkit['networkGroups']
-        //println("networkGrps:"+networkGroups)
+        List<String> networkGroups = Holders.grailsApplication.config.apitoolkit['networkGroups'] as List<String>
+
         String networkGroupType = getNetworkGrp(version, controller, action, request, response)
-        //println("networkGroupType:"+networkGroupType)
 
         if(!networkGroups.contains(networkGroupType)){
             response.setContentType("application/json")
@@ -208,6 +208,8 @@ class ApiRequestFilter extends GenericFilterBean {
             LinkedHashMap allowedOrigins = corsInterceptorConfig['networkGroups'] ?: null
             String[] networkGroupList = allowedOrigins[networkGroupType]
 
+            //def excludeEnvRule = excludeEnvironments.contains(Environment.current.name)
+            //def includeEnvRule = includeEnvironments.contains(Environment.current.name)
             if (excludeEnvironments && excludeEnvironments.contains(Environment.current.name)) {
                 // current env is excluded
                 // skip
@@ -230,7 +232,8 @@ class ApiRequestFilter extends GenericFilterBean {
                 }
             }
 
-            if (networkGroupList && networkGroupList.contains(origin)) { // request origin is on the white list
+            def networkGrpListRule = networkGroupList.contains(origin)
+            if (networkGroupList && networkGrpListRule) { // request origin is on the white list
                 // add CORS access control headers for the given origin
                 response.setHeader('Access-Control-Allow-Origin', origin)
                 response.addHeader('Access-Control-Allow-Credentials', 'true')
@@ -394,13 +397,16 @@ class ApiRequestFilter extends GenericFilterBean {
 
             LinkedHashMap cache2
             if (tempCache) {
+
                 cache2 = tempCache.get() as LinkedHashMap
-                version = (version.isEmpty()) ? cache2['cacheversion'] : version
+                version = (version.isEmpty()) ? cache2['cacheversion'] : 1
 
                 if (!cache2?."${version}"?."${action}") {
-                    response.status = 401
-                    response.setHeader('ERROR', 'IO State Not properly Formatted for this URI. Please contact the Administrator.')
-                    response.writer.flush()
+                    //ApiDescriptor apidesc = cache2[version][action]
+                    response.setContentType("application/json")
+                    response.setStatus(401)
+                    response.getWriter().write("IO State Not properly Formatted for this URI. Please contact the Administrator.")
+                    //response.writer.flush()
                     return
                 } else {
                     GrailsHttpSession session = RCH.currentRequestAttributes().getSession()
@@ -459,7 +465,8 @@ class ApiRequestFilter extends GenericFilterBean {
 
         try {
             // Init params
-            if (formats.contains(format)) {
+            def formatsRule = formats.contains(format)
+            if (formatsRule) {
                 LinkedHashMap dataParams = [:]
                 switch (format) {
                     case 'XML':

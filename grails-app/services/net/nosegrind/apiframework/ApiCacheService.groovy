@@ -84,7 +84,6 @@ class ApiCacheService{
 	boolean flushApiCache(String controllername){
 		GrailsConcurrentMapCache temp = grailsCacheManager?.getCache('ApiCache')
 		def cache = setApiCache(controllername,[:])
-		println(cache)
 	}
 
 
