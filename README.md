@@ -4,8 +4,8 @@
 **If you enjoy our work, please click our sponsor button at the top of the page**
 
 ## Benchmarks : [view](https://github.com/orubel/logos/blob/master/bench.png)
-## Latest Version: [1.5.64](https://bintray.com/orubel/plugins/api-framework/1.5.64)
-## Stable/Latest Profile Version: [1.5.64](https://github.com/orubel/Beapi-Plugin-Profile)(https://github.com/orubel/Beapi-Plugin-Profile)
+## Latest Version: [1.6.1](https://bintray.com/orubel/plugins/api-framework/1.6.1)
+## Stable/Latest Profile Version: [1.6.1](https://github.com/orubel/Beapi-Plugin-Profile)(https://github.com/orubel/Beapi-Plugin-Profile)
 
 ***
 ## Documentation - http://orubel.github.io/Beapi-API-Framework/
