@@ -217,17 +217,28 @@ class ApiCacheService{
 					}
 				}
 
+				doc['receives'] = [:]
+				if(cache[apiversion][actionname]['receives']){
+					for(returnVal in cache[apiversion][actionname]['receives']){
+						if(returnVal?.key) {
+							doc['receives']["$returnVal.key"] = returnVal.value
+						}
+					}
+
+					doc['inputjson'] = processJson(doc['receives'])
+				}
+
+				doc['returns'] = [:]
 				if(cache[apiversion][actionname]['returns']){
-					doc['returns'] = [:]
 					for(returnVal in cache[apiversion][actionname]['returns']){
 						if(returnVal?.key) {
 							doc['returns']["$returnVal.key"] = returnVal.value
 						}
 					}
 
-					doc['inputjson'] = processJson(doc['receives'])
 					doc['outputjson'] = processJson(doc['returns'])
 				}
+
 			}
 			return doc
 		}catch(Exception e){
@@ -305,8 +316,12 @@ class ApiCacheService{
 	private String processJson(LinkedHashMap returns){
 		// int cores = grailsApplication.config.apitoolkit.procCores as int
 		try{
+
 			LinkedHashMap json = [:]
 			returns.each{ p ->
+
+				// p.key is ROLE or permitall allowing association of doc mockdata to appropriate role.
+				json[p.key] = [:]
 				p.value.each{ it ->
 					if(it) {
 						def paramDesc = it
@@ -331,9 +346,9 @@ class ApiCacheService{
 											}
 										}
 									}
-									json[key] = child
+									json[p.key][key] = child
 								} else {
-									json[key] = val
+									json[p.key][key] = val
 								}
 							}
 						})
