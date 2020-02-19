@@ -169,11 +169,16 @@ class ApiCacheService{
 	LinkedHashMap unsetApiCachedResult(String controllername, String apiversion, String methodname){
 		try {
 			LinkedHashMap cache = getApiCache(controllername)
-			cache[apiversion][methodname]['cachedResult'] = [:]
+			if (cache[apiversion]) {
+				cache[apiversion][methodname]['cachedResult'] = [:]
+			}
+			return cache
 		}catch(Exception e){
 			throw new Exception("[ApiCacheService :: setApiCache] : Exception - full stack trace follows:",e)
 		}
 	}
+
+
 
 	/**
 	 * Method to autogenerate the apidoc data set from loaded IO state files
