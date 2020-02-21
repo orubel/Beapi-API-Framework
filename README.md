@@ -16,7 +16,7 @@
 
 ***
 ### Description
-The BeAPI Framework is a full featured api automation framework providing a FULL API automation with an AVERAGE response time per call of [0.27 milliseconds per request](https://www.flickr.com/photos/orubel/32194321787/in/dateposted-public/) (Google requires their calls to be UNDER 200 ms). 
+The BeAPI Framework is a full featured api automation framework providing a FULL API automation with an AVERAGE response time per call of [0.25 milliseconds per request](https://www.flickr.com/photos/orubel/32194321787/in/dateposted-public/) (Google requires their calls to be UNDER 200 ms). 
 
 Some features include:
 
@@ -26,7 +26,7 @@ Some features include:
 
 - **JWT Tokens:** JWT Token handling for Javascript frontends to allow or better abstraction of the VIEW layer
 
-- **Localized Schema Management/Caching:** Manage your the state for all your endpoints through the IO State files. Unlike Swagger/OpenApi, the data associated with functionality for REQUEST/RESPONSE can be shared from a centralized cache and thus can be synchronized making it more secure, stable, faster and flexible. You can make changes to your apis, security and definitions on the fly all without taking your servers down.
+- **Schema Management/Caching:** Manage your the state for all your endpoints through the IO State files. Unlike Swagger/OpenApi, the data associated with functionality for REQUEST/RESPONSE can be shared from a centralized cache and thus can be synchronized making it more secure, stable, faster and flexible. You can make changes to your apis, security and definitions on the fly all without taking your servers down.
 
 - **Automated Web Hooks:** Enables secured Web Hooks for any endpoint so your developers/users can get push notification on updates.
 
