@@ -10,6 +10,24 @@
 ***
 ## Documentation - http://orubel.github.io/Beapi-API-Framework/
 ## Forums - http://beapi.freeforums.net/
+## New App Installation
+```
+grails create-app name_of_your_app --profile org.grails.profiles:beapi-profile:1.6.2
+```
+## Plugin Installation
+```
+repositories {
+    ...
+    maven { url "http://dl.bintray.com/orubel/plugins" }
+    ...
+}
+...
+dependencies {
+    ...
+    compile 'org.grails.plugins:api-framework:1.6.2'
+    ...
+}
+```
 
 <!-- ### Backend Implementation - https://github.com/orubel/beapi_backend -->
 ### Frontend Implementation - https://github.com/orubel/beapi_frontend
