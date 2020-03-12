@@ -182,6 +182,10 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				}
 
 				cacheHash = createCacheHash(params, receivesList)
+				
+				/**
+				 * Only do this for GET, PUT, POST,DELETE; NOT PATCH!!!
+				 */
 				if(!checkURIDefinitions(params, receivesList, this.authority)){
 					statsService.setStatsCache(userId, response.status, request.requestURI)
 					errorResponse([400,"Sent params {${params}} do not match expected params {${receivesList}}"])
