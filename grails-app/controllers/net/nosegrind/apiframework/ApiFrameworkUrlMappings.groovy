@@ -68,6 +68,7 @@ class ApiFrameworkUrlMappings {
         // BATCH API ENDPOINTS
         "/$batchEntryPoint/$controller/$action/$id**"{
             entryPoint = batchEntryPoint
+            parseRequest = true
         }
 
         "/$batchEntryPoint/$controller/$action"{
@@ -102,6 +103,7 @@ class ApiFrameworkUrlMappings {
         // CHAIN API ENDPOINTS
         "/$chainEntryPoint/$controller/$action/$id**"{
             entryPoint = chainEntryPoint
+            parseRequest = true
         }
 
         "/$chainEntryPoint/$controller/$action"{

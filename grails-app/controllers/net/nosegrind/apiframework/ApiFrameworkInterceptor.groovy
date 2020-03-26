@@ -100,8 +100,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	boolean before(){
 		//println("##### INTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
 
-
-
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
 		//println("FILTERCHAIN : "+filterChain)
@@ -111,7 +109,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		mthd = (RequestMethod) RequestMethod[mthdKey]
 		apiThrottle = grailsApplication.config.apiThrottle as boolean
 		contentType = request.getContentType()
-		this.userId = springSecurityService.principal['id'] as Long
 
 		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
 

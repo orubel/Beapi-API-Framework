@@ -105,8 +105,9 @@ abstract class ApiCommProcess{
      * @see ChainInterceptor#before()
      * @param GrailsParameterMap Map of params created from the request data
      */
-    void setChainParams(GrailsParameterMap params){
+     void setChainParams(GrailsParameterMap params){
         if (chainEnabled) {
+
             if(!params.apiChain){ params.apiChain = [:] }
             LinkedHashMap chainVars = request.JSON
             if(!request.getAttribute('chainLength')){
@@ -209,6 +210,7 @@ abstract class ApiCommProcess{
                 
                 reservedNames.each() { paramsList.remove(it) }
 
+                //println("PARAMS:"+params)
                 //println("RL (expected):"+requestList)
                 //println("PL (sent):"+paramsList)
 

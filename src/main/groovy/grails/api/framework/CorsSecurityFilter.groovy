@@ -38,7 +38,7 @@ class CorsSecurityFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        // println("#### CorsSecurityFilter ####")
+        //println("#### CorsSecurityFilter ####")
 
         if(!processPreflight(request, response) ) {
             chain.doFilter(request, response)

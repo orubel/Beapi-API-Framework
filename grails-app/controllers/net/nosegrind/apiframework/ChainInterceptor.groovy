@@ -26,7 +26,7 @@ import org.grails.web.util.WebUtils
 import grails.util.Holders
 import javax.servlet.http.HttpServletResponse
 import groovy.transform.CompileStatic
-
+import javax.servlet.http.HttpSession
 
 /**
  *
@@ -65,7 +65,7 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 	boolean apiThrottle
 	List acceptableMethod = ['GET']
 	List unacceptableMethod = []
-	String cacheHash
+	//String cacheHash
 	String contentType
 	String apiObject
 	String controller
@@ -101,8 +101,6 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 			acceptableMethod.add(mthdKey)
 		}
 
-		//Map methods = ['GET':'show','PUT':'update','POST':'create','DELETE':'delete']
-
 
 		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
 
@@ -127,10 +125,18 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 			}
 		}
 
-		// INITIALIZE CACHE
 
-		session['cache'] = apiCacheService.getApiCache(params.controller.toString())
+		// INITIALIZE CACHE
+		HttpSession session = request.getSession()
 		cache = session['cache'] as LinkedHashMap
+		controller = params?.controller
+
+		if(cache) {
+			apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
+			action = (params.action == null) ? cache[apiObject]['defaultAction'] : params.action
+		}else{
+			action = params?.action
+		}
 
 		// INIT local Chain Variables
 		if(chain==null){
@@ -138,16 +144,24 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 			render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Expected chain variables not sent')
 			return false
 		}
+
+		//HashMap order = [:]
 		int inc = 0
 		chainKeys[0] = chain['key']
 		chainUris[0] = request.forwardURI
-		HashMap order = chain.order as HashMap
-		order.each(){ key, val ->
+		Iterator iter = chain.order.iterator()
+
+		while(iter.hasNext()) {
+			Map.Entry entry = iter.next() as Map.Entry
+			String key = entry.getKey()
+			String val = entry.getValue()
+			//order[key]=val
 			chainOrder[key] = val
 			inc++
 			chainKeys[inc] = val
 			chainUris[inc] = key
 		}
+
 		chainLength = inc
 
 		// TODO : test for where chain data was sent
@@ -157,14 +171,6 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 			return false
 		}
 
-		if(cache) {
-			params.apiObject = (params.apiObjectVersion) ? params.apiObjectVersion : cache['currentStable']['value']
-			apiObject = params.apiObject
-			params.action = (params.action == null) ? cache[params.apiObject]['defaultAction'] : params.action
-			action = params.action
-		}
-
-
 		this.roles = cache[apiObject][action]['roles'] as List
 		this.authority = getUserRole(this.roles)
 		this.networkGrp = cache[apiObject][action]['networkGrp']
@@ -173,9 +179,8 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 		//String path = "${params.controller}/${params.action}".toString()
 		//println(path)
 
-
 		try{
-			if (params.controller == 'apidoc') {
+			if (controller == 'apidoc') {
 				statsService.setStatsCache(this.userId, 400, request.requestURI)
 				render(status: 400, text: "API Docs cannot be Chained. Pleased called via the normal method (ie v0.1)")
 				return false
@@ -200,28 +205,11 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 					}
 				}
 
+				//cacheHash = createCacheHash(params, receivesList)
+
 				// CHECK FOR REST ALTERNATIVES
 				if (restAlt) {
-					// PARSE REST ALTS (TRACE, OPTIONS, ETC)
-					String result = parseRequestMethod(mthd, params)
-					if (result) {
-						byte[] contentLength = result.getBytes("ISO-8859-1")
-						if (apiThrottle) {
-							if (checkLimit(contentLength.length, this.authority)) {
-								statsService.setStatsCache(this.userId, response.status, request.requestURI)
-								render(text: result, contentType: contentType)
-								return false
-							} else {
-								statsService.setStatsCache(this.userId, 400, request.requestURI)
-								render(status: 400, text: 'Rate Limit exceeded. Please wait' + getThrottleExpiration() + 'seconds til next request.')
-								return false
-							}
-						}else{
-							statsService.setStatsCache(this.userId, response.status, request.requestURI)
-							render(text: result, contentType: contentType)
-							return false
-						}
-					}
+					return false
 				}
 
 				if (request?.getAttribute('chainInc') == null) {
@@ -233,16 +221,19 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
                     List roles = cache[apiObject][action]['roles'] as List
                     if(!checkAuth(roles)){
 						statsService.setStatsCache(this.userId, 401, request.requestURI)
-                    	response.status = 401
-                    	response.setHeader('ERROR',"Unauthorized Access attempted at '${entryPoint}/${params.controller}/${params.action}'. This user does not have proper permissions or URL does not exist.")
-                    	return false
+                    	//response.status = 401
+                    	//response.setHeader('ERROR',"Unauthorized Access attempted at '${entryPoint}/${params.controller}/${params.action}'. This user does not have proper permissions or URL does not exist.")
+						errorResponse([400,"Unauthorized Access attempted at ${entryPoint}/${params.controller}/${params.action}"])
+						return false
                     }
 				}
 
+				// is this being called
 				setChainParams(params)
 
+
 				// CHECK REQUEST VARIABLES MATCH ENDPOINTS EXPECTED VARIABLES
-				LinkedHashMap receives = cache[params.apiObject][params.action.toString()]['receives'] as LinkedHashMap
+				LinkedHashMap receives = cache[apiObject][action.toString()]['receives'] as LinkedHashMap
 				ArrayList receivesList = []
 				this.authority.each(){
 					if(receives[it]) {
@@ -250,18 +241,21 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 					}
 				}
 
-				cacheHash = createCacheHash(params, receivesList)
 
 				//boolean requestKeysMatch = checkURIDefinitions(params, receives)
 				if (!checkURIDefinitions(params, receivesList, this.authority)) {
 					statsService.setStatsCache(this.userId, 400, request.requestURI)
-					render(status: HttpServletResponse.SC_BAD_REQUEST, text: 'Expected request variables for endpoint do not match sent variables')
+					errorResponse([400,"Sent params {${params}} do not match expected params {${receivesList}}"])
 					return false
 				}
 
+				// SET PARAMS AND TEST ENDPOINT ACCESS (PER APIOBJECT)
+				cachedEndpoint = cache[apiObject][action] as ApiDescriptor
+				boolean result = handleRequest(cachedEndpoint['deprecated'] as List)
+				if(result){
+					return result
+				}
 			}
-
-
 			return false
 
 		} catch (Exception e ) {
@@ -319,7 +313,6 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 
 					byte[] contentLength = content.getBytes( "ISO-8859-1" )
 					if(content) {
-
 						// STORE CACHED RESULT
 						String format = request.format.toUpperCase()
 
