@@ -206,8 +206,8 @@ abstract class ApiCommProcess{
             } else {
                 LinkedHashMap methodParams = getMethodParams(params)
                 paramsList = methodParams.keySet() as ArrayList
+
                 // remove reservedNames from List
-                
                 reservedNames.each() { paramsList.remove(it) }
 
                 //println("PARAMS:"+params)
@@ -241,13 +241,13 @@ abstract class ApiCommProcess{
     String parseResponseMethod(RequestMethod mthd, String format, GrailsParameterMap params, LinkedHashMap result){
         String content
         switch(mthd.getKey()) {
-            case 'PURGE':
+            //case 'PURGE':
                 // cleans cache; disabled for now
-                break
-            case 'TRACE':
-                break
-            case 'HEAD':
-                break
+                //break
+            //case 'TRACE':
+                //break
+            //case 'HEAD':
+                //break
             case 'OPTIONS':
                 String doc = getApiDoc(params)
                 content = doc
@@ -300,15 +300,15 @@ abstract class ApiCommProcess{
     String parseRequestMethod(RequestMethod mthd, GrailsParameterMap params){
         String content
         switch(mthd.getKey()) {
-            case 'PURGE':
+            //case 'PURGE':
                 // cleans cache; disabled for now
-                break
-            case 'TRACE':
+                //break
+            //case 'TRACE':
                 // placeholder
-                break
-            case 'HEAD':
+                //break
+            //case 'HEAD':
                 // placeholder
-                break
+                //break
             case 'OPTIONS':
                 content = getApiDoc(params)
                 break
@@ -377,16 +377,15 @@ abstract class ApiCommProcess{
      * @return Boolean returns false if SENT request method and EXPECTED request method do not match
      */
     boolean isRequestMatch(String method,RequestMethod mthd){
+        boolean result = false
         if(RequestMethod.isRestAlt(mthd.getKey())){
-            return true
+            result = true
         }else{
             if(method == mthd.getKey()){
-                return true
-            }else{
-                return false
+                result = true
             }
         }
-        return false
+        return result
     }
 
     /*

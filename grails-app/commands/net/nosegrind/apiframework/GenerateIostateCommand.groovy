@@ -21,14 +21,14 @@ import grails.dev.commands.ApplicationCommand
 import grails.dev.commands.ExecutionContext
 import org.hibernate.metadata.ClassMetadata
 
-import grails.core.GrailsDomainClass
+//import grails.core.GrailsClass
 
 import java.util.jar.JarEntry
 import java.util.jar.JarFile
 import java.util.regex.Matcher
 import java.util.regex.Pattern
 
-
+//import org.codehaus.groovy.grails.commons.GrailsClass
 
 /**
  *
@@ -48,10 +48,8 @@ import java.util.regex.Pattern
  *
  */
 class GenerateIostateCommand implements ApplicationCommand {
-
-
 	//@Autowired
-	//GrailsApplication grailsApplication
+	GrailsApplication grailsApplication
     String iostateDir = ""
     List reservedNames = ['hook','iostate','apidoc']
     LinkedHashMap mocks = [
@@ -68,6 +66,7 @@ class GenerateIostateCommand implements ApplicationCommand {
     ]
 
     boolean handle(ExecutionContext ctx) {
+        println("### handle ###")
         // SET IOSTATE FILES PATH
         switch(Environment.current){
             case Environment.DEVELOPMENT:
@@ -96,6 +95,18 @@ class GenerateIostateCommand implements ApplicationCommand {
             def controller = Holders.grailsApplication.getArtefactByLogicalPropertyName('Controller', logicalName)
             def domain = Holders.grailsApplication.getArtefactByLogicalPropertyName('Domain', logicalName)
             String packageName = domain.getPackageName()
+
+
+
+
+
+            println(domain.getClass())
+            //LinkedHashMap domainVals = getConstraints(domain)
+            //println(domainVals)
+
+
+
+
 
             ClassMetadata hibernateMetaClass = sessionFactory.getClassMetadata(domain.clazz)
 
@@ -250,14 +261,6 @@ class GenerateIostateCommand implements ApplicationCommand {
                 createTemplate(iostateDir, realName, logicalName, values, uris)
             }
 
-
-
-
-
-
-
-
-
         }else {
             // GET BINDING VARIABLES
             def domains = Holders.grailsApplication.getArtefacts("Domain")
@@ -273,11 +276,15 @@ class GenerateIostateCommand implements ApplicationCommand {
 \t\t\t\"type\": \"Long\",
 \t\t\t\"description\": \"Primary Key\",
 \t\t\t"mockData": \"${mocks['LONG']}\",
+\t\t\t"constraints": {},
 \t\t},
 """
                 String uris = "\r"
                 def controller = Holders.grailsApplication.getArtefactByLogicalPropertyName('Controller', logicalName)
                 def domain = Holders.grailsApplication.getArtefactByLogicalPropertyName('Domain', logicalName)
+
+
+
                 String packageName = domain.getPackageName()
                 //println(packageName)
                 //println("[" + logicalName + "]:" + domain.getConstrainedProperties())
@@ -326,6 +333,7 @@ class GenerateIostateCommand implements ApplicationCommand {
 \t\t\t\"type\": \"${type}\",
 \t\t\t\"description\": \"Description for ${it2}\",
 \t\t\t"mockData": \"${mock}\",
+\t\t\t"constraints": {},
 \t\t},
 """
                             } else {
@@ -334,6 +342,7 @@ class GenerateIostateCommand implements ApplicationCommand {
 \t\t\t\"type\": \"${type}\",
 \t\t\t\"description\": \"Description for ${it2}\",
 \t\t\t"mockData": "${mock}\",
+\t\t\t"constraints": {},
 \t\t},
 """
                             }
@@ -428,6 +437,7 @@ class GenerateIostateCommand implements ApplicationCommand {
     }
 
     private String getValueType(String type){
+        println("### getValueType ###")
         switch(type){
             case 'class org.hibernate.type.TextType':
             case 'class org.hibernate.type.StringType':
@@ -477,6 +487,7 @@ class GenerateIostateCommand implements ApplicationCommand {
 
 
     private void createTemplate(String iostateDir, String realName, String logicalName, String values, String uris){
+        println("### createTemplate ###")
         // MAKE SURE DIRECTORY EXISTS
 
         String userHome = System.properties['user.home']
@@ -530,7 +541,50 @@ class GenerateIostateCommand implements ApplicationCommand {
         }
     }
 
+    /*
+    Method to dynamically Generate the values for schemas using the Domain Objects
+    */
+    /*
+    LinkedHashMap getConstraints(GrailsClass domainClass){
+        LinkedHashMap values = [:]
+
+        def props2 = domainClass.getConstrainedProperties()
+
+        props2.each(){ k2,v2 ->
+            LinkedHashMap constraints = []
+
+            def uniq = null
+            if(v2.getAppliedConstraint('unique')?.valid){ uniq = v2.getAppliedConstraint('unique').valid }
+
+            if(uniq){ constraints['isUnique'] = uniq }
+            if(v2.getMaxSize()) { constraints['maxSize'] = v2.getMaxSize() }
+            if(v2.getMinSize()) { constraints['minSize'] = v2.getMinSize() }
+            if(v2.getNotEqual()) { constraints['notEqual'] = v2.getNotEqual() }
+            if(v2.getOrder()) { constraints['order'] = v2.getOrder() }
+            if(v2.getRange()) { constraints['range'] = v2.getRange() }
+            if(v2.getScale()) { constraints['scale'] = v2.getScale() }
+            if(v2.getSize()) { constraints['size'] = v2.getSize() }
+            if(v2.isBlank()) { constraints['isBlank'] = v2.isBlank() }
+            if(v2.getInList()) { constraints['list'] = v2.getInList() }
+            if(v2.isDisplay()) { constraints['isDisplay'] = v2.isDisplay() }
+            if(v2.isEditable()) { constraints['isEditable'] = v2.isEditable() }
+            if(v2.getAppliedConstraint('matches')?.valid) { constraints['regx'] = v2.getMatches() }
+            if(v2.getAppliedConstraint('creditCard')?.valid) { constraints['isCC'] = v2.isCreditCard() }
+            if(v2.getAppliedConstraint('email')?.valid) { constraints['isEmail'] = v2.isEmail() }
+            if(v2.getAppliedConstraint('nullable')?.valid) { constraints['isNullable'] = v2.isNullable() }
+            if(v2.getAppliedConstraint('password')?.valid) { constraints['isPassword'] = v2.isPassword() }
+            if(v2.getAppliedConstraint('url')?.valid) { constraints['isUrl'] = v2.isUrl() }
+
+            values[k2]['constraints'] = constraints
+        }
+
+        // now we need to write the values to the file and also return the values
+        return values
+    }
+*/
+
     void writeFile(String inPath, String outPath){
+        println("### writeFile ###")
         String pluginDir = new File(getClass().protectionDomain.codeSource.location.path).path
         def plugin = new File(pluginDir)
         try {

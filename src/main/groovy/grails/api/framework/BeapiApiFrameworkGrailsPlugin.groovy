@@ -36,7 +36,9 @@ import grails.util.Metadata
  * @author Owen Rubel
  */
 class BeapiApiFrameworkGrailsPlugin extends Plugin{
-	def version = Metadata.current.getApplicationVersion()
+    // DO NOT UNCOMMENT; THIS HAS TO BE EVALUATED IN QUOTES OR
+    // COMMAND CLASSES WILL THROW ERRORS... NO JOKE
+	def version = "${Metadata.current.getApplicationVersion()}"
     def grailsVersion = '3.2.1 > *'
     def title = 'BeAPI Api Framework' // Headline display name of the plugin
 	def author = 'Owen Rubel'
@@ -176,16 +178,18 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
         //try {
             new File(path).eachFile() { file ->
-                String fileName = file.name.toString()
+                if(!file.isDirectory()) {
+                    String fileName = file.name.toString()
 
-                def tmp = fileName.split('\\.')
-                String fileChar1 = fileName.charAt(fileName.length() - 1)
+                    def tmp = fileName.split('\\.')
+                    String fileChar1 = fileName.charAt(fileName.length() - 1)
 
-                if (tmp[1] == 'json' && fileChar1== "n") {
-                    JSONObject json = JSON.parse(file.text)
-                    methods[json.NAME.toString()] = parseJson(json.NAME.toString(), json, applicationContext)
-                }else{
-                    println(" # Bad File Type [ ${tmp[1]} ]; Ignoring file : ${fileName}")
+                    if (tmp[1] == 'json' && fileChar1 == "n") {
+                        JSONObject json = JSON.parse(file.text)
+                        methods[json.NAME.toString()] = parseJson(json.NAME.toString(), json, applicationContext)
+                    } else {
+                        println(" # Bad File Type [ ${tmp[1]} ]; Ignoring file : ${fileName}")
+                    }
                 }
             }
         //}catch(Exception e){
@@ -437,7 +441,6 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
         second.addAll(third.unique())
         first.addAll(second.unique())
-
 
         System.setProperty("testLoadOrder", first.join(","))
 
