@@ -78,6 +78,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             //SpringSecurityUtils.registerFilter 'contentTypeMarshallerFilter', SecurityFilterPosition.PRE_AUTH_FILTER.order + 3
             SpringSecurityUtils.registerFilter 'apiRequestFilter', SecurityFilterPosition.PRE_AUTH_FILTER.order + 2
 
+
             corsSecurityFilter(CorsSecurityFilter){}
 
             /*
@@ -93,7 +94,9 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 authenticationEventPublisher = ref('authenticationEventPublisher')
             }
             contentTypeMarshallerFilter(ContentTypeMarshallerFilter){}
+
             */
+
             apiRequestFilter(ApiRequestFilter) {
                 headerName = conf.rest.token.validation.headerName
                 validationEndpointUrl = conf.rest.token.validation.endpointUrl
@@ -105,6 +108,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 restAuthenticationProvider = ref('restAuthenticationProvider')
                 authenticationEventPublisher = ref('authenticationEventPublisher')
             }
+
         }catch(Exception e){
             throw new Exception("[BeAPIFramework] : Issue creating Filters :",e)
         }
