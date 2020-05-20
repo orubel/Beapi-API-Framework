@@ -277,7 +277,6 @@ class GenerateIostateCommand implements ApplicationCommand {
                 String variables = String.join("\",\"", temp)
 
                 String values = createJson(vals)
-
                 logicalName = it.getLogicalPropertyName()
                 realName = it.getName()
 
@@ -300,29 +299,41 @@ class GenerateIostateCommand implements ApplicationCommand {
                         String req
                         String resp
                         Pattern listPattern = Pattern.compile("list")
-                        Pattern getPattern = Pattern.compile("get|getBy|show|listBy|enable")
+                        Pattern getPattern = Pattern.compile("get|getBy|show|showBy|listBy|enable")
                         Pattern postPattern = Pattern.compile("create|make|generate|build|save")
                         Pattern putPattern = Pattern.compile("edit|update")
                         Pattern deletePattern = Pattern.compile("delete|disable|destroy|kill|reset")
 
                         Matcher getm = getPattern.matcher(it4)
+
                         if (getm.find()) {
                             // test for 'getBy' OR 'listBy' and if found, replace 'id' with named search field
-                            Pattern byPattern = Pattern.compile("getBy|listBy")
+                            Pattern byPattern = Pattern.compile("getBy|listBy|showBy")
                             Matcher bym = byPattern.matcher(it4)
                             if (!bym.find()) {
                                 method = 'GET'
                                 req = '\"id\"'
                                 resp = "\"" + variables + "\""
                             }else{
+                                println('did not find...')
                                 // TODO : replace 'id' with named search field
-                                Pattern byFieldPattern = Pattern.compile("getBy(\w+)")
+                                Pattern byFieldPattern = Pattern.compile(/By(\w+)/)
                                 Matcher byFieldm = byFieldPattern.matcher(it4)
-                                if (byFieldm.find()) {
-                                    // get fields by splitting on 'and' (if there is an 'and')
-                                    
-                                }
 
+                                if (byFieldm.find()){
+                                    ArrayList temp2 = byFieldm[0][1].split('And')
+
+                                    temp2.eachWithIndex(){ it2, i ->
+                                        if(it) {
+                                            temp2[i] = it2.uncapitalize()
+                                        }
+                                    }
+
+
+                                    method = 'GET'
+                                    req = "\"" +String.join("\",\"", temp2)+"\""
+                                    resp = "\"" + variables + "\""
+                                }
                             }
                         }
 
@@ -367,13 +378,12 @@ class GenerateIostateCommand implements ApplicationCommand {
 \t\t\t\t\t    \"BATCH\": [\"ROLE_ADMIN\"]
 \t\t\t\t\t},
 \t\t\t\t\t\"REQUEST\": {
-\t\t\t\t\t\t\"permitAll\":[${req}]
+\t\t\t\t\t\t\"permitAll\":[${req?req:''}]
 \t\t\t\t\t},
 \t\t\t\t\t\"RESPONSE\": {
-\t\t\t\t\t\t\"permitAll\":[${resp}]
+\t\t\t\t\t\t\"permitAll\":[${resp?resp:''}]
 \t\t\t\t\t}
-\t\t\t\t},
-"""
+\t\t\t\t},"""
                         uris <<= uri
                     }
                 }
@@ -552,24 +562,20 @@ class GenerateIostateCommand implements ApplicationCommand {
 
     String createJson(LinkedHashMap vals){
         // CONVERT TO JSON FOR WRITING TO FILE
-        String values
+        String values = ''
         vals.each() { k, v ->
-            values = """
-\t\t\"${k}\": {
-"""
+            values += """
+\t\t\"${k}\": {"""
             if (v?.key) {
-                values = """
-\t\t\t"key\": \"${v.key}\",
-"""
+                values += """
+\t\t\t"key\": \"${v.key}\","""
             }
-
-            values = """
+            values += """
 \t\t\t\"type\": \"${v.type}\",
 \t\t\t\"description\": \"\",
 \t\t\t"mockData": \"\",
-\t\t\t"constraints": ${(JSON)v.constraints},
-\t\t},
-"""
+\t\t\t"constraints": ${v.constraints?(JSON)v.constraints:'{}'},
+\t\t},"""
         }
         return values
     }
