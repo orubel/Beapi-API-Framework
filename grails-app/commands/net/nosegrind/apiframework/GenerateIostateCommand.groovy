@@ -92,8 +92,9 @@ class GenerateIostateCommand implements ApplicationCommand {
         def sessionFactory = Holders.grailsApplication.mainContext.sessionFactory
 
         if(file){
+            // TODO : duplicate functionality for single file
             // single file bootstrap
-            List objects = []
+            LinkedHashMap objects = [:]
             logicalName = file[0].toLowerCase()+file.substring(1)
             realName = file
             def controller = Holders.grailsApplication.getArtefactByLogicalPropertyName('Controller', logicalName)
@@ -101,15 +102,7 @@ class GenerateIostateCommand implements ApplicationCommand {
             String packageName = domain.getPackageName()
 
             // add domain name to OBJECTS
-            objects.add(domain.getClass().getName())
-
-
-            //LinkedHashMap domainVals = getConstraints(domain)
-            //println(domainVals)
-
-
-
-
+            objects["${packageName}"] = ['*']
 
             ClassMetadata hibernateMetaClass = sessionFactory.getClassMetadata(domain.clazz)
 
@@ -237,8 +230,6 @@ class GenerateIostateCommand implements ApplicationCommand {
                             resp.add('\"id\"')
                         }
                     }
-                    //response.collect{ '"' + it + '"'}
-                    //request.collect{ '"' + it + '"'}
 
                     String uri = """
 \t\t\t\t\"${it4}\": {
@@ -260,25 +251,32 @@ class GenerateIostateCommand implements ApplicationCommand {
                 }
             }
             if (logicalName.length() > 0 && values.length() > 0 && uris.length() > 1) {
-                createTemplate(iostateDir, realName, logicalName, values, uris)
+                createTemplate(iostateDir, realName, logicalName, values, uris, objects)
             }
 
         }else {
             // GET BINDING VARIABLES
-            //List objects = []
+            LinkedHashMap objects = [:]
             def domains = Holders.grailsApplication.getArtefacts("Domain")
             def domainList = Holders.grailsApplication.getArtefacts("Domain")*.getShortName()
+
+
             domains.each() { it ->
 
+
                 LinkedHashMap vals = getValues(domainList, it)
-                println("to temp")
+
                 ArrayList temp = vals.keySet() as ArrayList
-                println("creating variables")
+
                 String variables = String.join("\",\"", temp)
 
                 String values = createJson(vals)
                 logicalName = it.getLogicalPropertyName()
                 realName = it.getName()
+
+                // add domain name to OBJECTS
+                //String packageName = it.getPackageName()
+                //objects["${packageName}.${realName}"] = ['*']
 
                 ClassMetadata hibernateMetaClass = sessionFactory.getClassMetadata(it.clazz)
 
@@ -315,8 +313,6 @@ class GenerateIostateCommand implements ApplicationCommand {
                                 req = '\"id\"'
                                 resp = "\"" + variables + "\""
                             }else{
-                                println('did not find...')
-                                // TODO : replace 'id' with named search field
                                 Pattern byFieldPattern = Pattern.compile(/By(\w+)/)
                                 Matcher byFieldm = byFieldPattern.matcher(it4)
 
@@ -397,7 +393,6 @@ class GenerateIostateCommand implements ApplicationCommand {
         println("writing files...")
         return true
     }
-
 
     private void createTemplate(String iostateDir, String realName, String logicalName, String values, String uris){
         // MAKE SURE DIRECTORY EXISTS
