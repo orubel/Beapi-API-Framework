@@ -92,7 +92,7 @@ class ApiRequestFilter extends GenericFilterBean {
 
     //@Override
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        //println("#### ApiRequestFilter ####")
+        println("#### ApiRequestFilter ####")
 
         HttpServletRequest httpRequest = request as HttpServletRequest
         HttpServletResponse httpResponse = response as HttpServletResponse
@@ -162,10 +162,11 @@ class ApiRequestFilter extends GenericFilterBean {
         String controller
         String action
         String version
-
+println("uri:"+actualUri)
         // TODO: need to also check for logoutUri
         switch(actualUri) {
             case ~/\/.{0}[a-z]${entryPoint}(-[0-9])*\/(.*)/:
+println("entrypoint:"+entrypoint)
                 String[] params = actualUri.split('/')
                 String[] temp = ((String)params[1]).split('-')
                 version = (temp.size()>1) ? temp[1].toString() : ''
@@ -173,6 +174,7 @@ class ApiRequestFilter extends GenericFilterBean {
                 action = params[3]
                 break
             case loginUri:
+println("login: ${controller}/${action}")
                 String[] params = actualUri.split('/')
                 controller = params[1]
                 action = params[2]
