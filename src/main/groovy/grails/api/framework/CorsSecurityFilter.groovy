@@ -66,7 +66,7 @@ println("uri:"+actualUri)
         // TODO: need to also check for logoutUri
         switch(actualUri) {
             case ~/\/.{0}[a-z]${entryPoint}(-[0-9])*\/(.*)/:
-println("entrypoint:"+entrypoint)
+println("entrypoint:"+entryPoint)
                 String[] params = actualUri.split('/')
                 String[] temp = ((String)params[1]).split('-')
                 version = (temp.size()>1) ? temp[1].toString() : ''
