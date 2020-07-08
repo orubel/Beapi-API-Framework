@@ -22,8 +22,8 @@ class GoogleProviderService {
 
 
 
-    private static final String CLIENT_ID = "AIzaSyBbhaneS8R3wz43wwtl9XNke255qU61xY4"
-    //private static final String CLIENT_ID = "615500127472-uvaj58iufu76pp64ej5a7dqp43ae8m9q.apps.googleusercontent.com";
+    //private static final String CLIENT_ID = "xxxxxxxxxxxx"
+    //private static final String CLIENT_ID = "xxxxxxxxxxxxx.apps.googleusercontent.com";
 
     def verify(String provider, String tokenString) {
         println("provider/auth")
