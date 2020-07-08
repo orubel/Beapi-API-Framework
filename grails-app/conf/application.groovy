@@ -1,5 +1,6 @@
 import grails.util.Metadata
 
+
 String apiVersion = Metadata.current.getApplicationVersion()
 // fix for dots not working with spring security pathing
 String entryPoint = "/v${apiVersion}".toString()
@@ -52,6 +53,8 @@ grails.plugin.springsecurity.adh.errorPage = null
 
 grails.plugin.springsecurity.providerNames = ['daoAuthenticationProvider', 'anonymousAuthenticationProvider', 'rememberMeAuthenticationProvider']
 
+grails.plugin.springsecurity.logout.handlerNames = ['rememberMeServices', 'securityContextLogoutHandler', 'cookieClearingLogoutHandler']
+
 grails.plugin.springsecurity.rememberMe.alwaysRemember = true
 grails.plugin.springsecurity.rememberMe.cookieName = 'apiTest'
 grails.plugin.springsecurity.rememberMe.key = '_grails_'
@@ -66,7 +69,7 @@ grails.plugin.springsecurity.auth.loginFormUrl = '/login/auth/'
 //grails.plugin.springsecurity.failureHandler.defaultFailureUrl = '/login/ajaxDenied'
 //grails.plugin.springsecurity.failureHandler.ajaxAuthFailUrl = '/login/ajaxDenied'
 
-
+String ANONYMOUS_FILTERS = 'anonymousAuthenticationFilter,restTokenValidationFilter,restExceptionTranslationFilter,filterInvocationInterceptor'
 grails.plugin.springsecurity.filterChain.chainMap = [
 		[pattern: "${entryPoint}/**",filters:'apiRequestFilter'],
 		[pattern: "${entryPoint}-1/**",filters:'apiRequestFilter'],
@@ -99,9 +102,11 @@ grails.plugin.springsecurity.filterChain.chainMap = [
 		[pattern: "${metricsEntryPoint}-7/**",filters:'apiRequestFilter'],
 		[pattern: "${metricsEntryPoint}-8/**",filters:'apiRequestFilter'],
 		[pattern: "${metricsEntryPoint}-9/**",filters:'apiRequestFilter'],
+		[pattern: '/', filters: 'none'],
 		[pattern: "/api/login", filters: 'corsSecurityFilter,restAuthenticationFilter'],
 		[pattern: "/api/logout", filters: 'restAuthenticationFilter'],
-		[pattern: "/**", filters: 'apiRequestFilter']
+		[pattern: '/provider/auth/google', filters: ANONYMOUS_FILTERS]
+
 ]
 
 grails.plugin.springsecurity.interceptUrlMap = [
@@ -138,17 +143,19 @@ grails.plugin.springsecurity.interceptUrlMap = [
 		[pattern:"/${metricsEntryPoint}-8/**",   access:["permitAll && \"{'GET','PUT','POST','DELETE','OPTIONS'}\".contains(request.getMethod())"]],
 		[pattern:"/${metricsEntryPoint}-9/**",   access:["permitAll && \"{'GET','PUT','POST','DELETE','OPTIONS'}\".contains(request.getMethod())"]],
 		[pattern:"/${domainEntryPoint}/**",   access:["permitAll && \"{'GET','PUT','POST','DELETE','OPTIONS'}\".contains(request.getMethod())"]],
-		//[pattern:'/',                   access:['permitAll']],
-		[pattern:'/error',              access:['permitAll']],
-		[pattern:'/error/**',           access:['permitAll']],
+		[pattern:'/',                   access:['permitAll']],
 		[pattern:'/index',              access:['permitAll']],
 		[pattern:'/index.gsp',          access:['permitAll']],
+		[pattern:'/error',              access:['permitAll']],
+		[pattern:'/error/**',           access:['permitAll']],
 		[pattern:'/assets/**',          access:['permitAll']],
 		[pattern:'/login/**',           access:["permitAll"]],
 		[pattern:'/logout',             access:["permitAll"]],
 		[pattern:'/logout/**',          access:["permitAll"]],
 		[pattern:'/admin',              access:["permitAll"]],
 		[pattern:'/admin/**',           access:["permitAll"]],
+		[pattern:'/provider/auth/**',      access:["permitAll"]],
+		[pattern:'/oauth/**',           access:["permitAll"]],
 		[pattern:'/test/testHook',      access:["permitAll"]]
 ]
 
@@ -162,34 +169,79 @@ grails.plugin.springsecurity.rest.login.useJsonCredentials  = true
 grails.plugin.springsecurity.rest.login.usernamePropertyName =  'username'
 grails.plugin.springsecurity.rest.login.passwordPropertyName =  'password'
 
-grails.plugin.springsecurity.rest.token.generation.useSecureRandom  = true
-grails.plugin.springsecurity.rest.token.generation.useUUID  = false
 
-grails.plugin.springsecurity.rest.token.storage.useGorm = true
-grails.plugin.springsecurity.rest.token.storage.gorm.tokenDomainClassName   = 'net.nosegrind.apiframework.AuthenticationToken'
-grails.plugin.springsecurity.rest.token.storage.gorm.tokenValuePropertyName = 'tokenValue'
-grails.plugin.springsecurity.rest.token.storage.gorm.usernamePropertyName   = 'username'
 
-grails.plugin.springsecurity.rest.token.rendering.usernamePropertyName  = 'username'
-grails.plugin.springsecurity.rest.token.rendering.authoritiesPropertyName = 'authorities'
-
-grails.plugin.springsecurity.rest.token.validation.useBearerToken = true
-//grails.plugin.springsecurity.rest.token.validation.active   = true
-//grails.plugin.springsecurity.rest.token.validation.headerName   = 'X-Auth-Token'
-//grails.plugin.springsecurity.rest.token.validation.endpointUrl  = '/api/validate'
 
 grails.plugin.springsecurity.rememberMe.alwaysRemember = true
 grails.plugin.springsecurity.rememberMe.persistent = false
 //grails.plugin.springsecurity.rememberMe.persistentToken.domainClassName = 'net.nosegrind.apiframework.PersistentLogin'
 
-// makes the application easier to work with
-grails.plugin.springsecurity.logout.postOnly = false
-
 grails.plugin.springsecurity.useSecurityEventListener = false
 
 // rest token
-grails.plugin.springsecurity.rest.token.storage.jwt.useSignedJwt = true
-grails.plugin.springsecurity.rest.token.storage.jwt.secret = 'szdxgerklaslcxhiouweas'
-grails.plugin.springsecurity.rest.token.storage.jwt.expiration = -1
+//grails.plugin.springsecurity.rest.token.storage.jwt.useSignedJwt = true
+//grails.plugin.springsecurity.rest.token.storage.jwt.secret = 'szdxgerklaslcxhiouweas'
+//grails.plugin.springsecurity.rest.token.storage.jwt.expiration = -1
 
 
+//grails.plugin.springsecurity.rest.token.validation.useBearerToken = true
+//grails.plugin.springsecurity.rest.token.validation.active   = true
+//grails.plugin.springsecurity.rest.token.validation.headerName   = 'X-Auth-Token'
+//grails.plugin.springsecurity.rest.token.validation.endpointUrl  = '/api/validate'
+
+//grails.plugin.springsecurity.rest.token.generation.useSecureRandom  = true
+//grails.plugin.springsecurity.rest.token.generation.useUUID  = false
+
+//grails.plugin.springsecurity.rest.token.storage.useGorm = true
+//grails.plugin.springsecurity.rest.token.storage.gorm.tokenDomainClassName   = 'net.nosegrind.apiframework.AuthenticationToken'
+//grails.plugin.springsecurity.rest.token.storage.gorm.tokenValuePropertyName = 'tokenValue'
+//grails.plugin.springsecurity.rest.token.storage.gorm.usernamePropertyName   = 'username'
+
+grails.plugin.springsecurity.rest.token.rendering.usernamePropertyName  = 'username'
+grails.plugin.springsecurity.rest.token.rendering.authoritiesPropertyName = 'authorities'
+
+
+grails {
+	plugin {
+		springsecurity {
+			rest {
+				token {
+					generation {
+						useSecureRandom  = true
+						useUUID  = false
+					}
+					storage {
+						useGorm = true
+						gorm {
+							tokenDomainClassName = 'net.nosegrind.apiframework.AuthenticationToken'
+							tokenValuePropertyName = 'tokenValue'
+							usernamePropertyName   = 'username'
+						}
+					}
+					validation {
+						useBearerToken = true
+						enableAnonymousAccess = true
+					}
+					storage {
+						jwt {
+							useSignedJwt = true
+							secret = 'szdxgerklaslcxhiouweas'
+							expiration = -1
+						}
+					}
+				}
+				oauth {
+					frontendCallbackUrl = { String tokenValue -> "http://localhost:8080/auth/success?token=${tokenValue}" }
+					google {
+						client = org.pac4j.oauth.client.Google2Client
+						key = '848711045025-08tb9du79m3i4figro4rrqtc2i07lrv2.apps.googleusercontent.com'
+						secret = '7pY7JUWkfwaXhF-i46PKkmn-'
+						scope = org.pac4j.oauth.client.Google2Client.Google2Scope.EMAIL_AND_PROFILE
+						defaultRoles = []
+					}
+				}
+			}
+			providerNames = ['anonymousAuthenticationProvider']
+		}
+	}
+}

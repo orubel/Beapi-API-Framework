@@ -8,6 +8,8 @@
  *   https://opensource.org/licenses/AFL-3.0
  */
 
+import org.springframework.security.web.authentication.logout.CookieClearingLogoutHandler]
+
 // Place your Spring DSL code here
 beans = {
     requestForwarder(grails.api.framework.RequestForwarder)

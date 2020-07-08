@@ -19,7 +19,6 @@ logger 'grails.artefact.Interceptor', INFO, ['STDOUT'], false
 
 
 
-
 if(Environment.current == Environment.DEVELOPMENT) {
     def targetDir = BuildSettings.TARGET_DIR
     if(targetDir) {
@@ -33,7 +32,8 @@ if(Environment.current == Environment.DEVELOPMENT) {
             }
         }
         logger("StackTrace", ERROR, ['FULL_STACKTRACE'], false )
-        logger("net.nosegrind.apiframework", INFO, ['STDOUT'], false)
+        logger("net.nosegrind.apiframework", INFO, ['STDOUT'], true)
+        logger 'org.springframework.security.web.FilterChainProxy', DEBUG, ['STDOUT']
 
 
     }

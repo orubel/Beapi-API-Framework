@@ -35,6 +35,7 @@ class CorsSecurityFilter extends OncePerRequestFilter {
     //private ApplicationContext context
 
     String loginUri
+    boolean altUri
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
@@ -56,13 +57,15 @@ class CorsSecurityFilter extends OncePerRequestFilter {
          * First get CORS Network grps, then test the domains listed in the users network group
          * against sent origin
          */
-        this.loginUri = getLoginUrl()
+        this.loginUri = getLoginUri()
+
         String actualUri = request.requestURI - request.contextPath
         String entryPoint = Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)
         String controller
         String action
         String version
 
+        this.altUri = false
         // TODO: need to also check for logoutUri
         switch(actualUri) {
             case ~/\/.{0}[a-z]${entryPoint}(-[0-9])*\/(.*)/:
@@ -72,7 +75,14 @@ class CorsSecurityFilter extends OncePerRequestFilter {
                 controller = params[2]
                 action = params[3]
                 break
+            case ~/\/provider\/auth\/(.*)/:
+                this.altUri = true
+                String[] params = actualUri.split('/')
+                controller = params[1]
+                action = params[2]
+                break
             case loginUri:
+                this.altUri = true
                 String[] params = actualUri.split('/')
                 controller = params[1]
                 action = params[2]
@@ -143,22 +153,31 @@ class CorsSecurityFilter extends OncePerRequestFilter {
                 }
             }
         }
+
         response.status = HttpStatus.OK.value()
         return options
     }
 
     @CompileDynamic
-    String getLoginUrl(){
+    String getLoginUri(){
         return Holders.grailsApplication.config.grails.plugin.springsecurity.rest.login.endpointUrl
     }
 
     @CompileDynamic
+    String getLogoutUri(){
+        return Holders.grailsApplication.config.grails.plugin.springsecurity.rest.logout.endpointUrl
+    }
+
+    @CompileDynamic
     String getNetworkGrp(String version, String controller, String action, HttpServletRequest request, HttpServletResponse response){
-        // login URI is always public; this is also handled by 3rd party plugin
-        //String loginUrl = getLoginUrl()
-        if("/${controller}/${action}" == this.loginUri){
+
+        if(this.altUri==true){
             return 'public'
         }
+
+        //if("/${controller}/${action}" == this.loginUri){
+        //    return 'public'
+        //}
 
         ApplicationContext ctx = Holders.grailsApplication.mainContext
         if(ctx) {

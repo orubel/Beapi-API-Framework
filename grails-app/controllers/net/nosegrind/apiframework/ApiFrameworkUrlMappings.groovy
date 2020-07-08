@@ -196,6 +196,12 @@ class ApiFrameworkUrlMappings {
         }
 
 
+        "/provider/auth/$provider"{
+            controller = 'provider'
+            action = 'auth'
+            provider = provider
+        }
+        
         '200'{
             id = '200'
             controller = "error"

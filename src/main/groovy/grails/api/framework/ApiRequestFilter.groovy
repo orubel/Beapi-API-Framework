@@ -92,7 +92,7 @@ class ApiRequestFilter extends GenericFilterBean {
 
     //@Override
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        //println("#### ApiRequestFilter ####")
+        println("#### ApiRequestFilter ####")
 
         HttpServletRequest httpRequest = request as HttpServletRequest
         HttpServletResponse httpResponse = response as HttpServletResponse
@@ -100,18 +100,21 @@ class ApiRequestFilter extends GenericFilterBean {
         AccessToken accessToken
 
         if(!processPreflight(httpRequest, httpResponse) ) {
-            try {
+            //try {
                 accessToken = tokenReader.findToken(httpRequest)
-                if (accessToken) {
+                if (accessToken && accessToken!=null) {
                     log.debug "Token found: ${accessToken.accessToken}"
+                    println("Token found: ${accessToken.accessToken}")
                     accessToken = restAuthenticationProvider.authenticate(accessToken) as AccessToken
 
                     if (accessToken.authenticated) {
+                        println "Token authenticated. Storing the authentication result in the security context"
                         log.debug "Token authenticated. Storing the authentication result in the security context"
                         log.debug "Authentication result: ${accessToken}"
                         SecurityContextHolder.context.setAuthentication(accessToken)
                         processFilterChain(httpRequest, httpResponse, chain, accessToken)
                     } else {
+                        println('Token Unauthenticated. Uauthorized Access.')
                         log.debug('not authenticated')
                         httpResponse.setContentType("application/json")
                         httpResponse.setStatus(401)
@@ -119,7 +122,6 @@ class ApiRequestFilter extends GenericFilterBean {
                         httpResponse.writer.flush()
                         //return
                     }
-
                 } else {
                     log.debug('token not found')
                     httpResponse.setContentType("application/json")
@@ -129,17 +131,17 @@ class ApiRequestFilter extends GenericFilterBean {
                     return
                 }
 
-            } catch (AuthenticationException ae) {
+            //} catch (AuthenticationException ae) {
                 // NOTE: This will happen if token not found in database
-                log.debug('Token not found in database.')
-                httpResponse.setContentType("application/json")
-                httpResponse.setStatus(401)
-                httpResponse.getWriter().write('Token not found in database. Authorization Attempt Failed')
-                httpResponse.writer.flush()
+            //    log.debug('Token not found in database.')
+            //    httpResponse.setContentType("application/json")
+            //    httpResponse.setStatus(401)
+            //    httpResponse.getWriter().write('Token not found in database. Authorization Attempt Failed')
+            //    httpResponse.writer.flush()
 
                 //authenticationEventPublisher.publishAuthenticationFailure(ae, accessToken)
                 //authenticationFailureHandler.onAuthenticationFailure(request, response, ae)
-            }
+            //}
         }
 
     }
@@ -171,6 +173,11 @@ class ApiRequestFilter extends GenericFilterBean {
                 version = (temp.size()>1) ? temp[1].toString() : ''
                 controller = params[2]
                 action = params[3]
+                break
+            case ~/\/provider\/auth\/(.*)/:
+                String[] params = actualUri.split('/')
+                controller = params[1]
+                action = params[2]
                 break
             case loginUri:
                 String[] params = actualUri.split('/')

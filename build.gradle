@@ -107,15 +107,17 @@ dependencies {
     }
 
     compile('org.grails.plugins:spring-security-core:3.2.0.M1') {
-        exclude(module: 'org.springframework.security:spring-security-core:4.1.0.RELEASE')
-        exclude(module: 'org.springframework.security:spring-security-web:4.1.0.RELEASE')
+        //exclude(module: 'org.springframework.security:spring-security-core:4.1.0.RELEASE')
+        //exclude(module: 'org.springframework.security:spring-security-web:4.1.0.RELEASE')
         exclude(module: 'org.springframework.security:spring-security-web')
         exclude(module: 'org.grails.plugins:cors')
     }
-    compile group: 'com.google.guava', name: 'guava', version: '14.0'
+
 
     compile('org.grails.plugins:spring-security-rest:2.0.0.M2') {
+    //compile('org.grails.plugins:spring-security-rest:3.0.1') {
         exclude(module: 'com.google.guava:guava-io')
+        exclude(module: 'com.google.guava:guava')
         exclude(module: 'org.springframework.security:spring-security-web')
         exclude(module: 'org.grails.plugins:spring-security-core')
         exclude(module: 'org.grails.plugins:cors')
@@ -126,17 +128,24 @@ dependencies {
      * has GSP dependencies; may rewrite that plugin in future
      */
     runtime('org.grails:grails-web') {
-        //exclude(module: 'org.grails:grails-web-jsp')
-        //exclude(module: 'org.grails:grails-web-sitemesh')
-        //exclude(module: 'org.grails:grails-web-gsp')
-        //exclude(module: 'org.grails:grails-web-databinding:5.0.1')
+        exclude(module: 'org.grails:grails-web-jsp')
+        exclude(module: 'org.grails:grails-web-sitemesh')
+        exclude(module: 'org.grails:grails-web-gsp')
+        exclude(module: 'org.grails:grails-web-databinding:5.0.1')
     }
 
     // UNCOMMENT NOSQL DB AS NEEDED FOR LIBRARIES
     //compile 'org.grails.plugins:mongodb:5.0.2'
 
+    // GOOGLE PROVIDER BLOCK
+    compile 'com.google.http-client:google-http-client-jackson2:1.23.0'
+    compile 'com.google.api-client:google-api-client:1.30.4'
+    compile 'com.google.guava:guava:23.6-jre'
+    compile 'org.apache.httpcomponents:httpcore:4.4.8'
 
-    compile 'org.codehaus.gpars:gpars:1.2.1', {
+
+
+    compile('org.codehaus.gpars:gpars:1.2.1') {
         exclude group:'org.multiverse', module:'multiverse-core'
         exclude group:'org.codehaus.groovy', module: 'groovy-all'
     }
