@@ -52,6 +52,12 @@
                         <li class="nav-item">
                           <a class="nav-link" href="index.html#section-3">Move Configuration Files</a>
                         </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-4">Install As A Service</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="index.html#section-5">Troubleshooting</a>
+                        </li>
                       </ul>
                     </div>
                   </div>
@@ -367,7 +373,37 @@ mkdir ~/.beapi/.iostate</code></pre>
 
             <!-- file tree -->
             <section id="section-4">
-              <h2 class="section-title-2">Troubleshooting<a data-scroll href="#section-3" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <h2 class="section-title-2">Install As A Service<a data-scroll href="#section-4" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>Once you have created your project, you will need to create a file in your home directory for your configuration files:</p>
+              <ol>
+                <li>Use the following commands in a shell to create you local config directory:
+                  <div class="row">
+                    <div class="col">
+                      <div class="card">
+                        <div class="card-body" style="background-color:#000;">
+
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">mkdir ~/.beapi
+cd ~/.beapi
+mkdir ~/.beapi/.iostate</code></pre>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <br/>
+                </li>
+                <li>Next move all files marked above in your <b>'grails-app/conf'</b> directory (see above) to your newly created  <b>'~/.beapi/'</b> directory.<br/><br/></li>
+                <li>Next move all files marked above in your <b>'src/iostate'</b> directory (see above) to your newly created  <b>'~/.beapi/.iostate'</b> directory.<br/><br/></li>
+              </ol>
+              <p>Now you are setup and can start <a href="config.html"><b>configuring your environment</b></a>...</p>
+            </section>
+            <!-- / file tree -->
+
+<hr size="5">
+
+            <!-- file tree -->
+            <section id="section-5">
+              <h2 class="section-title-2">Troubleshooting<a data-scroll href="#section-5" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
               <p></p>
               <div class="row">
                 <div class="col">
@@ -399,7 +435,10 @@ mkdir ~/.beapi/.iostate</code></pre>
                   <a data-scroll class="nav-link" href="#section-3">Move Configuration Files</a>
                 </li>
                 <li class="nav-item">
-                  <a data-scroll class="nav-link" href="#section-4">Troubleshooting</a>
+                  <a data-scroll class="nav-link" href="#section-4">Install As A Service</a>
+                </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-5">Troubleshooting</a>
                 </li>
               </ul>
             </div>
