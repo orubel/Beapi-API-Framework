@@ -53,7 +53,7 @@
                           <a class="nav-link" href="index.html#section-3">Move Configuration Files</a>
                         </li>
                         <li class="nav-item">
-                          <a class="nav-link" href="index.html#section-4">Install As A Service</a>
+                          <a class="nav-link" href="index.html#section-4">Running As A Service</a>
                         </li>
                         <li class="nav-item">
                           <a class="nav-link" href="index.html#section-5">Troubleshooting</a>
@@ -373,18 +373,32 @@ mkdir ~/.beapi/.iostate</code></pre>
 
             <!-- file tree -->
             <section id="section-4">
-              <h2 class="section-title-2">Install As A Service<a data-scroll href="#section-4" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <h2 class="section-title-2">Running As A Service<a data-scroll href="#section-4" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
               <p>Once you have created your project, you will need to create a file in your home directory for your configuration files:</p>
               <ol>
-                <li>Use the following commands in a shell to create you local config directory:
+                <li>First create a user that the app will run under:
+                  <div class="row">
+                    <div class="col">
+                      <div class="card">
+                        <div class="card-body" style="background-color:#000;">
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">sudo adduser beapi</code></pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <br/>
+                </li>
+                <li>Next, use the following commands in a shell to create you local config directory and change ownership to the newly created user:
                   <div class="row">
                     <div class="col">
                       <div class="card">
                         <div class="card-body" style="background-color:#000;">
 
-                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">mkdir ~/.beapi
-cd ~/.beapi
-mkdir ~/.beapi/.iostate</code></pre>
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">mkdir /home/beapi/.beapi
+mkdir /home/beapi/.beapi/.iostate
+sudo chown -R beapi /home/beapi/.beapi
+sudo chgrp -R beapi /home/beapi/.beapi
+                        </code></pre>
 
                         </div>
                       </div>
@@ -392,8 +406,164 @@ mkdir ~/.beapi/.iostate</code></pre>
                   </div>
                   <br/>
                 </li>
-                <li>Next move all files marked above in your <b>'grails-app/conf'</b> directory (see above) to your newly created  <b>'~/.beapi/'</b> directory.<br/><br/></li>
-                <li>Next move all files marked above in your <b>'src/iostate'</b> directory (see above) to your newly created  <b>'~/.beapi/.iostate'</b> directory.<br/><br/></li>
+                <li>Next move all files marked above in your <b>'grails-app/conf'</b> directory (see above) to your newly created  <b>'/home/beapi/.beapi/'</b> directory<br/><br/></li>
+                <li>Next move all files marked above in your <b>'src/iostate'</b> directory (see above) to your newly created  <b>'/home/beapi/.beapi/.iostate'</b> directory'<br/><br/></li>
+                <li>Next, change permissions on those files:
+                  <div class="row">
+                    <div class="col">
+                      <div class="card">
+                        <div class="card-body" style="background-color:#000;">
+
+                        <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">sudo chmod -R 755 /home/beapi/.beapi</code></pre>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <br/>
+                </li>
+                <li>Next, create the directory for the executable and move the JAR:
+                  <div class="row">
+                    <div class="col">
+                      <div class="card">
+                        <div class="card-body" style="background-color:#000;">
+
+                          <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">sudo mkdir /usr/share/beapi
+sudo mv beapi-all-in-one-X.X.XX.jar /usr/share/beapi
+
+                          </code></pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <br/>
+                </li>
+                <li>Now we create the service that calls the executable. Run the following command to open a text editor:
+                  <div class="row">
+                    <div class="col">
+                      <div class="card">
+                        <div class="card-body" style="background-color:#000;">
+
+                          <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">sudo nano /etc/systemd/system/beapi.service</code></pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <br/>
+                </li>
+                <li>Now copy and paste the following into the text editor and then EXIT and SAVE:
+                  <div class="row">
+                    <div class="col">
+                      <div class="card">
+                        <div class="card-body" style="background-color:#000;">
+
+                          <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">
+[Unit]
+Description=BeAPI API Service
+[Service]
+User=beapi
+# The configuration file application.properties should be here:
+#change this to your workspace
+WorkingDirectory=/home/beapi
+#path to executable.
+#executable is a bash script which calls jar file
+ExecStart=/usr/share/beapi/beapi
+SuccessExitStatus=143
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+[Install]
+WantedBy=multi-user.target
+                          </code></pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <br/>
+                </li>
+                <li>Finally, we create the bash script to call your service. First, we make the file:
+                  <div class="row">
+                    <div class="col">
+                      <div class="card">
+                        <div class="card-body" style="background-color:#000;">
+
+                          <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">
+sudo nano /usr/share/beapi/beapi
+                          </code></pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <br/>
+                </li>
+                <li>And then we copy and paste the following:
+                  <div class="row">
+                    <div class="col">
+                      <div class="card">
+                        <div class="card-body" style="background-color:#000;">
+
+                          <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">
+#!/bin/bash
+
+MAIN_CLASS=/usr/share/beapi/beapi-all-in-one-X.X.XX.jar
+ARGS="-Xms1024m -Xmx2048m -XX:PermSize=64m -XX:MaxPermSize=128m -XX:+CMSClassUnloadingEnabled -XX:+UseConcMarkSweepGC -XX:+CMSIncrementalMode -XX:+CMSIncrementalPacing -XX:CMSIncrementalDutyCycle=10 -XX:+UseParNewGC -XX:MaxGCPauseMillis=100 -XX:MaxGCMinorPauseMillis=50 -server"
+
+exec java $MAIN_CLASS $ARGS
+                          </code></pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <br/>
+                </li>
+                <li>Now set proper permissions on the files in '/usr/share/beapi':
+                  <div class="row">
+                    <div class="col">
+                      <div class="card">
+                        <div class="card-body" style="background-color:#000;">
+
+                          <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">
+chown beapi /usr/share/beapi/*
+chmod 755 /usr/share/beapi/*
+                          </code></pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <br/>
+                </li>
+                <li>Last (but not least) initialize and start up your service:
+                  <div class="row">
+                    <div class="col">
+                      <div class="card">
+                        <div class="card-body" style="background-color:#000;">
+
+                          <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">
+sudo systemctl daemon-reload
+sudo systemctl enable beapi.service
+sudo systemctl start beapi
+sudo systemctl status beapi
+                          </code></pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <br/>
+                </li>
+                <li>If there are ANY ISSUES with your service starting, you can view them in the logs with the following:
+                  <div class="row">
+                    <div class="col">
+                      <div class="card">
+                        <div class="card-body" style="background-color:#000;">
+
+                          <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">sudo journalctl --unit=beapi</code></pre>
+
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <br/>
+                </li>
               </ol>
               <p>Now you are setup and can start <a href="config.html"><b>configuring your environment</b></a>...</p>
             </section>
@@ -435,7 +605,7 @@ mkdir ~/.beapi/.iostate</code></pre>
                   <a data-scroll class="nav-link" href="#section-3">Move Configuration Files</a>
                 </li>
                 <li class="nav-item">
-                  <a data-scroll class="nav-link" href="#section-4">Install As A Service</a>
+                  <a data-scroll class="nav-link" href="#section-4">Running As A Service</a>
                 </li>
                 <li class="nav-item">
                   <a data-scroll class="nav-link" href="#section-5">Troubleshooting</a>
