@@ -14,14 +14,7 @@
  */
 package net.nosegrind.apiframework
 
-import grails.converters.JSON
 
-import org.springframework.security.authentication.AccountExpiredException
-import org.springframework.security.authentication.AuthenticationTrustResolver
-import org.springframework.security.authentication.CredentialsExpiredException
-import org.springframework.security.authentication.DisabledException
-import org.springframework.security.authentication.LockedException
-import org.springframework.security.web.WebAttributes
 
 import org.apache.commons.lang3.RandomStringUtils
 
@@ -43,73 +36,45 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 class ProviderController{
 
-	/**
-	 * Default transportation layer for Google Apis Java client.
-	 */
-	protected static final HttpTransport TRANSPORT = new NetHttpTransport();
-
-	/**
-	 * Default JSON factory for Google Apis Java client.
-	 */
-	protected static final JsonFactory JSON_FACTORY = new JacksonFactory();
-
-	private String GOOGLE_CLIENT_ID = grailsApplication.config.oauth.providers.google.key as String
-	
-	/** Dependency injection for the authenticationTrustResolver. */
-	AuthenticationTrustResolver authenticationTrustResolver
-
-	/** Dependency injection for the springSecurityService. */
-	def springSecurityService
 
 	TokenGenerator tokenGenerator
 	TokenStorageService tokenStorageService
 	AccessTokenJsonRenderer accessTokenJsonRenderer
 
 	LinkedHashMap auth() {
-		println("### provider/auth")
-		println(params)
-
-
 		switch (params.id) {
 			case 'google':
-				println("### google:"+params)
 				def user = checkUser(params.email)
-				Set<SimpleGrantedAuthority> auth = new HashSet<>();
-				user.authorities.each(){ it ->
-						SimpleGrantedAuthority temp= new SimpleGrantedAuthority(it.authority)
+				if(user) {
+					Set<SimpleGrantedAuthority> auth = new HashSet<>();
+					user.authorities.each() { it ->
+						SimpleGrantedAuthority temp = new SimpleGrantedAuthority(it.authority)
 						auth.add(temp)
+					}
+					UserDetails uDeets = new User(user.username, user.password, user.enabled, user.accountExpired, user.passwordExpired, user.accountLocked, auth)
+					AccessToken accessToken = tokenGenerator.generateAccessToken(uDeets)
+					tokenStorageService.storeToken(accessToken.accessToken, uDeets)
+					SecurityContextHolder.context.setAuthentication(accessToken)
+
+					response.addHeader 'Cache-Control', 'no-store'
+					response.addHeader 'Pragma', 'no-cache'
+					render contentType: 'application/json', encoding: 'UTF-8', text: accessTokenJsonRenderer.generateJson(accessToken)
+				}else{
+
 				}
-
-				UserDetails uDeets = new User(user.username, user.password, user.enabled, user.accountExpired, user.passwordExpired, user.accountLocked, auth)
-
-				AccessToken accessToken = tokenGenerator.generateAccessToken(uDeets)
-				tokenStorageService.storeToken(accessToken.accessToken, uDeets)
-				SecurityContextHolder.context.setAuthentication(accessToken)
-
-				println "Bearer: ${accessToken.accessToken}"
-
-				response.addHeader 'Cache-Control', 'no-store'
-				response.addHeader 'Pragma', 'no-cache'
-				render contentType: 'application/json', encoding: 'UTF-8',  text:  accessTokenJsonRenderer.generateJson(accessToken)
-				break
-			case 'ios':
 				break
 			case 'twitter':
-			case 'facebook':
 			default:
 				break
 		}
 	}
 
 	private def checkUser(String email){
-		println("checkUser called...")
-
 		def Person = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.userDomainClassName).newInstance()
 
 		def user = Person.findByEmail(email)
 		println(email)
 		if(user){
-			println("user found")
 			// check if if acct is locked or disabled
 			if(user.accountLocked || !user.enabled){
 				// TODO: send email and alert on site
@@ -125,8 +90,6 @@ class ProviderController{
 	}
 
 	private def createUser(){
-		println("createUser called...")
-
 		def Person = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.userDomainClassName).newInstance()
 		def PersonRole = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.authorityJoinClassName).newInstance()
 		def Role = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.authority.className).newInstance()

@@ -51,20 +51,6 @@ class ProviderInterceptor{
 
 	String format
 	List formats = ['XML', 'JSON']
-	String mthdKey
-	RequestMethod mthd
-
-
-	LinkedHashMap stat = [:]
-	String contentType
-
-	String controller
-	String action
-
-
-
-	List roles
-	List authority
 
 
 	/**
@@ -80,20 +66,15 @@ class ProviderInterceptor{
 	 * @return
 	 */
 	boolean before(){
-		println("##### PROVIDERINTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
+		// println("##### PROVIDERINTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
 
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
 		//println("FILTERCHAIN : "+filterChain)
 
 		format = (request?.format)?request.format.toUpperCase():'JSON'
-		mthdKey = request.method.toUpperCase()
-		mthd = (RequestMethod) RequestMethod[mthdKey]
-		contentType = request.getContentType()
 
 		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
-
-
 
 		// Init params
 		if (formats.contains(format)) {
@@ -104,8 +85,6 @@ class ProviderInterceptor{
 					break
 				case 'JSON':
 				default:
-					println("### JSON ###")
-					println(request.getAttribute('JSON'))
 					attribs = request.getAttribute('JSON') as LinkedHashMap
 					break
 			}
@@ -115,12 +94,7 @@ class ProviderInterceptor{
 					params.put(k, v)
 				}
 			}
-			println("### ATTRIBS:" + attribs)
 		}
-
-
-		controller = params?.controller
-		action = params.action
 
 		return true
 	}
@@ -130,7 +104,7 @@ class ProviderInterceptor{
 	 * @return
 	 */
 	boolean after() {
-		println("##### PROVIDERINTERCEPTOR (AFTER) - ${params.controller}/${params.action}")
+		// println("##### PROVIDERINTERCEPTOR (AFTER) - ${params.controller}/${params.action}")
 
 		return true
 	}
