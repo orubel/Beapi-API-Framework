@@ -106,6 +106,12 @@ dependencies {
         exclude(module: 'org.codehaus.groovy:groovy:2.4.11')
     }
 
+    // GOOGLE PROVIDER BLOCK
+    provided 'com.google.http-client:google-http-client-jackson2:1.23.0'
+    provided 'com.google.api-client:google-api-client:1.30.4'
+    provided 'com.google.guava:guava:23.6-jre'
+    provided 'org.apache.httpcomponents:httpcore:4.4.8'
+
     compile('org.grails.plugins:spring-security-core:3.2.0.M1') {
         exclude(module: 'org.springframework.security:spring-security-core:4.1.0.RELEASE')
         exclude(module: 'org.springframework.security:spring-security-web:4.1.0.RELEASE')

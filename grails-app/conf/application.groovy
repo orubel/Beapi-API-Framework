@@ -101,7 +101,8 @@ grails.plugin.springsecurity.filterChain.chainMap = [
 		[pattern: "${metricsEntryPoint}-9/**",filters:'apiRequestFilter'],
 		[pattern: "/api/login", filters: 'corsSecurityFilter,restAuthenticationFilter'],
 		[pattern: "/api/logout", filters: 'restAuthenticationFilter'],
-		[pattern: "/**", filters: 'apiRequestFilter']
+		[pattern: '/provider/auth/**', filters: 'corsSecurityFilter,contentTypeMarshallerFilter']
+
 ]
 
 grails.plugin.springsecurity.interceptUrlMap = [
@@ -149,7 +150,8 @@ grails.plugin.springsecurity.interceptUrlMap = [
 		[pattern:'/logout/**',          access:["permitAll"]],
 		[pattern:'/admin',              access:["permitAll"]],
 		[pattern:'/admin/**',           access:["permitAll"]],
-		[pattern:'/test/testHook',      access:["permitAll"]]
+		[pattern:'/test/testHook',      access:["permitAll"]],
+		[pattern:'/provider/auth/**',   access:["permitAll"]],
 ]
 
 

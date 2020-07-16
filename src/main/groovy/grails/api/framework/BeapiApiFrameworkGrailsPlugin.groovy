@@ -75,9 +75,9 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             /* restTokenValidationFilter */
             SpringSecurityUtils.registerFilter 'corsSecurityFilter', SecurityFilterPosition.PRE_AUTH_FILTER.order + 1
             //SpringSecurityUtils.registerFilter 'tokenCacheValidationFilter', SecurityFilterPosition.PRE_AUTH_FILTER.order + 2
-            //SpringSecurityUtils.registerFilter 'contentTypeMarshallerFilter', SecurityFilterPosition.PRE_AUTH_FILTER.order + 3
+            SpringSecurityUtils.registerFilter 'contentTypeMarshallerFilter', SecurityFilterPosition.PRE_AUTH_FILTER.order + 3
             SpringSecurityUtils.registerFilter 'apiRequestFilter', SecurityFilterPosition.PRE_AUTH_FILTER.order + 2
-
+            //SpringSecurityUtils.registerFilter 'basicRequestFilter', SecurityFilterPosition.PRE_AUTH_FILTER.order + 3
 
             corsSecurityFilter(CorsSecurityFilter){}
 
@@ -93,9 +93,11 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 restAuthenticationProvider = ref('restAuthenticationProvider')
                 authenticationEventPublisher = ref('authenticationEventPublisher')
             }
+            */
+
             contentTypeMarshallerFilter(ContentTypeMarshallerFilter){}
 
-            */
+
 
             apiRequestFilter(ApiRequestFilter) {
                 headerName = conf.rest.token.validation.headerName
@@ -108,6 +110,8 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 restAuthenticationProvider = ref('restAuthenticationProvider')
                 authenticationEventPublisher = ref('authenticationEventPublisher')
             }
+
+            //basicRequestFilter(BasicRequestFilter) {}
 
         }catch(Exception e){
             throw new Exception("[BeAPIFramework] : Issue creating Filters :",e)

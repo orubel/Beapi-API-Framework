@@ -11,53 +11,43 @@
 package grails.api.framework
 
 import grails.compiler.GrailsCompileStatic
+import grails.converters.JSON
+import grails.converters.XML
+import grails.core.GrailsApplication
+import grails.plugin.cache.GrailsConcurrentMapCache
 import grails.plugin.cache.GrailsValueWrapper
 import grails.plugin.springsecurity.rest.RestAuthenticationProvider
 import grails.plugin.springsecurity.rest.authentication.RestAuthenticationEventPublisher
 import grails.plugin.springsecurity.rest.token.AccessToken
 import grails.plugin.springsecurity.rest.token.reader.TokenReader
-import grails.web.servlet.mvc.GrailsHttpSession
-import net.nosegrind.apiframework.ApiDescriptor
-
-import java.io.InputStreamReader
-
 import grails.util.Environment
-import grails.util.Metadata
 import grails.util.Holders
-import groovy.util.logging.Slf4j
-
+import grails.util.Metadata
+import grails.web.servlet.mvc.GrailsHttpSession
 import groovy.transform.CompileDynamic
-
+import groovy.util.logging.Slf4j
 import org.grails.plugin.cache.GrailsCacheManager
-
-//import org.springframework.cache.Cache
 import org.springframework.context.ApplicationContext
 import org.springframework.http.HttpStatus
-import org.springframework.web.context.request.RequestContextHolder as RCH
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.web.authentication.AuthenticationFailureHandler
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler
+import org.springframework.util.LinkedMultiValueMap
+import org.springframework.util.MultiValueMap
+import org.springframework.web.context.request.RequestContextHolder as RCH
 import org.springframework.web.filter.GenericFilterBean
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
+import org.springframework.web.multipart.MultipartFile
 
-import javax.servlet.http.Part;
 import javax.servlet.FilterChain
 import javax.servlet.ServletException
 import javax.servlet.ServletRequest
 import javax.servlet.ServletResponse
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
+import javax.servlet.http.Part
 
-import org.springframework.web.multipart.MultipartFile
-
-import groovy.json.JsonSlurper
-import grails.converters.JSON
-import grails.converters.XML
-
-import grails.core.GrailsApplication
-import grails.plugin.cache.GrailsConcurrentMapCache
+//import org.springframework.cache.Cache
 
 /**
  * Filter for validation of token send through the request.
@@ -66,80 +56,31 @@ import grails.plugin.cache.GrailsConcurrentMapCache
  */
 @Slf4j
 @GrailsCompileStatic
-class ApiRequestFilter extends GenericFilterBean {
-
+class ContentTypeMarshallerFilter extends GenericFilterBean {
 
     String headerName
     String loginUri
+    boolean altUri = false
 
     private static final String CONTENT_DISPOSITION = "content-disposition";
     private static final String FILENAME_KEY = "filename=";
 
-    RestAuthenticationProvider restAuthenticationProvider
-
-    AuthenticationSuccessHandler authenticationSuccessHandler
-    AuthenticationFailureHandler authenticationFailureHandler
-    RestAuthenticationEventPublisher authenticationEventPublisher
-
-    TokenReader tokenReader
-    String validationEndpointUrl
     Boolean active
 
     Boolean enableAnonymousAccess
-    GrailsCacheManager grailsCacheManager
+
 
     GrailsApplication grailsApplication = Holders.grailsApplication
 
     //@Override
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        // println("#### ApiRequestFilter ####")
+        // println("#### ContentTypeMarshallerFilter ####")
 
         HttpServletRequest httpRequest = request as HttpServletRequest
         HttpServletResponse httpResponse = response as HttpServletResponse
 
-        AccessToken accessToken
-
         if(!processPreflight(httpRequest, httpResponse) ) {
-            try {
-                accessToken = tokenReader.findToken(httpRequest)
-                if (accessToken) {
-                    log.debug "Token found: ${accessToken.accessToken}"
-                    accessToken = restAuthenticationProvider.authenticate(accessToken) as AccessToken
-
-                    if (accessToken.authenticated) {
-                        log.debug "Token authenticated. Storing the authentication result in the security context"
-                        log.debug "Authentication result: ${accessToken}"
-                        SecurityContextHolder.context.setAuthentication(accessToken)
-                        processFilterChain(httpRequest, httpResponse, chain, accessToken)
-                    } else {
-                        log.debug('not authenticated')
-                        httpResponse.setContentType("application/json")
-                        httpResponse.setStatus(401)
-                        httpResponse.getWriter().write('Token Unauthenticated. Uauthorized Access.')
-                        httpResponse.writer.flush()
-                        //return
-                    }
-
-                } else {
-                    log.debug('token not found')
-                    httpResponse.setContentType("application/json")
-                    httpResponse.setStatus(401)
-                    httpResponse.getWriter().write('Token not found. Unauthorized Access.')
-                    httpResponse.writer.flush()
-                    return
-                }
-
-            } catch (AuthenticationException ae) {
-                // NOTE: This will happen if token not found in database
-                log.debug('Token not found in database.')
-                httpResponse.setContentType("application/json")
-                httpResponse.setStatus(401)
-                httpResponse.getWriter().write('Token not found in database. Authorization Attempt Failed')
-                httpResponse.writer.flush()
-
-                //authenticationEventPublisher.publishAuthenticationFailure(ae, accessToken)
-                //authenticationFailureHandler.onAuthenticationFailure(request, response, ae)
-            }
+            processFilterChain(httpRequest, httpResponse, chain)
         }
 
     }
@@ -173,15 +114,22 @@ class ApiRequestFilter extends GenericFilterBean {
                 action = params[3]
                 break
             case loginUri:
+                this.altUri = true
                 String[] params = actualUri.split('/')
                 controller = params[1]
                 action = params[2]
                 break;
+            case ~/\/provider\/auth\/\w+/:
+                this.altUri = true
+                String[] params = actualUri.split('/')
+                controller = params[1]
+                action = params[2]
+                break
             default:
                 if(actualUri!='/error') {
                     response.setContentType("application/json")
                     response.setStatus(401)
-                    response.getWriter().write("APIRequestFilter: Bad URI Access attempted at '${actualUri}'")
+                    response.getWriter().write("ContentTypeMarshallerFilter: Bad URI Access attempted at '${actualUri}'")
                     response.writer.flush()
                     return true
                 }
@@ -342,7 +290,7 @@ class ApiRequestFilter extends GenericFilterBean {
             }
             return false
         }catch(Exception e){
-            throw new Exception("[ApiRequestFilter :: getContentType] : Exception - full stack trace follows:",e)
+            throw new Exception("[ContentTypeMarshallerFilter :: getContentType] : Exception - full stack trace follows:",e)
         }
     }
 
@@ -375,7 +323,7 @@ class ApiRequestFilter extends GenericFilterBean {
     @CompileDynamic
     String getNetworkGrp(String version, String controller, String action, HttpServletRequest request, HttpServletResponse response){
         // login URI is always public; this is also handled by 3rd party plugin
-        if("/${controller}/${action}" == this.loginUri){
+        if(this.altUri){
             return 'public'
         }
 
@@ -440,12 +388,12 @@ class ApiRequestFilter extends GenericFilterBean {
                     }
             }
         }catch(Exception e){
-            throw new Exception("[ApiRequestFilter :: isMultipartform] : Exception - full stack trace follows:",e)
+            throw new Exception("[ContentTypeMarshallerFilter :: isMultipartform] : Exception - full stack trace follows:",e)
         }
     }
 
     @CompileDynamic
-    private void processFilterChain(HttpServletRequest request, HttpServletResponse response, FilterChain chain, AccessToken authenticationResult) {
+    private void processFilterChain(HttpServletRequest request, HttpServletResponse response, FilterChain chain) {
         String actualUri = request.requestURI - request.contextPath
         String contentType = request.getContentType()
 
@@ -494,11 +442,6 @@ class ApiRequestFilter extends GenericFilterBean {
             response.setStatus(401)
             response.getWriter().write('Badly formatted data')
             response.writer.flush()
-            return
-        }
-
-        if (!active) {
-            log.debug('Token validation is disabled. Continuing the filter chain')
             return
         }
 
