@@ -77,8 +77,8 @@ class ProviderController{
 		if(user){
 			// check if if acct is locked or disabled
 			if(user.accountLocked || !user.enabled){
-				// TODO: send email and alert on site
-				Println("User acct locked or disabled. Send email and alert on site")
+				// TODO: send email to user with instructions on how to unlock
+				render( status: 403, text: "Account is locked/disabled. Please check your email for a notification.")
 			}else{
 				return user
 			}
@@ -105,8 +105,6 @@ class ProviderController{
 			user = Person.findByUsername(username)
 		}
 
-		println("username:"+username)
-
 		PersonRole.withTransaction { status ->
 			def userRole = Role.findByAuthority("ROLE_USER")
 			def person = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.userDomainClassName).newInstance()
@@ -130,8 +128,6 @@ class ProviderController{
 
 			status.isCompleted()
 		}
-
-		println(user)
 
 		return user
 	}
