@@ -68,44 +68,43 @@ class ProviderInterceptor{
 	 * @return
 	 */
 	boolean before(){
-		println("##### PROVIDERINTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
+		// println("##### PROVIDERINTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
+		if(!request.getAttribute('CORS')){
+			return false
+		}else {
+			// TESTING: SHOW ALL FILTERS IN CHAIN
+			//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
+			//println("FILTERCHAIN : "+filterChain)
 
-		println("CORS:"+request.getAttribute('CORS'))
-		println("CORS:"+params.CORS)
+			format = (request?.format) ? request.format.toUpperCase() : 'JSON'
 
-		// TESTING: SHOW ALL FILTERS IN CHAIN
-		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
-		//println("FILTERCHAIN : "+filterChain)
+			// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
 
-		format = (request?.format)?request.format.toUpperCase():'JSON'
+			// Init params
+			if (formats.contains(format)) {
+				LinkedHashMap attribs = [:]
+				switch (format) {
+					case 'XML':
+						attribs = request.getAttribute('XML') as LinkedHashMap
+						break
+					case 'JSON':
+					default:
+						attribs = request.getAttribute('JSON') as LinkedHashMap
+						break
+				}
 
-		// TODO: Check if user in USER roles and if this request puts user over 'rateLimit'
-
-		// Init params
-		if (formats.contains(format)) {
-			LinkedHashMap attribs = [:]
-			switch (format) {
-				case 'XML':
-					attribs = request.getAttribute('XML') as LinkedHashMap
-					break
-				case 'JSON':
-				default:
-					attribs = request.getAttribute('JSON') as LinkedHashMap
-					break
-			}
-
-			if(attribs) {
-				attribs.each() { k, v ->
-					params.put(k, v)
+				if (attribs) {
+					attribs.each() { k, v ->
+						params.put(k, v)
+					}
 				}
 			}
+
+			// TODO : create key pair generator for submitting form and then check HERE
+
+
+			return true
 		}
-
-		// TODO : create key pair generator for submitting form and then check HERE
-
-
-
-		return true
 	}
 
 	/**

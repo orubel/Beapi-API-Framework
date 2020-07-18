@@ -39,7 +39,7 @@ class CorsSecurityFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain chain) throws ServletException, IOException {
-        println("#### CorsSecurityFilter ####")
+        // println("#### CorsSecurityFilter ####")
 
         if(!processPreflight(request, response) ) {
             chain.doFilter(request, response)
@@ -122,7 +122,7 @@ class CorsSecurityFilter extends OncePerRequestFilter {
             }
 
 
-            request.setAttribute('CORS', true)
+
 
             String origin = request.getHeader('Origin')
             if (options) {
@@ -137,6 +137,7 @@ class CorsSecurityFilter extends OncePerRequestFilter {
             }
 
             if (networkGroupList && networkGroupList.contains(origin)) { // request origin is on the white list
+                request.setAttribute('CORS', true)
                 // add CORS access control headers for the given origin
                 response.setHeader('Access-Control-Allow-Origin', origin)
                 response.addHeader('Access-Control-Allow-Credentials', 'true')

@@ -15,14 +15,7 @@
 package net.nosegrind.apiframework
 
 
-
 import org.apache.commons.lang3.RandomStringUtils
-
-// google verifier
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.http.javanet.NetHttpTransport;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.client.http.HttpTransport;
 
 import grails.plugin.springsecurity.rest.token.AccessToken
 import grails.plugin.springsecurity.rest.token.generation.TokenGenerator
@@ -35,7 +28,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 
 
 class ProviderController{
-
 
 	TokenGenerator tokenGenerator
 	TokenStorageService tokenStorageService
@@ -71,7 +63,6 @@ class ProviderController{
 
 	private def checkUser(String email){
 		def Person = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.userDomainClassName).clazz
-
 		def user = Person.findByEmail(email)
 
 		if(user){
