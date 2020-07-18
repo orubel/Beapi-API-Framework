@@ -74,7 +74,7 @@ class ContentTypeMarshallerFilter extends GenericFilterBean {
 
     //@Override
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
-        // println("#### ContentTypeMarshallerFilter ####")
+        println("#### ContentTypeMarshallerFilter ####")
 
         HttpServletRequest httpRequest = request as HttpServletRequest
         HttpServletResponse httpResponse = response as HttpServletResponse
@@ -103,6 +103,8 @@ class ContentTypeMarshallerFilter extends GenericFilterBean {
         String controller
         String action
         String version
+
+        println("CORS:"+request.getAttribute('CORS'))
 
         // TODO: need to also check for logoutUri
         switch(actualUri) {

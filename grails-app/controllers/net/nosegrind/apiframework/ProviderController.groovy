@@ -70,10 +70,10 @@ class ProviderController{
 	}
 
 	private def checkUser(String email){
-		def Person = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.userDomainClassName).newInstance()
+		def Person = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.userDomainClassName).clazz
 
 		def user = Person.findByEmail(email)
-		println(email)
+
 		if(user){
 			// check if if acct is locked or disabled
 			if(user.accountLocked || !user.enabled){
@@ -90,9 +90,9 @@ class ProviderController{
 	}
 
 	private def createUser(){
-		def Person = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.userDomainClassName).newInstance()
-		def PersonRole = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.authorityJoinClassName).newInstance()
-		def Role = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.authority.className).newInstance()
+		def Person = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.userDomainClassName).clazz
+		def PersonRole = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.authorityJoinClassName).clazz
+		def Role = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.authority.className).clazz
 
 		// create username
 		Integer inc = 1
@@ -109,15 +109,22 @@ class ProviderController{
 
 		PersonRole.withTransaction { status ->
 			def userRole = Role.findByAuthority("ROLE_USER")
+			def person = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.userDomainClassName).newInstance()
+			def pRole = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.authorityJoinClassName).newInstance()
 
 			if (!user?.id) {
 				String password = generatePassword()
-				user = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.userDomainClassName).newInstance(username: username, password: password, email: params.email)
-				user.save(flush: true)
+				//Map person = [username: username, password: password, email: params.email]
+				person.properties = [username: username, password: password, email: params.email]
+				person.save(flush: true)
 			}
 
 			if (!user?.authorities?.contains(userRole)) {
-				def pRole = grailsApplication.getDomainClass(grailsApplication.config.grails.plugin.springsecurity.userLookup.authorityJoinClassName).newInstance(user, userRole)
+				user = Person.findByUsername(username)
+
+				// pRole.properties = [person_id: person.id, role_id: userRole.id]
+				pRole.person = person
+				pRole.role =  userRole
 				pRole.save(flush: true)
 			}
 

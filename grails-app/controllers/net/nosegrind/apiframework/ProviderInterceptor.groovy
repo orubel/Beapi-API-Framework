@@ -17,6 +17,8 @@ import javax.annotation.Resource
 import grails.core.GrailsApplication
 import grails.plugin.springsecurity.SpringSecurityService
 
+import java.net.InetAddress;
+
 import grails.util.Metadata
 import grails.converters.JSON
 import grails.converters.XML
@@ -66,7 +68,10 @@ class ProviderInterceptor{
 	 * @return
 	 */
 	boolean before(){
-		// println("##### PROVIDERINTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
+		println("##### PROVIDERINTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
+
+		println("CORS:"+request.getAttribute('CORS'))
+		println("CORS:"+params.CORS)
 
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
@@ -95,6 +100,10 @@ class ProviderInterceptor{
 				}
 			}
 		}
+
+		// TODO : create key pair generator for submitting form and then check HERE
+
+
 
 		return true
 	}
