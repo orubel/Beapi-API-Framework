@@ -5,7 +5,7 @@
 
 ## Benchmarks : [view](https://github.com/orubel/logos/blob/master/bench.png)
 ## Latest Version: [1.6.3](https://bintray.com/beta/#/orubel/plugins/api-framework/1.6.3?tab=overview)
-## Stable/Latest Profile Version: [1.6.3](https://bintray.com/beta/#/orubel/profiles/beapi-profile/1.6.3?tab=overview)
+## Stable/Latest Profile Version: [1.6.6](https://bintray.com/beta/#/orubel/profiles/beapi-profile/1.6.6?tab=overview)
 
 ***
 ## Documentation - http://orubel.github.io/Beapi-API-Framework/
