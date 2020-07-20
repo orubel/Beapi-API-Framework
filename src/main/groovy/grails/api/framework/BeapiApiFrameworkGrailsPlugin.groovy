@@ -45,7 +45,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 	def authorEmail = 'orubel@gmail.com'
 	def description = 'BeAPI Framework is a fully reactive plug-n-play API Framework for Distributed Architectures providing api abstraction, cached IO state, automated batching and more. It is meant to autmoate alot of the issues behind setting up and maintaining API\'s in distributed architectures as well as handling and simplifying automation.'
 	def documentation = 'http://orubel.github.io/Beapi-API-Framework/'
-	def license = 'MPL-2.0'
+	def license = 'CCL-1.0'
     def organization = [ name: 'BeAPI', url: 'http://www.beapi.io' ]
     def developers = [[ name: 'Owen Rubel', email: 'orubel@gmail.com' ]]
 	def issueManagement = [system: 'GitHub', url: 'https://github.com/orubel/grails-api-toolkit-docs/issues']
