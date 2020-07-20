@@ -115,6 +115,9 @@
                         <li class="nav-item">
                           <a class="nav-link" href="security.html#section-2">Roles / NetworkRoles</a>
                         </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="security.html#section-3">SSO / Providers</a>
+                        </li>
                       </ul>
                     </div>
                   </div>
@@ -303,7 +306,137 @@
 
             <!-- file tree -->
             <section id="section-3">
-              <h2 class="section-title-2">Troubleshooting<a data-scroll href="#section-3" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <h2 class="section-title-2">Single Sign-on & Providers<a data-scroll href="#section-3" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>We are quickly trying to implement as many providers as we can into a signle sign-on for your service and if you don't see one you want, you can always donate to the project to speed up the process.</p>
+              <div class="row">
+                <div class="col">
+                  <div class="card" role="alert">
+                    <div class="card-body">
+
+                        <ul>
+                          <li><p><b>Google</b> - Use the following link to integrate a Google Sign-in into your frontend (remember to add your frontend FQDNS/IP to your <a href="#section-1">CORS config</a>).</p>
+                            <p>Next, follow all Google instructions except use the following code instead pointing to <b>'yourdomain:8080/provider/auth/google'</b>:
+                              <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">
+<script>
+      var clicked=false;
+      function ClickLogin(){
+          clicked=true;
+      }
+      function onSignIn(googleUser) {
+        if (clicked) {
+            console.log('google signing in');
+            // Useful data for your client-side scripts:
+            var profile = googleUser.getBasicProfile();
+
+            var fname = profile.getGivenName();
+            var lname = profile.getFamilyName();
+            var avatarUrl = profile.getImageUrl();
+            var email = profile.getEmail();
+
+            // The ID token you need to pass to your backend:
+            var id_token = googleUser.getAuthResponse().id_token;
+            console.log("ID Token: " + id_token);
+
+            var jsonData = {"fname":fname,"lname":lname,"avatarUrl":avatarUrl,"email":email};
+            console.log(jsonData);
+
+            $.ajax({
+                type: 'POST',
+                url: "http://" + window.location.hostname + ":8080/provider/auth/google",
+                cache:false,
+                async:true,
+                contentType: 'application/json',
+                data: JSON.stringify(jsonData),
+                //dataType:'json',
+                headers: {
+                    'Access-Control-Allow-Origin': '*'
+                },
+                xhrFields:{
+                    withCredentials: true
+                },
+                crossDomain: true,
+        	    error: function (xhr, textStatus, thrownError){
+            	    console.log('error: ' + xhr.responseText);
+        	    },
+        	    success: function (data, textStatus, xhr){
+			        console.log('success');
+        	    },
+        	    complete: function (xhr, textStatus) {
+                    console.log('complete');
+        	    }
+            }).done(function(data, textStatus, jqXHR) {
+		        console.log('done')
+                var obj = JSON.parse(jqXHR.responseText);
+                localStorage.setItem('beapi_token', JSON.stringify(obj));
+
+                var body = "common/login.html"
+                if(localStorage.getItem('beapi_token')!=null){
+                    var test = localStorage.getItem('beapi_token');
+                    var json = JSON.parse(test)
+                    var test2 = $.inArray('ROLE_ADMIN',json.authorities)
+                    var test3 = $.inArray('ROLE_USER',json.authorities)
+                    if(test2>=0 || test3>=0){
+                        body = "common/default.html"
+                    }
+                }
+
+                $("#page-top").load(body);
+                location.reload();
+            }).fail(function(jqXHR, textStatus, errorThrown) {
+                console.log('fail'+textStatus);
+                var msg = '';
+                if (jqXHR.status === 0) {
+                    msg = 'Not connected.Verify Network.'+window.url+'.Error:'+errorThrown;
+                } else if (jqXHR.status == 404) {
+                    msg = 'Requested page not found. [404]\n' + jqXHR.responseText;
+                } else if (jqXHR.status == 500) {
+                    msg = 'Internal Server Error [500].\n' + jqXHR.responseText;
+                } else if (exception === 'parsererror') {
+                    msg = 'Bad Credentials. Please Try Again';
+                } else if (exception === 'timeout') {
+                    msg = 'Time out error.';
+                } else if (exception === 'abort') {
+                    msg = 'Ajax request aborted.';
+                } else {
+                    msg = 'Uncaught Error.\n' + jqXHR.responseText;
+                }
+                alert(msg);
+            })
+        }
+      }
+</script>
+<script>
+  function signOut() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    auth2.signOut().then(function () {
+      console.log('User signed out.');
+    });
+  }
+</script>
+                              </code></pre>
+                            </p>
+                            <p>Now the following will install the Google Button on your page:
+                            <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">
+&lt;div class="g-signin2" data-onsuccess="onSignIn" onclick="ClickLogin()"&gt;&lt;/div&gt;
+                            </code></pre>
+                            </p>
+                            <p>See the following Google page for <a href="https://developers.google.com/identity/sign-in/web/build-button">customizing your Google button</a>.</p>
+                          </li>
+                        </ul>
+
+
+                  </div>
+                </div>
+              </div>
+            </section>
+            <!-- / file tree -->
+
+
+<hr size="5">
+
+            <!-- file tree -->
+            <section id="section-4">
+              <h2 class="section-title-2">Troubleshooting<a data-scroll href="#section-4" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
               <p></p>
               <div class="row">
                 <div class="col">
@@ -331,7 +464,10 @@
                   <a data-scroll class="nav-link" href="#section-2">Roles / NetworkRoles</a>
                 </li>
                 <li class="nav-item">
-                  <a data-scroll class="nav-link" href="#section-3">Troubleshooting</a>
+                  <a data-scroll class="nav-link" href="#section-3">SSO / Providers</a>
+                </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-4">Troubleshooting</a>
                 </li>
               </ul>
             </div>
