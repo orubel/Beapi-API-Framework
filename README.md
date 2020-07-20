@@ -4,7 +4,7 @@
 **If you enjoy our work, please click our sponsor button at the top of the page**
 
 ## Benchmarks : [view](https://github.com/orubel/logos/blob/master/bench.png)
-## Latest Version: [1.6.3](https://bintray.com/beta/#/orubel/plugins/api-framework/1.6.3?tab=overview)
+## Latest Version: [1.6.6](https://bintray.com/beta/#/orubel/plugins/api-framework/1.6.3?tab=overview)
 ## Stable/Latest Profile Version: [1.6.6](https://bintray.com/beta/#/orubel/profiles/beapi-profile/1.6.6?tab=overview)
 
 ***
@@ -12,7 +12,7 @@
 ## Forums - http://beapi.freeforums.net/
 ## New App Installation
 ```
-grails create-app name_of_your_app --profile org.grails.profiles:beapi-profile:1.6.3
+grails create-app name_of_your_app --profile org.grails.profiles:beapi-profile:1.6.6
 ```
 ## Plugin Installation
 ```
@@ -24,7 +24,7 @@ repositories {
 ...
 dependencies {
     ...
-    compile 'org.grails.plugins:api-framework:1.6.3'
+    compile 'org.grails.plugins:api-framework:1.6.6'
     ...
 }
 ```
