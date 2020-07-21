@@ -2,10 +2,10 @@
 ![alt text](https://github.com/orubel/logos/blob/master/beapi_logo_large.png)
 # Grails API Plugin | BeApi(tm) Api Framework ( https://www.beapi.io/ )
 **If you enjoy our work, please click our sponsor button at the top of the page**
-
+[ ![Download](https://api.bintray.com/packages/orubel/plugins/api-framework/images/download.svg?version=2.0.7) ](https://bintray.com/orubel/plugins/api-framework/2.0.7/link)
 
 ## Benchmarks : [view](https://github.com/orubel/logos/blob/master/bench.png)
-## Latest Version: [ ![Download](https://api.bintray.com/packages/orubel/plugins/api-framework/images/download.svg?version=2.0.7) ](https://bintray.com/orubel/plugins/api-framework/2.0.7/link)
+## Latest Version: [2.0.7](https://bintray.com/beta/#/orubel/plugins/api-framework2.0.7?tab=overview)
 ## Stable/Latest Profile Version: [2.0.7](https://bintray.com/beta/#/orubel/profiles/beapi-profile/2.0.7?tab=overview)
 
 ***
