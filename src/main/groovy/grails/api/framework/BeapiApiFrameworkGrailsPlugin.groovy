@@ -167,7 +167,9 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             def statsService = applicationContext.getBean('statsService')
             statsService.flushAllStatsCache()
 
-            parseFiles(apiObjectSrc.toString(), applicationContext)
+            def iostateService = applicationContext.getBean('iostateService')
+            iostateService.parseFiles(applicationContext)
+            //parseFiles(apiObjectSrc.toString(), applicationContext)
             this.testLoadOrder = createTestOrder(applicationContext)
         //}catch(Exception e){
         //    throw new Exception('[BeAPIFramework] : Cannot set system properties :',e)
@@ -568,6 +570,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         Set fkeys = []
         Set pkeys= []
         List keys = []
+
         try {
             values.each { k, v ->
                 keys.add(k)
