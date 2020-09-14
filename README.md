@@ -35,20 +35,6 @@ and then run...
 ```
 grails create-app name_of_your_app --profile org.grails.profiles:beapi-profile:2.0.7
 ```
-## Plugin Installation
-```
-repositories {
-    ...
-    maven { url "http://dl.bintray.com/orubel/plugins" }
-    ...
-}
-...
-dependencies {
-    ...
-    compile 'org.grails.plugins:api-framework:2.0.7'
-    ...
-}
-```
 
 <!-- ### Backend Implementation - https://github.com/orubel/beapi_backend -->
 ### Frontend Implementation - https://github.com/orubel/beapi_frontend
