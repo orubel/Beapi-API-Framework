@@ -12,6 +12,26 @@
 ## Documentation - http://orubel.github.io/Beapi-API-Framework/
 ## Forums - http://beapi.freeforums.net/
 ## New App Installation
+Edit your 'USER_HOME/.grails/settings.groovy' file to look like the following:
+```
+
+grails {
+  profiles {
+    repositories {
+      maven {
+        url =  "https://dl.bintray.com/orubel/profiles/"
+        snapshotsEnabled = false
+      }
+      grailsCentral {
+        url = "https://repo.grails.org/grails/core"
+        snapshotsEnabled = true
+      }
+    }
+  }
+}
+                      
+```
+and then run...
 ```
 grails create-app name_of_your_app --profile org.grails.profiles:beapi-profile:2.0.7
 ```
