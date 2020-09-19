@@ -90,7 +90,7 @@
                   </div>
                 </li>
                 <li class="nav-item">
-                  <a class="nav-link active" data-toggle="collapse" href="#menu-4" role="button" aria-expanded="false" aria-controls="menu-4">MVC Functionality</a>
+                  <a class="nav-link active" data-toggle="collapse" href="#menu-4" role="button" aria-expanded="false" aria-controls="menu-4">Development</a>
                   <div class="collapse show" id="menu-4" data-parent="#page-nav">
                     <div>
                       <ul class="nav flex-column">
@@ -99,6 +99,9 @@
                         </li>
                         <li class="nav-item">
                           <a class="nav-link" href="mvc.html#section-2">Controllers</a>
+                        </li>
+                        <li class="nav-item">
+                          <a class="nav-link" href="mvc.html#section-3">Build</a>
                         </li>
                       </ul>
                     </div>
@@ -277,9 +280,28 @@
 
 <hr size="5">
 
+            <!-- colors -->
+            <section id="section-2">
+              <h2 class="section-title-2">Building The Project<a data-scroll href="#section-2" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <p>While Grails documentation may tell you how to build your project, thebest (and easiest way) to build and test your project is as follows; go into the ROOT of your project and run the following command:</p>
+
+                  <div class="row">
+                    <div class="col">
+                      <div class="card">
+                        <div class="card-body" style="background-color:#000;">
+                          <pre style="background-color:#000;padding:0px;margin:0px;"><code class="language-sh">./gradlew clean;./gradlew build</code></pre>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+            </section>
+
+<hr size="5">
+
             <!-- file tree -->
             <section id="section-4">
-              <h2 class="section-title-2">Troubleshooting<a data-scroll href="#section-3" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
+              <h2 class="section-title-2">Troubleshooting<a data-scroll href="#section-4" class="anchor" data-toggle="tooltip" data-placement="top" title="Copy URL"><i class="icon-hash"></i></a></h2>
               <p></p>
               <div class="row">
                 <div class="col">
@@ -287,6 +309,7 @@
                     <ul>
                       <li>If you are having problems with a domain class, remove 'cache: true'; this usually takes care of the problem.</li>
                       <li>If you are bootstrapping your controllers, make sure all your corresponding domains exist first.</li>
+                      <li>If you asre having issues with your build, try running './gradlew --stop;./gradlew clean;./gradlew build --stacktrace  --refresh-dependencies'. This will give you a fresh gradle instance, show your errors and refresh all dependencies.</li>
                     </ul>
                   </div>
                 </div>
@@ -307,7 +330,10 @@
                   <a data-scroll class="nav-link" href="#section-2">Controllers</a>
                 </li>
                 <li class="nav-item">
-                  <a data-scroll class="nav-link" href="#section-3">Troubleshooting</a>
+                  <a data-scroll class="nav-link" href="#section-3">Build</a>
+                </li>
+                <li class="nav-item">
+                  <a data-scroll class="nav-link" href="#section-4">Troubleshooting</a>
                 </li>
               </ul>
             </div>
