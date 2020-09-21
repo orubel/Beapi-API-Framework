@@ -38,26 +38,26 @@ import grails.util.Metadata
 class BeapiApiFrameworkGrailsPlugin extends Plugin{
     // DO NOT UNCOMMENT; THIS HAS TO BE EVALUATED IN QUOTES OR
     // COMMAND CLASSES WILL THROW ERRORS... NO JOKE
-	def version = "${Metadata.current.getApplicationVersion()}"
+    def version = "${Metadata.current.getApplicationVersion()}"
     def grailsVersion = '3.2.1 > *'
     def title = 'BeAPI Api Framework' // Headline display name of the plugin
-	def author = 'Owen Rubel'
-	def authorEmail = 'orubel@gmail.com'
-	def description = 'BeAPI Framework is a fully reactive plug-n-play API Framework for Distributed Architectures providing api abstraction, cached IO state, automated batching and more. It is meant to autmoate alot of the issues behind setting up and maintaining API\'s in distributed architectures as well as handling and simplifying automation.'
-	def documentation = 'http://orubel.github.io/Beapi-API-Framework/'
-	def license = 'CCL-1.0'
+    def author = 'Owen Rubel'
+    def authorEmail = 'orubel@gmail.com'
+    def description = 'BeAPI Framework is a fully reactive plug-n-play API Framework for Distributed Architectures providing api abstraction, cached IO state, automated batching and more. It is meant to autmoate alot of the issues behind setting up and maintaining API\'s in distributed architectures as well as handling and simplifying automation.'
+    def documentation = 'http://orubel.github.io/Beapi-API-Framework/'
+    def license = 'CCL-1.0'
     def organization = [ name: 'BeAPI', url: 'http://www.beapi.io' ]
     def developers = [[ name: 'Owen Rubel', email: 'orubel@gmail.com' ]]
-	def issueManagement = [system: 'GitHub', url: 'https://github.com/orubel/grails-api-toolkit-docs/issues']
-	def scm = [url: 'https://github.com/orubel/api-framework']
-	def dependsOn = [cache: '* > 3.0']
-	def loadAfter = ['cache']
+    def issueManagement = [system: 'GitHub', url: 'https://github.com/orubel/grails-api-toolkit-docs/issues']
+    def scm = [url: 'https://github.com/orubel/api-framework']
+    def dependsOn = [cache: '* > 3.0']
+    def loadAfter = ['cache']
     //def loadBefore = ['spring-boot-starter-tomcat']
 
     LinkedHashMap testLoadOrder = [:]
 
     def pluginExcludes = [
-        'grails-app/views/error.gsp'
+            'grails-app/views/error.gsp'
     ]
     def profiles = ['web']
 
@@ -149,28 +149,26 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     void doWithApplicationContext() {
 
         // Delegate OPTIONS requests to controllers
-       // try{
-            applicationContext.dispatcherServlet.setDispatchOptionsRequest(true)
+        // try{
+        applicationContext.dispatcherServlet.setDispatchOptionsRequest(true)
 
-            String basedir = BuildSettings.BASE_DIR
-            String apiObjectSrc = "${System.properties.'user.home'}/${grails.util.Holders.grailsApplication.config.iostate.preloadDir}"
+        String basedir = BuildSettings.BASE_DIR
+        String apiObjectSrc = "${System.properties.'user.home'}/${grails.util.Holders.grailsApplication.config.iostate.preloadDir}"
 
-            def ant = new AntBuilder()
+        def ant = new AntBuilder()
 
-            ant.mkdir(dir: "${basedir}/src/iostate")
-            ant.mkdir(dir: "${apiObjectSrc}")
-            //def ctx = applicationContext.getServletContext()
-            //ctx.setInitParameter("dispatchOptionsRequest", "true");
+        ant.mkdir(dir: "${basedir}/src/iostate")
+        ant.mkdir(dir: "${apiObjectSrc}")
+        //def ctx = applicationContext.getServletContext()
+        //ctx.setInitParameter("dispatchOptionsRequest", "true");
 
-            doInitApiFrameworkInstall(applicationContext)
+        doInitApiFrameworkInstall(applicationContext)
 
-            def statsService = applicationContext.getBean('statsService')
-            statsService.flushAllStatsCache()
+        def statsService = applicationContext.getBean('statsService')
+        statsService.flushAllStatsCache()
 
-            def iostateService = applicationContext.getBean('iostateService')
-            iostateService.parseFiles(applicationContext)
-            //parseFiles(apiObjectSrc.toString(), applicationContext)
-            this.testLoadOrder = createTestOrder(applicationContext)
+        parseFiles(apiObjectSrc.toString(), applicationContext)
+        this.testLoadOrder = createTestOrder(applicationContext)
         //}catch(Exception e){
         //    throw new Exception('[BeAPIFramework] : Cannot set system properties :',e)
         //}
@@ -187,30 +185,30 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         println '### Loading IO State Files ...'
 
         //try {
-            new File(path).eachFile() { file ->
-                if(!file.isDirectory()) {
-                    String fileName = file.name.toString()
+        new File(path).eachFile() { file ->
+            if(!file.isDirectory()) {
+                String fileName = file.name.toString()
 
-                    def tmp = fileName.split('\\.')
-                    String fileChar1 = fileName.charAt(fileName.length() - 1)
+                def tmp = fileName.split('\\.')
+                String fileChar1 = fileName.charAt(fileName.length() - 1)
 
-                    if (tmp[1] == 'json' && fileChar1 == "n") {
-                        JSONObject json = JSON.parse(file.text)
-                        methods[json.NAME.toString()] = parseJson(json.NAME.toString(), json, applicationContext)
-                    } else {
-                        println(" # Bad File Type [ ${tmp[1]} ]; Ignoring file : ${fileName}")
-                    }
+                if (tmp[1] == 'json' && fileChar1 == "n") {
+                    JSONObject json = JSON.parse(file.text)
+                    methods[json.NAME.toString()] = parseJson(json.NAME.toString(), json, applicationContext)
+                } else {
+                    println(" # Bad File Type [ ${tmp[1]} ]; Ignoring file : ${fileName}")
                 }
             }
+        }
         //}catch(Exception e){
         //    throw new Exception('[BeAPIFramework] : No IO State Files found for initialization :',e)
         //}
     }
 
-	void doInitApiFrameworkInstall(applicationContext) {
+    void doInitApiFrameworkInstall(applicationContext) {
         //def userHome = System.getProperty("user.home")
 
-		String basedir = BuildSettings.BASE_DIR
+        String basedir = BuildSettings.BASE_DIR
         def ant = new AntBuilder()
 
         println '### Installing API Framework ...'
@@ -264,7 +262,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 writer.writeLine "apitoolkit.serverType= 'master'"
                 writer.writeLine "apitoolkit.webhook.services= ['iostate']"
                 // set this per environment
-               	writer.writeLine "apitoolkit.iostate.preloadDir= '"+System.getProperty('user.home')+"/.iostate'"
+                writer.writeLine "apitoolkit.iostate.preloadDir= '"+System.getProperty('user.home')+"/.iostate'"
                 writer.writeLine "apitoolkit.corsInterceptor.includeEnvironments= ['development','test']"
                 writer.writeLine "apitoolkit.corsInterceptor.excludeEnvironments= ['production']"
                 writer.writeLine "apitoolkit.corsInterceptor.allowedOrigins= ['localhost:3000']"
@@ -280,7 +278,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         System.setProperty('isChainServer', isChainServer)
 
         println  '... API Framework installed. ###'
-	}
+    }
 
 
     void onChange(Map<String, Object> event) {
@@ -298,9 +296,9 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         // TODO Implement code that is executed when the application shuts down (optional)
     }
 
-	void writeFile(String inPath, String outPath){
-		String pluginDir = new File(getClass().protectionDomain.codeSource.location.path).path
-		def plugin = new File(pluginDir)
+    void writeFile(String inPath, String outPath){
+        String pluginDir = new File(getClass().protectionDomain.codeSource.location.path).path
+        def plugin = new File(pluginDir)
         try {
             if (plugin.isFile() && plugin.name.endsWith("jar")) {
                 JarFile jar = new JarFile(plugin)
@@ -320,7 +318,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         }catch(Exception e){
             println("Exception :"+e)
         }
-	}
+    }
 
     LinkedHashMap createTestOrder(ApplicationContext applicationContext){
         def apiCacheService = applicationContext.getBean("apiCacheService")
@@ -570,7 +568,6 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         Set fkeys = []
         Set pkeys= []
         List keys = []
-
         try {
             values.each { k, v ->
                 keys.add(k)
