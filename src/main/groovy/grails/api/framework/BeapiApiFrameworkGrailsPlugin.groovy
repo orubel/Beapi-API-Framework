@@ -148,19 +148,72 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
     void doWithApplicationContext() {
 
+        println '####################################################################################################'
+        println ' '
+        println("""                                                                       
+     //                                                                                    .@@@     
+     //                                                                                     &@&     
+     //                                                                                             
+     // .//////////          .//////////.         .(@@@@@@@@@, @@/    (@@ ,@@@@@@@@@(       @@&     
+     ////         .//.     ,//,         //*     ,@@@         @@@@/    (@@@@         @@@     @@&     
+     //             //*   ,//            ///   ,@@             @@/    (@@             @@    @@&     
+     //             ,//   //////////////////   %@@             %@/    (@%             @@#   @@&     
+     //             ///   ///                   @@             @@/    (@@            ,@@    @@&     
+     ////         .///     *//         .///      @@#         ,@@@/    (@@@,        .#@@     @@&     
+     //  //////////.         ,///////////          @@@@@@@@@@& @@/    (@@ %@@@@@@@@@@       @@&     
+                                                                      (@@                           
+                                                                      (@@                           
+                                                                      /@@                                                         
+""")
+        println ' '
+        println '####################################################################################################'
+        println ' '
         // Delegate OPTIONS requests to controllers
         // try{
         applicationContext.dispatcherServlet.setDispatchOptionsRequest(true)
 
         String basedir = BuildSettings.BASE_DIR
+        String preloadDir = grails.util.Holders.grailsApplication.config.iostate.preloadDir as String
+        List temp = preloadDir.split('/')
         String apiObjectSrc = "${System.properties.'user.home'}/${grails.util.Holders.grailsApplication.config.iostate.preloadDir}"
+        String configSrc = "${System.properties.'user.home'}/${temp[0]}"
 
         def ant = new AntBuilder()
 
-        ant.mkdir(dir: "${basedir}/src/iostate")
-        ant.mkdir(dir: "${apiObjectSrc}")
+        // first detect if dir exists and if not create it
+        def iostateSrc = new File("${basedir}/src/iostate")
+        println ' ### Creating Directory Structure'
+        if(!iostateSrc.exists()) {
+            println(" - src/iostate dir [CREATED] : ${basedir}/src/iostate")
+            ant.mkdir(dir: "${iostateSrc}")
+        }else{
+            println(" - src/iostate dir [EXISTS] : ${basedir}/src/iostate")
+        }
+
+        def apiObjectFile = new File("${apiObjectSrc}")
+        if(!apiObjectFile.exists()) {
+            println(" - config dir [CREATED] : "+apiObjectSrc)
+            ant.mkdir(dir: "${apiObjectSrc}")
+        }else{
+            println(" - config dir [EXISTS] : "+apiObjectSrc)
+        }
+
+        // install config files
+        List files = ['beapi.groovy','beapi.yml','beapi_api.yml','beapi_db.yml','beapi_server.yml']
+        files.each() {
+            def configFile1 = new File("${basedir}/grails-app/conf/${it}")
+            if (!configFile1.exists()) {
+                println(" - config file [CREATED] : ${configSrc}/${it}")
+                writeFile("${basedir}/grails-app/conf/${it}", "${configSrc}/${it}")
+            } else {
+                println(" - config file [EXISTS] : ${configSrc}/${it}")
+            }
+        }
+
+
         //def ctx = applicationContext.getServletContext()
         //ctx.setInitParameter("dispatchOptionsRequest", "true");
+
 
         doInitApiFrameworkInstall(applicationContext)
 
@@ -169,9 +222,13 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
         parseFiles(apiObjectSrc.toString(), applicationContext)
         this.testLoadOrder = createTestOrder(applicationContext)
+
         //}catch(Exception e){
         //    throw new Exception('[BeAPIFramework] : Cannot set system properties :',e)
         //}
+
+        println ' '
+        println '####################################################################################################'
     }
 
     /**
@@ -182,7 +239,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     private parseFiles(String path, ApplicationContext applicationContext){
         LinkedHashMap methods = [:]
 
-        println '### Loading IO State Files ...'
+        println ' ### Loading IO State Files'
 
         //try {
         new File(path).eachFile() { file ->
@@ -195,8 +252,9 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
                 if (tmp[1] == 'json' && fileChar1 == "n") {
                     JSONObject json = JSON.parse(file.text)
                     methods[json.NAME.toString()] = parseJson(json.NAME.toString(), json, applicationContext)
+                    println(" - Loading file : ${path}/${fileName}")
                 } else {
-                    println(" # Bad File Type [ ${tmp[1]} ]; Ignoring file : ${fileName}")
+                    println(" - [Bad File Type ( ${tmp[1]} )] - Ignoring file : ${fileName}")
                 }
             }
         }
@@ -211,9 +269,8 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         String basedir = BuildSettings.BASE_DIR
         def ant = new AntBuilder()
 
-        println '### Installing API Framework ...'
-
         def iostateDir = "${basedir}/src/iostate/"
+
         def iofile = new File(iostateDir)
         if(!iofile.exists()) {
             writeFile('templates/iostate/Apidoc.json.template', "${iostateDir}Apidoc.json")
@@ -277,7 +334,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         System.setProperty('isBatchServer', isBatchServer)
         System.setProperty('isChainServer', isChainServer)
 
-        println  '... API Framework installed. ###'
+
     }
 
 
