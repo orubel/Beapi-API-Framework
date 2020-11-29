@@ -59,6 +59,15 @@ import grails.converters.XML
 import grails.core.GrailsApplication
 import grails.plugin.cache.GrailsConcurrentMapCache
 
+// ANONYMOUS TOKEN
+import org.springframework.security.authentication.AnonymousAuthenticationToken
+import org.springframework.security.core.GrantedAuthority
+import org.springframework.security.core.SpringSecurityCoreVersion
+import org.springframework.security.core.authority.SimpleGrantedAuthority
+import org.springframework.security.core.userdetails.User
+import org.springframework.security.core.userdetails.UserDetails
+
+
 /**
  * Filter for validation of token send through the request.
  *
@@ -89,10 +98,36 @@ class ApiRequestFilter extends GenericFilterBean {
     GrailsCacheManager grailsCacheManager
 
     GrailsApplication grailsApplication = Holders.grailsApplication
+    String networkGroupType
+
+    String actualUri
+    String entryPoint = Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)
+    String controller
+    String action
+    String version
+
+    // ANNONYMOUS TOKEN
+    private static final long serialVersionUID = SpringSecurityCoreVersion.SERIAL_VERSION_UID
+    public static final String USERNAME = '__grails.anonymous.user__'
+    public static final String PASSWORD = ''
+    public static final String ROLE_NAME = 'ROLE_ANONYMOUS'
+    public static final GrantedAuthority ROLE = new SimpleGrantedAuthority(ROLE_NAME)
+    public static final List<GrantedAuthority> ROLES = Collections.singletonList(ROLE)
+    public static final UserDetails USER_DETAILS = new User(USERNAME, PASSWORD, false, false, false, false, ROLES)
+
 
     //@Override
     void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException, ServletException {
         // println("#### ApiRequestFilter ####")
+        request = (HttpServletRequest) request
+        response = (HttpServletResponse) response
+
+        this.loginUri = Holders.grailsApplication.config.getProperty('grails.plugin.springsecurity.rest.login.endpointUrl')
+        this.actualUri = request.requestURI - request.contextPath
+
+        checkUri(request, response)
+
+        this.networkGroupType = getNetworkGrp(version, this.controller, this.action, request, response)
 
         HttpServletRequest httpRequest = request as HttpServletRequest
         HttpServletResponse httpResponse = response as HttpServletResponse
@@ -105,7 +140,6 @@ class ApiRequestFilter extends GenericFilterBean {
                 if (accessToken) {
                     log.debug "Token found: ${accessToken.accessToken}"
                     accessToken = restAuthenticationProvider.authenticate(accessToken) as AccessToken
-
                     if (accessToken.authenticated) {
                         log.debug "Token authenticated. Storing the authentication result in the security context"
                         log.debug "Authentication result: ${accessToken}"
@@ -119,14 +153,17 @@ class ApiRequestFilter extends GenericFilterBean {
                         httpResponse.writer.flush()
                         //return
                     }
-
-                } else {
-                    log.debug('token not found')
-                    httpResponse.setContentType("application/json")
-                    httpResponse.setStatus(401)
-                    httpResponse.getWriter().write('Token not found. Unauthorized Access.')
-                    httpResponse.writer.flush()
-                    return
+                } else{
+                    if(this.networkGroupType=='open') {
+                        processFilterChain(httpRequest, httpResponse, chain, accessToken)
+                    }else{
+                        log.debug('token not found')
+                        httpResponse.setContentType("application/json")
+                        httpResponse.setStatus(401)
+                        httpResponse.getWriter().write('Token not found. Unauthorized Access.')
+                        httpResponse.writer.flush()
+                        return
+                    }
                 }
 
             } catch (AuthenticationException ae) {
@@ -156,46 +193,20 @@ class ApiRequestFilter extends GenericFilterBean {
          * First get CORS Network grps, then test the domains listed in the users network group
          * against sent origin
          */
-        this.loginUri = Holders.grailsApplication.config.getProperty('grails.plugin.springsecurity.rest.login.endpointUrl')
-        String actualUri = request.requestURI - request.contextPath
-        String entryPoint = Metadata.current.getProperty(Metadata.APPLICATION_VERSION, String.class)
-        String controller
-        String action
-        String version
 
-        // TODO: need to also check for logoutUri
-        switch(actualUri) {
-            case ~/\/.{0}[a-z]${entryPoint}(-[0-9])*\/(.*)/:
-                String[] params = actualUri.split('/')
-                String[] temp = ((String)params[1]).split('-')
-                version = (temp.size()>1) ? temp[1].toString() : ''
-                controller = params[2]
-                action = params[3]
-                break
-            case loginUri:
-                String[] params = actualUri.split('/')
-                controller = params[1]
-                action = params[2]
-                break;
-            default:
-                if(actualUri!='/error') {
-                    response.setContentType("application/json")
-                    response.setStatus(401)
-                    response.getWriter().write("APIRequestFilter: Bad URI Access attempted at '${actualUri}'")
-                    response.writer.flush()
-                    return true
-                }
-        }
+
+
+
+
+
 
         // get users network group and config NetworkGroups list and test if networkGrp sent exists
         List<String> networkGroups = Holders.grailsApplication.config.apitoolkit['networkGroups'] as List<String>
 
-        String networkGroupType = getNetworkGrp(version, controller, action, request, response)
-
-        if(!networkGroups.contains(networkGroupType)){
+        if(!networkGroups.contains(this.networkGroupType)){
             response.setContentType("application/json")
             response.setStatus(401)
-            response.getWriter().write("NETWORKGRP for IO State file :"+controller+" cannot be found. Please double check it against available NetworkGroups in the beapi_api.yml config file.")
+            response.getWriter().write("NETWORKGRP for IO State file :"+this.controller+" cannot be found. Please double check it against available NetworkGroups in the beapi_api.yml config file.")
             response.writer.flush()
             return true
         }else {
@@ -206,7 +217,7 @@ class ApiRequestFilter extends GenericFilterBean {
             String[] includeEnvironments = corsInterceptorConfig['includeEnvironments'] ?: null
             String[] excludeEnvironments = corsInterceptorConfig['excludeEnvironments'] ?: null
             LinkedHashMap allowedOrigins = corsInterceptorConfig['networkGroups'] ?: null
-            String[] networkGroupList = allowedOrigins[networkGroupType]
+            String[] networkGroupList = allowedOrigins[this.networkGroupType]
 
             //def excludeEnvRule = excludeEnvironments.contains(Environment.current.name)
             //def includeEnvRule = includeEnvironments.contains(Environment.current.name)
@@ -249,6 +260,36 @@ class ApiRequestFilter extends GenericFilterBean {
         }
         response.status = HttpStatus.OK.value()
         return options
+    }
+
+    boolean checkUri(HttpServletRequest request, HttpServletResponse response){
+        // TODO: need to also check for logoutUri
+        switch(this.actualUri) {
+            case ~/\/.{0}[a-z]${this.entryPoint}(-[0-9])*\/(.*)/:
+                try {
+                    String[] params = this.actualUri.split('/')
+                    String[] temp = ((String) params[1]).split('-')
+                    this.version = (temp.size() > 1) ? temp[1].toString() : ''
+                    this.controller = params[2]
+                    this.action = params[3]
+                }catch(Exception e){
+                    throw new Exception("[ApiRequestFilter :: processPreflight] : Improperly formatted URI :",e)
+                }
+                break
+            case loginUri:
+                String[] params = this.actualUri.split('/')
+                this.controller = params[1]
+                this.action = params[2]
+                break;
+            default:
+                if(this.actualUri!='/error') {
+                    response.setContentType("application/json")
+                    response.setStatus(401)
+                    response.getWriter().write("APIRequestFilter: Bad URI Access attempted at '${this.actualUri}'")
+                    response.writer.flush()
+                    return true
+                }
+        }
     }
 
     boolean doesContentTypeMatch(HttpServletRequest request){
