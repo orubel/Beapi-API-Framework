@@ -70,7 +70,7 @@ Some features include:
 ### FAQ
 
 **Q: How hard is this to implement?**  
-**A:** BeApi is a Grails Plugin and you dont even have to install the plugin. Implementing for a new project is as simple as a one line command (once you have added the repository to your config - see documentation):
+**A:** BeApi is a Grails Plugin and you dont even have to install the plugin. Implementing for a new project is as simple as a one line command (see 'NEW APP INSTALLATION' above)):
 ```
 grails create-app name_of_your_app --profile org.grails.profiles:beapi-profile:2.0.18
 ```
