@@ -1,7 +1,7 @@
 
 ![alt text](https://github.com/orubel/logos/blob/master/beapi_logo_large.png)
 
-## [The #1 API Project for Grails & Springboot](https://libraries.io/repos/search?keywords=api&language=Groovy&q=api&sort=rank)
+## The #1 API Project for Grails & Springboot: [view](https://libraries.io/repos/search?keywords=api&language=Groovy&q=api&sort=rank)
 # Grails API Plugin | [BeApi(tm) Api Framework]( https://www.beapi.io/ )
 
 [:heart: Sponsor on GitHub](https://github.com/sponsors/orubel)
