@@ -1,6 +1,7 @@
 
 ![alt text](https://github.com/orubel/logos/blob/master/beapi_logo_large.png)
 # Grails API Plugin | BeApi(tm) Api Framework ( https://www.beapi.io/ )
+[The #1 API Project for Grails & Springboot](https://libraries.io/repos/search?keywords=api&language=Groovy&q=api&sort=rank)
 [:heart: Sponsor on GitHub](https://github.com/sponsors/orubel)
 
 [ ![Download](https://api.bintray.com/packages/orubel/plugins/api-framework/images/download.svg?version=2.0.18) ](https://bintray.com/orubel/plugins/api-framework/2.0.18/link)
@@ -42,7 +43,6 @@ grails create-app name_of_your_app --profile org.grails.profiles:beapi-profile:2
 ### Frontend Implementation - https://github.com/orubel/beapi_frontend
 [:heart: Sponsor on GitHub](https://github.com/sponsors/orubel)
 ***
-[The #1 API Project for Grails & Springboot](https://libraries.io/repos/search?keywords=api&language=Groovy&q=api&sort=rank)
 ### Description
 The BeAPI Framework is a Grails API plugin providing a full featured API Automation framework and an AVERAGE response time per call of [0.25 milliseconds per request](https://www.flickr.com/photos/orubel/32194321787/in/dateposted-public/) (Google requires their calls to be UNDER 200 ms). 
 
