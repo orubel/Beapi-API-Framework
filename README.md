@@ -17,7 +17,7 @@
 ## Documentation - http://orubel.github.io/Beapi-API-Framework/
 ## Forums - http://beapi.freeforums.net/
 ## New App Installation
-Install Grails normally then edit your 'USER_HOME/.grails/settings.groovy' file to look like the following:
+Install Grails 3.X normally then edit your 'USER_HOME/.grails/settings.groovy' file to look like the following:
 ```
 
 grails {
