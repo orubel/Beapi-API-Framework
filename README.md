@@ -1,18 +1,23 @@
 
 ![alt text](https://github.com/orubel/logos/blob/master/beapi_logo_large.png)
-# Grails API Plugin | BeApi(tm) Api Framework ( https://www.beapi.io/ )
-**If you enjoy our work, please click our sponsor button at the top of the page**
+
+## The #1 API Project for Grails & Springboot: [view](https://libraries.io/repos/search?keywords=api&language=Groovy&q=api&sort=rank)
+# Grails API Plugin | [BeApi(tm) Api Framework]( https://www.beapi.io/ )
+
+[:heart: Sponsor on GitHub](https://github.com/sponsors/orubel)
+
 [ ![Download](https://api.bintray.com/packages/orubel/plugins/api-framework/images/download.svg?version=2.0.18) ](https://bintray.com/orubel/plugins/api-framework/2.0.18/link)
 
 ## Benchmarks : [view](https://github.com/orubel/logos/blob/master/bench.png)
 ## Latest Version: [2.0.18](https://bintray.com/beta/#/orubel/plugins/api-framework/2.0.18?tab=overview) 
 ## Stable/Latest Profile Version: [2.0.18](https://bintray.com/beta/#/orubel/profiles/beapi-profile/2.0.18?tab=overview)
+[:heart: Sponsor on GitHub](https://github.com/sponsors/orubel)
 
 ***
 ## Documentation - http://orubel.github.io/Beapi-API-Framework/
 ## Forums - http://beapi.freeforums.net/
 ## New App Installation
-Edit your 'USER_HOME/.grails/settings.groovy' file to look like the following:
+Install Grails 3.X normally then edit your 'USER_HOME/.grails/settings.groovy' file to look like the following:
 ```
 
 grails {
@@ -38,7 +43,7 @@ grails create-app name_of_your_app --profile org.grails.profiles:beapi-profile:2
 
 <!-- ### Backend Implementation - https://github.com/orubel/beapi_backend -->
 ### Frontend Implementation - https://github.com/orubel/beapi_frontend
-
+[:heart: Sponsor on GitHub](https://github.com/sponsors/orubel)
 ***
 ### Description
 The BeAPI Framework is a Grails API plugin providing a full featured API Automation framework and an AVERAGE response time per call of [0.25 milliseconds per request](https://www.flickr.com/photos/orubel/32194321787/in/dateposted-public/) (Google requires their calls to be UNDER 200 ms). 
@@ -70,7 +75,7 @@ Some features include:
 ### FAQ
 
 **Q: How hard is this to implement?**  
-**A:** BeApi is a Grails Plugin and you dont even have to install the plugin. Implementing for a new project is as simple as a one line command:
+**A:** BeApi is a Grails Plugin and you dont even have to install the plugin. Implementing for a new project is as simple as a one line command (see 'NEW APP INSTALLATION' above)):
 ```
 grails create-app name_of_your_app --profile org.grails.profiles:beapi-profile:2.0.18
 ```
