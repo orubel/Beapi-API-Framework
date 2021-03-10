@@ -701,16 +701,12 @@ abstract class ApiCommProcess{
     boolean checkAuth(List roles){
         try {
             boolean hasAuth = false
-            if (springSecurityService.loggedIn) {
-                def principal = springSecurityService.principal
-                ArrayList userRoles = principal.authorities*.authority as ArrayList
-                roles.each {
-                    if (userRoles.contains(it) || it=='permitAll') {
-                        hasAuth = true
-                    }
+            def principal = springSecurityService.principal
+            ArrayList userRoles = principal.authorities*.authority as ArrayList
+            roles.each {
+                if (userRoles.contains(it) || it=='permitAll') {
+                    hasAuth = true
                 }
-            }else{
-                //println("NOT LOGGED IN!!!")
             }
             if(hasAuth==false){
                 errorResponse([400, 'Unauthorized Access attempted'])

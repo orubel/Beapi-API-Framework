@@ -700,17 +700,16 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
 
         // override networkRoles with 'DEFAULT' in IO State
 
-
-
-        batchRoles.each{
-            if(!apiRoles.contains(it)){
+        batchRoles.each {
+            if (!apiRoles.contains(it)) {
                 throw new Exception("[Runtime :: createApiDescriptor] : BatchRoles in IO State[" + apiname + "] do not match default/networkRoles")
             }
         }
         service['batchRoles'] = batchRoles
 
-        hookRoles.each{
-            if(!apiRoles.contains(it)){
+
+        hookRoles.each {
+            if (!apiRoles.contains(it)) {
                 throw new Exception("[Runtime :: createApiDescriptor] : HookRoles in IO State[" + apiname + "] do not match default/networkRoles")
             }
         }

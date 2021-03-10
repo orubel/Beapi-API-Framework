@@ -98,7 +98,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * @return
 	 */
 	boolean before(){
-		println("##### INTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
+		//println("##### INTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
 
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
@@ -288,12 +288,19 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 						action = params.action.toString()
 					}
 
-					//List roles = cache['roles'] as List
-					List roles = this.cachedEndpoint['roles'] as List
-					boolean checkAuth = checkAuth(roles)
+
+					def temp = cache[apiObject][action]['receives'] as LinkedHashMap
+					List userRoles = []
+					for (Map.Entry<String, String> entry : temp.entrySet()) {
+						String key = entry.getKey() as String
+						userRoles.add(key)
+					}
+
+
+					boolean checkAuth = checkAuth(userRoles)
 					if(!checkAuth){
 						statsService.setStatsCache(userId, 400, request.requestURI)
-						errorResponse([400,'Unauthorized Access attempted'])
+						//errorResponse([400,'Unauthorized Access attempted'])
 						return false
 					}
 
@@ -319,7 +326,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * @return
 	 */
 	boolean after() {
-		println("##### INTERCEPTOR (AFTER) - ${params.controller}/${params.action}")
+		//println("##### INTERCEPTOR (AFTER) - ${params.controller}/${params.action}")
 
 		if(model) {
 			//List unsafeMethods = ['PUT', 'POST', 'DELETE']
