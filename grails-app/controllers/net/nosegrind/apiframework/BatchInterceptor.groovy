@@ -177,6 +177,20 @@ class BatchInterceptor extends ApiCommLayer{
 					}
 				}
 
+				def temp = cache[apiObject][action]['receives'] as LinkedHashMap
+				List userRoles = []
+				for (Map.Entry<String, String> entry : temp.entrySet()) {
+					String key = entry.getKey() as String
+					userRoles.add(key)
+				}
+
+				boolean checkAuth = checkAuth(userRoles)
+				if(!checkAuth){
+					statsService.setStatsCache(userId, 400, request.requestURI)
+					//errorResponse([400,'Unauthorized Access attempted'])
+					return false
+				}
+
 				// START HANDLE BATCH PARAMS
 				if (request?.getAttribute('batchInc')==null) {
 					request.setAttribute('batchInc',0)

@@ -218,14 +218,20 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 					Integer newBI = (Integer) request?.getAttribute('chainInc')
 					request.setAttribute('chainInc', newBI + 1)
 
-                    List roles = cache[apiObject][action]['roles'] as List
-                    if(!checkAuth(roles)){
-						statsService.setStatsCache(this.userId, 401, request.requestURI)
-                    	//response.status = 401
-                    	//response.setHeader('ERROR',"Unauthorized Access attempted at '${entryPoint}/${params.controller}/${params.action}'. This user does not have proper permissions or URL does not exist.")
-						errorResponse([400,"Unauthorized Access attempted at ${entryPoint}/${params.controller}/${params.action}"])
+					def temp = cache[apiObject][action]['receives'] as LinkedHashMap
+					List userRoles = []
+					for (Map.Entry<String, String> entry : temp.entrySet()) {
+						String key = entry.getKey() as String
+						userRoles.add(key)
+					}
+
+					boolean checkAuth = checkAuth(userRoles)
+					if(!checkAuth){
+						statsService.setStatsCache(userId, 400, request.requestURI)
+						//errorResponse([400,'Unauthorized Access attempted'])
 						return false
-                    }
+					}
+
 				}
 
 				// is this being called
