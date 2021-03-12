@@ -102,6 +102,7 @@ grails:
 apitoolkit:
     apiName: 'api'
     attempts: 5
+    documentationUrl: 'http://orubel.github.io/Beapi-API-Framework/'
     roles: ['ROLE_USER','ROLE_ROOT','ROLE_ADMIN','ROLE_ARCH']
     profilerRoles: ['ROLE_ROOT','ROLE_ADMIN','ROLE_ARCH']
     apichain:
