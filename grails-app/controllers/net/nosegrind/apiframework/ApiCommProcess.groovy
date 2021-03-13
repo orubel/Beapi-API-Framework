@@ -212,7 +212,7 @@ abstract class ApiCommProcess{
         ArrayList paramsList
 
         //ArrayList requestList = []
-        //try {
+        try {
 
             if (requestList.contains('*')) {
                 return true
@@ -233,11 +233,11 @@ abstract class ApiCommProcess{
             }
             String msg = this.messageSource.getMessage("error.apiCommProcess.checkURIDefinitions", [requestList,paramsList,docUrl] as Object[], 'Default Message', request.locale)
             errorResponse([400,msg])
-            //errorResponse([400,"Expected request variables for endpoint [${requestList}] do not match sent variables [${paramsList}]"])
+
             return false
-        //}catch(Exception e) {
-        //   throw new Exception("[ApiCommProcess :: checkURIDefinitions] : Exception - full stack trace follows:",e)
-        //}
+        }catch(Exception e) {
+           throw new Exception("[ApiCommProcess :: checkURIDefinitions] : Exception - full stack trace follows:",e)
+        }
         return false
     }
 

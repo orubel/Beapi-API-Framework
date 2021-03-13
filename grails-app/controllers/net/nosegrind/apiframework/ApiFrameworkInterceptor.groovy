@@ -187,7 +187,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 				 */
 				if(!checkURIDefinitions(params, receivesList, this.authority)){
 					statsService.setStatsCache(userId, response.status, request.requestURI)
-					errorResponse([400,"Sent params {${params}} do not match expected params {${receivesList}}"])
 					return false
 				}
 

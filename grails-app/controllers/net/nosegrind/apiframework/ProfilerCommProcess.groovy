@@ -50,6 +50,8 @@ abstract class ProfilerCommProcess {
     // Used for parallelization
     int cores = Holders.grailsApplication.config.apitoolkit['procCores'] as Integer
 
+	String docUrl = Holders.grailsApplication.config.apitoolkit.documentationUrl
+
     boolean batchEnabled = Holders.grailsApplication.config.apitoolkit.batching.enabled
     boolean chainEnabled = Holders.grailsApplication.config.apitoolkit.chaining.enabled
 
@@ -76,7 +78,9 @@ abstract class ProfilerCommProcess {
             traceService.endTrace('ProfilerCommProcess','checkDeprecationDate')
             return false
         }catch(Exception e){
-            throw new Exception("[ApiCommProcess :: checkDeprecationDate] : Exception - full stack trace follows:",e)
+			String msg = this.messageSource.getMessage("error.profilerCommProcess.checkDeprecationDate", [docUrl,e] as Object[], 'Default Message', request.locale)
+			throw new Exception(msg)
+            //throw new Exception("[ApiCommProcess :: checkDeprecationDate] : Exception - full stack trace follows:",e)
         }
     }
 
@@ -96,7 +100,8 @@ abstract class ProfilerCommProcess {
                 return true
             }else{
                 traceService.endTrace('ProfilerCommProcess','checkRequestMethod')
-                errorResponse([400,'Expected request method for endpoint does not match sent method'])
+				String msg = this.messageSource.getMessage("error.profilerCommProcess.checkRequestMethod", [docUrl] as Object[], 'Default Message', request.locale)
+                errorResponse([400,msg])
                 return false
             }
         }
@@ -142,8 +147,11 @@ abstract class ProfilerCommProcess {
                 }
             }
 
-            traceService.endTrace('ProfilerCommProcess','checkURIDefinitions')
-            errorResponse([400,"Expected request variables for endpoint [${requestList}] do not match sent variables [${paramsList}]"])
+			String msg = this.messageSource.getMessage("error.profilerCommProcess.checkURIDefinitions", [requestList,paramsList,docUrl] as Object[], 'Default Message', request.locale)
+            errorResponse([400,msg])
+
+			traceService.endTrace('ProfilerCommProcess','checkURIDefinitions')
+
             return false
         }catch(Exception e) {
             throw new Exception("[ApiCommProcess :: checkURIDefinitions] : Exception - full stack trace follows:",e)
@@ -328,7 +336,8 @@ abstract class ProfilerCommProcess {
 			return paramsRequest
 		}catch(Exception e){
 			traceService.endTrace('ProfilerCommProcess','getMethodParams')
-			throw new Exception('[ApiCommProcess :: getMethodParams] : Exception - full stack trace follows:',e)
+			String msg = this.messageSource.getMessage("error.profilerCommProcess.getMethodParams", [docUrl,e] as Object[], 'Default Message', request.locale)
+			throw new Exception(msg)
 		}
 		traceService.endTrace('ProfilerCommProcess','getMethodParams')
 		return [:]
@@ -627,7 +636,8 @@ abstract class ProfilerCommProcess {
 				return hasAuth
 			}
 		}catch(Exception e) {
-			throw new Exception("[ApiCommProcess :: checkAuth] : Exception - full stack trace follows:",e)
+			String msg = this.messageSource.getMessage("error.profilerCommProcess.checkAuth", [docUrl,e] as Object[], 'Default Message', request.locale)
+			throw new Exception(msg)
 		}
 	}
 

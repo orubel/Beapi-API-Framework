@@ -162,10 +162,8 @@ class ProfilerInterceptor extends ProfilerCommLayer{
 				cacheHash = createCacheHash(params, receivesList, this.authority)
 				if(!checkURIDefinitions(params, receivesList, this.authority)){
 					traceService.endTrace('ProfilerInterceptor','before')
-					errorResponse([400,"Sent params {${params}} do not match expected params {${receivesList}}"])
 					return false
 				}
-
 
 				// CHECK FOR REST ALTERNATIVES
 				if (restAlt) {
