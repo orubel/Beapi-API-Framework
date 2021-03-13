@@ -31,6 +31,7 @@ import net.nosegrind.apiframework.StatsService
 import javax.servlet.http.HttpSession
 
 
+
 /**
  *
  * HandlerInterceptor for Basic API Calls. Parses XML/JSON, handles authentication, rate limiting, caching, and statistics reporting
@@ -45,6 +46,7 @@ import javax.servlet.http.HttpSession
 class ApiFrameworkInterceptor extends ApiCommLayer{
 
 	int order = HIGHEST_PRECEDENCE + 999
+
 
 	@Resource
 	GrailsApplication grailsApplication

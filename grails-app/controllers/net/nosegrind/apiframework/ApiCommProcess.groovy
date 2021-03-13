@@ -37,10 +37,14 @@ import grails.orm.HibernateCriteriaBuilder
 import org.grails.web.util.WebUtils
 import javax.servlet.http.HttpServletResponse
 
+
 import groovyx.gpars.*
 import static groovyx.gpars.GParsPool.withPool
 
 import javax.servlet.http.HttpServletResponse
+
+// i18n
+import org.springframework.context.MessageSource
 
 
 /**
@@ -65,11 +69,16 @@ abstract class ApiCommProcess{
     @Autowired
     ThrottleCacheService throttleCacheService
 
+    @Autowired
+    MessageSource messageSource
+
     List formats = ['text/json','application/json','text/xml','application/xml']
     List optionalParams = ['method','format','contentType','encoding','action','controller','v','apiCombine', 'apiObject','entryPoint','uri','apiObjectVersion']
 
     // Used for parallelization
     int cores = Holders.grailsApplication.config.apitoolkit['procCores'] as Integer
+
+    String docUrl = Holders.grailsApplication.config.apitoolkit.documentationUrl
 
     boolean batchEnabled = Holders.grailsApplication.config.apitoolkit.batching.enabled
     boolean chainEnabled = Holders.grailsApplication.config.apitoolkit.chaining.enabled
@@ -160,7 +169,9 @@ abstract class ApiCommProcess{
             }
             return false
         }catch(Exception e){
-            throw new Exception("[ApiCommProcess :: checkDeprecationDate] : Exception - full stack trace follows:",e)
+            String msg = this.messageSource.getMessage("error.apiCommProcess.checkDeprecationDate", [docUrl,e] as Object[], 'Default Message', request.locale)
+            throw new Exception(msg)
+            //throw new Exception("[ApiCommProcess :: checkDeprecationDate] : Exception - full stack trace follows:",e)
         }
     }
 
@@ -177,7 +188,9 @@ abstract class ApiCommProcess{
             if(mthd.getKey() == method){
                 return true
             }else{
-                errorResponse([400,'Expected request method for endpoint does not match sent method'])
+                String msg = this.messageSource.getMessage("error.apiCommProcess.checkRequestMethod", [docUrl] as Object[], 'Default Message', request.locale)
+                errorResponse([400,msg])
+                //errorResponse([400,'Expected request method for endpoint does not match sent method'])
                 return false
             }
         }
@@ -199,7 +212,7 @@ abstract class ApiCommProcess{
         ArrayList paramsList
 
         //ArrayList requestList = []
-        try {
+        //try {
 
             if (requestList.contains('*')) {
                 return true
@@ -218,12 +231,13 @@ abstract class ApiCommProcess{
                     return true
                 }
             }
-
-            errorResponse([400,"Expected request variables for endpoint [${requestList}] do not match sent variables [${paramsList}]"])
+            String msg = this.messageSource.getMessage("error.apiCommProcess.checkURIDefinitions", [requestList,paramsList,docUrl] as Object[], 'Default Message', request.locale)
+            errorResponse([400,msg])
+            //errorResponse([400,"Expected request variables for endpoint [${requestList}] do not match sent variables [${paramsList}]"])
             return false
-        }catch(Exception e) {
-           throw new Exception("[ApiCommProcess :: checkURIDefinitions] : Exception - full stack trace follows:",e)
-        }
+        //}catch(Exception e) {
+        //   throw new Exception("[ApiCommProcess :: checkURIDefinitions] : Exception - full stack trace follows:",e)
+        //}
         return false
     }
 
@@ -359,7 +373,7 @@ abstract class ApiCommProcess{
                 }
 
             } catch (Exception e) {
-                throw new Exception('[ApiCommProcess :: parseURIDefinitions] : Exception - full stack trace follows:', e)
+                throw new Exception('[ApiCommProcess :: parseURIDefinitions] : Returned data is neither a Domain object, a List nor a Map. Please correct. Exception - full stack trace follows:', e)
             }
         }
     }
@@ -409,7 +423,8 @@ abstract class ApiCommProcess{
             paramsRequest = params.findAll { it2 -> !optionalParams.contains(it2.key) }
             return paramsRequest
         }catch(Exception e){
-            throw new Exception('[ApiCommProcess :: getMethodParams] : Exception - full stack trace follows:',e)
+            String msg = this.messageSource.getMessage("error.apiCommProcess.getMethodParams", [docUrl,e] as Object[], 'Default Message', request.locale)
+            throw new Exception(msg)
         }
         return [:]
     }
@@ -456,7 +471,7 @@ abstract class ApiCommProcess{
             }
             return newMap
         }catch(Exception e){
-            throw new Exception("[ApiCommProcess :: convertModel] : Exception - full stack trace follows:",e)
+            throw new Exception("[ApiCommProcess :: convertModel] :  Exception - full stack trace follows:",e)
         }
     }
 
@@ -715,7 +730,8 @@ abstract class ApiCommProcess{
                 return hasAuth
             }
         }catch(Exception e) {
-            throw new Exception("[ApiCommProcess :: checkAuth] : Exception - full stack trace follows:",e)
+            String msg = this.messageSource.getMessage("error.apiCommProcess.checkAuth", [docUrl,e] as Object[], 'Default Message', request.locale)
+            throw new Exception(msg)
         }
     }
 
