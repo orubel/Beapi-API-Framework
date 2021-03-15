@@ -28,6 +28,8 @@ import static groovyx.gpars.GParsPool.withPool
 
 import javax.servlet.http.HttpServletResponse
 
+// i18n
+import org.springframework.context.MessageSource
 
 // extended by ProfilerCommLayer
 abstract class ProfilerCommProcess {
@@ -41,8 +43,11 @@ abstract class ProfilerCommProcess {
     @Autowired
     ThrottleCacheService throttleCacheService
 
-	@Resource
-	TraceService traceService
+    @Autowired
+    MessageSource messageSource
+
+    @Resource
+    TraceService traceService
 
     List formats = ['text/json','application/json','text/xml','application/xml']
     List optionalParams = ['method','format','contentType','encoding','action','controller','v','apiCombine', 'apiObject','entryPoint','uri','apiObjectVersion']
