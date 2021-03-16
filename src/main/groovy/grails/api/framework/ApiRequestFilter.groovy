@@ -10,6 +10,8 @@
 
 package grails.api.framework
 
+//import org.springframework.util.StringUtils;
+
 import grails.compiler.GrailsCompileStatic
 import grails.plugin.cache.GrailsValueWrapper
 import grails.plugin.springsecurity.rest.RestAuthenticationProvider
@@ -17,9 +19,9 @@ import grails.plugin.springsecurity.rest.authentication.RestAuthenticationEventP
 import grails.plugin.springsecurity.rest.token.AccessToken
 import grails.plugin.springsecurity.rest.token.reader.TokenReader
 import grails.web.servlet.mvc.GrailsHttpSession
-import net.nosegrind.apiframework.ApiDescriptor
+//import net.nosegrind.apiframework.ApiDescriptor
 
-import java.io.InputStreamReader
+//import java.io.InputStreamReader
 
 import grails.util.Environment
 import grails.util.Metadata
@@ -30,7 +32,7 @@ import groovy.transform.CompileDynamic
 
 import org.grails.plugin.cache.GrailsCacheManager
 
-//import org.springframework.cache.Cache
+
 import org.springframework.context.ApplicationContext
 import org.springframework.http.HttpStatus
 import org.springframework.web.context.request.RequestContextHolder as RCH
@@ -95,7 +97,6 @@ class ApiRequestFilter extends GenericFilterBean {
     Boolean active
 
     Boolean enableAnonymousAccess
-    GrailsCacheManager grailsCacheManager
 
     GrailsApplication grailsApplication = Holders.grailsApplication
     String networkGroupType
@@ -125,7 +126,9 @@ class ApiRequestFilter extends GenericFilterBean {
         this.loginUri = Holders.grailsApplication.config.getProperty('grails.plugin.springsecurity.rest.login.endpointUrl')
         this.actualUri = request.requestURI - request.contextPath
 
+
         checkUri(request, response)
+
 
         this.networkGroupType = getNetworkGrp(version, this.controller, this.action, request, response)
 
@@ -141,8 +144,8 @@ class ApiRequestFilter extends GenericFilterBean {
                     log.debug "Token found: ${accessToken.accessToken}"
                     accessToken = restAuthenticationProvider.authenticate(accessToken) as AccessToken
                     if (accessToken.authenticated) {
-                        log.debug "Token authenticated. Storing the authentication result in the security context"
-                        log.debug "Authentication result: ${accessToken}"
+                        //log.debug "Token authenticated. Storing the authentication result in the security context"
+                        //log.debug "Authentication result: ${accessToken}"
                         SecurityContextHolder.context.setAuthentication(accessToken)
                         processFilterChain(httpRequest, httpResponse, chain, accessToken)
                     } else {

@@ -102,6 +102,22 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	boolean before(){
 		//println("##### INTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
 
+
+
+
+		//String userClass = Holders.grailsApplication.config.getProperty('grails.plugin.springsecurity.userLookup.userDomainClassName')
+
+		//def personIp = Holders.grailsApplication.getArtefactByLogicalPropertyName('Domain', 'PersonIp')
+		//Long id = springSecurityService.principal
+		//personIp.findByPerson(id)
+
+		String ip = getClientIp()
+		println("ip:"+ip)
+
+
+
+
+
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
 		//println("FILTERCHAIN : "+filterChain)
