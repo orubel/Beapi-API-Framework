@@ -51,9 +51,14 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	@Resource
 	GrailsApplication grailsApplication
 	ApiCacheService apiCacheService = new ApiCacheService()
+
+	// sec checks done in extended classes but service needs to be HERE
 	SpringSecurityService springSecurityService
+
 	HookService hookService
 	StatsService statsService
+	IpSecService ipSecService
+
 	boolean apiThrottle
 	String cacheHash
 
@@ -102,22 +107,12 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	boolean before(){
 		//println("##### INTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
 
-
-
-
-		//String userClass = Holders.grailsApplication.config.getProperty('grails.plugin.springsecurity.userLookup.userDomainClassName')
-
-		//def personIp = Holders.grailsApplication.getArtefactByLogicalPropertyName('Domain', 'PersonIp')
-		//Long id = springSecurityService.principal
-		//personIp.findByPerson(id)
-
+		// IPSEC BLOCK
 		String ip = getClientIp()
-		println("ip:"+ip)
+		ipSecService.check(ip)
 
 
-
-
-
+		
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
 		//println("FILTERCHAIN : "+filterChain)
