@@ -17,6 +17,7 @@ package net.nosegrind.apiframework
 import grails.util.Holders
 import grails.core.GrailsApplication
 import grails.plugin.springsecurity.SpringSecurityService
+import grails.orm.HibernateCriteriaBuilder
 
 /**
  *
@@ -34,24 +35,51 @@ class IpSecService {
 
     void check(String ip) {
 		String userClass = Holders.grailsApplication.config.getProperty('grails.plugin.springsecurity.userLookup.userIpDomainClassName')
+		
+		String user = Holders.grailsApplication.config.getProperty('grails.plugin.springsecurity.userLookup.userDomainClassName')
 		if (ip && ip!='unknown') {
 
-
-
-			// TODO : may not need springSecurityService? Can we just pass this var???
 			Long id = springSecurityService.principal.id
-			ArrayList results = grailsApplication.getClassForName(userClass).findAll("from PersonIp where valid=true and ip=? and user.id=?", [ip, id])
+			def person = grailsApplication.getClassForName(user).get(id)
+			def personIp = grailsApplication.getClassForName(userClass)
 
+			int result = personIp.countByValidAndUser(true, person)
+			if(result<=0){
+				//create first entry
+				def newPip = personIp.newInstance()
+				newPip.ip=ip
+				newPip.valid=true
+				newPip.user=person
 
+				if (!newPip.save(flush: true)) {
+					newPip.errors.allErrors.each {
+						println("err:"+it)
+					}
+				}else {
+					// test that it was accurately inserted
+					//ArrayList results2 = results.findIp("from PersonIp where valid=true and user.id=?", [id])
+				}
+			}else{
+				//def results = personIp.findAllIp("from PersonIp where valid=true and ip=? and user.id=?", [ip,id])
 
-			println(results.size())
+				def criteria = personIp.createCriteria()
+				def results = criteria.listDistinct() {
+					projections {
+						groupProperty("ip")
+					}
+					eq("valid", true)
+					and {
+						eq("user.id", id)
+					}
+				}
+				if(!results){
+					// we need to email user with a confirmation code
+					// can also use a geoIp lookup to show user location of IP
+				}
+			}
+
 		}
-
-
-
-        // check to see if already exists
-		// do we need to email user??
-		// getClientIp(HttpServletRequest request)
+		// do nothing if no IP sent
 	}
 
 	void confirm(){}
