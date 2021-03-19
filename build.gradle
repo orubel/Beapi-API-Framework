@@ -92,6 +92,8 @@ dependencies {
     //compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
     compile group: 'org.apache.commons', name: 'commons-text', version: '1.8'
 
+    compile 'org.grails.plugins:mail:3.0.0'
+
     compile "org.grails:grails-logging"
     //compile "org.grails:grails-plugin-i18n"
     compile "org.grails:grails-plugin-services"

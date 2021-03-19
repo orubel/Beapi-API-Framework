@@ -18,7 +18,7 @@ import grails.util.Holders
 import grails.core.GrailsApplication
 import grails.plugin.springsecurity.SpringSecurityService
 import grails.orm.HibernateCriteriaBuilder
-
+import grails.plugins.mail.MailService
 /**
  *
  * @author Owen Rubel
@@ -32,18 +32,21 @@ class IpSecService {
 
 	SpringSecurityService springSecurityService
 
+	MailService mailService
 
     void check(String ip) {
-		String userClass = Holders.grailsApplication.config.getProperty('grails.plugin.springsecurity.userLookup.userIpDomainClassName')
-		
-		String user = Holders.grailsApplication.config.getProperty('grails.plugin.springsecurity.userLookup.userDomainClassName')
+		String userIpClass = grailsApplication.config.getProperty('grails.plugin.springsecurity.userLookup.userIpDomainClassName')
+
+		String user = grailsApplication.config.getProperty('grails.plugin.springsecurity.userLookup.userDomainClassName')
 		if (ip && ip!='unknown') {
 
 			Long id = springSecurityService.principal.id
 			def person = grailsApplication.getClassForName(user).get(id)
-			def personIp = grailsApplication.getClassForName(userClass)
+			def personIp = grailsApplication.getClassForName(userIpClass)
+
 
 			int result = personIp.countByValidAndUser(true, person)
+			println("count:"+result)
 			if(result<=0){
 				//create first entry
 				def newPip = personIp.newInstance()
@@ -72,10 +75,23 @@ class IpSecService {
 						eq("user.id", id)
 					}
 				}
-				if(!results){
+				println(results)
+
+
+				//if(!results){
+
+					mailService.sendMail {
+						to "${person.email}"
+						from "${grailsApplication.config.grails.mail.username}"
+						subject "BeAPI Notification"
+						text 'this is some text'
+					}
+
 					// we need to email user with a confirmation code
 					// can also use a geoIp lookup to show user location of IP
-				}
+				//}
+
+
 			}
 
 		}
