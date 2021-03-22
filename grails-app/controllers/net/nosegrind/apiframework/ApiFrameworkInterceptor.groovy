@@ -59,6 +59,9 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	StatsService statsService
 	IpSecService ipSecService
 
+	// testing
+	ApiTokenStorageService apiTokenStorageService
+
 	boolean apiThrottle
 	String cacheHash
 
@@ -112,6 +115,13 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		ipSecService.check(ip)
 
 
+		// REMOVE OLD TOKENS
+		def tmp = request.getHeader("Authorization")
+		if(tmp) {
+			String[] auth = tmp.split(" ")
+			String token = auth[1]
+			apiTokenStorageService.removeOldTokens(token)
+		}
 		
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
@@ -228,7 +238,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 
 
 				// RETRIEVE CACHED RESULT (only if using get method); DON'T CACHE LISTS
-				if (this.cachedEndpoint?.cachedResult && mthdKey=='GET' && cacheHash !=null && cachedEndpoint['cachedResult'][cacheHash]) {
+				if (mthdKey=='GET' && this.cachedEndpoint?.cachedResult &&  cacheHash !=null && cachedEndpoint['cachedResult'][cacheHash]) {
 						LinkedHashMap cachedResult = this.cachedEndpoint['cachedResult'][cacheHash][this.networkGrp][format] as LinkedHashMap
 						String domain = ((String) controller).capitalize()
 

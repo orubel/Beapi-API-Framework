@@ -88,6 +88,14 @@ class BatchInterceptor extends ApiCommLayer{
 	boolean before(){
 		// println("##### BATCHINTERCEPTOR (BEFORE): ${params.action}")
 
+		// REMOVE OLD TOKENS
+		def tmp = request.getHeader("Authorization")
+		if(tmp) {
+			String[] auth = tmp.split(" ")
+			String token = auth[1]
+			apiTokenStorageService.removeOldTokens(token)
+		}
+
 		format = (request?.format)?request.format.toUpperCase():'JSON'
 		mthdKey = request.method.toUpperCase()
 		mthd = (RequestMethod) RequestMethod[mthdKey]

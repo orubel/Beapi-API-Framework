@@ -1,0 +1,26 @@
+package net.nosegrind.apiframework
+
+class PersonIp{
+
+	static belongsTo = [Person]
+
+	Person user
+	String ip
+	String hash
+	boolean valid=true
+	Date dateCreated
+
+	static constraints = {
+		user blank: false
+		ip blank: false
+		hash blank:false
+		valid blank: false
+	}
+
+	static mapping = {
+		//datasource 'user'
+		cache true
+	}
+
+}
+

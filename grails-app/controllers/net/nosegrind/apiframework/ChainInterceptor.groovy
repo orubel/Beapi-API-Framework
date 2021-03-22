@@ -86,6 +86,14 @@ class ChainInterceptor extends ApiCommLayer implements grails.api.framework.Requ
 	boolean before() {
 		//println('##### CHAININTERCEPTOR (BEFORE)')
 
+		// REMOVE OLD TOKENS
+		def tmp = request.getHeader("Authorization")
+		if(tmp) {
+			String[] auth = tmp.split(" ")
+			String token = auth[1]
+			apiTokenStorageService.removeOldTokens(token)
+		}
+
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
 		//println(filterChain)

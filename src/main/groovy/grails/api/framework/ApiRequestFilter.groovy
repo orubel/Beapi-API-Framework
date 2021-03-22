@@ -69,6 +69,9 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 
+import grails.orm.HibernateCriteriaBuilder
+import grails.core.GrailsDomainClass
+import org.grails.core.artefact.DomainClassArtefactHandler
 
 /**
  * Filter for validation of token send through the request.
@@ -141,15 +144,16 @@ class ApiRequestFilter extends GenericFilterBean {
             try {
                 accessToken = tokenReader.findToken(httpRequest)
                 if (accessToken) {
-                    log.debug "Token found: ${accessToken.accessToken}"
                     accessToken = restAuthenticationProvider.authenticate(accessToken) as AccessToken
                     if (accessToken.authenticated) {
+
+
                         //log.debug "Token authenticated. Storing the authentication result in the security context"
                         //log.debug "Authentication result: ${accessToken}"
                         SecurityContextHolder.context.setAuthentication(accessToken)
                         processFilterChain(httpRequest, httpResponse, chain, accessToken)
                     } else {
-                        log.debug('not authenticated')
+                        log.debug('token not authenticated')
                         httpResponse.setContentType("application/json")
                         httpResponse.setStatus(401)
                         httpResponse.getWriter().write('Token Unauthenticated. Uauthorized Access.')
@@ -489,7 +493,33 @@ class ApiRequestFilter extends GenericFilterBean {
     }
 
     @CompileDynamic
-    private void processFilterChain(HttpServletRequest request, HttpServletResponse response, FilterChain chain, AccessToken authenticationResult) {
+    private void processFilterChain(HttpServletRequest request, HttpServletResponse response, FilterChain chain, AccessToken authResult) {
+
+/*
+String at = authResult.accessToken
+String username = authResult.principal.username
+println("Token found: ${at}/${username}")
+
+// TODO : REMOVE EXTRAS FROM DB
+// if older than 7 days, delete and force relogin
+
+String tokenClass = grailsApplication.config.getProperty('grails.plugin.springsecurity.rest.token.storage.gorm.tokenDomainClassName')
+
+GrailsDomainClass authToken = (GrailsDomainClass) Holders.grailsApplication.getArtefact(DomainClassArtefactHandler.TYPE, tokenClass)
+String className = authToken.getShortName()
+def tokenList = authToken.executeQuery("select distinct id from "+className+" where valid=true and user.username=? and tokenValue<>?",[true,username,at])
+tokenList*.delete(flush:true)
+
+*/
+
+
+
+
+
+
+
+
+
         String actualUri = request.requestURI - request.contextPath
         String contentType = request.getContentType()
 

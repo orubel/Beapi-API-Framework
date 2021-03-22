@@ -7,6 +7,7 @@ class AuthenticationToken implements Serializable{
 
     String tokenValue
     String username
+    Date dateCreated
 
     static mapping = {
         cache true

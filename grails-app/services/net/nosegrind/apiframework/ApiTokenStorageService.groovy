@@ -14,7 +14,6 @@
 package net.nosegrind.apiframework
 
 
-
 import grails.plugin.springsecurity.rest.JwtService
 import grails.plugin.springsecurity.rest.token.storage.TokenNotFoundException
 import grails.plugin.springsecurity.rest.token.storage.TokenStorageService
@@ -24,6 +23,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.userdetails.User
 import org.springframework.security.core.userdetails.UserDetails
 import grails.plugin.springsecurity.SpringSecurityUtils
+import grails.plugin.springsecurity.SpringSecurityService
 import grails.core.GrailsApplication
 import grails.util.Holders
 import java.text.ParseException
@@ -39,6 +39,8 @@ class ApiTokenStorageService implements TokenStorageService {
      * Application Class
      */
     GrailsApplication grailsApplication
+
+    SpringSecurityService springSecurityService
 
     /**
      * Constructor
@@ -114,7 +116,36 @@ class ApiTokenStorageService implements TokenStorageService {
         } else {
             throw new TokenNotFoundException("Token ${tokenValue} not found")
         }
+    }
 
+
+    /**
+     * Stores tokenValue associated with loggedIn user. Removes token upon logging out
+     * @see grails.plugin.springsecurity.rest.RestLogoutFilter
+     * @param tokenValue
+     * @return
+     */
+    void removeOldTokens(String existingToken) throws TokenNotFoundException {
+        String username = springSecurityService.principal.username
+        //log.debug "Removing old tokens ${tokenValue} from GORM"
+        def conf = SpringSecurityUtils.securityConfig
+        String tokenClassName = conf.rest.token.storage.gorm.tokenDomainClassName
+        //String tokenValuePropertyName = conf.rest.token.storage.gorm.tokenValuePropertyName
+        def domainClass = grailsApplication.getClassForName(tokenClassName)
+
+        //TODO check at startup, not here
+        if (!domainClass) {
+            throw new IllegalArgumentException("The specified token domain class '$tokenClassName' is not a domain class")
+        }
+        if (existingToken) {
+            def tokens = []
+            domainClass.withTransaction() { status ->
+                tokens = domainClass.findAllByTokenValueNotEqualAndUsername(existingToken, username)
+            }
+            tokens*.delete(flush:true)
+        } else {
+            throw new TokenNotFoundException("Token ${tokenValue} not found")
+        }
     }
 
     private findExistingToken(String tokenValue) {
