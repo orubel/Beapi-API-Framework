@@ -95,6 +95,7 @@ class ApiTokenStorageService implements TokenStorageService {
             def newTokenObject = domainClass.newInstance((tokenValuePropertyName): tokenValue, (usernamePropertyName): principal.username)
             newTokenObject.save()
         }
+        removeToken(tokenValue)
     }
 
     /**

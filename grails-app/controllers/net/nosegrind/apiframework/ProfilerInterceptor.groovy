@@ -77,13 +77,6 @@ class ProfilerInterceptor extends ProfilerCommLayer{
 	boolean before(){
 		// println("##### PROFILERINTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
 
-		// REMOVE OLD TOKENS
-		def tmp = request.getHeader("Authorization")
-		if(tmp) {
-			String[] auth = tmp.split(" ")
-			String token = auth[1]
-			apiTokenStorageService.removeOldTokens(token)
-		}
 
 		traceService.startTrace('ProfilerInterceptor','before')
 

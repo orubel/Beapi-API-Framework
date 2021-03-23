@@ -59,9 +59,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	StatsService statsService
 	IpSecService ipSecService
 
-	// testing
-	ApiTokenStorageService apiTokenStorageService
-
 	boolean apiThrottle
 	String cacheHash
 
@@ -115,13 +112,6 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		ipSecService.check(ip)
 
 
-		// REMOVE OLD TOKENS
-		def tmp = request.getHeader("Authorization")
-		if(tmp) {
-			String[] auth = tmp.split(" ")
-			String token = auth[1]
-			apiTokenStorageService.removeOldTokens(token)
-		}
 		
 		// TESTING: SHOW ALL FILTERS IN CHAIN
 		//def filterChain = grailsApplication.mainContext.getBean('springSecurityFilterChain')
