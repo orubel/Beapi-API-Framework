@@ -13,21 +13,23 @@ buildscript {
         mavenCentral()
         maven { url "https://repo.grails.org/grails/core" }
         maven { url "${System.getProperty('user.home')}/.m2/repository" }
-        jcenter {
-            url "http://jcenter.bintray.com/"
-        }
+        //jcenter {
+        //    url "http://jcenter.bintray.com/"
+        //}
     }
     dependencies {
         classpath group: 'org.codehaus.gpars', name: 'gpars', version: '1.2.1'
         classpath "org.grails:grails-gradle-plugin:$grailsVersion"
         classpath "org.grails.plugins:hibernate5:${gormVersion-".RELEASE"}"
-        classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
+        //classpath 'com.jfrog.bintray.gradle:gradle-bintray-plugin:1.7.3'
     }
 }
 
 plugins {
     id "io.spring.dependency-management" version "0.6.0.RELEASE"
-    id "com.jfrog.bintray" version "1.2"
+    //id "com.jfrog.bintray" version "1.2"
+    id 'maven-publish'
+    id 'signing'
 }
 
 def appVersion = project.buildVersion
@@ -36,9 +38,24 @@ version = "${appVersion}.${patch}"
 group "org.grails.plugins"
 
 
+publishing {
+    publications {
+        maven(MavenPublication) {
+            groupId = 'org.grails.plugins'
+            artifactId = 'apiframework'
+            version = "${appVersion}.${patch}"
+
+            //from components.java
+        }
+    }
+}
+
+
+
+
 apply plugin: "maven-publish"
 apply plugin: "org.springframework.boot"
-apply plugin: "com.jfrog.bintray"
+//apply plugin: "com.jfrog.bintray"
 
 // Used for publishing to central repository, remove if not needed
 apply plugin: "org.grails.grails-plugin-publish"
@@ -47,14 +64,17 @@ apply plugin: "org.grails.grails-doc"
 
 
 grailsPublish {
-    user = System.getenv('BINTRAY_USER')
-    key = System.getenv('BINTRAY_KEY')
+    //user = System.getenv('BINTRAY_USER')
+    //key = System.getenv('BINTRAY_KEY')
     githubSlug = 'orubel/Beapi-API-Framework'
     license { name = 'MPL-2.0' }
     title = "BeAPI API Framework"
     desc = "BeAPI API Framework is a fully reactive plug-n-play API Framework for Distributed Architectures providing api abstraction, cached IO state, automated batching and more. It is meant to autmoate alot of the issues behind setting up and maintaining API's in distributed architectures as well as handling and simplifying automation."
     developers = [orubel:"Owen Rubel"]
 }
+
+
+
 
 //ext {
 //    grailsVersion = project.grailsVersion
@@ -70,9 +90,9 @@ repositories {
     mavenCentral()
     maven { url "https://repo.grails.org/grails/core" }
     maven { url "${System.getProperty('user.home')}/.m2/repository" }
-    jcenter {
-        url "http://jcenter.bintray.com/"
-    }
+    //jcenter {
+    //    url "http://jcenter.bintray.com/"
+    //}
 }
 
 //dependencyManagement {
@@ -92,6 +112,8 @@ dependencies {
     //compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.0'
     compile group: 'org.apache.commons', name: 'commons-text', version: '1.8'
 
+
+    // TODO: FORK??
     compile 'org.grails.plugins:mail:3.0.0'
 
     compile "org.grails:grails-logging"
@@ -118,15 +140,16 @@ dependencies {
     compile('org.pac4j:pac4j-oauth')
     compile('org.pac4j:pac4j-cas')
 
-
     compile('org.grails.plugins:spring-security-core:3.2.0.M1') {
         exclude(module: 'org.springframework.security:spring-security-core:4.1.0.RELEASE')
         exclude(module: 'org.springframework.security:spring-security-web:4.1.0.RELEASE')
         exclude(module: 'org.springframework.security:spring-security-web')
         exclude(module: 'org.grails.plugins:cors')
     }
+
     compile group: 'com.google.guava', name: 'guava', version: '14.0'
 
+    // TODO : FORK??
     compile('org.grails.plugins:spring-security-rest:2.0.0.M2') {
         exclude(module: 'com.google.guava:guava-io')
         exclude(module: 'org.springframework.security:spring-security-web')
@@ -147,7 +170,6 @@ dependencies {
 
     // UNCOMMENT NOSQL DB AS NEEDED FOR LIBRARIES
     //compile 'org.grails.plugins:mongodb:5.0.2'
-
 
     compile 'org.codehaus.gpars:gpars:1.2.1', {
         exclude group:'org.multiverse', module:'multiverse-core'

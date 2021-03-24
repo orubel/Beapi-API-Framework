@@ -108,8 +108,11 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 		//println("##### INTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
 
 		// IPSEC BLOCK
+		/*
 		String ip = getClientIp()
 		ipSecService.check(ip)
+		
+		 */
 
 
 		
