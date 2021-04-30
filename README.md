@@ -7,6 +7,8 @@
 # [About the Bintray Shutdown](https://blog.gradle.org/jcenter-shutdown)
 Bintray is shutting down but they have stated that they will maintain all repos (at least until 2022). BeAPI has always been able to work as a local repo from your '/lib' directory )see 'flatDir' in the build.gradle file) so if you are worried, download the JAR and load into your '/lib' dir in your project.
 
+We are continuing to maintain the project and will even past the Grails 3.0 deprecation date; we are porting everything to spring-boot and will have a MUCH FASTER and LEANER build by the end of the year.
+
 [ ![Download](https://api.bintray.com/packages/orubel/plugins/api-framework/images/download.svg?version=2.0.40) ](https://bintray.com/orubel/plugins/api-framework/2.0.40/link)
 
 ## Benchmarks : [view](https://github.com/orubel/logos/blob/master/bench.png)
