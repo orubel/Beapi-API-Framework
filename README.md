@@ -4,8 +4,8 @@
 ## The #1 API Project for Grails & Springboot: [view](https://libraries.io/repos/search?keywords=api&language=Groovy&q=api&sort=rank)
 # Springboot / Grails API Plugin | [BeApi(tm) Api Framework]( https://www.beapi.io/ )
 [:heart: Sponsor on GitHub](https://github.com/sponsors/orubel)
-# About the Bintray shuitdown
-Bintray is shutting down but they have stated that they will maintain all repos (at least until 2022). BeAPI has always been able to work as a local repo from your '/lib' directory so if you are worried, download the and load into your '/lib' dir in your project.
+# [About the Bintray Shutdown](https://blog.gradle.org/jcenter-shutdown)
+Bintray is shutting down but they have stated that they will maintain all repos (at least until 2022). BeAPI has always been able to work as a local repo from your '/lib' directory )see 'flatDir' in the build.gradle file) so if you are worried, download the JAR and load into your '/lib' dir in your project.
 
 [ ![Download](https://api.bintray.com/packages/orubel/plugins/api-framework/images/download.svg?version=2.0.40) ](https://bintray.com/orubel/plugins/api-framework/2.0.40/link)
 
