@@ -3,8 +3,11 @@
 
 ## The #1 API Project for Grails & Springboot: [view](https://libraries.io/repos/search?keywords=api&language=Groovy&q=api&sort=rank)
 # Springboot / Grails API Plugin | [BeApi(tm) Api Framework]( https://www.beapi.io/ )
-
 [:heart: Sponsor on GitHub](https://github.com/sponsors/orubel)
+# [About the Bintray Shutdown](https://blog.gradle.org/jcenter-shutdown)
+Bintray is shutting down but they have stated that they will maintain all repos (at least until 2022). BeAPI has always been able to work as a local repo from your '/lib' directory )see 'flatDir' in the build.gradle file) so if you are worried, download the JAR and load into your '/lib' dir in your project.
+
+We are continuing to maintain the project and will even past the Grails 3.0 deprecation date; we are porting everything to spring-boot and will have a MUCH FASTER and LEANER build by the end of the year.
 
 [ ![Download](https://api.bintray.com/packages/orubel/plugins/api-framework/images/download.svg?version=2.0.40) ](https://bintray.com/orubel/plugins/api-framework/2.0.40/link)
 
@@ -17,6 +20,8 @@
 ## Documentation - http://orubel.github.io/Beapi-API-Framework/
 ## Forums - http://beapi.freeforums.net/
 ## New App Installation
+# NOTE: The Bintray outage has taken down the profiles below and I will be moving them to maven over the weekend. Please be patient.
+
 Install Grails 3.X normally then edit your 'USER_HOME/.grails/settings.groovy' file to look like the following:
 ```
 
