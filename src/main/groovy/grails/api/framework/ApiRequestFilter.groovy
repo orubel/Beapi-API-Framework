@@ -512,14 +512,6 @@ tokenList*.delete(flush:true)
 
 */
 
-
-
-
-
-
-
-
-
         String actualUri = request.requestURI - request.contextPath
         String contentType = request.getContentType()
 

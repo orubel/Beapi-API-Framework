@@ -136,9 +136,12 @@ dependencies {
     provided 'com.google.guava:guava:23.6-jre'
     provided 'org.apache.httpcomponents:httpcore:4.4.8'
 
-    compile('org.pac4j:pac4j-core')
-    compile('org.pac4j:pac4j-oauth')
-    compile('org.pac4j:pac4j-cas')
+    //compile('org.pac4j:pac4j-core')
+    compile "org.pac4j:pac4j-core:1.8.8"
+    compile "org.pac4j:pac4j-oauth:1.8.8"
+    compile "org.pac4j:pac4j-cas:1.8.8"
+
+
 
     compile('org.grails.plugins:spring-security-core:3.2.0.M1') {
         exclude(module: 'org.springframework.security:spring-security-core:4.1.0.RELEASE')

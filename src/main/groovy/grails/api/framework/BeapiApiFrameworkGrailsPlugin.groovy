@@ -61,6 +61,8 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
     ]
     def profiles = ['web']
 
+
+    // closure to register spring beans
     Closure doWithSpring() { { ->
 
         try{
@@ -118,6 +120,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         }
     } }
 
+    // invoked once applicationContext is available to set dynamic methods
     def doWithDynamicMethods = { applicationContext ->
         // Configure servlets
         try {
@@ -125,14 +128,11 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
             def servletContext = applicationContext.servletContext
             //def serverInfo = servletContext.getServerInfo()
 
-
             config?.servlets?.each { name, parameters ->
                 ServletRegistration servletRegistration = servletContext.addServlet(name, parameters.className)
                 servletRegistration.addMapping(parameters.mapping)
                 servletRegistration.setAsyncSupported(Boolean.TRUE)
                 servletRegistration.setLoadOnStartup(1)
-
-                // servletRegistration.setInitParameter("org.atmosphere.cpr.asyncSupport", "org.atmosphere.container.JettyServlet30AsyncSupportWithWebSocket")
 
                 def initParams = parameters.initParams
                 if (initParams != "none") {
@@ -146,6 +146,7 @@ class BeapiApiFrameworkGrailsPlugin extends Plugin{
         }
     }
 
+    // invoked once applicationContext is available (and after dynamicMethods)
     void doWithApplicationContext() {
 
         println '####################################################################################################'

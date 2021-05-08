@@ -104,7 +104,7 @@ class ApiFrameworkInterceptor extends ApiCommLayer{
 	 * PreHandler for the HandlerInterceptor
 	 * @return
 	 */
-	boolean before(){
+	boolean before() {
 		//println("##### INTERCEPTOR (BEFORE) - ${params.controller}/${params.action}")
 
 		// IPSEC BLOCK
