@@ -5,7 +5,7 @@
 # Springboot / Grails API Plugin | [BeApi(tm) Api Framework]( https://www.beapi.io/ )
 [:heart: Sponsor on GitHub](https://github.com/sponsors/orubel)
 # [About the Bintray Shutdown](https://blog.gradle.org/jcenter-shutdown)
-Bintray is shutting down but they have stated that they will maintain all repos (at least until 2022). BeAPI has always been able to work as a local repo from your '/lib' directory )see 'flatDir' in the build.gradle file) so if you are worried, download the JAR and load into your '/lib' dir in your project.
+Bintray is shutting down but they have stated that they will maintain all repos (at least until 2022). Some Grails projects have moved and have created a few issues and we are forking and porting them as we speak (expected fix by 5/12).
 
 We are continuing to maintain the project and will even past the Grails 3.0 deprecation date; we are porting everything to spring-boot and will have a MUCH FASTER and LEANER build by the end of the year.
 
