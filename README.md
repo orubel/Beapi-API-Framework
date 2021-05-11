@@ -20,7 +20,6 @@ We are continuing to maintain the project and will even past the Grails 3.0 depr
 ## Documentation - http://orubel.github.io/Beapi-API-Framework/
 ## Forums - http://beapi.freeforums.net/
 ## New App Installation
-# NOTE: The Bintray outage has taken down the profiles below and I will be moving them to maven over the weekend. Please be patient.
 
 Install Grails 3.X normally then edit your 'USER_HOME/.grails/settings.groovy' file to look like the following:
 ```
