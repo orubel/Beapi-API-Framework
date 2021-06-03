@@ -16,6 +16,32 @@ We are continuing to maintain the project and will even past the Grails 3.0 depr
 ## Stable/Latest Profile Version: [2.0.40](https://bintray.com/beta/#/orubel/profiles/beapi-profile/2.0.40?tab=overview)
 [:heart: Sponsor on GitHub](https://github.com/sponsors/orubel)
 
+## Project Cost Evaluation
+───────────────────────────────────────────────────────────────────────────────
+Language                 Files     Lines   Blanks  Comments     Code Complexity
+───────────────────────────────────────────────────────────────────────────────
+HTML                        86     32886     5066      3922    23898          0
+Groovy                      45     10181     1520      2084     6577        933
+Markdown                    10       474      133         0      341          0
+Properties File              5        40        3         2       35          0
+YAML                         4       297       12         4      281          0
+BASH                         2       338       40        44      254         44
+Batch                        2       168       46         0      122         40
+CSS                          2      4612      974         2     3636          0
+Gradle                       2       381       72        61      248          0
+License                      2       228       34         0      194          0
+gitignore                    2        22        0         0       22          0
+───────────────────────────────────────────────────────────────────────────────
+Total                      162     49627     7900      6119    35608       1017
+───────────────────────────────────────────────────────────────────────────────
+Estimated Cost to Develop (organic) $1,150,059
+Estimated Schedule Effort (organic) 14.503999 months
+Estimated People Required (organic) 7.044472
+───────────────────────────────────────────────────────────────────────────────
+Processed 2293189 bytes, 2.293 megabytes (SI)
+───────────────────────────────────────────────────────────────────────────────
+
+
 ***
 ## Documentation - http://orubel.github.io/Beapi-API-Framework/
 ## Forums - http://beapi.freeforums.net/
