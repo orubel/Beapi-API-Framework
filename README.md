@@ -17,6 +17,7 @@ We are continuing to maintain the project and will even past the Grails 3.0 depr
 [:heart: Sponsor on GitHub](https://github.com/sponsors/orubel)
 
 ## Project Cost Evaluation
+```
 ───────────────────────────────────────────────────────────────────────────────
 Language                 Files     Lines   Blanks  Comments     Code Complexity
 ───────────────────────────────────────────────────────────────────────────────
@@ -40,7 +41,7 @@ Estimated People Required (organic) 7.044472
 ───────────────────────────────────────────────────────────────────────────────
 Processed 2293189 bytes, 2.293 megabytes (SI)
 ───────────────────────────────────────────────────────────────────────────────
-
+```
 
 ***
 ## Documentation - http://orubel.github.io/Beapi-API-Framework/
